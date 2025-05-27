@@ -3,19 +3,39 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator } from 'lucide-react';
 
-const OrderSummary = () => {
-  // Mock data - this would come from your state management
-  const orderData = {
-    product: 'Standard Heizöl',
+interface PriceCalculatorData {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
+  };
+  amount: number;
+  postcode: string;
+  basePrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  savings: number;
+}
+
+interface OrderSummaryProps {
+  orderData?: PriceCalculatorData | null;
+}
+
+const OrderSummary = ({ orderData }: OrderSummaryProps) => {
+  // Fallback to mock data if no orderData is provided (for backwards compatibility)
+  const fallbackData = {
+    product: { name: 'Standard Heizöl', price: 0.70 },
     amount: 3000,
-    pricePerLiter: 0.70,
     basePrice: 2100.00,
     deliveryFee: 0,
-    discount: 0,
-    total: 2100.00,
-    deliveryDate: '28.05.2025',
+    savings: 0,
+    totalPrice: 2100.00,
     postcode: '12345'
   };
+
+  const data = orderData || fallbackData;
+  const finalPrice = data.totalPrice - data.savings;
 
   return (
     <div className="space-y-6">
@@ -39,36 +59,43 @@ const OrderSummary = () => {
         <div className="space-y-4 mb-6">
           <div className="flex justify-between">
             <span className="text-gray-600">Produkt</span>
-            <span className="font-semibold">{orderData.product}</span>
+            <span className="font-semibold">{data.product.name}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-600">Menge</span>
-            <span className="font-semibold">{orderData.amount.toLocaleString('de-DE')} Liter</span>
+            <span className="font-semibold">{data.amount.toLocaleString('de-DE')} Liter</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-600">Preis pro Liter</span>
-            <span className="font-semibold">{orderData.pricePerLiter.toFixed(2)}€</span>
+            <span className="font-semibold">{data.product.price.toFixed(2)}€</span>
           </div>
           
           <hr className="border-gray-200" />
           
           <div className="flex justify-between">
             <span className="text-gray-600">Grundpreis</span>
-            <span className="font-semibold">{orderData.basePrice.toFixed(2)}€</span>
+            <span className="font-semibold">{data.basePrice.toFixed(2)}€</span>
           </div>
           
           <div className="flex justify-between text-green-600">
             <span>Lieferung</span>
-            <span className="font-semibold">Kostenlos</span>
+            <span className="font-semibold">{data.deliveryFee === 0 ? 'Kostenlos' : `${data.deliveryFee.toFixed(2)}€`}</span>
           </div>
+          
+          {data.savings > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Mengenrabatt</span>
+              <span className="font-semibold">-{data.savings.toFixed(2)}€</span>
+            </div>
+          )}
           
           <hr className="border-gray-200" />
           
           <div className="flex justify-between text-xl font-bold">
             <span>Gesamtpreis</span>
-            <span className="text-red-600">{orderData.total.toFixed(2)}€</span>
+            <span className="text-red-600">{finalPrice.toFixed(2)}€</span>
           </div>
         </div>
 
@@ -78,7 +105,7 @@ const OrderSummary = () => {
             <Clock className="text-blue-600 mr-2" size={18} />
             <span className="font-semibold text-gray-900">Liefertermin</span>
           </div>
-          <p className="text-gray-700 font-semibold">{orderData.deliveryDate}</p>
+          <p className="text-gray-700 font-semibold">28.05.2025</p>
           <p className="text-sm text-gray-600">Zwischen 7:00 - 17:00 Uhr</p>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,13 +41,73 @@ const orderSchema = z.object({
 
 type OrderFormData = z.infer<typeof orderSchema>;
 
+interface PriceCalculatorData {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
+  };
+  amount: number;
+  postcode: string;
+  basePrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  savings: number;
+}
+
 const OrderForm = () => {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setOrderData } = useOrder();
+  const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
+  const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Load order data from localStorage on component mount
+  useEffect(() => {
+    const storedOrderData = localStorage.getItem('orderData');
+    console.log('Stored order data:', storedOrderData);
+    
+    if (!storedOrderData) {
+      console.log('No order data found in localStorage, redirecting to calculator');
+      toast({
+        title: 'Keine Bestelldaten gefunden',
+        description: 'Bitte führen Sie zuerst eine Preisberechnung durch.',
+        variant: 'destructive',
+      });
+      navigate('/');
+      return;
+    }
+
+    try {
+      const parsedData = JSON.parse(storedOrderData) as PriceCalculatorData;
+      console.log('Parsed order data:', parsedData);
+      
+      // Validate that required fields exist
+      if (!parsedData.product || !parsedData.amount || !parsedData.basePrice) {
+        console.log('Invalid order data structure, redirecting to calculator');
+        toast({
+          title: 'Ungültige Bestelldaten',
+          description: 'Bitte führen Sie eine neue Preisberechnung durch.',
+          variant: 'destructive',
+        });
+        navigate('/');
+        return;
+      }
+      
+      setOrderData(parsedData);
+    } catch (error) {
+      console.error('Error parsing order data:', error);
+      toast({
+        title: 'Fehler beim Laden der Bestelldaten',
+        description: 'Bitte führen Sie eine neue Preisberechnung durch.',
+        variant: 'destructive',
+      });
+      navigate('/');
+    }
+  }, [navigate, toast]);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -59,12 +119,26 @@ const OrderForm = () => {
   });
 
   const onSubmit = async (data: OrderFormData) => {
+    if (!orderData) {
+      toast({
+        title: 'Fehler',
+        description: 'Keine Bestelldaten verfügbar. Bitte starten Sie eine neue Bestellung.',
+        variant: 'destructive',
+      });
+      navigate('/');
+      return;
+    }
+
     console.log('Order form submitted:', data);
+    console.log('Using order data:', orderData);
     setIsSubmitting(true);
     
     try {
-      // Create order data for database - order_number and request_id will be auto-generated
-      const orderData = {
+      // Calculate final price with savings
+      const finalPrice = orderData.totalPrice - orderData.savings;
+      
+      // Create order data for database using the calculator data
+      const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
         customer_email: 'kunde@email.de', // Would come from user session in real app
         customer_phone: data.deliveryPhone,
@@ -85,22 +159,22 @@ const OrderForm = () => {
         billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
         
         payment_method: data.paymentMethod,
-        product: 'Standard Heizöl',
-        amount: 3000,
-        liters: 3000,
-        price_per_liter: 0.70,
-        base_price: 2100.00,
-        delivery_fee: 0,
-        discount: 0,
-        total_amount: 2100.00,
+        product: orderData.product.name,
+        amount: orderData.amount,
+        liters: orderData.amount,
+        price_per_liter: orderData.product.price,
+        base_price: orderData.basePrice,
+        delivery_fee: orderData.deliveryFee,
+        discount: orderData.savings,
+        total_amount: finalPrice,
         delivery_date_display: '28.05.2025',
         status: 'pending',
       };
 
-      console.log('Sending order data to database:', orderData);
+      console.log('Sending order data to database:', dbOrderData);
 
       // Create order in database
-      const createdOrder = await createOrder(orderData);
+      const createdOrder = await createOrder(dbOrderData);
       
       // Handle case where order was already processed (duplicate request)
       if (!createdOrder) {
@@ -111,7 +185,7 @@ const OrderForm = () => {
       
       console.log('Order created with order number:', createdOrder.order_number);
       
-      // Set order data for context (for summary page)
+      // Set order data for context (for summary page) using the calculator data
       const contextOrderData = {
         deliveryFirstName: data.deliveryFirstName,
         deliveryLastName: data.deliveryLastName,
@@ -126,18 +200,18 @@ const OrderForm = () => {
         billingPostcode: data.billingPostcode,
         billingCity: data.billingCity,
         paymentMethod: data.paymentMethod,
-        product: 'Standard Heizöl',
-        amount: 3000,
-        pricePerLiter: 0.70,
-        basePrice: 2100.00,
-        deliveryFee: 0,
-        discount: 0,
-        total: 2100.00,
+        product: orderData.product.name,
+        amount: orderData.amount,
+        pricePerLiter: orderData.product.price,
+        basePrice: orderData.basePrice,
+        deliveryFee: orderData.deliveryFee,
+        discount: orderData.savings,
+        total: finalPrice,
         deliveryDate: '28.05.2025',
         orderNumber: createdOrder.order_number,
       };
       
-      setOrderData(contextOrderData);
+      setContextOrderData(contextOrderData);
       navigate('/summary');
     } catch (error) {
       console.error('Error creating order:', error);
@@ -145,6 +219,15 @@ const OrderForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state while order data is being loaded
+  if (!orderData) {
+    return (
+      <div className="flex justify-center items-center min-h-96">
+        <div className="text-lg text-gray-600">Bestelldaten werden geladen...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -219,7 +302,11 @@ const OrderForm = () => {
                     <FormItem>
                       <FormLabel>Postleitzahl *</FormLabel>
                       <FormControl>
-                        <Input placeholder="12345" {...field} />
+                        <Input 
+                          placeholder="12345" 
+                          {...field} 
+                          defaultValue={orderData.postcode || ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -478,7 +565,7 @@ const OrderForm = () => {
 
       {/* Order Summary Sidebar */}
       <div className="lg:col-span-1">
-        <OrderSummary />
+        <OrderSummary orderData={orderData} />
       </div>
     </div>
   );

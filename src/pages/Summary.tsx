@@ -26,9 +26,8 @@ const Summary = () => {
       return;
     }
     
-    // Generate order number and navigate to confirmation
-    const orderNumber = `HÖ${Date.now().toString().slice(-8)}`;
-    navigate('/confirmation', { state: { orderNumber } });
+    // Navigate to confirmation with the existing order number
+    navigate('/confirmation', { state: { orderNumber: orderData.orderNumber } });
   };
 
   return (
@@ -190,9 +189,22 @@ const Summary = () => {
                 </motion.div>
               </div>
 
-              {/* Order Summary Sidebar */}
+              {/* Order Summary Sidebar - Pass the orderData converted to the expected format */}
               <div className="lg:col-span-1">
-                <OrderSummary />
+                <OrderSummary orderData={{
+                  product: {
+                    id: 'standard',
+                    name: orderData.product,
+                    price: orderData.pricePerLiter,
+                    description: 'Qualitäts-Heizöl nach DIN 51603-1'
+                  },
+                  amount: orderData.amount,
+                  postcode: orderData.deliveryPostcode,
+                  basePrice: orderData.basePrice,
+                  deliveryFee: orderData.deliveryFee,
+                  totalPrice: orderData.total,
+                  savings: orderData.discount
+                }} />
               </div>
             </div>
           </motion.div>
