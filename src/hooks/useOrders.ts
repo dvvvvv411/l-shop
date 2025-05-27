@@ -36,25 +36,42 @@ export const useOrders = () => {
     }
   };
 
-  // Create new order
-  const createOrder = async (orderData: Omit<OrderInsert, 'order_number'>) => {
+  // Create new order with request deduplication
+  const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
       console.log('Creating order with data:', orderData);
       
-      // Add a temporary order_number that will be overwritten by the database trigger
-      const orderWithTempNumber: OrderInsert = {
+      // Generate a unique request ID for deduplication
+      const requestId = crypto.randomUUID();
+      
+      // Add order data with request_id and temporary order_number
+      const orderWithMetadata: OrderInsert = {
         ...orderData,
+        request_id: requestId,
         order_number: 'TEMP', // This will be overwritten by the database trigger
       };
 
+      console.log('Inserting order with request_id:', requestId);
+
       const { data, error } = await supabase
         .from('orders')
-        .insert(orderWithTempNumber)
+        .insert(orderWithMetadata)
         .select()
         .single();
 
       if (error) {
         console.error('Supabase error:', error);
+        
+        // Check if it's a duplicate request error
+        if (error.code === '23505' && error.message.includes('orders_request_id_unique')) {
+          console.log('Duplicate request detected, ignoring...');
+          toast({
+            title: 'Information',
+            description: 'Diese Bestellung wurde bereits verarbeitet.',
+          });
+          return null;
+        }
+        
         throw error;
       }
 

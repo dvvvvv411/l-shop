@@ -148,6 +148,7 @@ export type Database = {
           payment_method: string | null
           price_per_liter: number
           product: string | null
+          request_id: string | null
           status: string
           total_amount: number
           updated_at: string
@@ -183,6 +184,7 @@ export type Database = {
           payment_method?: string | null
           price_per_liter: number
           product?: string | null
+          request_id?: string | null
           status?: string
           total_amount: number
           updated_at?: string
@@ -218,6 +220,7 @@ export type Database = {
           payment_method?: string | null
           price_per_liter?: number
           product?: string | null
+          request_id?: string | null
           status?: string
           total_amount?: number
           updated_at?: string
