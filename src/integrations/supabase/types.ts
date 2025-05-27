@@ -42,6 +42,132 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          address: string
+          created_at: string
+          email: string
+          id: string
+          last_order_date: string | null
+          name: string
+          phone: string | null
+          total_orders: number
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          email: string
+          id?: string
+          last_order_date?: string | null
+          name: string
+          phone?: string | null
+          total_orders?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          email?: string
+          id?: string
+          last_order_date?: string | null
+          name?: string
+          phone?: string | null
+          total_orders?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dashboard_stats: {
+        Row: {
+          conversion_rate: number
+          created_at: string
+          date: string
+          id: string
+          new_customers: number
+          total_liters: number
+          total_orders: number
+          total_revenue: number
+          updated_at: string
+        }
+        Insert: {
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          new_customers?: number
+          total_liters?: number
+          total_orders?: number
+          total_revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          new_customers?: number
+          total_liters?: number
+          total_orders?: number
+          total_revenue?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_address: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          delivery_date: string | null
+          id: string
+          liters: number
+          notes: string | null
+          order_number: string
+          price_per_liter: number
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_address: string
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          delivery_date?: string | null
+          id?: string
+          liters: number
+          notes?: string | null
+          order_number: string
+          price_per_liter: number
+          status?: string
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          delivery_date?: string | null
+          id?: string
+          liters?: number
+          notes?: string | null
+          order_number?: string
+          price_per_liter?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
