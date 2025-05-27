@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -28,6 +28,7 @@ const products: Product[] = [
 ];
 
 const PriceCalculator = () => {
+  const navigate = useNavigate();
   const [amount, setAmount] = useState(3000);
   const [postcode, setPostcode] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('standard');
@@ -69,6 +70,23 @@ const PriceCalculator = () => {
   const handleAmountChange = (value: number) => {
     setAmount(value);
     validateAmount(value);
+  };
+
+  const handleOrderClick = () => {
+    if (isFormValid) {
+      // Store order data in localStorage or state management
+      const orderData = {
+        product: currentProduct,
+        amount,
+        postcode,
+        basePrice,
+        deliveryFee,
+        totalPrice,
+        savings
+      };
+      localStorage.setItem('orderData', JSON.stringify(orderData));
+      navigate('/order');
+    }
   };
 
   const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
@@ -284,6 +302,7 @@ const PriceCalculator = () => {
               whileHover={{ scale: isFormValid ? 1.02 : 1 }}
               whileTap={{ scale: isFormValid ? 0.98 : 1 }}
               disabled={!isFormValid}
+              onClick={handleOrderClick}
               className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
                 isFormValid
                   ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
