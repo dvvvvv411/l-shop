@@ -9,7 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bank_accounts: {
+        Row: {
+          account_holder: string
+          bank_name: string
+          bic: string
+          created_at: string
+          iban: string
+          id: string
+          is_default: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_holder: string
+          bank_name: string
+          bic: string
+          created_at?: string
+          iban: string
+          id?: string
+          is_default?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_holder?: string
+          bank_name?: string
+          bic?: string
+          created_at?: string
+          iban?: string
+          id?: string
+          is_default?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

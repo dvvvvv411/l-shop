@@ -26,6 +26,7 @@ import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminOrderDetail from "@/pages/admin/AdminOrderDetail";
 import AdminCustomers from "@/pages/admin/AdminCustomers";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminBankAccounts from "@/pages/admin/AdminBankAccounts";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,16 @@ const App = () => (
                   <ProtectedAdminRoute>
                     <AdminLayout>
                       <AdminCustomers />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/bank-accounts"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminBankAccounts />
                     </AdminLayout>
                   </ProtectedAdminRoute>
                 }

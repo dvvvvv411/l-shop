@@ -10,7 +10,8 @@ import {
   X, 
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CreditCard
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -30,6 +31,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Bestellungen', href: '/admin/orders', icon: Package },
     { name: 'Kunden', href: '/admin/customers', icon: Users },
+    { name: 'Bankkonten', href: '/admin/bank-accounts', icon: CreditCard },
     { name: 'Einstellungen', href: '/admin/settings', icon: Settings },
   ];
 
