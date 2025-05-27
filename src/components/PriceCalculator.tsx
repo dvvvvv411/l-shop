@@ -1,17 +1,85 @@
 
 import React, { useState } from 'react';
-import { Calculator, TrendingDown, Clock } from 'lucide-react';
+import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+import { motion } from 'framer-motion';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+}
+
+const products: Product[] = [
+  {
+    id: 'standard',
+    name: 'Standard Heizöl',
+    price: 0.70,
+    description: 'Qualitäts-Heizöl nach DIN 51603-1'
+  },
+  {
+    id: 'premium',
+    name: 'Premium Heizöl',
+    price: 0.75,
+    description: 'Schwefelarmes Premium-Heizöl mit Additiven'
+  }
+];
 
 const PriceCalculator = () => {
-  const [amount, setAmount] = useState(1000);
+  const [amount, setAmount] = useState(3000);
   const [postcode, setPostcode] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('standard');
+  const [isValidPostcode, setIsValidPostcode] = useState(true);
+  const [isValidAmount, setIsValidAmount] = useState(true);
+
+  // Get selected product
+  const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
   
-  const pricePerLiter = 0.89;
-  const totalPrice = (amount * pricePerLiter).toFixed(2);
-  const savings = (amount * 0.15).toFixed(2);
+  // Calculate prices
+  const basePrice = amount * currentProduct.price;
+  const deliveryFee = amount >= 3000 ? 0 : 25;
+  const totalPrice = basePrice + deliveryFee;
+  const savings = amount >= 5000 ? (amount * 0.02) : 0; // 2% discount for orders >= 5000L
+
+  // Validation functions
+  const validatePostcode = (value: string) => {
+    const isValid = /^\d{5}$/.test(value);
+    setIsValidPostcode(isValid);
+    return isValid;
+  };
+
+  const validateAmount = (value: number) => {
+    const isValid = value >= 1500 && value <= 32000;
+    setIsValidAmount(isValid);
+    return isValid;
+  };
+
+  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    setPostcode(value);
+    if (value.length === 5) {
+      validatePostcode(value);
+    } else {
+      setIsValidPostcode(true); // Don't show error while typing
+    }
+  };
+
+  const handleAmountChange = (value: number) => {
+    setAmount(value);
+    validateAmount(value);
+  };
+
+  const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl mx-auto">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl mx-auto"
+    >
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
           <div className="bg-red-100 p-3 rounded-full">
@@ -22,94 +90,225 @@ const PriceCalculator = () => {
           Heizöl-Preisrechner
         </h2>
         <p className="text-gray-600">
-          Berechnen Sie jetzt Ihren Preis und sparen Sie bis zu 15%
+          Berechnen Sie jetzt Ihren Preis und sparen Sie bis zu 2%
         </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Amount Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Gewünschte Menge (Liter)
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg font-semibold"
-              min="500"
-              max="10000"
-              step="100"
-            />
-            <span className="absolute right-3 top-3 text-gray-500 font-medium">L</span>
-          </div>
-          <div className="mt-2">
-            <input
-              type="range"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              min="500"
-              max="5000"
-              step="100"
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-        </div>
-
-        {/* Postcode Input */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Postleitzahl
-          </label>
-          <input
-            type="text"
-            value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
-            placeholder="z.B. 12345"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-            maxLength={5}
-          />
-        </div>
-
-        {/* Price Display */}
-        <div className="bg-gray-50 rounded-xl p-6">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {pricePerLiter}€
-              </div>
-              <div className="text-sm text-gray-600">pro Liter</div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Inputs */}
+        <div className="space-y-6">
+          {/* PLZ Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Postleitzahl *
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={postcode}
+                onChange={handlePostcodeChange}
+                placeholder="z.B. 12345"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
+                  !isValidPostcode && postcode.length === 5
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300 focus:border-red-500'
+                }`}
+                maxLength={5}
+              />
+              {!isValidPostcode && postcode.length === 5 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute right-3 top-3"
+                >
+                  <AlertCircle className="text-red-500" size={20} />
+                </motion.div>
+              )}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalPrice}€
-              </div>
-              <div className="text-sm text-gray-600">Gesamtpreis</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-center space-x-2 text-green-600 mb-4">
-            <TrendingDown size={20} />
-            <span className="font-semibold">Sie sparen: {savings}€</span>
+            {!isValidPostcode && postcode.length === 5 && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm mt-1"
+              >
+                Bitte geben Sie eine gültige 5-stellige PLZ ein
+              </motion.p>
+            )}
           </div>
 
-          <button className="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors transform hover:scale-105">
-            Jetzt zum Bestpreis bestellen
-          </button>
+          {/* Amount Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Gewünschte Menge: {amount.toLocaleString('de-DE')} Liter
+            </label>
+            <div className="relative mb-4">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => handleAmountChange(Number(e.target.value))}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
+                  !isValidAmount
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300 focus:border-red-500'
+                }`}
+                min="1500"
+                max="32000"
+                step="500"
+              />
+              <span className="absolute right-3 top-3 text-gray-500 font-medium">L</span>
+            </div>
+            <div className="mb-2">
+              <input
+                type="range"
+                value={amount}
+                onChange={(e) => handleAmountChange(Number(e.target.value))}
+                min="1500"
+                max="32000"
+                step="500"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+            </div>
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>1.500L</span>
+              <span>32.000L</span>
+            </div>
+            {!isValidAmount && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm mt-1"
+              >
+                Menge muss zwischen 1.500L und 32.000L liegen
+              </motion.p>
+            )}
+          </div>
+
+          {/* Product Selection */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-4">
+              Produktauswahl
+            </label>
+            <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
+              <div className="space-y-3">
+                {products.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    whileHover={{ scale: 1.02 }}
+                    className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedProduct === product.id
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedProduct(product.id)}
+                  >
+                    <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor={product.id} className="cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-semibold text-gray-900">{product.name}</div>
+                            <div className="text-sm text-gray-600">{product.description}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-red-600">{product.price.toFixed(2)}€</div>
+                            <div className="text-sm text-gray-500">pro Liter</div>
+                          </div>
+                        </div>
+                      </Label>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
         </div>
 
-        {/* Quick Info */}
-        <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">
-          <div className="flex items-center space-x-1">
-            <Clock size={16} />
-            <span>Lieferung in 24-48h</span>
+        {/* Right Column - Price Display */}
+        <div className="space-y-6">
+          <motion.div
+            key={`${amount}-${selectedProduct}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-gray-50 rounded-xl p-6"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Preisübersicht</h3>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Grundpreis ({amount.toLocaleString('de-DE')}L × {currentProduct.price.toFixed(2)}€)</span>
+                <span className="font-semibold">{basePrice.toFixed(2)}€</span>
+              </div>
+              
+              {deliveryFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Lieferung</span>
+                  <span className="font-semibold">{deliveryFee.toFixed(2)}€</span>
+                </div>
+              )}
+              
+              {deliveryFee === 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Kostenlose Lieferung</span>
+                  <span className="font-semibold">0,00€</span>
+                </div>
+              )}
+              
+              {savings > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Mengenrabatt (2%)</span>
+                  <span className="font-semibold">-{savings.toFixed(2)}€</span>
+                </div>
+              )}
+              
+              <hr className="border-gray-300" />
+              
+              <div className="flex justify-between text-xl font-bold">
+                <span>Gesamtpreis</span>
+                <span className="text-red-600">{(totalPrice - savings).toFixed(2)}€</span>
+              </div>
+            </div>
+
+            {savings > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center space-x-2 text-green-600 mb-4"
+              >
+                <TrendingDown size={20} />
+                <span className="font-semibold">Sie sparen: {savings.toFixed(2)}€</span>
+              </motion.div>
+            )}
+
+            <motion.button
+              whileHover={{ scale: isFormValid ? 1.02 : 1 }}
+              whileTap={{ scale: isFormValid ? 0.98 : 1 }}
+              disabled={!isFormValid}
+              className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
+                isFormValid
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {isFormValid ? 'Jetzt zum Bestpreis bestellen' : 'Bitte alle Felder ausfüllen'}
+            </motion.button>
+          </motion.div>
+
+          {/* Additional Info */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <Clock className="text-blue-600 mt-1" size={20} />
+              <div>
+                <h4 className="font-semibold text-blue-900">Schnelle Lieferung</h4>
+                <p className="text-sm text-blue-700">
+                  Lieferung in 24-48 Stunden • Kostenlos ab 3.000L • Mengenrabatt ab 5.000L
+                </p>
+              </div>
+            </div>
           </div>
-          <span>•</span>
-          <span>Keine Mindestbestellmenge</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
