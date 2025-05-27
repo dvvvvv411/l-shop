@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -95,7 +94,7 @@ const OrderForm = () => {
         discount: 0,
         total_amount: 2100.00,
         delivery_date_display: '28.05.2025',
-        status: 'Neu',
+        status: 'pending', // Changed from 'Neu' to 'pending' to match database constraint
       };
 
       // Create order in database
