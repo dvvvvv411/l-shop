@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,6 +32,10 @@ const Header = () => {
                 <ShoppingCart size={16} />
                 <span>Warenkorb (0)</span>
               </button>
+              {/* Admin Link - for development */}
+              <Link to="/admin" className="flex items-center space-x-1 hover:text-red-400 transition-colors">
+                <span>Admin</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -145,6 +148,13 @@ const Header = () => {
                   <ShoppingCart size={18} />
                   <span>Warenkorb (0)</span>
                 </button>
+                <Link 
+                  to="/admin" 
+                  className="flex items-center space-x-2 text-gray-700 hover:text-red-600 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>Admin</span>
+                </Link>
                 <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold w-full mt-4">
                   Jetzt bestellen
                 </button>
