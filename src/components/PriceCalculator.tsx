@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -74,9 +75,14 @@ const PriceCalculator = () => {
 
   const handleOrderClick = () => {
     if (isFormValid) {
-      // Store order data in localStorage or state management
+      // Store order data in the format that OrderForm expects
       const orderData = {
-        product: currentProduct,
+        product: {
+          id: currentProduct.id,
+          name: currentProduct.name,
+          price: currentProduct.price,
+          description: currentProduct.description
+        },
         amount,
         postcode,
         basePrice,

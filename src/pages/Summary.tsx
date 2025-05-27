@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -189,13 +188,13 @@ const Summary = () => {
                 </motion.div>
               </div>
 
-              {/* Order Summary Sidebar - Pass the orderData converted to the expected format */}
+              {/* Order Summary Sidebar - Use orderData directly from context */}
               <div className="lg:col-span-1">
                 <OrderSummary orderData={{
                   product: {
                     id: 'standard',
                     name: orderData.product,
-                    price: orderData.pricePerLiter,
+                    price: orderData.pricePerLiter, // Now this property exists
                     description: 'Qualitäts-Heizöl nach DIN 51603-1'
                   },
                   amount: orderData.amount,
