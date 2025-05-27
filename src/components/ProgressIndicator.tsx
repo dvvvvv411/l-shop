@@ -11,7 +11,8 @@ const ProgressIndicator = ({ currentStep }: ProgressIndicatorProps) => {
   const steps = [
     { id: 1, title: 'Produktauswahl', description: 'Heizöl konfigurieren' },
     { id: 2, title: 'Bestellung', description: 'Adresse & Zahlung' },
-    { id: 3, title: 'Bestätigung', description: 'Bestellung abschließen' }
+    { id: 3, title: 'Zusammenfassung', description: 'Daten prüfen' },
+    { id: 4, title: 'Bestätigung', description: 'Bestellung abgeschlossen' }
   ];
 
   return (

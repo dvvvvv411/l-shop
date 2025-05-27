@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 import { CreditCard, Truck, Clock, Shield } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useOrder } from '@/contexts/OrderContext';
 import OrderSummary from '@/components/OrderSummary';
 
 const orderSchema = z.object({
@@ -40,6 +41,8 @@ type OrderFormData = z.infer<typeof orderSchema>;
 
 const OrderForm = () => {
   const [useSameAddress, setUseSameAddress] = useState(true);
+  const { setOrderData } = useOrder();
+  const navigate = useNavigate();
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -51,8 +54,23 @@ const OrderForm = () => {
   });
 
   const onSubmit = (data: OrderFormData) => {
-    console.log('Order submitted:', data);
-    // Here you would typically send the data to your backend
+    console.log('Order form submitted:', data);
+    
+    // Mock order data - in a real app this would come from product selection
+    const orderData = {
+      ...data,
+      product: 'Standard Heizöl',
+      amount: 3000,
+      pricePerLiter: 0.70,
+      basePrice: 2100.00,
+      deliveryFee: 0,
+      discount: 0,
+      total: 2100.00,
+      deliveryDate: '28.05.2025',
+    };
+    
+    setOrderData(orderData);
+    navigate('/summary');
   };
 
   return (
@@ -377,7 +395,7 @@ const OrderForm = () => {
                 type="submit"
                 className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg"
               >
-                Kostenpflichtig bestellen
+                Weiter zur Zusammenfassung
               </Button>
             </motion.div>
           </form>
