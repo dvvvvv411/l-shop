@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
-import { useOrders } from '@/hooks/useOrders';
+import { useOrders, OrderInsert } from '@/hooks/useOrders';
 import OrderSummary from '@/components/OrderSummary';
 import { useToast } from '@/hooks/use-toast';
 
@@ -65,7 +65,7 @@ const OrderForm = () => {
     
     try {
       // Create order data for database
-      const orderData = {
+      const orderData: OrderInsert = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
         customer_email: 'kunde@email.de', // Would come from user session in real app
         customer_phone: data.deliveryPhone,

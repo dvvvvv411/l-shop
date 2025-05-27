@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 
 interface StatusBadgeProps {
-  status: 'Neu' | 'Bezahlt' | 'Versandt' | 'Abgeschlossen';
+  status: string;
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {

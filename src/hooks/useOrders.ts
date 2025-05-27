@@ -39,6 +39,39 @@ export interface Order {
   updated_at: string;
 }
 
+// Create a type for order creation that matches Supabase requirements
+export interface OrderInsert {
+  customer_name: string;
+  customer_email: string;
+  customer_address: string;
+  liters: number;
+  price_per_liter: number;
+  total_amount: number;
+  customer_phone?: string;
+  delivery_first_name?: string;
+  delivery_last_name?: string;
+  delivery_street?: string;
+  delivery_postcode?: string;
+  delivery_city?: string;
+  delivery_phone?: string;
+  use_same_address?: boolean;
+  billing_first_name?: string;
+  billing_last_name?: string;
+  billing_street?: string;
+  billing_postcode?: string;
+  billing_city?: string;
+  payment_method?: string;
+  product?: string;
+  amount?: number;
+  base_price?: number;
+  delivery_fee?: number;
+  discount?: number;
+  delivery_date?: string;
+  delivery_date_display?: string;
+  status?: string;
+  notes?: string;
+}
+
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,11 +100,11 @@ export const useOrders = () => {
   };
 
   // Create new order
-  const createOrder = async (orderData: Partial<Order>) => {
+  const createOrder = async (orderData: OrderInsert) => {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .insert([orderData])
+        .insert(orderData)
         .select()
         .single();
 
