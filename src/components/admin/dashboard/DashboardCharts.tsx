@@ -3,31 +3,47 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useOrders } from '@/hooks/useOrders';
 
 interface DashboardChartsProps {
-  chartData: any[];
-  isLoading: boolean;
+  chartData?: any[];
+  isLoading?: boolean;
 }
 
-const DashboardCharts: React.FC<DashboardChartsProps> = ({ chartData, isLoading }) => {
-  // Process chart data
+const DashboardCharts: React.FC<DashboardChartsProps> = ({ isLoading: propIsLoading }) => {
+  const { orders, isLoading: ordersLoading } = useOrders();
+  
+  const isLoading = propIsLoading || ordersLoading;
+
+  // Process chart data from real orders
   const processedData = React.useMemo(() => {
-    if (!chartData) return [];
+    if (!orders.length) return [];
     
-    const dailyStats = chartData.reduce((acc, order) => {
-      const date = new Date(order.created_at).toLocaleDateString('de-DE');
-      if (!acc[date]) {
-        acc[date] = { date, orders: 0, revenue: 0 };
-      }
-      acc[date].orders += 1;
-      acc[date].revenue += parseFloat(order.total_amount);
-      return acc;
-    }, {});
+    // Get last 7 days of orders
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      last7Days.push(date.toLocaleDateString('de-DE'));
+    }
+
+    const dailyStats = last7Days.map(date => {
+      const dayOrders = orders.filter(order => {
+        const orderDate = new Date(order.created_at).toLocaleDateString('de-DE');
+        return orderDate === date;
+      });
+
+      return {
+        date,
+        orders: dayOrders.length,
+        revenue: dayOrders.reduce((sum, order) => sum + order.total_amount, 0)
+      };
+    });
     
-    return Object.values(dailyStats);
-  }, [chartData]);
+    return dailyStats;
+  }, [orders]);
 
   const chartConfig = {
     orders: {

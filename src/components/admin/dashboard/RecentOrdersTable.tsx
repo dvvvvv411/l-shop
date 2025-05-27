@@ -8,32 +8,29 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Eye, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useOrders } from '@/hooks/useOrders';
 
 interface RecentOrdersTableProps {
-  recentOrders: any[];
-  isLoading: boolean;
+  recentOrders?: any[];
+  isLoading?: boolean;
 }
 
-const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ recentOrders, isLoading }) => {
+const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIsLoading }) => {
+  const { orders, isLoading: ordersLoading } = useOrders();
+  
+  const isLoading = propIsLoading || ordersLoading;
+
+  // Get most recent orders
+  const recentOrders = orders.slice(0, 5);
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'in_progress': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'delivered': return 'bg-green-50 text-green-700 border-green-200';
-      case 'pending': return 'bg-gray-50 text-gray-700 border-gray-200';
-      case 'cancelled': return 'bg-red-50 text-red-700 border-red-200';
+      case 'Bezahlt': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'Versandt': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'Abgeschlossen': return 'bg-green-50 text-green-700 border-green-200';
+      case 'Neu': return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'Storniert': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-gray-50 text-gray-700 border-gray-200';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'Bestätigt';
-      case 'in_progress': return 'In Bearbeitung';
-      case 'delivered': return 'Geliefert';
-      case 'pending': return 'Ausstehend';
-      case 'cancelled': return 'Storniert';
-      default: return status;
     }
   };
 
@@ -66,7 +63,7 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ recentOrders, isL
           <div>
             <CardTitle>Aktuelle Bestellungen</CardTitle>
             <CardDescription>
-              Die neuesten Heizöl-Bestellungen von heute
+              Die neuesten Heizöl-Bestellungen
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" asChild>
@@ -105,14 +102,14 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ recentOrders, isL
                     <span className="font-medium">{order.liters.toLocaleString('de-DE')} L</span>
                   </TableCell>
                   <TableCell className="font-semibold">
-                    €{parseFloat(order.total_amount).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                    €{order.total_amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
                       className={getStatusColor(order.status)}
                     >
-                      {getStatusLabel(order.status)}
+                      {order.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-gray-500">

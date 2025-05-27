@@ -12,7 +12,9 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
+import { useOrders } from '@/hooks/useOrders';
 import OrderSummary from '@/components/OrderSummary';
+import { useToast } from '@/hooks/use-toast';
 
 const orderSchema = z.object({
   // Delivery Address
@@ -42,7 +44,10 @@ type OrderFormData = z.infer<typeof orderSchema>;
 
 const OrderForm = () => {
   const [useSameAddress, setUseSameAddress] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setOrderData } = useOrder();
+  const { createOrder } = useOrders();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const form = useForm<OrderFormData>({
@@ -54,43 +59,81 @@ const OrderForm = () => {
     },
   });
 
-  const onSubmit = (data: OrderFormData) => {
+  const onSubmit = async (data: OrderFormData) => {
     console.log('Order form submitted:', data);
+    setIsSubmitting(true);
     
-    // Create order data with proper typing - ensure all required fields are present
-    const orderData = {
-      // Required delivery address fields
-      deliveryFirstName: data.deliveryFirstName,
-      deliveryLastName: data.deliveryLastName,
-      deliveryStreet: data.deliveryStreet,
-      deliveryPostcode: data.deliveryPostcode,
-      deliveryCity: data.deliveryCity,
-      deliveryPhone: data.deliveryPhone,
+    try {
+      // Create order data for database
+      const orderData = {
+        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
+        customer_email: 'kunde@email.de', // Would come from user session in real app
+        customer_phone: data.deliveryPhone,
+        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
+        
+        delivery_first_name: data.deliveryFirstName,
+        delivery_last_name: data.deliveryLastName,
+        delivery_street: data.deliveryStreet,
+        delivery_postcode: data.deliveryPostcode,
+        delivery_city: data.deliveryCity,
+        delivery_phone: data.deliveryPhone,
+        
+        use_same_address: data.useSameAddress,
+        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
+        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
+        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
+        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
+        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
+        
+        payment_method: data.paymentMethod,
+        product: 'Standard Heizöl',
+        amount: 3000,
+        liters: 3000,
+        price_per_liter: 0.70,
+        base_price: 2100.00,
+        delivery_fee: 0,
+        discount: 0,
+        total_amount: 2100.00,
+        delivery_date_display: '28.05.2025',
+        status: 'Neu',
+      };
 
-      // Billing address
-      useSameAddress: data.useSameAddress,
-      billingFirstName: data.billingFirstName,
-      billingLastName: data.billingLastName,
-      billingStreet: data.billingStreet,
-      billingPostcode: data.billingPostcode,
-      billingCity: data.billingCity,
-
-      // Payment
-      paymentMethod: data.paymentMethod,
+      // Create order in database
+      const createdOrder = await createOrder(orderData);
       
-      // Mock order data - in a real app this would come from product selection
-      product: 'Standard Heizöl',
-      amount: 3000,
-      pricePerLiter: 0.70,
-      basePrice: 2100.00,
-      deliveryFee: 0,
-      discount: 0,
-      total: 2100.00,
-      deliveryDate: '28.05.2025',
-    };
-    
-    setOrderData(orderData);
-    navigate('/summary');
+      // Set order data for context (for summary page)
+      const contextOrderData = {
+        deliveryFirstName: data.deliveryFirstName,
+        deliveryLastName: data.deliveryLastName,
+        deliveryStreet: data.deliveryStreet,
+        deliveryPostcode: data.deliveryPostcode,
+        deliveryCity: data.deliveryCity,
+        deliveryPhone: data.deliveryPhone,
+        useSameAddress: data.useSameAddress,
+        billingFirstName: data.billingFirstName,
+        billingLastName: data.billingLastName,
+        billingStreet: data.billingStreet,
+        billingPostcode: data.billingPostcode,
+        billingCity: data.billingCity,
+        paymentMethod: data.paymentMethod,
+        product: 'Standard Heizöl',
+        amount: 3000,
+        pricePerLiter: 0.70,
+        basePrice: 2100.00,
+        deliveryFee: 0,
+        discount: 0,
+        total: 2100.00,
+        deliveryDate: '28.05.2025',
+        orderNumber: createdOrder.order_number,
+      };
+      
+      setOrderData(contextOrderData);
+      navigate('/summary');
+    } catch (error) {
+      console.error('Error creating order:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -413,9 +456,10 @@ const OrderForm = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg"
+                disabled={isSubmitting}
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
               >
-                Weiter zur Zusammenfassung
+                {isSubmitting ? 'Bestellung wird erstellt...' : 'Weiter zur Zusammenfassung'}
               </Button>
             </motion.div>
           </form>

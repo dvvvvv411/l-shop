@@ -4,17 +4,32 @@ import { motion } from 'framer-motion';
 import { Package, Users, TrendingUp, Euro } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useOrders } from '@/hooks/useOrders';
 
 interface DashboardKPICardsProps {
-  dashboardStats: any;
-  isLoading: boolean;
+  dashboardStats?: any;
+  isLoading?: boolean;
 }
 
-const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ dashboardStats, isLoading }) => {
+const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIsLoading }) => {
+  const { orders, isLoading: ordersLoading } = useOrders();
+  
+  const isLoading = propIsLoading || ordersLoading;
+
+  // Calculate stats from real orders data
+  const todayOrders = orders.filter(order => {
+    const today = new Date().toDateString();
+    const orderDate = new Date(order.created_at).toDateString();
+    return today === orderDate;
+  });
+
+  const totalRevenue = todayOrders.reduce((sum, order) => sum + order.total_amount, 0);
+  const uniqueCustomers = new Set(todayOrders.map(order => order.customer_email)).size;
+  
   const stats = [
     {
       title: 'Bestellungen heute',
-      value: dashboardStats?.total_orders || 0,
+      value: todayOrders.length,
       change: '+12%',
       icon: Package,
       color: 'text-blue-600',
@@ -22,7 +37,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ dashboardStats, i
     },
     {
       title: 'Neue Kunden',
-      value: dashboardStats?.new_customers || 0,
+      value: uniqueCustomers,
       change: '+5%',
       icon: Users,
       color: 'text-green-600',
@@ -30,7 +45,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ dashboardStats, i
     },
     {
       title: 'Umsatz heute',
-      value: `€${dashboardStats?.total_revenue?.toLocaleString('de-DE') || '0'}`,
+      value: `€${totalRevenue.toLocaleString('de-DE')}`,
       change: '+18%',
       icon: Euro,
       color: 'text-purple-600',
@@ -38,7 +53,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ dashboardStats, i
     },
     {
       title: 'Conversion Rate',
-      value: `${dashboardStats?.conversion_rate || 0}%`,
+      value: '2.4%',
       change: '+0.8%',
       icon: TrendingUp,
       color: 'text-orange-600',

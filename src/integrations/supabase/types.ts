@@ -119,52 +119,109 @@ export type Database = {
       }
       orders: {
         Row: {
+          amount: number | null
+          base_price: number | null
+          billing_city: string | null
+          billing_first_name: string | null
+          billing_last_name: string | null
+          billing_postcode: string | null
+          billing_street: string | null
           created_at: string
           customer_address: string
           customer_email: string
           customer_name: string
           customer_phone: string | null
+          delivery_city: string | null
           delivery_date: string | null
+          delivery_date_display: string | null
+          delivery_fee: number | null
+          delivery_first_name: string | null
+          delivery_last_name: string | null
+          delivery_phone: string | null
+          delivery_postcode: string | null
+          delivery_street: string | null
+          discount: number | null
           id: string
           liters: number
           notes: string | null
           order_number: string
+          payment_method: string | null
           price_per_liter: number
+          product: string | null
           status: string
           total_amount: number
           updated_at: string
+          use_same_address: boolean | null
         }
         Insert: {
+          amount?: number | null
+          base_price?: number | null
+          billing_city?: string | null
+          billing_first_name?: string | null
+          billing_last_name?: string | null
+          billing_postcode?: string | null
+          billing_street?: string | null
           created_at?: string
           customer_address: string
           customer_email: string
           customer_name: string
           customer_phone?: string | null
+          delivery_city?: string | null
           delivery_date?: string | null
+          delivery_date_display?: string | null
+          delivery_fee?: number | null
+          delivery_first_name?: string | null
+          delivery_last_name?: string | null
+          delivery_phone?: string | null
+          delivery_postcode?: string | null
+          delivery_street?: string | null
+          discount?: number | null
           id?: string
           liters: number
           notes?: string | null
           order_number: string
+          payment_method?: string | null
           price_per_liter: number
+          product?: string | null
           status?: string
           total_amount: number
           updated_at?: string
+          use_same_address?: boolean | null
         }
         Update: {
+          amount?: number | null
+          base_price?: number | null
+          billing_city?: string | null
+          billing_first_name?: string | null
+          billing_last_name?: string | null
+          billing_postcode?: string | null
+          billing_street?: string | null
           created_at?: string
           customer_address?: string
           customer_email?: string
           customer_name?: string
           customer_phone?: string | null
+          delivery_city?: string | null
           delivery_date?: string | null
+          delivery_date_display?: string | null
+          delivery_fee?: number | null
+          delivery_first_name?: string | null
+          delivery_last_name?: string | null
+          delivery_phone?: string | null
+          delivery_postcode?: string | null
+          delivery_street?: string | null
+          discount?: number | null
           id?: string
           liters?: number
           notes?: string | null
           order_number?: string
+          payment_method?: string | null
           price_per_liter?: number
+          product?: string | null
           status?: string
           total_amount?: number
           updated_at?: string
+          use_same_address?: boolean | null
         }
         Relationships: []
       }
@@ -173,7 +230,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
