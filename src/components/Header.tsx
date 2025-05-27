@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,37 +48,35 @@ const Header = () => {
             transition={{ duration: 0.6 }}
             className="flex items-center"
           >
-            <div className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-2xl">
-              HeizölDirekt
-            </div>
-            <div className="ml-4 hidden md:block">
-              <div className="text-sm text-gray-600">Deutschlands günstigster</div>
-              <div className="text-lg font-semibold text-gray-900">Heizöl-Service</div>
-            </div>
+            <Link to="/" className="flex items-center">
+              <div className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-2xl">
+                HeizölDirekt
+              </div>
+              <div className="ml-4 hidden md:block">
+                <div className="text-sm text-gray-600">Deutschlands günstigster</div>
+                <div className="text-lg font-semibold text-gray-900">Heizöl-Service</div>
+              </div>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-8">
-            <a href="#preise" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
-              Preise & Rechner
+            <Link to="/produkte" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
+              Produkte
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-            </a>
-            <a href="#produkte" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
-              Produktvergleich
+            </Link>
+            <Link to="/liefergebiet" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
+              Liefergebiete
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
             <a href="#service" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
               Service & Qualität
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
             </a>
-            <a href="#liefergebiete" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
-              Liefergebiete
+            <Link to="/kontakt" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
+              Kontakt
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-            </a>
-            <a href="#kontakt" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
-              Kontakt & Support
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
           </nav>
 
           {/* CTA Button */}
@@ -109,21 +108,30 @@ const Header = () => {
             className="lg:hidden mt-6 pb-6 border-t border-gray-200 pt-6"
           >
             <nav className="flex flex-col space-y-4">
-              <a href="#preise" className="text-gray-700 hover:text-red-600 font-medium py-2">
-                Preise & Rechner
-              </a>
-              <a href="#produkte" className="text-gray-700 hover:text-red-600 font-medium py-2">
-                Produktvergleich
-              </a>
+              <Link 
+                to="/produkte" 
+                className="text-gray-700 hover:text-red-600 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Produkte
+              </Link>
+              <Link 
+                to="/liefergebiet" 
+                className="text-gray-700 hover:text-red-600 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Liefergebiete
+              </Link>
               <a href="#service" className="text-gray-700 hover:text-red-600 font-medium py-2">
                 Service & Qualität
               </a>
-              <a href="#liefergebiete" className="text-gray-700 hover:text-red-600 font-medium py-2">
-                Liefergebiete
-              </a>
-              <a href="#kontakt" className="text-gray-700 hover:text-red-600 font-medium py-2">
-                Kontakt & Support
-              </a>
+              <Link 
+                to="/kontakt" 
+                className="text-gray-700 hover:text-red-600 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Kontakt
+              </Link>
               <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200">
                 <button className="flex items-center space-x-2 text-gray-700 hover:text-red-600 py-2">
                   <User size={18} />

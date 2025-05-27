@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -9,9 +10,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xl mb-4 inline-block">
-              HeizölDirekt
-            </div>
+            <Link to="/" className="inline-block">
+              <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xl mb-4">
+                HeizölDirekt
+              </div>
+            </Link>
             <p className="text-gray-300 mb-4">
               Ihr zuverlässiger Partner für günstige Heizöllieferungen seit über 25 Jahren.
             </p>
@@ -28,14 +31,30 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Products & Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Service</h3>
+            <h3 className="text-lg font-semibold mb-4">Produkte & Service</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Preisrechner</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Liefergebiete</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Heizöl-Ratgeber</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Qualitätszertifikate</a></li>
+              <li>
+                <Link to="/produkte" className="text-gray-300 hover:text-white transition-colors">
+                  Heizöl-Produkte
+                </Link>
+              </li>
+              <li>
+                <Link to="/liefergebiet" className="text-gray-300 hover:text-white transition-colors">
+                  Liefergebiete
+                </Link>
+              </li>
+              <li>
+                <a href="#preise" className="text-gray-300 hover:text-white transition-colors">
+                  Preisrechner
+                </a>
+              </li>
+              <li>
+                <a href="#service" className="text-gray-300 hover:text-white transition-colors">
+                  Qualitätszertifikate
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -43,10 +62,26 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Kundenservice</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">FAQ</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Reklamation</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Zahlung & Versand</a></li>
+              <li>
+                <Link to="/kontakt" className="text-gray-300 hover:text-white transition-colors">
+                  Kontakt
+                </Link>
+              </li>
+              <li>
+                <a href="#faq" className="text-gray-300 hover:text-white transition-colors">
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <Link to="/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
+                  Widerrufsrecht
+                </Link>
+              </li>
+              <li>
+                <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  Zahlung & Versand
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -80,15 +115,15 @@ const Footer = () => {
               © 2024 HeizölDirekt GmbH. Alle Rechte vorbehalten.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/impressum" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Impressum
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              </Link>
+              <Link to="/datenschutz" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Datenschutz
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              </Link>
+              <Link to="/agb" className="text-gray-400 hover:text-white text-sm transition-colors">
                 AGB
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -6,6 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { OrderProvider } from "@/contexts/OrderContext";
 import Index from "./pages/Index";
+import Produkte from "./pages/Produkte";
+import Liefergebiet from "./pages/Liefergebiet";
+import Kontakt from "./pages/Kontakt";
+import Impressum from "./pages/Impressum";
+import AGB from "./pages/AGB";
+import Datenschutz from "./pages/Datenschutz";
+import Widerrufsrecht from "./pages/Widerrufsrecht";
 import Order from "./pages/Order";
 import Summary from "./pages/Summary";
 import Confirmation from "./pages/Confirmation";
@@ -22,6 +29,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/produkte" element={<Produkte />} />
+            <Route path="/liefergebiet" element={<Liefergebiet />} />
+            <Route path="/kontakt" element={<Kontakt />} />
+            <Route path="/impressum" element={<Impressum />} />
+            <Route path="/agb" element={<AGB />} />
+            <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
             <Route path="/order" element={<Order />} />
             <Route path="/summary" element={<Summary />} />
             <Route path="/confirmation" element={<Confirmation />} />
