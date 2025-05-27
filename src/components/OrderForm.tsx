@@ -64,7 +64,7 @@ const OrderForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Create order data for database
+      // Create order data for database - omit order_number as it's auto-generated
       const orderData: OrderInsert = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
         customer_email: 'kunde@email.de', // Would come from user session in real app
