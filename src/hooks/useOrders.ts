@@ -2,46 +2,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables } from '@/integrations/supabase/types';
+import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'>;
 
-// Create a type for inserting orders where order_number is optional since it's auto-generated
-export type OrderInsert = {
-  amount?: number | null;
-  base_price?: number | null;
-  billing_city?: string | null;
-  billing_first_name?: string | null;
-  billing_last_name?: string | null;
-  billing_postcode?: string | null;
-  billing_street?: string | null;
-  created_at?: string;
-  customer_address: string;
-  customer_email: string;
-  customer_name: string;
-  customer_phone?: string | null;
-  delivery_city?: string | null;
-  delivery_date?: string | null;
-  delivery_date_display?: string | null;
-  delivery_fee?: number | null;
-  delivery_first_name?: string | null;
-  delivery_last_name?: string | null;
-  delivery_phone?: string | null;
-  delivery_postcode?: string | null;
-  delivery_street?: string | null;
-  discount?: number | null;
-  id?: string;
-  liters: number;
-  notes?: string | null;
-  order_number?: string; // Make this optional since it's auto-generated
-  payment_method?: string | null;
-  price_per_liter: number;
-  product?: string | null;
-  status?: string;
-  total_amount: number;
-  updated_at?: string;
-  use_same_address?: boolean | null;
-};
+// Use the official Supabase insert type
+export type OrderInsert = TablesInsert<'orders'>;
 
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -71,11 +37,17 @@ export const useOrders = () => {
   };
 
   // Create new order
-  const createOrder = async (orderData: OrderInsert) => {
+  const createOrder = async (orderData: Omit<OrderInsert, 'order_number'>) => {
     try {
+      // Add a temporary order_number that will be overwritten by the database trigger
+      const orderWithTempNumber: OrderInsert = {
+        ...orderData,
+        order_number: 'TEMP', // This will be overwritten by the database trigger
+      };
+
       const { data, error } = await supabase
         .from('orders')
-        .insert(orderData)
+        .insert(orderWithTempNumber)
         .select()
         .single();
 

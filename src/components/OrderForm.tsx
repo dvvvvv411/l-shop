@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
-import { useOrders, OrderInsert } from '@/hooks/useOrders';
+import { useOrders } from '@/hooks/useOrders';
 import OrderSummary from '@/components/OrderSummary';
 import { useToast } from '@/hooks/use-toast';
 
@@ -64,8 +64,8 @@ const OrderForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Create order data for database - omit order_number as it's auto-generated
-      const orderData: OrderInsert = {
+      // Create order data for database - order_number will be auto-generated
+      const orderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
         customer_email: 'kunde@email.de', // Would come from user session in real app
         customer_phone: data.deliveryPhone,
