@@ -3,9 +3,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import PriceCalculator from '../components/PriceCalculator';
+import StatsSection from '../components/StatsSection';
+import ProductComparison from '../components/ProductComparison';
+import WhyChooseUs from '../components/WhyChooseUs';
+import HowItWorks from '../components/HowItWorks';
+import FAQ from '../components/FAQ';
+import DeliveryMap from '../components/DeliveryMap';
 import TrustSection from '../components/TrustSection';
 import Footer from '../components/Footer';
-import { Flame, TrendingDown, Shield } from 'lucide-react';
+import { Flame, TrendingDown, Shield, Star } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -13,7 +19,7 @@ const Index = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-50 via-white to-gray-50 py-20">
+      <section className="relative bg-gradient-to-br from-red-50 via-white to-gray-50 py-24">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-32 h-32 bg-red-600 rounded-full blur-3xl"></div>
@@ -22,45 +28,50 @@ const Index = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6"
+              transition={{ duration: 0.8 }}
+              className="mb-8"
             >
-              <div className="inline-flex items-center bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                <Flame size={16} className="mr-2" />
+              <div className="inline-flex items-center bg-red-100 text-red-700 px-6 py-3 rounded-full text-sm font-semibold mb-8">
+                <Flame size={18} className="mr-2" />
                 Deutschlands günstigster Heizöl-Service
+                <Star size={16} className="ml-2 fill-current" />
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
                 Heizöl zum
-                <span className="text-red-600"> Bestpreis</span>
+                <span className="text-red-600 gradient-text"> Bestpreis</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
                 Sparen Sie bis zu <strong className="text-red-600">15% beim Heizöl-Kauf</strong> durch unseren 
-                direkten Einkauf. Schnelle Lieferung, beste Qualität, faire Preise.
+                direkten Einkauf. Schnelle Lieferung in 24-48h, beste Qualität, faire Preise.
               </p>
             </motion.div>
 
-            {/* Trust Badges */}
+            {/* Enhanced Trust Badges */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex justify-center items-center space-x-8 mb-12 text-sm text-gray-600"
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex flex-wrap justify-center items-center gap-8 mb-16 text-sm text-gray-600"
             >
-              <div className="flex items-center space-x-2">
-                <Shield size={16} className="text-green-600" />
-                <span>DIN-zertifiziert</span>
+              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
+                <Shield size={18} className="text-green-600" />
+                <span className="font-semibold">DIN-zertifiziert</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <TrendingDown size={16} className="text-red-600" />
-                <span>Bis zu 15% sparen</span>
+              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
+                <TrendingDown size={18} className="text-red-600" />
+                <span className="font-semibold">Bis zu 15% sparen</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Flame size={16} className="text-orange-600" />
-                <span>Premium Qualität</span>
+              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
+                <Flame size={18} className="text-orange-600" />
+                <span className="font-semibold">Premium Qualität</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
+                <Star size={18} className="text-yellow-600 fill-current" />
+                <span className="font-semibold">25+ Jahre Erfahrung</span>
               </div>
             </motion.div>
           </div>
@@ -69,34 +80,44 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
           >
             <PriceCalculator />
           </motion.div>
 
-          {/* Benefits Bar */}
+          {/* Enhanced Benefits Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
           >
-            <div className="text-center p-4 bg-white rounded-lg shadow-md">
-              <div className="text-2xl font-bold text-red-600 mb-1">24-48h</div>
-              <div className="text-gray-600">Lieferzeit</div>
+            <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-3xl font-bold text-red-600 mb-2">24-48h</div>
+              <div className="text-gray-600 font-medium">Lieferzeit garantiert</div>
+              <div className="text-sm text-gray-500 mt-1">Deutschlandweit</div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-md">
-              <div className="text-2xl font-bold text-red-600 mb-1">0€</div>
-              <div className="text-gray-600">Anfahrtskosten</div>
+            <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-3xl font-bold text-red-600 mb-2">0€</div>
+              <div className="text-gray-600 font-medium">Anfahrtskosten</div>
+              <div className="text-sm text-gray-500 mt-1">Ab 3.000 Liter</div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-md">
-              <div className="text-2xl font-bold text-red-600 mb-1">25+</div>
-              <div className="text-gray-600">Jahre Erfahrung</div>
+            <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+              <div className="text-3xl font-bold text-red-600 mb-2">15.000+</div>
+              <div className="text-gray-600 font-medium">Zufriedene Kunden</div>
+              <div className="text-sm text-gray-500 mt-1">Vertrauen uns</div>
             </div>
           </motion.div>
         </div>
       </section>
 
+      {/* All New Sections */}
+      <StatsSection />
+      <ProductComparison />
+      <WhyChooseUs />
+      <HowItWorks />
+      <FAQ />
+      <DeliveryMap />
       <TrustSection />
       <Footer />
     </div>
