@@ -6,10 +6,8 @@ import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'>;
 
-// Use the official Supabase insert type but make order_number optional
-export type OrderInsert = Omit<TablesInsert<'orders'>, 'order_number'> & {
-  order_number?: string;
-};
+// Use the official Supabase insert type
+export type OrderInsert = TablesInsert<'orders'>;
 
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -39,13 +37,19 @@ export const useOrders = () => {
   };
 
   // Create new order
-  const createOrder = async (orderData: OrderInsert) => {
+  const createOrder = async (orderData: Omit<OrderInsert, 'order_number'>) => {
     try {
       console.log('Creating order with data:', orderData);
       
+      // Add a temporary order_number that will be overwritten by the database trigger
+      const orderWithTempNumber: OrderInsert = {
+        ...orderData,
+        order_number: 'TEMP', // This will be overwritten by the database trigger
+      };
+
       const { data, error } = await supabase
         .from('orders')
-        .insert(orderData)
+        .insert(orderWithTempNumber)
         .select()
         .single();
 
