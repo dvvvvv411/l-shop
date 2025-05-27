@@ -25,12 +25,25 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIs
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Bezahlt': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'Versandt': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'Abgeschlossen': return 'bg-green-50 text-green-700 border-green-200';
-      case 'Neu': return 'bg-gray-50 text-gray-700 border-gray-200';
-      case 'Storniert': return 'bg-red-50 text-red-700 border-red-200';
+      case 'confirmed': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'processing': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'shipped': return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'delivered': return 'bg-green-50 text-green-700 border-green-200';
+      case 'pending': return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'cancelled': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Neu';
+      case 'confirmed': return 'Bestätigt';
+      case 'processing': return 'In Bearbeitung';
+      case 'shipped': return 'Versandt';
+      case 'delivered': return 'Geliefert';
+      case 'cancelled': return 'Storniert';
+      default: return status;
     }
   };
 
@@ -109,7 +122,7 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIs
                       variant="outline" 
                       className={getStatusColor(order.status)}
                     >
-                      {order.status}
+                      {getStatusLabel(order.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-gray-500">

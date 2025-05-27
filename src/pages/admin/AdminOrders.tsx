@@ -71,8 +71,8 @@ const AdminOrders = () => {
     currentPage * ordersPerPage
   );
 
-  // New orders count
-  const newOrdersCount = orders.filter(order => order.status === 'Neu').length;
+  // New orders count (using 'pending' instead of 'Neu')
+  const newOrdersCount = orders.filter(order => order.status === 'pending').length;
 
   const handleSort = (key: keyof Order) => {
     setSortConfig(prev => ({
@@ -101,10 +101,10 @@ const AdminOrders = () => {
     console.log(`Bulk action: ${action} for orders:`, selectedOrders);
     
     if (action === 'mark-paid') {
-      // Update selected orders to "Bezahlt" status
+      // Update selected orders to "confirmed" status (instead of "Bezahlt")
       try {
         await Promise.all(
-          selectedOrders.map(orderId => updateOrderStatus(orderId, 'Bezahlt'))
+          selectedOrders.map(orderId => updateOrderStatus(orderId, 'confirmed'))
         );
         setSelectedOrders([]);
       } catch (error) {
