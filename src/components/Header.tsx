@@ -69,10 +69,10 @@ const Header = () => {
               Liefergebiete
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
             </Link>
-            <a href="#service" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
+            <Link to="/service" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
               Service & Qualität
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-            </a>
+            </Link>
             <Link to="/kontakt" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
               Kontakt
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
@@ -122,9 +122,13 @@ const Header = () => {
               >
                 Liefergebiete
               </Link>
-              <a href="#service" className="text-gray-700 hover:text-red-600 font-medium py-2">
+              <Link 
+                to="/service" 
+                className="text-gray-700 hover:text-red-600 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Service & Qualität
-              </a>
+              </Link>
               <Link 
                 to="/kontakt" 
                 className="text-gray-700 hover:text-red-600 font-medium py-2"

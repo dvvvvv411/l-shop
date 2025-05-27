@@ -8,6 +8,7 @@ import { OrderProvider } from "@/contexts/OrderContext";
 import Index from "./pages/Index";
 import Produkte from "./pages/Produkte";
 import Liefergebiet from "./pages/Liefergebiet";
+import Service from "./pages/Service";
 import Kontakt from "./pages/Kontakt";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/produkte" element={<Produkte />} />
             <Route path="/liefergebiet" element={<Liefergebiet />} />
+            <Route path="/service" element={<Service />} />
             <Route path="/kontakt" element={<Kontakt />} />
             <Route path="/impressum" element={<Impressum />} />
             <Route path="/agb" element={<AGB />} />
