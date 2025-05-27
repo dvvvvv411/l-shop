@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -56,9 +57,28 @@ const OrderForm = () => {
   const onSubmit = (data: OrderFormData) => {
     console.log('Order form submitted:', data);
     
-    // Mock order data - in a real app this would come from product selection
+    // Create order data with proper typing - ensure all required fields are present
     const orderData = {
-      ...data,
+      // Required delivery address fields
+      deliveryFirstName: data.deliveryFirstName,
+      deliveryLastName: data.deliveryLastName,
+      deliveryStreet: data.deliveryStreet,
+      deliveryPostcode: data.deliveryPostcode,
+      deliveryCity: data.deliveryCity,
+      deliveryPhone: data.deliveryPhone,
+
+      // Billing address
+      useSameAddress: data.useSameAddress,
+      billingFirstName: data.billingFirstName,
+      billingLastName: data.billingLastName,
+      billingStreet: data.billingStreet,
+      billingPostcode: data.billingPostcode,
+      billingCity: data.billingCity,
+
+      // Payment
+      paymentMethod: data.paymentMethod,
+      
+      // Mock order data - in a real app this would come from product selection
       product: 'Standard Heizöl',
       amount: 3000,
       pricePerLiter: 0.70,
