@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +23,7 @@ import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminOrders from "@/pages/admin/AdminOrders";
+import AdminOrderDetail from "@/pages/admin/AdminOrderDetail";
 import AdminCustomers from "@/pages/admin/AdminCustomers";
 import AdminSettings from "@/pages/admin/AdminSettings";
 
@@ -66,6 +68,16 @@ const App = () => (
                   <ProtectedAdminRoute>
                     <AdminLayout>
                       <AdminOrders />
+                    </AdminLayout>
+                  </ProtectedAdminRoute>
+                }
+              />
+              <Route
+                path="/admin/orders/:orderId"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout>
+                      <AdminOrderDetail />
                     </AdminLayout>
                   </ProtectedAdminRoute>
                 }

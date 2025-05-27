@@ -1,7 +1,7 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ type SortConfig = {
 };
 
 const AdminOrders = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -273,6 +274,10 @@ const AdminOrders = () => {
       <ArrowDown className="h-4 w-4" />;
   };
 
+  const handleViewOrder = (orderId: string) => {
+    navigate(`/admin/orders/${orderId}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -402,7 +407,7 @@ const AdminOrders = () => {
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={(e) => {
                         if (e.target instanceof HTMLElement && !e.target.closest('input, button')) {
-                          console.log('View order details:', order.id);
+                          handleViewOrder(order.id);
                         }
                       }}
                     >
@@ -438,7 +443,11 @@ const AdminOrders = () => {
                         <StatusBadge status={order.status} />
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleViewOrder(order.id)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
