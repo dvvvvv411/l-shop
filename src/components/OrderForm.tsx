@@ -603,7 +603,7 @@ const OrderForm = () => {
                                     </div>
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    Bald verfügbar
+                                    Nur für Bestandskunden verfügbar
                                   </div>
                                 </div>
                               </Label>
