@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { CreditCard, Truck, Clock, Shield } from 'lucide-react';
+import { CreditCard, Truck, Clock, Shield, TestTube } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,37 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import OrderSummary from '@/components/OrderSummary';
 import { useToast } from '@/hooks/use-toast';
+
+// Test data arrays for random generation
+const testData = {
+  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
+  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
+  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
+  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
+  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109']
+};
+
+const generateRandomTestData = () => {
+  const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
+  const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
+  return {
+    deliveryFirstName: getRandomItem(testData.firstNames),
+    deliveryLastName: getRandomItem(testData.lastNames),
+    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+    deliveryPostcode: getRandomItem(testData.postcodes),
+    deliveryCity: getRandomItem(testData.cities),
+    deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
+    useSameAddress: Math.random() > 0.3, // 70% chance for same address
+    billingFirstName: getRandomItem(testData.firstNames),
+    billingLastName: getRandomItem(testData.lastNames),
+    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+    billingPostcode: getRandomItem(testData.postcodes),
+    billingCity: getRandomItem(testData.cities),
+    paymentMethod: 'vorkasse' as const,
+    acceptTerms: false // Keep false to remind user to check
+  };
+};
 
 const orderSchema = z.object({
   // Delivery Address
@@ -117,6 +148,38 @@ const OrderForm = () => {
       acceptTerms: false,
     },
   });
+
+  const handleGenerateTestData = () => {
+    const testData = generateRandomTestData();
+    
+    // Set form values
+    form.setValue('deliveryFirstName', testData.deliveryFirstName);
+    form.setValue('deliveryLastName', testData.deliveryLastName);
+    form.setValue('deliveryStreet', testData.deliveryStreet);
+    form.setValue('deliveryPostcode', testData.deliveryPostcode);
+    form.setValue('deliveryCity', testData.deliveryCity);
+    form.setValue('deliveryPhone', testData.deliveryPhone);
+    form.setValue('useSameAddress', testData.useSameAddress);
+    form.setValue('paymentMethod', testData.paymentMethod);
+    form.setValue('acceptTerms', testData.acceptTerms);
+    
+    // Update local state
+    setUseSameAddress(testData.useSameAddress);
+    
+    // Set billing address if different
+    if (!testData.useSameAddress) {
+      form.setValue('billingFirstName', testData.billingFirstName);
+      form.setValue('billingLastName', testData.billingLastName);
+      form.setValue('billingStreet', testData.billingStreet);
+      form.setValue('billingPostcode', testData.billingPostcode);
+      form.setValue('billingCity', testData.billingCity);
+    }
+
+    toast({
+      title: 'Testdaten generiert',
+      description: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.',
+    });
+  };
 
   const onSubmit = async (data: OrderFormData) => {
     if (!orderData) {
@@ -233,6 +296,34 @@ const OrderForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Form */}
       <div className="lg:col-span-2">
+        {/* Test Data Generator Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <TestTube className="text-amber-600" size={20} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
+                <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              onClick={handleGenerateTestData}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Testdaten generieren
+            </Button>
+          </div>
+        </motion.div>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Delivery Address */}
