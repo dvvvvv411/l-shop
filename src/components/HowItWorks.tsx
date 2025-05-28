@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, MapPin, Truck, CheckCircle } from 'lucide-react';
@@ -14,20 +13,20 @@ const HowItWorks = () => {
     {
       step: 2,
       icon: MapPin,
-      title: "Liefertermin wählen",
+      title: "Bestellung tätigen",
       description: "Wählen Sie Ihren Wunschtermin aus den verfügbaren Lieferterminen in Ihrer Region."
     },
     {
       step: 3,
-      icon: Truck,
-      title: "Lieferung erhalten",
-      description: "Unser Lieferfahrzeug kommt zum vereinbarten Termin und befüllt Ihren Tank professionell und sauber."
-    },
-    {
-      step: 4,
       icon: CheckCircle,
       title: "Rechnung erhalten",
       description: "Sie erhalten Ihre Rechnung per E-Mail und können bequem per Überweisung oder Lastschrift bezahlen."
+    },
+    {
+      step: 4,
+      icon: Truck,
+      title: "Lieferung erhalten",
+      description: "Unser Lieferfahrzeug kommt zum vereinbarten Termin und befüllt Ihren Tank professionell und sauber."
     }
   ];
 
