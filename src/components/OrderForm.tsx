@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -42,8 +41,7 @@ const generateRandomTestData = () => {
     billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
     billingPostcode: getRandomItem(testData.postcodes),
     billingCity: getRandomItem(testData.cities),
-    paymentMethod: 'vorkasse' as const,
-    acceptTerms: false // Keep false to remind user to check
+    paymentMethod: 'vorkasse' as const
   };
 };
 
@@ -66,9 +64,6 @@ const orderSchema = z.object({
 
   // Payment
   paymentMethod: z.enum(['vorkasse', 'rechnung']),
-  
-  // Terms
-  acceptTerms: z.boolean().refine(val => val === true, 'AGB müssen akzeptiert werden'),
 });
 
 type OrderFormData = z.infer<typeof orderSchema>;
@@ -146,7 +141,6 @@ const OrderForm = () => {
     defaultValues: {
       useSameAddress: true,
       paymentMethod: 'vorkasse',
-      acceptTerms: false,
     },
   });
 
@@ -162,7 +156,6 @@ const OrderForm = () => {
     form.setValue('deliveryPhone', testData.deliveryPhone);
     form.setValue('useSameAddress', testData.useSameAddress);
     form.setValue('paymentMethod', testData.paymentMethod);
-    form.setValue('acceptTerms', testData.acceptTerms);
     
     // Update local state
     setUseSameAddress(testData.useSameAddress);
@@ -627,46 +620,13 @@ const OrderForm = () => {
               </div>
             </motion.div>
 
-            {/* Terms & Submit */}
+            {/* Submit Button */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               className="bg-white rounded-xl p-6 shadow-lg"
             >
-              <FormField
-                control={form.control}
-                name="acceptTerms"
-                render={({ field }) => (
-                  <FormItem className="mb-6">
-                    <div className="flex items-start space-x-3">
-                      <FormControl>
-                        <input
-                          type="checkbox"
-                          checked={field.value}
-                          onChange={field.onChange}
-                          className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1"
-                        />
-                      </FormControl>
-                      <div className="text-sm">
-                        <label className="text-gray-700 cursor-pointer">
-                          Ich akzeptiere die{' '}
-                          <a href="#" className="text-red-600 hover:underline">
-                            Allgemeinen Geschäftsbedingungen
-                          </a>{' '}
-                          und die{' '}
-                          <a href="#" className="text-red-600 hover:underline">
-                            Datenschutzerklärung
-                          </a>
-                          . *
-                        </label>
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <Button
                 type="submit"
                 disabled={isSubmitting}
