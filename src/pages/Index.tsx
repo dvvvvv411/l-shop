@@ -111,7 +111,7 @@ const Index = () => {
               <div className="text-sm text-gray-500 mt-1">Ab 3.000 Liter</div>
             </div>
             <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-3xl font-bold text-red-600 mb-2">15.000+</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">150.000+</div>
               <div className="text-gray-600 font-medium">Zufriedene Kunden</div>
               <div className="text-sm text-gray-500 mt-1">Vertrauen uns</div>
             </div>

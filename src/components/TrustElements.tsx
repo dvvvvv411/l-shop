@@ -7,7 +7,7 @@ const trustElements = [
   {
     icon: Truck,
     title: "Schnelle Lieferung",
-    description: "Zuverlässige Lieferung in 24-48h deutschlandweit",
+    description: "Zuverlässige Lieferung in 4-7 Werktagen deutschlandweit",
     color: "bg-blue-100 text-blue-600",
     delay: 0.1
   },

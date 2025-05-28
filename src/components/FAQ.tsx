@@ -7,7 +7,7 @@ const FAQ = () => {
   const faqs = [
     {
       question: "Wie schnell wird mein Heizöl geliefert?",
-      answer: "In der Regel liefern wir innerhalb von 24-48 Stunden nach Ihrer Bestellung. Bei kurzfristigen Bestellungen am Wochenende kann sich die Lieferung bis zum nächsten Werktag verzögern."
+      answer: "In der Regel liefern wir innerhalb von 4-7 Werktagen nach Ihrer Bestellung. Bei kurzfristigen Bestellungen am Wochenende kann sich die Lieferung bis zum nächsten Werktag verzögern."
     },
     {
       question: "Ab welcher Menge liefern Sie kostenlos?",

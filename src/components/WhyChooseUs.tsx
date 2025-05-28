@@ -13,7 +13,7 @@ const WhyChooseUs = () => {
     {
       icon: Truck,
       title: "Schnelle Lieferung",
-      description: "Lieferung innerhalb von 24-48 Stunden direkt zu Ihnen nach Hause. Kostenlos ab 3.000 Litern Bestellmenge."
+      description: "Lieferung innerhalb von 4-7 Werktagen direkt zu Ihnen nach Hause. Kostenlos ab 3.000 Litern Bestellmenge."
     },
     {
       icon: Shield,

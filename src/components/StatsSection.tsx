@@ -13,7 +13,7 @@ const StatsSection = () => {
     },
     {
       icon: Users,
-      number: "15.000+",
+      number: "150.000+",
       label: "Zufriedene Kunden",
       description: "Vertrauen auf unseren Service"
     },
