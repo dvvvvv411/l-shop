@@ -9,8 +9,6 @@ import ProductComparison from '../components/ProductComparison';
 import WhyChooseUs from '../components/WhyChooseUs';
 import HowItWorks from '../components/HowItWorks';
 import FAQ from '../components/FAQ';
-import DeliveryMap from '../components/DeliveryMap';
-import TrustSection from '../components/TrustSection';
 import Footer from '../components/Footer';
 import { Flame, TrendingDown, Shield, Star } from 'lucide-react';
 
@@ -128,8 +126,6 @@ const Index = () => {
       <WhyChooseUs />
       <HowItWorks />
       <FAQ />
-      <DeliveryMap />
-      <TrustSection />
       <Footer />
     </div>
   );
