@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
@@ -53,7 +54,7 @@ const Index = () => {
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
                 Sparen Sie bis zu <strong className="text-red-600">15% beim Heizöl-Kauf</strong> durch unseren 
-                direkten Einkauf. Schnelle Lieferung in 24-48h, beste Qualität, faire Preise.
+                direkten Einkauf. Schnelle Lieferung in 4-7 Werktagen, beste Qualität, faire Preise.
               </p>
             </motion.div>
 
@@ -100,8 +101,8 @@ const Index = () => {
             className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
           >
             <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-3xl font-bold text-red-600 mb-2">24-48h</div>
-              <div className="text-gray-600 font-medium">Lieferzeit garantiert</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">4-7</div>
+              <div className="text-gray-600 font-medium">Werktage Lieferzeit</div>
               <div className="text-sm text-gray-500 mt-1">Deutschlandweit</div>
             </div>
             <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">

@@ -43,7 +43,6 @@ const PriceCalculator = () => {
   const basePrice = amount * currentProduct.price;
   const deliveryFee = amount >= 3000 ? 0 : 25;
   const totalPrice = basePrice + deliveryFee;
-  const savings = amount >= 5000 ? (amount * 0.02) : 0; // 2% discount for orders >= 5000L
 
   // Validation functions
   const validatePostcode = (value: string) => {
@@ -88,7 +87,7 @@ const PriceCalculator = () => {
         basePrice,
         deliveryFee,
         totalPrice,
-        savings
+        savings: 0
       };
       localStorage.setItem('orderData', JSON.stringify(orderData));
       navigate('/order');
@@ -114,7 +113,7 @@ const PriceCalculator = () => {
           Heizöl-Preisrechner
         </h2>
         <p className="text-gray-600">
-          Berechnen Sie jetzt Ihren Preis und sparen Sie bis zu 2%
+          Berechnen Sie jetzt Ihren Preis und bestellen Sie zum Bestpreis
         </p>
       </div>
 
@@ -278,31 +277,13 @@ const PriceCalculator = () => {
                 </div>
               )}
               
-              {savings > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Mengenrabatt (2%)</span>
-                  <span className="font-semibold">-{savings.toFixed(2)}€</span>
-                </div>
-              )}
-              
               <hr className="border-gray-300" />
               
               <div className="flex justify-between text-xl font-bold">
                 <span>Gesamtpreis</span>
-                <span className="text-red-600">{(totalPrice - savings).toFixed(2)}€</span>
+                <span className="text-red-600">{totalPrice.toFixed(2)}€</span>
               </div>
             </div>
-
-            {savings > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-center space-x-2 text-green-600 mb-4"
-              >
-                <TrendingDown size={20} />
-                <span className="font-semibold">Sie sparen: {savings.toFixed(2)}€</span>
-              </motion.div>
-            )}
 
             <motion.button
               whileHover={{ scale: isFormValid ? 1.02 : 1 }}
@@ -326,7 +307,7 @@ const PriceCalculator = () => {
               <div>
                 <h4 className="font-semibold text-blue-900">Schnelle Lieferung</h4>
                 <p className="text-sm text-blue-700">
-                  Lieferung in 24-48 Stunden • Kostenlos ab 3.000L • Mengenrabatt ab 5.000L
+                  Lieferung in 4-7 Werktagen • Kostenlos ab 3.000L • Faire Preise
                 </p>
               </div>
             </div>

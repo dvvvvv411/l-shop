@@ -86,37 +86,30 @@ const Confirmation = () => {
 
                   <div className="space-y-4">
                     <div className="bg-blue-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-blue-900 mb-3">Bankverbindung für Vorkasse</h4>
+                      <h4 className="font-semibold text-blue-900 mb-3">Nächste Schritte</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-blue-700 font-medium">Empfänger:</span>
-                          <span className="text-blue-900">HeizölDirekt GmbH</span>
+                        <div className="flex items-start space-x-3">
+                          <Phone className="text-blue-600 mt-1" size={16} />
+                          <div>
+                            <div className="font-semibold text-blue-900">1. Telefonischer Kontakt</div>
+                            <div className="text-blue-700">Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen und Ihnen unsere Bankverbindung mitzuteilen.</div>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-blue-700 font-medium">IBAN:</span>
-                          <span className="text-blue-900 font-mono">DE89 3704 0044 0532 0130 00</span>
+                        <div className="flex items-start space-x-3">
+                          <CreditCard className="text-blue-600 mt-1" size={16} />
+                          <div>
+                            <div className="font-semibold text-blue-900">2. Überweisung</div>
+                            <div className="text-blue-700">Nach unserem Anruf überweisen Sie den Betrag von <strong>{orderData.total.toFixed(2)}€</strong> auf unser Konto.</div>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-blue-700 font-medium">BIC:</span>
-                          <span className="text-blue-900 font-mono">COBADEFFXXX</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-blue-700 font-medium">Verwendungszweck:</span>
-                          <span className="text-blue-900 font-mono">{orderNumber}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-blue-700 font-medium">Betrag:</span>
-                          <span className="text-blue-900 font-bold">{orderData.total.toFixed(2)}€</span>
+                        <div className="flex items-start space-x-3">
+                          <Truck className="text-blue-600 mt-1" size={16} />
+                          <div>
+                            <div className="font-semibold text-blue-900">3. Lieferung</div>
+                            <div className="text-blue-700">Nach Zahlungseingang erfolgt die Lieferung in 4-7 Werktagen.</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-green-800 mb-2">💰 Skonto-Vorteil nutzen!</h4>
-                      <p className="text-green-700 text-sm">
-                        Bei Zahlung innerhalb von 14 Tagen erhalten Sie 3% Skonto. 
-                        Ihr Skonto-Betrag: <strong>{(orderData.total * 0.97).toFixed(2)}€</strong>
-                      </p>
                     </div>
                   </div>
                 </motion.div>
@@ -145,7 +138,7 @@ const Confirmation = () => {
                         <span className="font-semibold text-orange-900">Liefertermin</span>
                       </div>
                       <div className="text-orange-800 font-bold">{orderData.deliveryDate}</div>
-                      <div className="text-orange-700 text-sm">Zwischen 7:00 - 17:00 Uhr</div>
+                      <div className="text-orange-700 text-sm">Nach Zahlungseingang</div>
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-4">

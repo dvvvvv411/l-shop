@@ -12,7 +12,7 @@ const trustFeatures = [
   {
     icon: Truck,
     title: "Schnelle Lieferung", 
-    description: "Zuverlässige Lieferung binnen 24-48 Stunden",
+    description: "Zuverlässige Lieferung binnen 4-7 Werktagen",
     color: "bg-green-100 text-green-600"
   },
   {

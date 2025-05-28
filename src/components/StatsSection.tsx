@@ -25,8 +25,8 @@ const StatsSection = () => {
     },
     {
       icon: Clock,
-      number: "24-48h",
-      label: "Lieferzeit",
+      number: "4-7",
+      label: "Werktage Lieferzeit",
       description: "Schnell und zuverlässig"
     }
   ];

@@ -35,7 +35,7 @@ const OrderSummary = ({ orderData }: OrderSummaryProps) => {
   };
 
   const data = orderData || fallbackData;
-  const finalPrice = data.totalPrice - data.savings;
+  const finalPrice = data.totalPrice;
 
   return (
     <div className="space-y-6">
@@ -84,13 +84,6 @@ const OrderSummary = ({ orderData }: OrderSummaryProps) => {
             <span className="font-semibold">{data.deliveryFee === 0 ? 'Kostenlos' : `${data.deliveryFee.toFixed(2)}€`}</span>
           </div>
           
-          {data.savings > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>Mengenrabatt</span>
-              <span className="font-semibold">-{data.savings.toFixed(2)}€</span>
-            </div>
-          )}
-          
           <hr className="border-gray-200" />
           
           <div className="flex justify-between text-xl font-bold">
@@ -105,8 +98,8 @@ const OrderSummary = ({ orderData }: OrderSummaryProps) => {
             <Clock className="text-blue-600 mr-2" size={18} />
             <span className="font-semibold text-gray-900">Liefertermin</span>
           </div>
-          <p className="text-gray-700 font-semibold">28.05.2025</p>
-          <p className="text-sm text-gray-600">Zwischen 7:00 - 17:00 Uhr</p>
+          <p className="text-gray-700 font-semibold">4-7 Werktage</p>
+          <p className="text-sm text-gray-600">Nach Zahlungseingang</p>
         </div>
 
         {/* Trust Badges */}

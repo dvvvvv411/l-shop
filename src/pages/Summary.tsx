@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -131,8 +132,8 @@ const Summary = () => {
                     <div className="font-semibold text-gray-900 mb-2">Vorkasse</div>
                     <div className="text-gray-700 text-sm space-y-1">
                       <div>• Überweisung vor Lieferung</div>
-                      <div>• 3% Skonto bei Zahlung innerhalb von 14 Tagen</div>
-                      <div>• Sie erhalten unsere Bankverbindung per E-Mail</div>
+                      <div>• Bankverbindung erhalten Sie per Telefon</div>
+                      <div>• Lieferung erfolgt nach Zahlungseingang</div>
                     </div>
                   </div>
                 </motion.div>

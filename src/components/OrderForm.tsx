@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { CreditCard, Truck, Clock, Shield, TestTube } from 'lucide-react';
+import { CreditCard, Truck, Clock, Shield, TestTube, FileText } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ const orderSchema = z.object({
   billingCity: z.string().optional(),
 
   // Payment
-  paymentMethod: z.literal('vorkasse'),
+  paymentMethod: z.enum(['vorkasse', 'rechnung']),
   
   // Terms
   acceptTerms: z.boolean().refine(val => val === true, 'AGB müssen akzeptiert werden'),
@@ -197,8 +198,8 @@ const OrderForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Calculate final price with savings
-      const finalPrice = orderData.totalPrice - orderData.savings;
+      // Calculate final price
+      const finalPrice = orderData.totalPrice;
       
       // Create order data for database using the calculator data
       const dbOrderData = {
@@ -228,9 +229,9 @@ const OrderForm = () => {
         price_per_liter: orderData.product.price,
         base_price: orderData.basePrice,
         delivery_fee: orderData.deliveryFee,
-        discount: orderData.savings,
+        discount: 0,
         total_amount: finalPrice,
-        delivery_date_display: '28.05.2025',
+        delivery_date_display: '4-7 Werktage',
         status: 'pending',
       };
 
@@ -268,9 +269,9 @@ const OrderForm = () => {
         pricePerLiter: orderData.product.price, // This was missing!
         basePrice: orderData.basePrice,
         deliveryFee: orderData.deliveryFee,
-        discount: orderData.savings,
+        discount: 0,
         total: finalPrice,
-        deliveryDate: '28.05.2025',
+        deliveryDate: '4-7 Werktage',
         orderNumber: createdOrder.order_number,
       };
       
@@ -567,22 +568,46 @@ const OrderForm = () => {
                   <FormItem>
                     <FormControl>
                       <RadioGroup value={field.value} onValueChange={field.onChange}>
-                        <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="vorkasse" id="vorkasse" />
-                            <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-900">Vorkasse</div>
-                                  <div className="text-sm text-gray-600">
-                                    Überweisung vor Lieferung • 3% Skonto möglich
+                        <div className="space-y-3">
+                          <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
+                            <div className="flex items-center space-x-3">
+                              <RadioGroupItem value="vorkasse" id="vorkasse" />
+                              <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <div className="font-semibold text-gray-900">Vorkasse</div>
+                                    <div className="text-sm text-gray-600">
+                                      Überweisung vor Lieferung
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-green-600 font-semibold">
+                                    Empfohlen
                                   </div>
                                 </div>
-                                <div className="text-sm text-green-600 font-semibold">
-                                  Empfohlen
+                              </Label>
+                            </div>
+                          </div>
+
+                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
+                            <div className="flex items-center space-x-3">
+                              <RadioGroupItem value="rechnung" id="rechnung" disabled />
+                              <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <div className="font-semibold text-gray-600 flex items-center space-x-2">
+                                      <FileText size={16} />
+                                      <span>Rechnung</span>
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      Zahlung nach Lieferung (derzeit nicht verfügbar)
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    Bald verfügbar
+                                  </div>
                                 </div>
-                              </div>
-                            </Label>
+                              </Label>
+                            </div>
                           </div>
                         </div>
                       </RadioGroup>
@@ -595,9 +620,9 @@ const OrderForm = () => {
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-semibold text-gray-900 mb-2">Zahlungsdetails</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Sie erhalten nach der Bestellung unsere Bankverbindung</li>
+                  <li>• Sie erhalten nach der Bestellung unsere Bankverbindung per Telefon</li>
                   <li>• Lieferung erfolgt nach Zahlungseingang</li>
-                  <li>• Bei Zahlung innerhalb von 14 Tagen: 3% Skonto</li>
+                  <li>• Sichere und schnelle Abwicklung</li>
                 </ul>
               </div>
             </motion.div>
