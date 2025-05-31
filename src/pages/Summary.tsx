@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProgressIndicator from '@/components/ProgressIndicator';
 import OrderSummary from '@/components/OrderSummary';
+import SupplierInfo from '@/components/SupplierInfo';
 import { useOrder } from '@/contexts/OrderContext';
 import { Button } from '@/components/ui/button';
 
@@ -63,7 +63,7 @@ const Summary = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
                     <div className="font-semibold text-gray-900 mb-2">
                       {orderData.deliveryFirstName} {orderData.deliveryLastName}
                     </div>
@@ -73,6 +73,12 @@ const Summary = () => {
                       <div>Tel: {orderData.deliveryPhone}</div>
                     </div>
                   </div>
+
+                  {/* Supplier Information */}
+                  <SupplierInfo 
+                    supplier={orderData.supplier} 
+                    className="w-full"
+                  />
                 </motion.div>
 
                 {/* Billing Address Review */}
@@ -195,7 +201,7 @@ const Summary = () => {
                   product: {
                     id: 'standard',
                     name: orderData.product,
-                    price: orderData.pricePerLiter, // Now this property exists
+                    price: orderData.pricePerLiter,
                     description: 'Qualitäts-Heizöl nach DIN 51603-1'
                   },
                   amount: orderData.amount,
