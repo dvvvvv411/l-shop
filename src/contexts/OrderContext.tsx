@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { SupplierByPostcode } from '@/hooks/useSuppliers';
 
 interface OrderData {
   // Delivery Address
@@ -34,9 +33,6 @@ interface OrderData {
   
   // Order Tracking
   orderNumber?: string;
-  
-  // Supplier Information
-  supplier?: SupplierByPostcode | null;
 }
 
 interface OrderContextType {

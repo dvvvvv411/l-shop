@@ -12,9 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
-import { useSupplierByPostcode } from '@/hooks/useSuppliers';
 import OrderSummary from '@/components/OrderSummary';
-import SupplierInfo from '@/components/SupplierInfo';
 import { useToast } from '@/hooks/use-toast';
 
 // Test data arrays for random generation
@@ -143,13 +141,8 @@ const OrderForm = () => {
     defaultValues: {
       useSameAddress: true,
       paymentMethod: 'vorkasse',
-      deliveryPostcode: orderData?.postcode || '',
     },
   });
-
-  // Watch the delivery postcode to fetch supplier info
-  const deliveryPostcode = form.watch('deliveryPostcode');
-  const { data: supplier, isLoading: isLoadingSupplier } = useSupplierByPostcode(deliveryPostcode);
 
   const handleGenerateTestData = () => {
     const testData = generateRandomTestData();
@@ -195,7 +188,6 @@ const OrderForm = () => {
 
     console.log('Order form submitted:', data);
     console.log('Using order data:', orderData);
-    console.log('Selected supplier:', supplier);
     setIsSubmitting(true);
     
     try {
@@ -234,7 +226,6 @@ const OrderForm = () => {
         total_amount: finalPrice,
         delivery_date_display: '4-7 Werktage',
         status: 'pending',
-        supplier_id: supplier?.supplier_id || null,
       };
 
       console.log('Sending order data to database:', dbOrderData);
@@ -251,7 +242,7 @@ const OrderForm = () => {
       
       console.log('Order created with order number:', createdOrder.order_number);
       
-      // Set order data for context (for summary page) - now includes pricePerLiter and supplier
+      // Set order data for context (for summary page) - now includes pricePerLiter
       const contextOrderData = {
         deliveryFirstName: data.deliveryFirstName,
         deliveryLastName: data.deliveryLastName,
@@ -268,14 +259,13 @@ const OrderForm = () => {
         paymentMethod: data.paymentMethod,
         product: orderData.product.name,
         amount: orderData.amount,
-        pricePerLiter: orderData.product.price,
+        pricePerLiter: orderData.product.price, // This was missing!
         basePrice: orderData.basePrice,
         deliveryFee: orderData.deliveryFee,
         discount: 0,
         total: finalPrice,
         deliveryDate: '4-7 Werktage',
         orderNumber: createdOrder.order_number,
-        supplier: supplier,
       };
       
       setContextOrderData(contextOrderData);
@@ -434,15 +424,6 @@ const OrderForm = () => {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-              </div>
-
-              {/* Supplier Information */}
-              <div className="mt-6">
-                <SupplierInfo 
-                  supplier={supplier} 
-                  isLoading={isLoadingSupplier}
-                  className="w-full"
                 />
               </div>
             </motion.div>

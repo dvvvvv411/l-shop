@@ -150,7 +150,6 @@ export type Database = {
           product: string | null
           request_id: string | null
           status: string
-          supplier_id: string | null
           total_amount: number
           updated_at: string
           use_same_address: boolean | null
@@ -187,7 +186,6 @@ export type Database = {
           product?: string | null
           request_id?: string | null
           status?: string
-          supplier_id?: string | null
           total_amount: number
           updated_at?: string
           use_same_address?: boolean | null
@@ -224,81 +222,9 @@ export type Database = {
           product?: string | null
           request_id?: string | null
           status?: string
-          supplier_id?: string | null
           total_amount?: number
           updated_at?: string
           use_same_address?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      postcode_bundesland: {
-        Row: {
-          bundesland: string
-          created_at: string
-          id: string
-          postcode_range_end: string
-          postcode_range_start: string
-        }
-        Insert: {
-          bundesland: string
-          created_at?: string
-          id?: string
-          postcode_range_end: string
-          postcode_range_start: string
-        }
-        Update: {
-          bundesland?: string
-          created_at?: string
-          id?: string
-          postcode_range_end?: string
-          postcode_range_start?: string
-        }
-        Relationships: []
-      }
-      suppliers: {
-        Row: {
-          address: string | null
-          bundesland: string
-          contact_person: string | null
-          created_at: string
-          email: string | null
-          id: string
-          is_active: boolean
-          name: string
-          phone: string | null
-          updated_at: string
-        }
-        Insert: {
-          address?: string | null
-          bundesland: string
-          contact_person?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          phone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          address?: string | null
-          bundesland?: string
-          contact_person?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          phone?: string | null
-          updated_at?: string
         }
         Relationships: []
       }
@@ -310,17 +236,6 @@ export type Database = {
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      get_supplier_by_postcode: {
-        Args: { input_postcode: string }
-        Returns: {
-          supplier_id: string
-          supplier_name: string
-          contact_person: string
-          email: string
-          phone: string
-          address: string
-        }[]
       }
     }
     Enums: {
