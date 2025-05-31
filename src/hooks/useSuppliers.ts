@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -16,9 +15,6 @@ export interface Supplier {
 export interface SupplierByPostcode {
   supplier_id: string;
   supplier_name: string;
-  contact_person: string | null;
-  email: string | null;
-  phone: string | null;
   address: string | null;
 }
 

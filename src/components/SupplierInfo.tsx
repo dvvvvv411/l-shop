@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, User, Mail, Phone, MapPin } from 'lucide-react';
+import { Building2, MapPin } from 'lucide-react';
 import { SupplierByPostcode } from '@/hooks/useSuppliers';
 
 interface SupplierInfoProps {
@@ -54,27 +54,6 @@ const SupplierInfo = ({ supplier, isLoading, className = '' }: SupplierInfoProps
       
       <div className="space-y-2 text-sm">
         <div className="font-semibold text-blue-900">{supplier.supplier_name}</div>
-        
-        {supplier.contact_person && (
-          <div className="flex items-center space-x-2 text-blue-700">
-            <User size={14} />
-            <span>{supplier.contact_person}</span>
-          </div>
-        )}
-        
-        {supplier.phone && (
-          <div className="flex items-center space-x-2 text-blue-700">
-            <Phone size={14} />
-            <span>{supplier.phone}</span>
-          </div>
-        )}
-        
-        {supplier.email && (
-          <div className="flex items-center space-x-2 text-blue-700">
-            <Mail size={14} />
-            <span>{supplier.email}</span>
-          </div>
-        )}
         
         {supplier.address && (
           <div className="flex items-center space-x-2 text-blue-700">
