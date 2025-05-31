@@ -10,8 +10,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import HowItWorks from '../components/HowItWorks';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
-import { AspectRatio } from '../components/ui/aspect-ratio';
-import { Flame, TrendingDown, Shield, Star } from 'lucide-react';
+import { Flame, Star } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -55,25 +54,6 @@ const Index = () => {
                 Sparen Sie bis zu <strong className="text-red-600">15% beim Heizöl-Kauf</strong> durch unseren 
                 direkten Einkauf. Schnelle Lieferung in 4-7 Werktagen, beste Qualität, faire Preise.
               </p>
-            </motion.div>
-
-            {/* Banner Section - Replacing Trust Badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mb-16 max-w-6xl mx-auto"
-            >
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <AspectRatio ratio={16/6}>
-                  <img
-                    src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=1200&h=450&fit=crop&crop=center"
-                    alt="Heizöl Service Banner"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-                </AspectRatio>
-              </div>
             </motion.div>
           </div>
 
