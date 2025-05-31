@@ -10,6 +10,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import HowItWorks from '../components/HowItWorks';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
+import { AspectRatio } from '../components/ui/aspect-ratio';
 import { Flame, TrendingDown, Shield, Star } from 'lucide-react';
 
 const Index = () => {
@@ -56,28 +57,22 @@ const Index = () => {
               </p>
             </motion.div>
 
-            {/* Enhanced Trust Badges */}
+            {/* Banner Section - Replacing Trust Badges */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex flex-wrap justify-center items-center gap-8 mb-16 text-sm text-gray-600"
+              className="mb-16 max-w-6xl mx-auto"
             >
-              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-                <Shield size={18} className="text-green-600" />
-                <span className="font-semibold">DIN-zertifiziert</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-                <TrendingDown size={18} className="text-red-600" />
-                <span className="font-semibold">Bis zu 15% sparen</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-                <Flame size={18} className="text-orange-600" />
-                <span className="font-semibold">Premium Qualität</span>
-              </div>
-              <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-                <Star size={18} className="text-yellow-600 fill-current" />
-                <span className="font-semibold">25+ Jahre Erfahrung</span>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <AspectRatio ratio={16/6}>
+                  <img
+                    src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=1200&h=450&fit=crop&crop=center"
+                    alt="Heizöl Service Banner"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+                </AspectRatio>
               </div>
             </motion.div>
           </div>
