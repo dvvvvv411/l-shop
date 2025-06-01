@@ -1,18 +1,17 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, Power, PowerOff, Star, Building2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import ShopForm from '@/components/admin/ShopForm';
 import { useShops, type Shop } from '@/hooks/useShops';
 
 const AdminShops = () => {
-  const { shops, isLoading, createShop, updateShop, deleteShop, toggleShopStatus, setDefaultShop } = useShops();
+  const { shops, isLoading, createShop, updateShop, deleteShop } = useShops();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [shopToDelete, setShopToDelete] = useState<Shop | null>(null);
@@ -55,22 +54,6 @@ const AdminShops = () => {
       setShopToDelete(null);
     } catch (error) {
       console.error('Error deleting shop:', error);
-    }
-  };
-
-  const handleToggleStatus = async (shop: Shop) => {
-    try {
-      await toggleShopStatus(shop.id, !shop.is_active);
-    } catch (error) {
-      console.error('Error toggling shop status:', error);
-    }
-  };
-
-  const handleSetDefault = async (shop: Shop) => {
-    try {
-      await setDefaultShop(shop.id);
-    } catch (error) {
-      console.error('Error setting default shop:', error);
     }
   };
 
@@ -127,8 +110,7 @@ const AdminShops = () => {
                     <TableHead>Firmenname</TableHead>
                     <TableHead>Adresse</TableHead>
                     <TableHead>Kontakt</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Standard</TableHead>
+                    <TableHead>Rechtliche Angaben</TableHead>
                     <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -156,26 +138,14 @@ const AdminShops = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={shop.is_active ? 'default' : 'secondary'}>
-                          {shop.is_active ? 'Aktiv' : 'Inaktiv'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {shop.is_default ? (
-                          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                            <Star className="h-3 w-3 mr-1 fill-current" />
-                            Standard
-                          </Badge>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSetDefault(shop)}
-                            disabled={!shop.is_active}
-                          >
-                            <Star className="h-3 w-3" />
-                          </Button>
-                        )}
+                        <div className="text-sm">
+                          {shop.vat_number && (
+                            <div>USt-IdNr.: {shop.vat_number}</div>
+                          )}
+                          {shop.court_register_info && (
+                            <div className="text-gray-500">{shop.court_register_info}</div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
@@ -189,19 +159,7 @@ const AdminShops = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleToggleStatus(shop)}
-                          >
-                            {shop.is_active ? (
-                              <PowerOff className="h-4 w-4" />
-                            ) : (
-                              <Power className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
                             onClick={() => setShopToDelete(shop)}
-                            disabled={shop.is_default}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

@@ -365,9 +365,6 @@ export type Database = {
       }
       shops: {
         Row: {
-          bank_bic: string | null
-          bank_iban: string | null
-          bank_name: string | null
           company_address: string
           company_city: string
           company_email: string | null
@@ -375,19 +372,14 @@ export type Database = {
           company_phone: string | null
           company_postcode: string
           company_website: string | null
+          court_register_info: string | null
           created_at: string
           id: string
-          is_active: boolean
-          is_default: boolean
           name: string
-          tax_number: string | null
           updated_at: string
           vat_number: string | null
         }
         Insert: {
-          bank_bic?: string | null
-          bank_iban?: string | null
-          bank_name?: string | null
           company_address: string
           company_city: string
           company_email?: string | null
@@ -395,19 +387,14 @@ export type Database = {
           company_phone?: string | null
           company_postcode: string
           company_website?: string | null
+          court_register_info?: string | null
           created_at?: string
           id?: string
-          is_active?: boolean
-          is_default?: boolean
           name: string
-          tax_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
         Update: {
-          bank_bic?: string | null
-          bank_iban?: string | null
-          bank_name?: string | null
           company_address?: string
           company_city?: string
           company_email?: string | null
@@ -415,12 +402,10 @@ export type Database = {
           company_phone?: string | null
           company_postcode?: string
           company_website?: string | null
+          court_register_info?: string | null
           created_at?: string
           id?: string
-          is_active?: boolean
-          is_default?: boolean
           name?: string
-          tax_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }

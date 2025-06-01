@@ -5,10 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import type { Shop, ShopInsert } from '@/hooks/useShops';
+import type { Shop } from '@/hooks/useShops';
 
 const shopSchema = z.object({
   name: z.string().min(1, 'Name ist erforderlich'),
@@ -19,13 +18,8 @@ const shopSchema = z.object({
   company_phone: z.string().optional(),
   company_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
   company_website: z.string().optional(),
-  tax_number: z.string().optional(),
   vat_number: z.string().optional(),
-  bank_name: z.string().optional(),
-  bank_iban: z.string().optional(),
-  bank_bic: z.string().optional(),
-  is_active: z.boolean(),
-  is_default: z.boolean(),
+  court_register_info: z.string().optional(),
 });
 
 type ShopFormData = z.infer<typeof shopSchema>;
@@ -49,13 +43,8 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
       company_phone: shop?.company_phone || '',
       company_email: shop?.company_email || '',
       company_website: shop?.company_website || '',
-      tax_number: shop?.tax_number || '',
       vat_number: shop?.vat_number || '',
-      bank_name: shop?.bank_name || '',
-      bank_iban: shop?.bank_iban || '',
-      bank_bic: shop?.bank_bic || '',
-      is_active: shop?.is_active ?? true,
-      is_default: shop?.is_default ?? false,
+      court_register_info: shop?.court_register_info || '',
     },
   });
 
@@ -196,23 +185,10 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
               />
             </div>
 
-            {/* Tax Information */}
+            {/* Legal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Steuerinformationen</h3>
+              <h3 className="text-lg font-medium">Rechtliche Informationen</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="tax_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Steuernummer</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 123/456/78910" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="vat_number"
@@ -226,80 +202,16 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
                     </FormItem>
                   )}
                 />
-              </div>
-            </div>
-
-            {/* Bank Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Bankverbindung</h3>
-              <FormField
-                control={form.control}
-                name="bank_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bankname</FormLabel>
-                    <FormControl>
-                      <Input placeholder="z.B. Deutsche Bank" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="bank_iban"
+                  name="court_register_info"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>IBAN</FormLabel>
+                      <FormLabel>Amtsgericht & Handelsregisternr</FormLabel>
                       <FormControl>
-                        <Input placeholder="z.B. DE89 3704 0044 0532 0130 00" {...field} />
+                        <Input placeholder="z.B. Amtsgericht Berlin, HRB 12345" {...field} />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bank_bic"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>BIC</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. COBADEFFXXX" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Settings */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Einstellungen</h3>
-              <div className="flex items-center space-x-4">
-                <FormField
-                  control={form.control}
-                  name="is_active"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <FormLabel className="!mt-0">Aktiv</FormLabel>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="is_default"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <FormLabel className="!mt-0">Standard</FormLabel>
                     </FormItem>
                   )}
                 />

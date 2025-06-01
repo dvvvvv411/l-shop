@@ -19,7 +19,6 @@ export const useShops = () => {
       const { data, error } = await supabase
         .from('shops')
         .select('*')
-        .order('is_default', { ascending: false })
         .order('name', { ascending: true });
 
       if (error) throw error;
@@ -114,16 +113,6 @@ export const useShops = () => {
     }
   };
 
-  // Toggle shop status
-  const toggleShopStatus = async (id: string, isActive: boolean) => {
-    return updateShop(id, { is_active: isActive });
-  };
-
-  // Set default shop
-  const setDefaultShop = async (id: string) => {
-    return updateShop(id, { is_default: true });
-  };
-
   // Set up real-time subscription
   useEffect(() => {
     fetchShops();
@@ -164,8 +153,6 @@ export const useShops = () => {
     createShop,
     updateShop,
     deleteShop,
-    toggleShopStatus,
-    setDefaultShop,
     refetch: fetchShops,
   };
 };
