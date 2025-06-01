@@ -26,6 +26,11 @@ interface CheckoutSummaryProps {
 const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const finalPrice = orderData.totalPrice;
+  
+  // VAT calculations (19% VAT)
+  const vatRate = 0.19;
+  const netPrice = finalPrice / (1 + vatRate);
+  const vatAmount = finalPrice - netPrice;
 
   return (
     <div className="space-y-6">
@@ -42,7 +47,12 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
             </span>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-blue-600">{finalPrice.toFixed(2)}€</span>
+            <div className="text-right">
+              <span className="font-bold text-blue-600">{finalPrice.toFixed(2)}€</span>
+              <div className="text-xs text-gray-500">
+                inkl. {vatAmount.toFixed(2)}€ MwSt.
+              </div>
+            </div>
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
         </button>
@@ -114,12 +124,30 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                 {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
             </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Netto</span>
+              <span className="text-gray-900">{netPrice.toFixed(2)}€</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">MwSt. (19%)</span>
+              <span className="text-gray-900">{vatAmount.toFixed(2)}€</span>
+            </div>
           </div>
 
           {/* Total */}
           <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-            <span className="text-lg font-semibold text-gray-900">Gesamt</span>
-            <span className="text-lg font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
+            <div>
+              <span className="text-lg font-semibold text-gray-900">Gesamt</span>
+              <div className="text-xs text-gray-500">inkl. MwSt.</div>
+            </div>
+            <div className="text-right">
+              <span className="text-lg font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
+              <div className="text-xs text-gray-500">
+                davon {vatAmount.toFixed(2)}€ MwSt.
+              </div>
+            </div>
           </div>
 
           {/* Delivery Info */}
