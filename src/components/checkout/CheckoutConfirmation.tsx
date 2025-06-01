@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Phone, Mail, Package } from 'lucide-react';
@@ -36,6 +35,11 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
       </div>
     );
   }
+
+  // VAT calculations (19% VAT)
+  const vatRate = 0.19;
+  const netPrice = orderData.totalPrice / (1 + vatRate);
+  const vatAmount = orderData.totalPrice - netPrice;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -239,9 +243,25 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
             
             <hr className="border-gray-200" />
             
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Netto</span>
+              <span className="font-semibold">{netPrice.toFixed(2)}€</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">MwSt. (19%)</span>
+              <span className="font-semibold">{vatAmount.toFixed(2)}€</span>
+            </div>
+            
+            <hr className="border-gray-200" />
+            
             <div className="flex justify-between text-xl font-bold">
               <span>Gesamtpreis</span>
               <span className="text-blue-600">{orderData.totalPrice.toFixed(2)}€</span>
+            </div>
+            
+            <div className="text-xs text-gray-500 text-center">
+              inkl. {vatAmount.toFixed(2)}€ MwSt.
             </div>
           </div>
         </motion.div>

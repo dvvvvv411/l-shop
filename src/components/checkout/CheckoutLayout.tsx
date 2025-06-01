@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -112,11 +113,11 @@ const CheckoutLayout = () => {
       <div className="bg-white">
         {/* Confirmation Header */}
         <div className="border-b border-gray-200 pb-8 mb-8 pt-8">
-          <div className="flex items-center mb-6">
+          <div className="flex items-center justify-center mb-6">
             <div className="bg-green-100 p-3 rounded-full mr-4">
               <CheckCircle className="text-green-600" size={24} />
             </div>
-            <div>
+            <div className="text-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung bestätigt!</h1>
               <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
             </div>
