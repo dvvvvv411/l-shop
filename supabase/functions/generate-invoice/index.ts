@@ -813,14 +813,14 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
                         ${shopSettings.court_name ? `<p>Amtsgericht: ${shopSettings.court_name}</p>` : ''}
                         ${shopSettings.registration_number ? `<p>Handelsregister: ${shopSettings.registration_number}</p>` : ''}
-                        <p>Lieferung gem. § 13b UStG</p>
                         ${shopSettings.business_owner ? `<p>Geschäftsführer: ${shopSettings.business_owner}</p>` : ''}
                     </div>
                     
                     <div class="footer-column">
                         <h4>Banking</h4>
-                        ${shopSettings.bank_name ? `<p>${shopSettings.bank_name}</p>` : ''}
+                        <p><strong>Kontoinhaber:</strong> ${shopSettings.company_name}</p>
                         ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
+                        ${shopSettings.bank_bic ? `<p>BIC: ${shopSettings.bank_bic}</p>` : ''}
                         <p style="margin-top: 1.5mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
                     </div>
                 </div>
