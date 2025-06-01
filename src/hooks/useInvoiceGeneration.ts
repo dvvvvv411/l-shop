@@ -7,14 +7,14 @@ export const useInvoiceGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
-  const generateInvoice = async (orderId: string, shopId?: string) => {
+  const generateInvoice = async (orderId: string, shopId?: string, bankAccountId?: string) => {
     try {
       setIsGenerating(true);
       
-      console.log('Generating invoice for order:', orderId, 'with shop:', shopId);
+      console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId);
       
       const { data, error } = await supabase.functions.invoke('generate-invoice', {
-        body: { orderId, shopId }
+        body: { orderId, shopId, bankAccountId }
       });
 
       if (error) {

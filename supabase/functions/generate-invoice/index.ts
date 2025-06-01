@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -18,13 +17,13 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { orderId, shopId } = await req.json()
+    const { orderId, shopId, bankAccountId } = await req.json()
     
     if (!orderId) {
       throw new Error('Order ID is required')
     }
 
-    console.log('Generating invoice for order:', orderId, 'with shop:', shopId)
+    console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId)
 
     // Get order details
     const { data: order, error: orderError } = await supabase
@@ -105,6 +104,37 @@ serve(async (req) => {
       }
     }
 
+    // Get bank account data - either specified bank account or default or from shop
+    let bankAccountSettings
+    let bankAccountError
+
+    if (bankAccountId) {
+      // Use specified bank account
+      const { data, error } = await supabase
+        .from('bank_accounts')
+        .select('*')
+        .eq('id', bankAccountId)
+        .single()
+      bankAccountSettings = data
+      bankAccountError = error
+    } else {
+      // Use default bank account
+      const { data, error } = await supabase
+        .from('bank_accounts')
+        .select('*')
+        .eq('is_default', true)
+        .single()
+      bankAccountSettings = data
+      bankAccountError = error
+    }
+
+    // If bank account is found, override shop's bank information
+    if (!bankAccountError && bankAccountSettings) {
+      shopSettings.bank_name = bankAccountSettings.bank_name
+      shopSettings.bank_iban = bankAccountSettings.iban
+      shopSettings.bank_bic = bankAccountSettings.bic
+    }
+
     // Generate invoice number if not exists
     let invoiceNumber = order.invoice_number
     if (!invoiceNumber) {
@@ -145,7 +175,8 @@ serve(async (req) => {
         invoiceNumber,
         htmlContent,
         order,
-        shopSettings
+        shopSettings,
+        bankAccountSettings
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

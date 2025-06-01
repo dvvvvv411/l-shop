@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, FileText, Building2, CreditCard } from 'lucide-react';
+import { Calendar, FileText, Building2, CreditCard, Landmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useShops } from '@/hooks/useShops';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrders, type Order } from '@/hooks/useOrders';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 
@@ -23,16 +24,19 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   onClose
 }) => {
   const { shops, isLoading: shopsLoading } = useShops();
+  const { bankAccounts, isLoading: bankAccountsLoading } = useBankAccounts();
   const { updateOrderStatus } = useOrders();
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   
   const [selectedShopId, setSelectedShopId] = useState<string>('');
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('');
   const [invoiceDate, setInvoiceDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [processedBy, setProcessedBy] = useState<string>('');
 
   // Get active shops and default shop
   const activeShops = shops.filter(shop => shop.is_active);
   const defaultShop = shops.find(shop => shop.is_default);
+  const defaultBankAccount = bankAccounts.find(account => account.is_default);
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -43,12 +47,18 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     }
   }, [isOpen, defaultShop]);
 
+  useEffect(() => {
+    if (isOpen && defaultBankAccount) {
+      setSelectedBankAccountId(defaultBankAccount.id);
+    }
+  }, [isOpen, defaultBankAccount]);
+
   const handleCreateInvoice = async () => {
     if (!order || !selectedShopId) return;
 
     try {
-      // Generate the invoice with selected shop
-      await generateInvoice(order.id, selectedShopId);
+      // Generate the invoice with selected shop and bank account
+      await generateInvoice(order.id, selectedShopId, selectedBankAccountId);
       
       onClose();
     } catch (error) {
@@ -59,6 +69,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   if (!order) return null;
 
   const selectedShop = shops.find(shop => shop.id === selectedShopId);
+  const selectedBankAccount = bankAccounts.find(account => account.id === selectedBankAccountId);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -128,6 +139,27 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                 </Select>
               </div>
 
+              {/* Bank Account Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="bank-account-select">Bankkonto auswählen</Label>
+                <Select value={selectedBankAccountId} onValueChange={setSelectedBankAccountId}>
+                  <SelectTrigger id="bank-account-select">
+                    <SelectValue placeholder="Bankkonto auswählen..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bankAccounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        <div className="flex items-center gap-2">
+                          {account.is_default && <span className="text-yellow-600">⭐</span>}
+                          <span>{account.bank_name}</span>
+                          <span className="text-gray-500">({account.iban.slice(-4)})</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Invoice Date */}
               <div className="space-y-2">
                 <Label htmlFor="invoice-date">Rechnungsdatum</Label>
@@ -169,13 +201,26 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                   <div>{selectedShop.company_postcode} {selectedShop.company_city}</div>
                   {selectedShop.company_phone && <div>Tel: {selectedShop.company_phone}</div>}
                   {selectedShop.company_email && <div>E-Mail: {selectedShop.company_email}</div>}
-                  {selectedShop.bank_iban && (
-                    <div className="pt-2 border-t">
-                      <div className="font-medium">Bankverbindung:</div>
-                      <div>IBAN: {selectedShop.bank_iban}</div>
-                      {selectedShop.bank_bic && <div>BIC: {selectedShop.bank_bic}</div>}
-                    </div>
-                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Selected Bank Account Preview */}
+          {selectedBankAccount && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Landmark className="h-5 w-5" />
+                  Ausgewähltes Bankkonto
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="font-medium">{selectedBankAccount.bank_name}</div>
+                  <div>Kontoinhaber: {selectedBankAccount.account_holder}</div>
+                  <div>IBAN: {selectedBankAccount.iban}</div>
+                  {selectedBankAccount.bic && <div>BIC: {selectedBankAccount.bic}</div>}
                 </div>
               </CardContent>
             </Card>
@@ -188,7 +233,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
             </Button>
             <Button
               onClick={handleCreateInvoice}
-              disabled={!selectedShopId || isGenerating || shopsLoading}
+              disabled={!selectedShopId || !selectedBankAccountId || isGenerating || shopsLoading || bankAccountsLoading}
               className="bg-red-600 hover:bg-red-700"
             >
               <FileText className="h-4 w-4 mr-2" />

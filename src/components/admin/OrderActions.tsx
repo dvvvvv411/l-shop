@@ -34,6 +34,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
 
   const handleGenerateInvoice = async () => {
     try {
+      // Generate invoice with default shop and bank account (no specific selection)
       await generateInvoice(order.id);
     } catch (error) {
       console.error('Failed to generate invoice:', error);
