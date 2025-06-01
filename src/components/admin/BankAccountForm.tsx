@@ -29,6 +29,7 @@ interface BankAccount {
   iban: string;
   bic: string;
   is_default: boolean;
+  daily_limit?: number;
 }
 
 interface BankAccountFormProps {
@@ -43,6 +44,7 @@ interface FormData {
   iban: string;
   bic: string;
   is_default: boolean;
+  daily_limit: number;
 }
 
 const BankAccountForm: React.FC<BankAccountFormProps> = ({
@@ -60,6 +62,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
       iban: account?.iban || '',
       bic: account?.bic || '',
       is_default: account?.is_default || false,
+      daily_limit: account?.daily_limit || 0,
     },
   });
 
@@ -71,6 +74,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         iban: account.iban,
         bic: account.bic,
         is_default: account.is_default,
+        daily_limit: account.daily_limit || 0,
       });
     } else {
       form.reset({
@@ -79,6 +83,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         iban: '',
         bic: '',
         is_default: false,
+        daily_limit: 0,
       });
     }
   }, [account, form]);
@@ -209,6 +214,34 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="daily_limit"
+              rules={{ 
+                required: 'Tageslimit ist erforderlich',
+                min: { value: 0, message: 'Tageslimit muss mindestens 0 sein' }
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tageslimit (€)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="z.B. 10000.00" 
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-sm text-gray-500">
+                    Setzen Sie das Tageslimit auf 0, um es zu deaktivieren
+                  </p>
                 </FormItem>
               )}
             />

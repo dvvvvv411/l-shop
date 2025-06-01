@@ -33,6 +33,39 @@ export const useBankAccounts = () => {
     }
   };
 
+  const getDailyUsage = async (accountId: string, date?: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_daily_bank_account_usage', {
+          account_id: accountId,
+          check_date: date || new Date().toISOString().split('T')[0]
+        });
+
+      if (error) throw error;
+      return data || 0;
+    } catch (error) {
+      console.error('Error fetching daily usage:', error);
+      return 0;
+    }
+  };
+
+  const checkDailyLimit = async (accountId: string, amount: number, date?: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('check_daily_limit', {
+          account_id: accountId,
+          transaction_amount: amount,
+          check_date: date || new Date().toISOString().split('T')[0]
+        });
+
+      if (error) throw error;
+      return data || false;
+    } catch (error) {
+      console.error('Error checking daily limit:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchBankAccounts();
 
@@ -70,5 +103,7 @@ export const useBankAccounts = () => {
     bankAccounts,
     isLoading,
     refetch: fetchBankAccounts,
+    getDailyUsage,
+    checkDailyLimit,
   };
 };

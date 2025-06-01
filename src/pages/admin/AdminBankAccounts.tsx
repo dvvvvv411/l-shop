@@ -18,6 +18,7 @@ interface BankAccount {
   iban: string;
   bic: string;
   is_default: boolean;
+  daily_limit: number;
   created_at: string;
   updated_at: string;
 }
@@ -171,6 +172,15 @@ const AdminBankAccounts = () => {
                 <div>
                   <p className="text-sm text-gray-500">BIC</p>
                   <p className="font-medium font-mono">{account.bic}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Tageslimit</p>
+                  <p className="font-medium">
+                    {account.daily_limit > 0 
+                      ? `€${account.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` 
+                      : 'Unbegrenzt'
+                    }
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Erstellt am</p>

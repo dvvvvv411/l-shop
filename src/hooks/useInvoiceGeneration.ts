@@ -13,6 +13,19 @@ export const useInvoiceGeneration = () => {
       
       console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId);
       
+      // Update the order with the selected bank account
+      if (bankAccountId) {
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update({ bank_account_id: bankAccountId })
+          .eq('id', orderId);
+
+        if (updateError) {
+          console.error('Error updating order with bank account:', updateError);
+          throw updateError;
+        }
+      }
+      
       const { data, error } = await supabase.functions.invoke('generate-invoice', {
         body: { orderId, shopId, bankAccountId }
       });
@@ -26,6 +39,23 @@ export const useInvoiceGeneration = () => {
       }
 
       console.log('Invoice generated successfully:', data.invoiceNumber);
+
+      // If invoice was generated successfully and bank account was used, create transaction record
+      if (bankAccountId && data.invoiceAmount) {
+        const { error: transactionError } = await supabase
+          .from('bank_account_transactions')
+          .insert({
+            bank_account_id: bankAccountId,
+            order_id: orderId,
+            amount: data.invoiceAmount,
+            transaction_date: new Date().toISOString().split('T')[0]
+          });
+
+        if (transactionError) {
+          console.error('Error creating transaction record:', transactionError);
+          // Don't throw here as the invoice was successfully generated
+        }
+      }
 
       // Convert HTML to PDF and download
       await downloadInvoiceAsPDF(data.htmlContent, data.invoiceNumber);

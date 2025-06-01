@@ -9,12 +9,58 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bank_account_transactions: {
+        Row: {
+          amount: number
+          bank_account_id: string
+          created_at: string
+          id: string
+          order_id: string
+          transaction_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_account_id: string
+          created_at?: string
+          id?: string
+          order_id: string
+          transaction_date?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_account_id?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          transaction_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_account_transactions_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_account_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_accounts: {
         Row: {
           account_holder: string
           bank_name: string
           bic: string
           created_at: string
+          daily_limit: number | null
           iban: string
           id: string
           is_default: boolean
@@ -25,6 +71,7 @@ export type Database = {
           bank_name: string
           bic: string
           created_at?: string
+          daily_limit?: number | null
           iban: string
           id?: string
           is_default?: boolean
@@ -35,6 +82,7 @@ export type Database = {
           bank_name?: string
           bic?: string
           created_at?: string
+          daily_limit?: number | null
           iban?: string
           id?: string
           is_default?: boolean
@@ -144,6 +192,7 @@ export type Database = {
       orders: {
         Row: {
           amount: number | null
+          bank_account_id: string | null
           base_price: number | null
           billing_city: string | null
           billing_first_name: string | null
@@ -185,6 +234,7 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
+          bank_account_id?: string | null
           base_price?: number | null
           billing_city?: string | null
           billing_first_name?: string | null
@@ -226,6 +276,7 @@ export type Database = {
         }
         Update: {
           amount?: number | null
+          bank_account_id?: string | null
           base_price?: number | null
           billing_city?: string | null
           billing_first_name?: string | null
@@ -266,6 +317,13 @@ export type Database = {
           use_same_address?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_shop_id_fkey"
             columns: ["shop_id"]
@@ -464,6 +522,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_daily_limit: {
+        Args: {
+          account_id: string
+          transaction_amount: number
+          check_date?: string
+        }
+        Returns: boolean
+      }
       generate_invoice_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -471,6 +537,10 @@ export type Database = {
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_daily_bank_account_usage: {
+        Args: { account_id: string; check_date?: string }
+        Returns: number
       }
       get_supplier_by_postcode: {
         Args: { input_postcode: string }
