@@ -68,7 +68,7 @@ serve(async (req) => {
     }
 
     // Generate HTML content for PDF
-    const htmlContent = generateCompactInvoiceHTML(order, shopSettings, invoiceNumber)
+    const htmlContent = generateProfessionalInvoiceHTML(order, shopSettings, invoiceNumber)
 
     console.log('Invoice generated successfully for order:', orderId)
 
@@ -97,11 +97,19 @@ serve(async (req) => {
   }
 })
 
-function generateCompactInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
+function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
   const currentDate = new Date().toLocaleDateString('de-DE')
   const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
-  const subtotal = order.liters * order.price_per_liter
-  const total = order.total_amount
+  
+  // VAT calculation (19% standard rate)
+  const VAT_RATE = 0.19
+  const netAmount = order.liters * order.price_per_liter
+  const netDeliveryFee = order.delivery_fee || 0
+  const netDiscount = order.discount || 0
+  
+  const totalNet = netAmount + netDeliveryFee - netDiscount
+  const vatAmount = totalNet * VAT_RATE
+  const grossTotal = totalNet + vatAmount
 
   return `
     <!DOCTYPE html>
@@ -117,268 +125,261 @@ function generateCompactInvoiceHTML(order: any, shopSettings: any, invoiceNumber
             }
             
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                font-size: 10px;
-                line-height: 1.3;
-                color: #333;
+                font-family: 'Arial', 'Helvetica', sans-serif;
+                font-size: 10pt;
+                line-height: 1.4;
+                color: #000;
                 background: #fff;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
             }
             
             .invoice-container {
-                width: 100%;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                padding: 20mm;
                 position: relative;
             }
             
-            .invoice-header {
-                background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-                color: white;
-                padding: 20px 25px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-shrink: 0;
+            /* Header */
+            .header {
+                border-bottom: 2px solid #333;
+                padding-bottom: 15mm;
+                margin-bottom: 10mm;
+            }
+            
+            .company-info {
+                float: left;
+                width: 60%;
             }
             
             .company-info h1 {
-                font-size: 22px;
-                font-weight: 700;
-                margin-bottom: 8px;
+                font-size: 18pt;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 3mm;
             }
             
             .company-info p {
-                font-size: 10px;
-                opacity: 0.95;
-                margin-bottom: 2px;
-            }
-            
-            .invoice-title h2 {
-                font-size: 24px;
-                font-weight: 700;
-                margin-bottom: 10px;
-                text-align: right;
+                font-size: 9pt;
+                margin-bottom: 1mm;
+                color: #666;
             }
             
             .invoice-meta {
-                background: rgba(255,255,255,0.2);
-                padding: 10px 15px;
-                border-radius: 6px;
+                float: right;
+                width: 35%;
                 text-align: right;
             }
             
-            .invoice-meta p {
-                margin-bottom: 3px;
-                font-size: 10px;
+            .invoice-meta h2 {
+                font-size: 20pt;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 5mm;
             }
             
-            .invoice-meta strong {
-                font-weight: 600;
-            }
-            
-            .status-badge {
-                display: inline-block;
-                padding: 4px 8px;
-                background: #27ae60;
-                color: white;
-                border-radius: 12px;
-                font-size: 8px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-top: 5px;
-            }
-            
-            .invoice-body {
-                padding: 20px 25px;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .addresses {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 20px;
-                gap: 20px;
-            }
-            
-            .address-block {
-                flex: 1;
+            .invoice-details {
                 background: #f8f9fa;
-                padding: 15px;
-                border-radius: 6px;
-                border-left: 3px solid #3498db;
+                padding: 5mm;
+                border: 1px solid #ddd;
             }
             
-            .address-block h3 {
-                color: #2c3e50;
-                font-size: 11px;
-                font-weight: 600;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
+            .invoice-details p {
+                font-size: 9pt;
+                margin-bottom: 2mm;
             }
             
-            .address-block p {
-                margin-bottom: 3px;
-                font-size: 10px;
-                line-height: 1.4;
+            .clearfix::after {
+                content: "";
+                display: table;
+                clear: both;
             }
             
+            /* Customer Address */
+            .customer-section {
+                margin: 15mm 0;
+            }
+            
+            .address-window {
+                border: 1px solid #333;
+                width: 85mm;
+                height: 45mm;
+                padding: 5mm;
+                position: relative;
+            }
+            
+            .return-address {
+                font-size: 7pt;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 2mm;
+                margin-bottom: 3mm;
+                color: #666;
+            }
+            
+            .customer-address {
+                font-size: 10pt;
+                line-height: 1.3;
+            }
+            
+            .customer-address strong {
+                font-weight: bold;
+            }
+            
+            /* Invoice Details Grid */
+            .invoice-info-grid {
+                display: table;
+                width: 100%;
+                margin: 10mm 0;
+            }
+            
+            .info-row {
+                display: table-row;
+            }
+            
+            .info-label {
+                display: table-cell;
+                width: 30%;
+                padding: 2mm 0;
+                font-weight: bold;
+                vertical-align: top;
+            }
+            
+            .info-value {
+                display: table-cell;
+                padding: 2mm 0;
+                vertical-align: top;
+            }
+            
+            /* Items Table */
             .items-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin: 15px 0;
-                background: #fff;
-                border-radius: 6px;
-                overflow: hidden;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            }
-            
-            .items-table thead {
-                background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-                color: white;
+                margin: 10mm 0;
+                font-size: 9pt;
             }
             
             .items-table th {
-                padding: 10px 8px;
+                background: #333;
+                color: white;
+                padding: 3mm;
                 text-align: left;
-                font-weight: 600;
-                font-size: 9px;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
+                font-weight: bold;
+                border: 1px solid #333;
             }
             
             .items-table th.text-right {
                 text-align: right;
             }
             
-            .items-table tbody tr {
-                border-bottom: 1px solid #ecf0f1;
-            }
-            
             .items-table td {
-                padding: 8px;
-                font-size: 10px;
-                vertical-align: middle;
+                padding: 3mm;
+                border: 1px solid #ddd;
+                vertical-align: top;
             }
             
             .items-table .text-right {
                 text-align: right;
             }
             
-            .total-row {
-                background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-                color: white;
-                font-weight: 700;
-                font-size: 11px;
+            .items-table .text-center {
+                text-align: center;
             }
             
-            .total-row td {
-                padding: 12px 8px !important;
+            .items-table tbody tr:nth-child(even) {
+                background: #f9f9f9;
             }
             
-            .details-section {
-                display: flex;
-                justify-content: space-between;
-                margin: 15px 0;
-                gap: 15px;
-                flex-shrink: 0;
+            /* Summary Table */
+            .summary-table {
+                width: 50%;
+                float: right;
+                border-collapse: collapse;
+                margin: 5mm 0;
+                font-size: 9pt;
             }
             
-            .detail-block {
-                flex: 1;
+            .summary-table td {
+                padding: 2mm 5mm;
+                border: 1px solid #ddd;
+            }
+            
+            .summary-table .label {
+                font-weight: bold;
                 background: #f8f9fa;
-                padding: 12px;
-                border-radius: 6px;
-                border-top: 2px solid #3498db;
             }
             
-            .detail-block h4 {
-                color: #2c3e50;
-                font-size: 10px;
-                font-weight: 600;
-                margin-bottom: 6px;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-            
-            .detail-block p {
-                margin-bottom: 4px;
-                font-size: 9px;
-                line-height: 1.3;
-            }
-            
-            .payment-terms {
-                background: #e8f4fd;
-                border: 1px solid #3498db;
-                border-radius: 6px;
-                padding: 12px;
-                margin: 15px 0;
-                flex-shrink: 0;
-            }
-            
-            .payment-terms h4 {
-                color: #2c3e50;
-                font-size: 11px;
-                font-weight: 600;
-                margin-bottom: 8px;
-            }
-            
-            .payment-terms p {
-                font-size: 9px;
-                margin-bottom: 4px;
-                line-height: 1.3;
-            }
-            
-            .footer {
-                background: #2c3e50;
+            .summary-table .total-row {
+                background: #333;
                 color: white;
-                padding: 15px 25px;
-                font-size: 8px;
-                margin-top: auto;
-                flex-shrink: 0;
+                font-weight: bold;
+                font-size: 10pt;
             }
             
-            .footer-content {
-                display: flex;
-                justify-content: space-between;
-                gap: 20px;
+            /* Payment Terms */
+            .payment-section {
+                clear: both;
+                margin: 15mm 0;
+                padding: 5mm;
+                background: #f8f9fa;
+                border: 1px solid #ddd;
             }
             
-            .footer-section {
-                flex: 1;
+            .payment-section h3 {
+                font-size: 11pt;
+                font-weight: bold;
+                margin-bottom: 3mm;
+                color: #333;
             }
             
-            .footer-section h5 {
-                font-size: 9px;
-                font-weight: 600;
-                margin-bottom: 6px;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-                color: #3498db;
+            .payment-section p {
+                margin-bottom: 2mm;
+                font-size: 9pt;
             }
             
-            .footer-section p {
-                margin-bottom: 2px;
-                opacity: 0.9;
-                line-height: 1.3;
+            /* Footer */
+            .footer {
+                position: absolute;
+                bottom: 15mm;
+                left: 20mm;
+                right: 20mm;
+                border-top: 1px solid #333;
+                padding-top: 5mm;
+                font-size: 7pt;
+                color: #666;
             }
             
+            .footer-grid {
+                display: table;
+                width: 100%;
+            }
+            
+            .footer-column {
+                display: table-cell;
+                width: 33.33%;
+                vertical-align: top;
+                padding-right: 5mm;
+            }
+            
+            .footer-column h4 {
+                font-size: 8pt;
+                font-weight: bold;
+                margin-bottom: 2mm;
+                color: #333;
+            }
+            
+            .footer-column p {
+                margin-bottom: 1mm;
+            }
+            
+            /* Print Styles */
             @media print {
                 body { 
-                    padding: 0;
-                    height: 100vh;
+                    print-color-adjust: exact;
+                    -webkit-print-color-adjust: exact;
                 }
-                .invoice-container { 
-                    box-shadow: none;
-                    max-width: none;
-                    height: 100vh;
+                .invoice-container {
+                    margin: 0;
+                    padding: 15mm;
                 }
                 @page {
                     margin: 0;
@@ -390,149 +391,164 @@ function generateCompactInvoiceHTML(order: any, shopSettings: any, invoiceNumber
     <body>
         <div class="invoice-container">
             <!-- Header -->
-            <div class="invoice-header">
+            <div class="header clearfix">
                 <div class="company-info">
                     <h1>${shopSettings.company_name}</h1>
                     <p>${shopSettings.company_address}</p>
                     <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                    ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
+                    ${shopSettings.company_phone ? `<p>Telefon: ${shopSettings.company_phone}</p>` : ''}
                     ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
+                    ${shopSettings.company_website ? `<p>Web: ${shopSettings.company_website}</p>` : ''}
                 </div>
                 
-                <div class="invoice-title">
+                <div class="invoice-meta">
                     <h2>RECHNUNG</h2>
-                    <div class="invoice-meta">
-                        <p><strong>Nr.:</strong> ${invoiceNumber}</p>
-                        <p><strong>Datum:</strong> ${currentDate}</p>
-                        <p><strong>Bestellung:</strong> ${order.order_number}</p>
-                        <span class="status-badge">Original</span>
+                    <div class="invoice-details">
+                        <p><strong>Rechnungsnummer:</strong> ${invoiceNumber}</p>
+                        <p><strong>Rechnungsdatum:</strong> ${currentDate}</p>
+                        <p><strong>Bestellnummer:</strong> ${order.order_number}</p>
+                        <p><strong>Kundennummer:</strong> ${order.id.substring(0, 8)}</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Body -->
-            <div class="invoice-body">
-                <!-- Addresses -->
-                <div class="addresses">
-                    <div class="address-block">
-                        <h3>Rechnungsadresse</h3>
-                        <p><strong>${order.customer_name}</strong></p>
-                        <p>${order.billing_street || order.customer_address}</p>
-                        <p>${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}</p>
-                        ${order.customer_email ? `<p>${order.customer_email}</p>` : ''}
-                        ${order.customer_phone ? `<p>${order.customer_phone}</p>` : ''}
+            <!-- Customer Address -->
+            <div class="customer-section">
+                <div class="address-window">
+                    <div class="return-address">
+                        ${shopSettings.company_name} • ${shopSettings.company_address} • ${shopSettings.company_postcode} ${shopSettings.company_city}
                     </div>
-                    
-                    ${order.delivery_street && order.use_same_address !== true ? `
-                    <div class="address-block">
-                        <h3>Lieferadresse</h3>
-                        <p><strong>${order.delivery_first_name} ${order.delivery_last_name}</strong></p>
-                        <p>${order.delivery_street}</p>
-                        <p>${order.delivery_postcode} ${order.delivery_city}</p>
-                        ${order.delivery_phone ? `<p>${order.delivery_phone}</p>` : ''}
-                    </div>
-                    ` : ''}
-                </div>
-                
-                <!-- Items Table -->
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;">Pos.</th>
-                            <th>Beschreibung</th>
-                            <th style="width: 80px;" class="text-right">Menge</th>
-                            <th style="width: 60px;">Einheit</th>
-                            <th style="width: 80px;" class="text-right">Preis</th>
-                            <th style="width: 90px;" class="text-right">Gesamt</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>1</strong></td>
-                            <td>
-                                <strong>${order.product || 'Standard Heizöl'}</strong>
-                                <br><small style="color: #666; font-size: 8px;">Lieferung: ${deliveryDate}</small>
-                            </td>
-                            <td class="text-right"><strong>${order.liters.toLocaleString('de-DE')}</strong></td>
-                            <td>Liter</td>
-                            <td class="text-right">€${order.price_per_liter.toFixed(3)}</td>
-                            <td class="text-right"><strong>€${subtotal.toFixed(2)}</strong></td>
-                        </tr>
-                        ${order.delivery_fee > 0 ? `
-                        <tr>
-                            <td><strong>2</strong></td>
-                            <td><strong>Lieferung</strong></td>
-                            <td class="text-right">1</td>
-                            <td>Pauschal</td>
-                            <td class="text-right">€${order.delivery_fee.toFixed(2)}</td>
-                            <td class="text-right"><strong>€${order.delivery_fee.toFixed(2)}</strong></td>
-                        </tr>
-                        ` : ''}
-                        ${order.discount > 0 ? `
-                        <tr>
-                            <td></td>
-                            <td><strong>Rabatt</strong></td>
-                            <td class="text-right">1</td>
-                            <td>Pauschal</td>
-                            <td class="text-right">-€${order.discount.toFixed(2)}</td>
-                            <td class="text-right"><strong>-€${order.discount.toFixed(2)}</strong></td>
-                        </tr>
-                        ` : ''}
-                        <tr class="total-row">
-                            <td colspan="5"><strong>GESAMTBETRAG INKL. MWST.</strong></td>
-                            <td class="text-right"><strong>€${total.toFixed(2)}</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <!-- Details Section -->
-                <div class="details-section">
-                    <div class="detail-block">
-                        <h4>Zahlungskonditionen</h4>
-                        <p><strong>Art:</strong> ${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method}</p>
-                        <p><strong>Ziel:</strong> Sofort bei Erhalt</p>
-                    </div>
-                    
-                    <div class="detail-block">
-                        <h4>Lieferkonditionen</h4>
-                        <p><strong>Termin:</strong> ${deliveryDate}</p>
-                        <p><strong>Art:</strong> Tankwagen</p>
+                    <div class="customer-address">
+                        <strong>${order.customer_name}</strong><br>
+                        ${order.billing_street || order.customer_address}<br>
+                        ${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}
                     </div>
                 </div>
-                
-                ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
-                <div class="payment-terms">
-                    <h4>💳 Zahlungsinformationen</h4>
-                    <p><strong>Bankverbindung:</strong> ${shopSettings.bank_name || 'Bank'}</p>
-                    <p><strong>IBAN:</strong> ${shopSettings.bank_iban} ${shopSettings.bank_bic ? `| BIC: ${shopSettings.bank_bic}` : ''}</p>
-                    <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
-                </div>
-                ` : ''}
             </div>
+            
+            <!-- Invoice Information -->
+            <div class="invoice-info-grid">
+                <div class="info-row">
+                    <div class="info-label">Lieferdatum:</div>
+                    <div class="info-value">${deliveryDate}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Zahlungsart:</div>
+                    <div class="info-value">${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method || 'Vorkasse'}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Zahlungsziel:</div>
+                    <div class="info-value">Sofort rein netto ohne Abzug</div>
+                </div>
+            </div>
+            
+            <!-- Items Table -->
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">Pos.</th>
+                        <th style="width: 40%;">Bezeichnung</th>
+                        <th style="width: 12%;" class="text-right">Menge</th>
+                        <th style="width: 8%;">Einheit</th>
+                        <th style="width: 12%;" class="text-right">Einzelpreis (netto)</th>
+                        <th style="width: 8%;" class="text-center">MwSt.</th>
+                        <th style="width: 12%;" class="text-right">Gesamtpreis (netto)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1</strong></td>
+                        <td>
+                            <strong>${order.product || 'Standard Heizöl'}</strong><br>
+                            <small>Lieferung am ${deliveryDate}</small>
+                        </td>
+                        <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
+                        <td>Liter</td>
+                        <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(4)}</td>
+                        <td class="text-center">19%</td>
+                        <td class="text-right">€ ${(netAmount / 1.19).toFixed(2)}</td>
+                    </tr>
+                    ${order.delivery_fee > 0 ? `
+                    <tr>
+                        <td><strong>2</strong></td>
+                        <td><strong>Lieferung und Transport</strong></td>
+                        <td class="text-right">1</td>
+                        <td>Pauschal</td>
+                        <td class="text-right">€ ${(order.delivery_fee / 1.19).toFixed(2)}</td>
+                        <td class="text-center">19%</td>
+                        <td class="text-right">€ ${(order.delivery_fee / 1.19).toFixed(2)}</td>
+                    </tr>
+                    ` : ''}
+                    ${order.discount > 0 ? `
+                    <tr>
+                        <td></td>
+                        <td><strong>Rabatt</strong></td>
+                        <td class="text-right">1</td>
+                        <td>Pauschal</td>
+                        <td class="text-right">-€ ${(order.discount / 1.19).toFixed(2)}</td>
+                        <td class="text-center">19%</td>
+                        <td class="text-right">-€ ${(order.discount / 1.19).toFixed(2)}</td>
+                    </tr>
+                    ` : ''}
+                </tbody>
+            </table>
+            
+            <!-- Summary -->
+            <table class="summary-table">
+                <tr>
+                    <td class="label">Netto-Betrag:</td>
+                    <td class="text-right">€ ${(totalNet / 1.19).toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td class="label">MwSt. 19%:</td>
+                    <td class="text-right">€ ${((totalNet / 1.19) * 0.19).toFixed(2)}</td>
+                </tr>
+                <tr class="total-row">
+                    <td><strong>Rechnungsbetrag:</strong></td>
+                    <td class="text-right"><strong>€ ${totalNet.toFixed(2)}</strong></td>
+                </tr>
+            </table>
+            
+            <!-- Payment Information -->
+            ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
+            <div class="payment-section">
+                <h3>Zahlungsinformationen</h3>
+                <p><strong>Bitte überweisen Sie den Rechnungsbetrag auf folgendes Konto:</strong></p>
+                <p><strong>Bankverbindung:</strong> ${shopSettings.bank_name || 'Unsere Bank'}</p>
+                <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
+                ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
+                <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
+            </div>
+            ` : ''}
+            
+            <div class="clearfix"></div>
             
             <!-- Footer -->
             <div class="footer">
-                <div class="footer-content">
-                    <div class="footer-section">
-                        <h5>Kontakt</h5>
+                <div class="footer-grid">
+                    <div class="footer-column">
+                        <h4>Kontakt</h4>
                         <p>${shopSettings.company_name}</p>
-                        <p>${shopSettings.company_address}, ${shopSettings.company_postcode} ${shopSettings.company_city}</p>
+                        <p>${shopSettings.company_address}</p>
+                        <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
                         ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
                         ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
                     </div>
                     
-                    <div class="footer-section">
-                        <h5>Steuerdaten</h5>
+                    <div class="footer-column">
+                        <h4>Steuerdaten</h4>
                         ${shopSettings.tax_number ? `<p>Steuernummer: ${shopSettings.tax_number}</p>` : ''}
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
-                        <p>Alle Preise inkl. gesetzl. MwSt.</p>
+                        <p>Geschäftsführer: [Name]</p>
+                        <p>Handelsregister: [HRB]</p>
                     </div>
                     
-                    <div class="footer-section">
-                        <h5>Rechtliches</h5>
+                    <div class="footer-column">
+                        <h4>Zahlungskonditionen</h4>
+                        <p>Zahlbar sofort rein netto ohne Abzug</p>
+                        <p>Bei Verzug 8% p.a. über Basiszins</p>
                         <p>Erfüllungsort: ${shopSettings.company_city}</p>
                         <p>Gerichtsstand: ${shopSettings.company_city}</p>
-                        ${shopSettings.invoice_footer_text ? `<p style="font-style: italic;">${shopSettings.invoice_footer_text}</p>` : ''}
                     </div>
                 </div>
             </div>
