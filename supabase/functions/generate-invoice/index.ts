@@ -102,6 +102,9 @@ serve(async (req) => {
         bank_name: fallbackSettings.bank_name,
         bank_iban: fallbackSettings.bank_iban,
         bank_bic: fallbackSettings.bank_bic,
+        business_owner: null,
+        court_name: null,
+        registration_number: null,
       }
     }
 
@@ -810,13 +813,15 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         ${shopSettings.tax_number ? `<p>Steuernr.: ${shopSettings.tax_number}</p>` : ''}
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
                         <p>Lieferung gem. § 13b UStG</p>
+                        ${shopSettings.business_owner ? `<p>Geschäftsführer: ${shopSettings.business_owner}</p>` : ''}
                     </div>
                     
                     <div class="footer-column">
-                        <h4>Zahlung</h4>
+                        <h4>Unternehmen</h4>
                         ${shopSettings.bank_name ? `<p>${shopSettings.bank_name}</p>` : ''}
                         ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
-                        <p>Zahlbar sofort ohne Abzug</p>
+                        ${shopSettings.court_name ? `<p>${shopSettings.court_name}</p>` : ''}
+                        ${shopSettings.registration_number ? `<p>${shopSettings.registration_number}</p>` : ''}
                         <p style="margin-top: 1.5mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
                     </div>
                 </div>
