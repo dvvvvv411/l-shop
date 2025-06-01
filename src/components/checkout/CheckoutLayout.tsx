@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -112,15 +111,8 @@ const CheckoutLayout = () => {
     return (
       <div className="bg-white">
         {/* Confirmation Header */}
-        <div className="border-b border-gray-200 pb-8 mb-8">
+        <div className="border-b border-gray-200 pb-8 mb-8 pt-8">
           <div className="flex items-center mb-6">
-            <Button
-              variant="ghost"
-              onClick={handleBackToCheckout}
-              className="mr-4 p-2 hover:bg-gray-100"
-            >
-              <ArrowLeft size={20} />
-            </Button>
             <div className="bg-green-100 p-3 rounded-full mr-4">
               <CheckCircle className="text-green-600" size={24} />
             </div>
