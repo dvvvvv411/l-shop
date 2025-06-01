@@ -223,10 +223,10 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             }
             
             .invoice-container {
-                width: 190mm;
-                max-height: 270mm;
+                width: 210mm;
+                max-height: 297mm;
                 margin: 0 auto;
-                padding: 10mm;
+                padding: 8mm;
                 position: relative;
                 background: #ffffff;
                 display: flex;
@@ -234,12 +234,12 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 overflow: hidden;
             }
             
-            /* Professional Header */
+            /* Professional Header - Full width */
             .header {
                 background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
                 color: white;
                 padding: 5mm;
-                margin: -10mm -10mm 5mm -10mm;
+                margin: -8mm -8mm 5mm -8mm;
                 border-radius: 0 0 2mm 2mm;
                 box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
             }
@@ -349,6 +349,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 overflow: hidden;
                 border: 1px solid #e2e8f0;
                 flex-grow: 1;
+                max-height: 120mm;
             }
             
             .items-table {
@@ -467,11 +468,11 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Professional Payment Section */
             .payment-section {
-                margin: 4mm 0 6mm 0;
+                margin: 4mm 0 3mm 0;
                 background: #fff7ed;
                 border: 1px solid #fed7aa;
                 border-radius: 2mm;
-                padding: 4mm;
+                padding: 3mm;
                 border-left: 4px solid #ea580c;
             }
             
@@ -521,7 +522,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 0;
             }
             
-            /* Professional Footer - Compact for single page */
+            /* Professional Footer - Full width at bottom */
             .footer {
                 margin-top: auto;
                 padding-top: 3mm;
@@ -529,12 +530,12 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 font-size: 7pt;
                 color: #64748b;
                 background: #fafbfc;
-                margin-left: -10mm;
-                margin-right: -10mm;
-                margin-bottom: -10mm;
-                padding-left: 10mm;
-                padding-right: 10mm;
-                padding-bottom: 4mm;
+                margin-left: -8mm;
+                margin-right: -8mm;
+                margin-bottom: -8mm;
+                padding-left: 8mm;
+                padding-right: 8mm;
+                padding-bottom: 3mm;
             }
             
             .footer-grid {
@@ -558,7 +559,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 line-height: 1.2;
             }
             
-            /* Print Optimizations */
+            /* Print Optimizations for A4 */
             @media print {
                 body { 
                     print-color-adjust: exact;
@@ -567,15 +568,25 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 
                 .invoice-container {
                     margin: 0;
-                    padding: 8mm;
+                    padding: 6mm;
                     min-height: auto;
-                    max-height: 270mm;
+                    max-height: 297mm;
                     height: auto;
+                    width: 210mm;
+                }
+                
+                .header {
+                    margin: -6mm -6mm 4mm -6mm;
+                    padding: 4mm;
                 }
                 
                 .footer {
-                    position: relative;
-                    margin-top: auto;
+                    margin-left: -6mm;
+                    margin-right: -6mm;
+                    margin-bottom: -6mm;
+                    padding-left: 6mm;
+                    padding-right: 6mm;
+                    padding-bottom: 2mm;
                 }
                 
                 @page {
@@ -586,6 +597,17 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Responsive Design */
             @media screen and (max-width: 800px) {
+                .invoice-container {
+                    width: 100%;
+                    max-width: 210mm;
+                    margin: 0 auto;
+                    padding: 4mm;
+                }
+                
+                .header {
+                    margin: -4mm -4mm 3mm -4mm;
+                }
+                
                 .header-content {
                     grid-template-columns: 1fr;
                     gap: 3mm;
@@ -593,6 +615,14 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 
                 .invoice-meta {
                     text-align: left;
+                }
+                
+                .footer {
+                    margin-left: -4mm;
+                    margin-right: -4mm;
+                    margin-bottom: -4mm;
+                    padding-left: 4mm;
+                    padding-right: 4mm;
                 }
                 
                 .footer-grid {
@@ -772,3 +802,4 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
     </html>
   `
 }
+
