@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -9,8 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { useOrder } from '@/contexts/OrderContext';
-import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 
 // Test data arrays for random generation
@@ -79,14 +78,11 @@ interface PriceCalculatorData {
 
 interface CheckoutFormProps {
   orderData: PriceCalculatorData;
-  onOrderSuccess: (orderNumber: string) => void;
+  onFormSubmit: (data: OrderFormData) => void;
 }
 
-const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
+const CheckoutForm = ({ orderData, onFormSubmit }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setOrderData: setContextOrderData } = useOrder();
-  const { createOrder } = useOrders();
   const { toast } = useToast();
 
   const form = useForm<OrderFormData>({
@@ -126,106 +122,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     });
   };
 
-  const onSubmit = async (data: OrderFormData) => {
-    console.log('Checkout form submitted:', data);
-    console.log('Using order data:', orderData);
-    
-    setIsSubmitting(true);
-    
-    try {
-      const finalPrice = orderData.totalPrice;
-
-      // Create order data for database
-      const dbOrderData = {
-        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de',
-        customer_phone: data.deliveryPhone,
-        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
-        delivery_first_name: data.deliveryFirstName,
-        delivery_last_name: data.deliveryLastName,
-        delivery_street: data.deliveryStreet,
-        delivery_postcode: data.deliveryPostcode,
-        delivery_city: data.deliveryCity,
-        delivery_phone: data.deliveryPhone,
-        use_same_address: data.useSameAddress,
-        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
-        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
-        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
-        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
-        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
-        payment_method: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        liters: orderData.amount,
-        price_per_liter: orderData.product.price,
-        base_price: orderData.basePrice,
-        delivery_fee: orderData.deliveryFee,
-        discount: 0,
-        total_amount: finalPrice,
-        delivery_date_display: '4-7 Werktage',
-        status: 'pending'
-      };
-
-      console.log('Sending order data to database:', dbOrderData);
-
-      // Create order in database
-      const createdOrder = await createOrder(dbOrderData);
-
-      if (!createdOrder) {
-        console.log('Order was already processed');
-        toast({
-          title: 'Information',
-          description: 'Diese Bestellung wurde bereits verarbeitet.',
-        });
-        return;
-      }
-
-      console.log('Order created with order number:', createdOrder.order_number);
-
-      // Set order data for context
-      const contextOrderData = {
-        deliveryFirstName: data.deliveryFirstName,
-        deliveryLastName: data.deliveryLastName,
-        deliveryStreet: data.deliveryStreet,
-        deliveryPostcode: data.deliveryPostcode,
-        deliveryCity: data.deliveryCity,
-        deliveryPhone: data.deliveryPhone,
-        useSameAddress: data.useSameAddress,
-        billingFirstName: data.billingFirstName,
-        billingLastName: data.billingLastName,
-        billingStreet: data.billingStreet,
-        billingPostcode: data.billingPostcode,
-        billingCity: data.billingCity,
-        paymentMethod: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        pricePerLiter: orderData.product.price,
-        basePrice: orderData.basePrice,
-        deliveryFee: orderData.deliveryFee,
-        discount: 0,
-        total: finalPrice,
-        deliveryDate: '4-7 Werktage',
-        orderNumber: createdOrder.order_number
-      };
-
-      setContextOrderData(contextOrderData);
-
-      // Call the success callback to move to confirmation step
-      onOrderSuccess(createdOrder.order_number);
-
-      // Clear localStorage
-      localStorage.removeItem('orderData');
-
-    } catch (error) {
-      console.error('Error creating order:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = (data: OrderFormData) => {
+    console.log('Checkout form submitted, proceeding to summary:', data);
+    onFormSubmit(data);
   };
 
   return (
@@ -603,10 +502,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-lg"
             >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
+              Weiter zur Zusammenfassung
             </Button>
           </motion.div>
         </form>

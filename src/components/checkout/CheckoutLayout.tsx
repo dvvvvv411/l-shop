@@ -5,6 +5,7 @@ import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CheckoutForm from './CheckoutForm';
 import CheckoutSummary from './CheckoutSummary';
+import CheckoutSummaryPage from './CheckoutSummaryPage';
 import CheckoutConfirmation from './CheckoutConfirmation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -24,9 +25,26 @@ interface PriceCalculatorData {
   savings: number;
 }
 
+interface CheckoutFormData {
+  deliveryFirstName: string;
+  deliveryLastName: string;
+  deliveryStreet: string;
+  deliveryPostcode: string;
+  deliveryCity: string;
+  deliveryPhone: string;
+  useSameAddress: boolean;
+  billingFirstName?: string;
+  billingLastName?: string;
+  billingStreet?: string;
+  billingPostcode?: string;
+  billingCity?: string;
+  paymentMethod: 'vorkasse' | 'rechnung';
+}
+
 const CheckoutLayout = () => {
-  const [currentStep, setCurrentStep] = useState<'checkout' | 'confirmation'>('checkout');
+  const [currentStep, setCurrentStep] = useState<'checkout' | 'summary' | 'confirmation'>('checkout');
   const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
+  const [formData, setFormData] = useState<CheckoutFormData | null>(null);
   const [orderNumber, setOrderNumber] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -75,6 +93,11 @@ const CheckoutLayout = () => {
     }
   }, [navigate, toast]);
 
+  const handleFormSubmit = (data: CheckoutFormData) => {
+    setFormData(data);
+    setCurrentStep('summary');
+  };
+
   const handleOrderSuccess = (generatedOrderNumber: string) => {
     setOrderNumber(generatedOrderNumber);
     setCurrentStep('confirmation');
@@ -82,6 +105,10 @@ const CheckoutLayout = () => {
 
   const handleBackToCheckout = () => {
     setCurrentStep('checkout');
+  };
+
+  const handleBackToSummary = () => {
+    setCurrentStep('summary');
   };
 
   const handleNewOrder = () => {
@@ -107,7 +134,7 @@ const CheckoutLayout = () => {
           <div className="flex items-center mb-6">
             <Button
               variant="ghost"
-              onClick={handleBackToCheckout}
+              onClick={handleBackToSummary}
               className="mr-4 p-2 hover:bg-gray-100"
             >
               <ArrowLeft size={20} />
@@ -126,6 +153,19 @@ const CheckoutLayout = () => {
           orderData={orderData} 
           orderNumber={orderNumber}
           onNewOrder={handleNewOrder}
+        />
+      </div>
+    );
+  }
+
+  if (currentStep === 'summary') {
+    return (
+      <div className="bg-white">
+        <CheckoutSummaryPage
+          orderData={orderData}
+          formData={formData!}
+          onBack={handleBackToCheckout}
+          onOrderSuccess={handleOrderSuccess}
         />
       </div>
     );
@@ -164,7 +204,7 @@ const CheckoutLayout = () => {
             </div>
           </div>
 
-          <CheckoutForm orderData={orderData} onOrderSuccess={handleOrderSuccess} />
+          <CheckoutForm orderData={orderData} onFormSubmit={handleFormSubmit} />
         </div>
       </div>
 
