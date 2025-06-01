@@ -17,6 +17,7 @@ import Widerrufsrecht from "./pages/Widerrufsrecht";
 import Order from "./pages/Order";
 import Summary from "./pages/Summary";
 import Confirmation from "./pages/Confirmation";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
@@ -48,6 +49,9 @@ const App = () => (
               <Route path="/agb" element={<AGB />} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
+              <Route path="/checkout" element={<Checkout />} />
+              
+              {/* Legacy routes for backward compatibility */}
               <Route path="/order" element={<Order />} />
               <Route path="/summary" element={<Summary />} />
               <Route path="/confirmation" element={<Confirmation />} />

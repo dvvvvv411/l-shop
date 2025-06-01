@@ -1,320 +1,300 @@
 
-import React, { useState } from 'react';
-import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Label } from './ui/label';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-}
-
-const products: Product[] = [
-  {
-    id: 'standard',
-    name: 'Standard Heizöl',
-    price: 0.70,
-    description: 'Qualitäts-Heizöl nach DIN 51603-1'
-  },
-  {
-    id: 'premium',
-    name: 'Premium Heizöl',
-    price: 0.75,
-    description: 'Schwefelarmes Premium-Heizöl mit Additiven'
-  }
-];
+import { Calculator, MapPin, Truck, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useOrder } from '@/contexts/OrderContext';
 
 const PriceCalculator = () => {
-  const navigate = useNavigate();
   const [amount, setAmount] = useState(3000);
   const [postcode, setPostcode] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('standard');
-  const [isValidPostcode, setIsValidPostcode] = useState(true);
-  const [isValidAmount, setIsValidAmount] = useState(true);
+  const navigate = useNavigate();
+  const { setOrderData } = useOrder();
 
-  // Get selected product
-  const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
-  
-  // Calculate prices
-  const basePrice = amount * currentProduct.price;
-  const deliveryFee = amount >= 3000 ? 0 : 25;
-  const totalPrice = basePrice + deliveryFee;
-
-  // Validation functions
-  const validatePostcode = (value: string) => {
-    const isValid = /^\d{5}$/.test(value);
-    setIsValidPostcode(isValid);
-    return isValid;
-  };
-
-  const validateAmount = (value: number) => {
-    const isValid = value >= 1500 && value <= 32000;
-    setIsValidAmount(isValid);
-    return isValid;
-  };
-
-  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-    setPostcode(value);
-    if (value.length === 5) {
-      validatePostcode(value);
-    } else {
-      setIsValidPostcode(true); // Don't show error while typing
+  const products = [
+    {
+      id: 'standard',
+      name: 'Standard Heizöl',
+      price: 0.70,
+      description: 'Qualitäts-Heizöl nach DIN 51603-1'
+    },
+    {
+      id: 'premium',
+      name: 'Premium Heizöl',
+      price: 0.75,
+      description: 'Schwefelarmes Heizöl mit Additiven'
+    },
+    {
+      id: 'bio',
+      name: 'Bio Heizöl',
+      price: 0.80,
+      description: 'Umweltfreundliches Heizöl mit 10% Bioanteil'
     }
-  };
+  ];
 
-  const handleAmountChange = (value: number) => {
-    setAmount(value);
-    validateAmount(value);
-  };
+  const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
+
+  const priceCalculation = useMemo(() => {
+    const basePrice = amount * currentProduct.price;
+    const deliveryFee = amount >= 3000 ? 0 : 50;
+    const discount = amount >= 5000 ? basePrice * 0.02 : 0;
+    const total = basePrice + deliveryFee - discount;
+
+    return {
+      basePrice,
+      deliveryFee,
+      discount,
+      total,
+      pricePerLiter: currentProduct.price,
+      savings: discount > 0 ? discount : 0
+    };
+  }, [amount, currentProduct]);
+
+  const deliveryDate = useMemo(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toLocaleDateString('de-DE', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }, []);
 
   const handleOrderClick = () => {
-    if (isFormValid) {
-      // Store order data in the format that OrderForm expects
-      const orderData = {
-        product: {
-          id: currentProduct.id,
-          name: currentProduct.name,
-          price: currentProduct.price,
-          description: currentProduct.description
-        },
-        amount,
-        postcode,
-        basePrice,
-        deliveryFee,
-        totalPrice,
-        savings: 0
-      };
-      localStorage.setItem('orderData', JSON.stringify(orderData));
-      navigate('/order');
-    }
+    const orderData = {
+      product: currentProduct.name,
+      amount,
+      pricePerLiter: currentProduct.price,
+      basePrice: priceCalculation.basePrice,
+      deliveryFee: priceCalculation.deliveryFee,
+      discount: priceCalculation.discount,
+      total: priceCalculation.total,
+      deliveryDate,
+      deliveryPostcode: postcode,
+      
+      // Initialize empty delivery address
+      deliveryFirstName: '',
+      deliveryLastName: '',
+      deliveryStreet: '',
+      deliveryCity: '',
+      deliveryPhone: '',
+      
+      // Initialize billing settings
+      useSameAddress: true,
+      billingFirstName: '',
+      billingLastName: '',
+      billingStreet: '',
+      billingPostcode: '',
+      billingCity: '',
+      
+      // Initialize payment method
+      paymentMethod: 'vorkasse'
+    };
+
+    setOrderData(orderData);
+    navigate('/checkout');
   };
 
-  const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
-
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl mx-auto"
-    >
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-4">
-          <div className="bg-red-100 p-3 rounded-full">
-            <Calculator className="text-red-600" size={32} />
-          </div>
-        </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Heizöl-Preisrechner
-        </h2>
-        <p className="text-gray-600">
-          Berechnen Sie jetzt Ihren Preis und bestellen Sie zum Bestpreis
-        </p>
-      </div>
+    <section className="py-16 bg-white">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Heizöl-Preis berechnen
+          </h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Ermitteln Sie schnell und einfach den aktuellen Preis für Ihr Heizöl.
+            Transparente Preise ohne versteckte Kosten.
+          </p>
+        </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Inputs */}
-        <div className="space-y-6">
-          {/* PLZ Input */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Postleitzahl *
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={postcode}
-                onChange={handlePostcodeChange}
-                placeholder="z.B. 12345"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
-                  !isValidPostcode && postcode.length === 5
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-red-500'
-                }`}
-                maxLength={5}
-              />
-              {!isValidPostcode && postcode.length === 5 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute right-3 top-3"
-                >
-                  <AlertCircle className="text-red-500" size={20} />
-                </motion.div>
-              )}
-            </div>
-            {!isValidPostcode && postcode.length === 5 && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-red-500 text-sm mt-1"
-              >
-                Bitte geben Sie eine gültige 5-stellige PLZ ein
-              </motion.p>
-            )}
-          </div>
-
-          {/* Amount Input */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Gewünschte Menge: {amount.toLocaleString('de-DE')} Liter
-            </label>
-            <div className="relative mb-4">
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => handleAmountChange(Number(e.target.value))}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
-                  !isValidAmount
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-red-500'
-                }`}
-                min="1500"
-                max="32000"
-                step="500"
-              />
-              <span className="absolute right-3 top-3 text-gray-500 font-medium">L</span>
-            </div>
-            <div className="mb-2">
-              <input
-                type="range"
-                value={amount}
-                onChange={(e) => handleAmountChange(Number(e.target.value))}
-                min="1500"
-                max="32000"
-                step="500"
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>1.500L</span>
-              <span>32.000L</span>
-            </div>
-            {!isValidAmount && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-red-500 text-sm mt-1"
-              >
-                Menge muss zwischen 1.500L und 32.000L liegen
-              </motion.p>
-            )}
-          </div>
-
-          {/* Product Selection */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-4">
-              Produktauswahl
-            </label>
-            <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
-              <div className="space-y-3">
-                {products.map((product) => (
-                  <motion.div
-                    key={product.id}
-                    whileHover={{ scale: 1.02 }}
-                    className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedProduct === product.id
-                        ? 'border-red-500 bg-red-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedProduct(product.id)}
-                  >
-                    <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
-                    <div className="flex-1">
-                      <Label htmlFor={product.id} className="cursor-pointer">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-semibold text-gray-900">{product.name}</div>
-                            <div className="text-sm text-gray-600">{product.description}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-red-600">{product.price.toFixed(2)}€</div>
-                            <div className="text-sm text-gray-500">pro Liter</div>
-                          </div>
-                        </div>
-                      </Label>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </RadioGroup>
-          </div>
-        </div>
-
-        {/* Right Column - Price Display */}
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {/* Calculator Form */}
           <motion.div
-            key={`${amount}-${selectedProduct}`}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="bg-gray-50 rounded-xl p-6"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Preisübersicht</h3>
-            
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Grundpreis ({amount.toLocaleString('de-DE')}L × {currentProduct.price.toFixed(2)}€)</span>
-                <span className="font-semibold">{basePrice.toFixed(2)}€</span>
-              </div>
-              
-              {deliveryFee > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Lieferung</span>
-                  <span className="font-semibold">{deliveryFee.toFixed(2)}€</span>
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calculator className="text-red-600" size={24} />
+                  <span>Preisrechner</span>
+                </CardTitle>
+                <CardDescription>
+                  Geben Sie Ihre Daten ein für eine präzise Preisberechnung
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Product Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Heizöl-Typ
+                  </label>
+                  <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          <div>
+                            <div className="font-medium">{product.name}</div>
+                            <div className="text-sm text-gray-500">{product.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-              
-              {deliveryFee === 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Kostenlose Lieferung</span>
-                  <span className="font-semibold">0,00€</span>
-                </div>
-              )}
-              
-              <hr className="border-gray-300" />
-              
-              <div className="flex justify-between text-xl font-bold">
-                <span>Gesamtpreis</span>
-                <span className="text-red-600">{totalPrice.toFixed(2)}€</span>
-              </div>
-            </div>
 
-            <motion.button
-              whileHover={{ scale: isFormValid ? 1.02 : 1 }}
-              whileTap={{ scale: isFormValid ? 0.98 : 1 }}
-              disabled={!isFormValid}
-              onClick={handleOrderClick}
-              className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
-                isFormValid
-                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              {isFormValid ? 'Jetzt zum Bestpreis bestellen' : 'Bitte alle Felder ausfüllen'}
-            </motion.button>
+                {/* Amount */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Menge (Liter)
+                  </label>
+                  <Input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    min="500"
+                    max="10000"
+                    step="100"
+                    className="text-lg"
+                  />
+                  <div className="mt-2 text-sm text-gray-500">
+                    Mindestbestellmenge: 500 Liter
+                  </div>
+                </div>
+
+                {/* Postcode */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <MapPin className="inline mr-1" size={16} />
+                    Postleitzahl
+                  </label>
+                  <Input
+                    type="text"
+                    value={postcode}
+                    onChange={(e) => setPostcode(e.target.value)}
+                    placeholder="12345"
+                    maxLength={5}
+                    className="text-lg"
+                  />
+                  <div className="mt-2 text-sm text-gray-500">
+                    Zur Ermittlung der Lieferkosten
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
 
-          {/* Additional Info */}
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <Clock className="text-blue-600 mt-1" size={20} />
-              <div>
-                <h4 className="font-semibold text-blue-900">Schnelle Lieferung</h4>
-                <p className="text-sm text-blue-700">
-                  Lieferung in 4-7 Werktagen • Kostenlos ab 3.000L • Faire Preise
-                </p>
-              </div>
+          {/* Price Display */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-6"
+          >
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-red-600">Ihre Bestellung</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Produkt</span>
+                  <span className="font-semibold">{currentProduct.name}</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Menge</span>
+                  <span className="font-semibold">{amount.toLocaleString('de-DE')} Liter</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Preis pro Liter</span>
+                  <span className="font-semibold">{currentProduct.price.toFixed(2)}€</span>
+                </div>
+                
+                <hr className="border-gray-200" />
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Grundpreis</span>
+                  <span className="font-semibold">{priceCalculation.basePrice.toFixed(2)}€</span>
+                </div>
+                
+                <div className="flex justify-between text-green-600">
+                  <span>Lieferung</span>
+                  <span className="font-semibold">
+                    {priceCalculation.deliveryFee === 0 ? 'Kostenlos' : `${priceCalculation.deliveryFee.toFixed(2)}€`}
+                  </span>
+                </div>
+                
+                {priceCalculation.discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Mengenrabatt (2%)</span>
+                    <span className="font-semibold">-{priceCalculation.discount.toFixed(2)}€</span>
+                  </div>
+                )}
+                
+                <hr className="border-gray-200" />
+                
+                <div className="flex justify-between text-xl font-bold">
+                  <span>Gesamtpreis</span>
+                  <span className="text-red-600">{priceCalculation.total.toFixed(2)}€</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Delivery Info */}
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <Truck className="text-blue-600" size={20} />
+                  <span className="font-semibold text-blue-900">Lieferung</span>
+                </div>
+                <div className="space-y-2 text-sm text-blue-800">
+                  <div className="flex items-center space-x-2">
+                    <Calendar size={16} />
+                    <span>Voraussichtlich: {deliveryDate}</span>
+                  </div>
+                  <div>• Kostenlose Lieferung ab 3.000 Liter</div>
+                  <div>• Lieferung nach Zahlungseingang</div>
+                  <div>• Pünktlich und zuverlässig</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Order Button */}
+            <Button
+              onClick={handleOrderClick}
+              disabled={!postcode || postcode.length !== 5}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg"
+            >
+              Jetzt bestellen
+            </Button>
+
+            <div className="text-center text-sm text-gray-500">
+              * Alle Preise inkl. MwSt. · Preise können sich ändern
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </motion.div>
+    </section>
   );
 };
 
