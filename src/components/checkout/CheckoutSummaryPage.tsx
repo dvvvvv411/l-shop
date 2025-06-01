@@ -195,18 +195,18 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             <h1 className="text-lg font-medium text-gray-900">Bestellung überprüfen</h1>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Contact */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
+            <div className="border border-gray-200 rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-900">Kontakt</h3>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-sm h-auto p-1"
+                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
                 >
-                  <Edit3 size={14} className="mr-1" />
+                  <Edit3 size={12} className="mr-1" />
                   Ändern
                 </Button>
               </div>
@@ -216,20 +216,20 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             </div>
 
             {/* Delivery Address */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
+            <div className="border border-gray-200 rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-900">Lieferadresse</h3>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-sm h-auto p-1"
+                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
                 >
-                  <Edit3 size={14} className="mr-1" />
+                  <Edit3 size={12} className="mr-1" />
                   Ändern
                 </Button>
               </div>
-              <div className="text-sm text-gray-700 space-y-1">
+              <div className="text-sm text-gray-700 space-y-0.5">
                 <div>{formData.deliveryFirstName} {formData.deliveryLastName}</div>
                 <div>{formData.deliveryStreet}</div>
                 <div>{formData.deliveryPostcode} {formData.deliveryCity}</div>
@@ -237,16 +237,16 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             </div>
 
             {/* Billing Address */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
+            <div className="border border-gray-200 rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-900">Rechnungsadresse</h3>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-sm h-auto p-1"
+                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
                 >
-                  <Edit3 size={14} className="mr-1" />
+                  <Edit3 size={12} className="mr-1" />
                   Ändern
                 </Button>
               </div>
@@ -254,7 +254,7 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
                 {formData.useSameAddress ? (
                   <span>Identisch mit Lieferadresse</span>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <div>{formData.billingFirstName} {formData.billingLastName}</div>
                     <div>{formData.billingStreet}</div>
                     <div>{formData.billingPostcode} {formData.billingCity}</div>
@@ -264,16 +264,16 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             </div>
 
             {/* Payment Method */}
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
+            <div className="border border-gray-200 rounded-md p-3">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-900">Zahlungsart</h3>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-sm h-auto p-1"
+                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
                 >
-                  <Edit3 size={14} className="mr-1" />
+                  <Edit3 size={12} className="mr-1" />
                   Ändern
                 </Button>
               </div>
@@ -281,7 +281,7 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
                 <div className="font-medium">
                   {formData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
                 </div>
-                <div className="text-gray-500 mt-1">
+                <div className="text-gray-500 text-xs mt-1">
                   {formData.paymentMethod === 'vorkasse' 
                     ? 'Überweisung vor Lieferung' 
                     : 'Zahlung nach Lieferung'
@@ -291,10 +291,10 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             </div>
 
             {/* Security Notice */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <Lock className="text-gray-600 flex-shrink-0" size={16} />
-                <div className="text-sm text-gray-700">
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+              <div className="flex items-center space-x-2">
+                <Lock className="text-gray-600 flex-shrink-0" size={14} />
+                <div className="text-xs text-gray-700">
                   <span className="font-medium">Sichere Bestellung</span>
                   <span className="text-gray-500 ml-2">SSL-verschlüsselt</span>
                 </div>
