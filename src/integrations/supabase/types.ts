@@ -117,6 +117,30 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_sequences: {
+        Row: {
+          created_at: string
+          id: string
+          last_number: number
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_number?: number
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_number?: number
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number | null
@@ -142,6 +166,7 @@ export type Database = {
           delivery_street: string | null
           discount: number | null
           id: string
+          invoice_number: string | null
           liters: number
           notes: string | null
           order_number: string
@@ -179,6 +204,7 @@ export type Database = {
           delivery_street?: string | null
           discount?: number | null
           id?: string
+          invoice_number?: string | null
           liters: number
           notes?: string | null
           order_number: string
@@ -216,6 +242,7 @@ export type Database = {
           delivery_street?: string | null
           discount?: number | null
           id?: string
+          invoice_number?: string | null
           liters?: number
           notes?: string | null
           order_number?: string
@@ -263,6 +290,63 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_settings: {
+        Row: {
+          bank_bic: string | null
+          bank_iban: string | null
+          bank_name: string | null
+          company_address: string
+          company_city: string
+          company_email: string | null
+          company_name: string
+          company_phone: string | null
+          company_postcode: string
+          company_website: string | null
+          created_at: string
+          id: string
+          invoice_footer_text: string | null
+          tax_number: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          company_address?: string
+          company_city?: string
+          company_email?: string | null
+          company_name?: string
+          company_phone?: string | null
+          company_postcode?: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          invoice_footer_text?: string | null
+          tax_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          company_address?: string
+          company_city?: string
+          company_email?: string | null
+          company_name?: string
+          company_phone?: string | null
+          company_postcode?: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          invoice_footer_text?: string | null
+          tax_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -307,6 +391,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string

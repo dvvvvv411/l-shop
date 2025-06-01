@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -30,7 +29,7 @@ type Order = {
   deliveryFee: number;
   discount: number;
   paymentMethod: string;
-  status: 'Neu' | 'Bezahlt' | 'Versandt' | 'Abgeschlossen';
+  status: 'pending' | 'confirmed' | 'shipped' | 'completed';
   notes?: string;
 };
 
@@ -47,7 +46,7 @@ const AdminOrderDetail = () => {
       postalCode: '12345', city: 'Berlin', address: 'Musterstraße 123',
       product: 'Heizöl Standard', quantity: 1500, pricePerLiter: 0.82, totalPrice: 1275.50,
       deliveryFee: 45.00, discount: 0, paymentMethod: 'Rechnung',
-      status: 'Neu', notes: 'Bitte zwischen 10-16 Uhr liefern'
+      status: 'pending', notes: 'Bitte zwischen 10-16 Uhr liefern'
     },
     {
       id: '2', orderNumber: 'HO-2024-002', date: '2024-01-15', time: '10:15',
@@ -55,12 +54,12 @@ const AdminOrderDetail = () => {
       postalCode: '54321', city: 'Hamburg', address: 'Hauptstraße 45',
       product: 'Heizöl Premium', quantity: 2000, pricePerLiter: 0.89, totalPrice: 1890.00,
       deliveryFee: 50.00, discount: 100, paymentMethod: 'Lastschrift',
-      status: 'Bezahlt'
+      status: 'confirmed'
     }
   ];
 
   const order = orders.find(o => o.id === orderId);
-  const [currentStatus, setCurrentStatus] = useState(order?.status || 'Neu');
+  const [currentStatus, setCurrentStatus] = useState(order?.status || 'pending');
 
   const orderIndex = orders.findIndex(o => o.id === orderId);
   const hasPrevious = orderIndex > 0;
@@ -75,21 +74,21 @@ const AdminOrderDetail = () => {
       description: 'Bestellung eingegangen',
       user: 'System'
     },
-    ...(currentStatus !== 'Neu' ? [{
+    ...(currentStatus !== 'pending' ? [{
       id: '2',
       status: 'Bezahlt',
       timestamp: '15.01.2024 14:20',
       description: 'Zahlung erhalten',
       user: 'Admin'
     }] : []),
-    ...(currentStatus === 'Versandt' || currentStatus === 'Abgeschlossen' ? [{
+    ...(currentStatus === 'shipped' || currentStatus === 'completed' ? [{
       id: '3',
       status: 'Versandt',
       timestamp: '16.01.2024 08:15',
       description: 'Lieferung gestartet',
       user: 'Fahrer'
     }] : []),
-    ...(currentStatus === 'Abgeschlossen' ? [{
+    ...(currentStatus === 'completed' ? [{
       id: '4',
       status: 'Abgeschlossen',
       timestamp: '16.01.2024 11:30',
@@ -332,6 +331,7 @@ const AdminOrderDetail = () => {
             transition={{ duration: 0.5 }}
           >
             <OrderActions
+              orderId={order.id}
               currentStatus={currentStatus}
               onStatusChange={handleStatusChange}
               onGenerateInvoice={handleGenerateInvoice}

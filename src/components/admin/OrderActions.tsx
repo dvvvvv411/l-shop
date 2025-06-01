@@ -1,12 +1,14 @@
 
 import React from 'react';
-import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 
 interface OrderActionsProps {
-  currentStatus: 'Neu' | 'Bezahlt' | 'Versandt' | 'Abgeschlossen';
+  orderId: string;
+  currentStatus: 'pending' | 'confirmed' | 'shipped' | 'completed';
   onStatusChange: (status: string) => void;
   onGenerateInvoice: () => void;
   onPrintDeliveryNote: () => void;
@@ -16,6 +18,7 @@ interface OrderActionsProps {
 }
 
 const OrderActions: React.FC<OrderActionsProps> = ({
+  orderId,
   currentStatus,
   onStatusChange,
   onGenerateInvoice,
@@ -24,6 +27,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   hasPrevious,
   hasNext
 }) => {
+  const { generateInvoice, isGenerating } = useInvoiceGeneration();
+
+  const handleGenerateInvoice = async () => {
+    try {
+      await generateInvoice(orderId);
+    } catch (error) {
+      console.error('Failed to generate invoice:', error);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Navigation */}
@@ -68,10 +81,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Neu">Neu</SelectItem>
-              <SelectItem value="Bezahlt">Bezahlt</SelectItem>
-              <SelectItem value="Versandt">Versandt</SelectItem>
-              <SelectItem value="Abgeschlossen">Abgeschlossen</SelectItem>
+              <SelectItem value="pending">Neu</SelectItem>
+              <SelectItem value="confirmed">Bezahlt</SelectItem>
+              <SelectItem value="shipped">Versandt</SelectItem>
+              <SelectItem value="completed">Abgeschlossen</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -86,10 +99,19 @@ const OrderActions: React.FC<OrderActionsProps> = ({
           <Button
             variant="outline"
             className="w-full justify-start"
+            onClick={handleGenerateInvoice}
+            disabled={isGenerating}
+          >
+            <Receipt className="h-4 w-4 mr-2" />
+            {isGenerating ? 'Generiere Rechnung...' : 'Rechnung generieren'}
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start"
             onClick={onGenerateInvoice}
           >
             <FileText className="h-4 w-4 mr-2" />
-            Rechnung generieren
+            Rechnung (Alt)
           </Button>
           <Button
             variant="outline"
@@ -99,19 +121,19 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <Download className="h-4 w-4 mr-2" />
             Lieferschein drucken
           </Button>
-          {currentStatus === 'Bezahlt' && (
+          {currentStatus === 'confirmed' && (
             <Button
               className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-              onClick={() => onStatusChange('Versandt')}
+              onClick={() => onStatusChange('shipped')}
             >
               <Truck className="h-4 w-4 mr-2" />
               Als versandt markieren
             </Button>
           )}
-          {currentStatus === 'Versandt' && (
+          {currentStatus === 'shipped' && (
             <Button
               className="w-full justify-start bg-green-600 hover:bg-green-700"
-              onClick={() => onStatusChange('Abgeschlossen')}
+              onClick={() => onStatusChange('completed')}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Als abgeschlossen markieren
