@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -82,7 +81,7 @@ const Checkout = () => {
         delivery_fee: orderData.deliveryFee,
         discount: orderData.discount,
         total_amount: orderData.total,
-        delivery_date: new Date(orderData.deliveryDate),
+        delivery_date: orderData.deliveryDate,
         delivery_date_display: orderData.deliveryDate,
         delivery_first_name: orderData.deliveryFirstName,
         delivery_last_name: orderData.deliveryLastName,
