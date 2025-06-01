@@ -376,6 +376,7 @@ export type Database = {
           court_name: string | null
           created_at: string
           id: string
+          is_default: boolean
           name: string
           registration_number: string | null
           updated_at: string
@@ -393,6 +394,7 @@ export type Database = {
           court_name?: string | null
           created_at?: string
           id?: string
+          is_default?: boolean
           name: string
           registration_number?: string | null
           updated_at?: string
@@ -410,6 +412,7 @@ export type Database = {
           court_name?: string | null
           created_at?: string
           id?: string
+          is_default?: boolean
           name?: string
           registration_number?: string | null
           updated_at?: string

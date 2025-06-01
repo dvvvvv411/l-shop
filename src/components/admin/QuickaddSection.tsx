@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ExternalLink, Zap } from 'lucide-react';
+import { Loader2, ExternalLink, Zap, TestTube } from 'lucide-react';
 import { useNorthdataScraper } from '@/hooks/useNorthdataScraper';
 
 interface QuickaddSectionProps {
@@ -27,6 +27,25 @@ const QuickaddSection: React.FC<QuickaddSectionProps> = ({ onDataFetched }) => {
     }
   };
 
+  const handleGenerateTestData = () => {
+    const testData = {
+      name: 'Muster Heizöl Handel',
+      company_name: 'Muster Heizöl Handel GmbH',
+      company_address: 'Industriestraße 42',
+      company_postcode: '10115',
+      company_city: 'Berlin',
+      company_phone: '+49 30 12345678',
+      company_email: 'info@muster-heizooel.de',
+      company_website: 'www.muster-heizooel.de',
+      vat_number: 'DE123456789',
+      business_owner: 'Max Mustermann',
+      court_name: 'Amtsgericht Charlottenburg',
+      registration_number: 'HRB 12345'
+    };
+
+    onDataFetched(testData);
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
       handleQuickadd();
@@ -41,10 +60,10 @@ const QuickaddSection: React.FC<QuickaddSectionProps> = ({ onDataFetched }) => {
           Quickadd - Firmendaten automatisch ausfüllen
         </CardTitle>
         <p className="text-sm text-blue-600">
-          Geben Sie einen Northdata-Link ein, um die Firmendaten automatisch zu importieren.
+          Geben Sie einen Northdata-Link ein, um die Firmendaten automatisch zu importieren, oder verwenden Sie Testdaten.
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <Input
@@ -77,6 +96,22 @@ const QuickaddSection: React.FC<QuickaddSectionProps> = ({ onDataFetched }) => {
             )}
           </Button>
         </div>
+        
+        <div className="flex justify-center">
+          <div className="text-sm text-gray-500">oder</div>
+        </div>
+        
+        <div className="flex justify-center">
+          <Button 
+            onClick={handleGenerateTestData}
+            variant="outline"
+            className="border-green-300 text-green-700 hover:bg-green-50"
+          >
+            <TestTube className="h-4 w-4 mr-2" />
+            Testdaten generieren
+          </Button>
+        </div>
+        
         <div className="mt-3 text-xs text-gray-600">
           <strong>Tipp:</strong> Suchen Sie auf{' '}
           <a 
