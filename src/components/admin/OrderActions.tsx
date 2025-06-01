@@ -10,7 +10,7 @@ import type { Order } from '@/hooks/useOrders';
 
 interface OrderActionsProps {
   order: Order;
-  currentStatus: 'pending' | 'confirmed' | 'shipped' | 'completed';
+  currentStatus: string;
   onStatusChange: (status: string) => void;
   onGenerateInvoice: () => void;
   onPrintDeliveryNote: () => void;
