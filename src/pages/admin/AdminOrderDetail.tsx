@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -60,6 +59,7 @@ const AdminOrderDetail = () => {
       request_id: null,
       supplier_id: null,
       shop_id: null,
+      bank_account_id: null,
       processed_by: null
     },
     {
@@ -101,6 +101,7 @@ const AdminOrderDetail = () => {
       request_id: null,
       supplier_id: null,
       shop_id: null,
+      bank_account_id: null,
       processed_by: null
     }
   ];
