@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import AdminOrderDetail from "@/pages/admin/AdminOrderDetail";
 import AdminCustomers from "@/pages/admin/AdminCustomers";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminBankAccounts from "@/pages/admin/AdminBankAccounts";
+import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +48,11 @@ const App = () => (
               <Route path="/agb" element={<AGB />} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
+              
+              {/* New consolidated checkout page */}
+              <Route path="/checkout" element={<Checkout />} />
+              
+              {/* Keep existing pages for backward compatibility */}
               <Route path="/order" element={<Order />} />
               <Route path="/summary" element={<Summary />} />
               <Route path="/confirmation" element={<Confirmation />} />
