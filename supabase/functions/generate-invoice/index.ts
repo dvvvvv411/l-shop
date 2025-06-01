@@ -198,7 +198,7 @@ serve(async (req) => {
 
 function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
   const currentDate = new Date().toLocaleDateString('de-DE')
-  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
+  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : null
   
   // Calculate prices correctly - assuming total_amount includes VAT
   const grossTotal = order.total_amount
@@ -460,6 +460,10 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 padding-top: 3mm;
                 font-size: 6.5pt;
                 color: #666;
+                position: absolute;
+                bottom: 10mm;
+                left: 10mm;
+                right: 10mm;
             }
             
             .footer-grid {
@@ -577,12 +581,14 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
             
             <!-- Invoice Information -->
             <div class="invoice-info">
+                ${deliveryDate ? `
                 <div class="info-label">Lieferdatum:</div>
                 <div class="info-value">${deliveryDate}</div>
+                ` : ''}
                 <div class="info-label">Zahlungsart:</div>
                 <div class="info-value">${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method || 'Vorkasse'}</div>
                 <div class="info-label">Zahlungsziel:</div>
-                <div class="info-value">Sofort rein netto ohne Abzug</div>
+                <div class="info-value">Sofort</div>
             </div>
             
             <!-- Items Table -->
@@ -603,12 +609,12 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                         <td><strong>1</strong></td>
                         <td>
                             <strong>${order.product || 'Standard Heizöl'}</strong>
-                            <small>Lieferung am ${deliveryDate}</small>
+                            ${deliveryDate ? `<small>Lieferung am ${deliveryDate}</small>` : ''}
                             ${order.delivery_street ? `<small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
                         </td>
                         <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
                         <td>Liter</td>
-                        <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(4)}</td>
+                        <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(2)}</td>
                         <td class="text-center">19%</td>
                         <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
                     </tr>
@@ -664,7 +670,6 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
                 ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
                 <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
-                <p><em>Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum.</em></p>
             </div>
             ` : ''}
             
@@ -688,11 +693,12 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                     </div>
                     
                     <div class="footer-column">
-                        <h4>Zahlungskonditionen</h4>
-                        <p>Zahlbar sofort rein netto ohne Abzug</p>
+                        <h4>Bankverbindung</h4>
+                        ${shopSettings.bank_name ? `<p>Bank: ${shopSettings.bank_name}</p>` : ''}
+                        ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
+                        ${shopSettings.bank_bic ? `<p>BIC: ${shopSettings.bank_bic}</p>` : ''}
+                        <p>Zahlbar sofort ohne Abzug</p>
                         <p>Bei Verzug 8% p.a. über Basiszins</p>
-                        <p>Erfüllungsort: ${shopSettings.company_city}</p>
-                        <p>Gerichtsstand: ${shopSettings.company_city}</p>
                     </div>
                 </div>
             </div>
