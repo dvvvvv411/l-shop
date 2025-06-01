@@ -21,221 +21,72 @@ interface NorthdataCompanyData {
   registration_number?: string;
 }
 
-function extractTextFromElement(html: string, patterns: string[]): string | null {
-  for (const pattern of patterns) {
-    const match = html.match(new RegExp(pattern, 'is'));
-    if (match && match[1]) {
-      return match[1].trim().replace(/\s+/g, ' ').replace(/&nbsp;/g, ' ');
-    }
-  }
-  return null;
-}
-
-function cleanText(text: string): string {
-  return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-async function scrapeNorthdata(url: string): Promise<NorthdataCompanyData> {
+function parseNorthdataUrl(url: string): NorthdataCompanyData {
+  console.log('Parsing Northdata URL:', url);
+  
+  const data: NorthdataCompanyData = {};
+  
   try {
-    console.log('Scraping Northdata URL:', url);
+    // Decode the URL to handle URL encoding
+    const decodedUrl = decodeURIComponent(url);
+    console.log('Decoded URL:', decodedUrl);
     
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const html = await response.text();
-    console.log('HTML fetched, length:', html.length);
-
-    const data: NorthdataCompanyData = {};
-
-    // Company name - multiple approaches
-    const namePatterns = [
-      '<h1[^>]*>([^<]+)<\/h1>',
-      '<title>([^|<,]+?)(?:\\s*[|,]|\\s*-\\s*|$)',
-      'class="company-name[^"]*"[^>]*>([^<]+)<',
-      'data-company-name="([^"]+)"',
-      '<span[^>]*class="[^"]*name[^"]*"[^>]*>([^<]+)<\/span>'
-    ];
+    // Extract the path part after the domain
+    const urlParts = decodedUrl.split('/');
+    const pathIndex = urlParts.findIndex(part => part.includes('northdata.de'));
     
-    const extractedName = extractTextFromElement(html, namePatterns);
-    if (extractedName) {
-      const cleanName = cleanText(extractedName);
-      data.company_name = cleanName;
-      data.name = cleanName;
+    if (pathIndex === -1 || pathIndex + 1 >= urlParts.length) {
+      throw new Error('Invalid Northdata URL format');
     }
-
-    // Address extraction - look for structured address data
-    const addressPatterns = [
-      'Adresse[^>]*>\\s*([^<]+)<',
-      'Sitz[^>]*>\\s*([^<]+)<',
-      'class="address[^"]*"[^>]*>([^<]+)<',
-      'Anschrift[^>]*>\\s*([^<]+)<',
-      '<td[^>]*>\\s*Adresse[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      'Geschäftsadresse[^>]*>\\s*([^<]+)<'
-    ];
-
-    const fullAddress = extractTextFromElement(html, addressPatterns);
-    if (fullAddress) {
-      const cleanAddress = cleanText(fullAddress);
+    
+    // Get the company info part (everything after the domain)
+    const companyPath = urlParts.slice(pathIndex + 1).join('/');
+    console.log('Company path:', companyPath);
+    
+    // Split by comma to separate company info from court info
+    const parts = companyPath.split(',');
+    
+    if (parts.length >= 1) {
+      // Extract company name (first part)
+      const companyName = parts[0].trim();
+      data.company_name = companyName;
+      data.name = companyName;
+      console.log('Extracted company name:', companyName);
+    }
+    
+    if (parts.length >= 2) {
+      // Extract city (second part, usually contains the city)
+      const cityPart = parts[1].trim();
+      data.company_city = cityPart;
+      console.log('Extracted city:', cityPart);
+    }
+    
+    if (parts.length >= 3) {
+      // Extract court and registration info (third part)
+      const courtPart = parts[2].trim();
+      console.log('Court part:', courtPart);
       
-      // Try to parse German address format: "Street Number, PLZ City"
-      const addressMatch = cleanAddress.match(/^(.+?),?\s*(\d{5})\s+(.+)$/);
-      if (addressMatch) {
-        data.company_address = addressMatch[1].replace(/,$/, '').trim();
-        data.company_postcode = addressMatch[2];
-        data.company_city = addressMatch[3];
-      } else {
-        // Fallback: try to extract postcode and city separately
-        const postcodeMatch = cleanAddress.match(/(\d{5})/);
-        if (postcodeMatch) {
-          data.company_postcode = postcodeMatch[1];
-          
-          // Extract city after postcode
-          const cityMatch = cleanAddress.match(/\d{5}\s+([^,\n]+)/);
-          if (cityMatch) {
-            data.company_city = cityMatch[1].trim();
-          }
-          
-          // Extract street before postcode
-          const streetMatch = cleanAddress.match(/^(.+?)\s*,?\s*\d{5}/);
-          if (streetMatch) {
-            data.company_address = streetMatch[1].trim();
-          }
-        } else {
-          data.company_address = cleanAddress;
-        }
+      // Parse court and registration number
+      // Expected format: "Amtsgericht [Court Name] HRB [Number]"
+      const courtMatch = courtPart.match(/^(Amtsgericht\s+[^H]+)/);
+      if (courtMatch) {
+        data.court_name = courtMatch[1].trim();
+        console.log('Extracted court name:', data.court_name);
+      }
+      
+      const hrbMatch = courtPart.match(/HRB\s*(\d+)/);
+      if (hrbMatch) {
+        data.registration_number = `HRB ${hrbMatch[1]}`;
+        console.log('Extracted registration number:', data.registration_number);
       }
     }
-
-    // Phone number extraction
-    const phonePatterns = [
-      'Telefon[^>]*>\\s*([^<]+)<',
-      'Tel[^>]*>\\s*([^<]+)<',
-      'Phone[^>]*>\\s*([^<]+)<',
-      'class="phone[^"]*"[^>]*>([^<]+)<',
-      '<td[^>]*>\\s*Telefon[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      '(?:Telefon|Tel|Phone):\\s*([+\\d\\s\\-\\/\\(\\)]+)',
-      '(\\+49[\\s\\-]?\\d{2,4}[\\s\\-]?\\d{3,8})',
-      '(\\d{2,5}[\\s\\-]?\\d{3,8})'
-    ];
-
-    const phone = extractTextFromElement(html, phonePatterns);
-    if (phone) {
-      data.company_phone = cleanText(phone);
-    }
-
-    // Email extraction
-    const emailPatterns = [
-      'mailto:([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})',
-      '([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})',
-      'E-Mail[^>]*>\\s*([^<]+)<',
-      'Email[^>]*>\\s*([^<]+)<',
-      'class="email[^"]*"[^>]*>([^<]+)<'
-    ];
-
-    const email = extractTextFromElement(html, emailPatterns);
-    if (email && email.includes('@')) {
-      data.company_email = cleanText(email);
-    }
-
-    // Website extraction
-    const websitePatterns = [
-      'Website[^>]*>\\s*<a[^>]*href="([^"]+)"',
-      'Homepage[^>]*>\\s*<a[^>]*href="([^"]+)"',
-      'Web[^>]*>\\s*<a[^>]*href="([^"]+)"',
-      'href="(https?://[^"]+)"[^>]*>\\s*(?:www\\.|Website|Homepage)',
-      'class="website[^"]*"[^>]*href="([^"]+)"',
-      '(https?://[^\\s<>"]+\\.[a-zA-Z]{2,})'
-    ];
-
-    const website = extractTextFromElement(html, websitePatterns);
-    if (website && (website.startsWith('http') || website.startsWith('www'))) {
-      data.company_website = cleanText(website);
-    }
-
-    // VAT number (USt-IdNr) extraction
-    const vatPatterns = [
-      'USt-IdNr[^>]*>\\s*([^<]+)<',
-      'Umsatzsteuer-ID[^>]*>\\s*([^<]+)<',
-      'VAT[^>]*>\\s*([^<]+)<',
-      'Umsatzsteuer-Identifikationsnummer[^>]*>\\s*([^<]+)<',
-      '<td[^>]*>\\s*USt-IdNr[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      '(DE\\d{9})',
-      'USt[^:]*:\\s*([A-Z]{2}\\d{9})'
-    ];
-
-    const vat = extractTextFromElement(html, vatPatterns);
-    if (vat) {
-      data.vat_number = cleanText(vat);
-    }
-
-    // Business owner/manager extraction
-    const ownerPatterns = [
-      'Geschäftsführer[^>]*>\\s*([^<]+)<',
-      'Inhaber[^>]*>\\s*([^<]+)<',
-      'CEO[^>]*>\\s*([^<]+)<',
-      'Managing Director[^>]*>\\s*([^<]+)<',
-      'Geschäftsführung[^>]*>\\s*([^<]+)<',
-      '<td[^>]*>\\s*Geschäftsführer[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      'Vertretungsberechtigte[^>]*>\\s*([^<]+)<',
-      'class="manager[^"]*"[^>]*>([^<]+)<'
-    ];
-
-    const owner = extractTextFromElement(html, ownerPatterns);
-    if (owner) {
-      data.business_owner = cleanText(owner);
-    }
-
-    // Court registration extraction
-    const courtPatterns = [
-      'Amtsgericht[^>]*>\\s*([^<]+)<',
-      'Registergericht[^>]*>\\s*([^<]+)<',
-      '<td[^>]*>\\s*Amtsgericht[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      'Gericht[^>]*>\\s*([^<]+)<',
-      'class="court[^"]*"[^>]*>([^<]+)<'
-    ];
-
-    const court = extractTextFromElement(html, courtPatterns);
-    if (court) {
-      data.court_name = cleanText(court);
-    }
-
-    // Registration number extraction
-    const regPatterns = [
-      'HRB[^>]*>\\s*([^<]+)<',
-      'Handelsregister[^>]*>\\s*([^<]+)<',
-      '<td[^>]*>\\s*HRB[^<]*<\/td>\\s*<td[^>]*>([^<]+)<',
-      'Registernummer[^>]*>\\s*([^<]+)<',
-      '(HRB\\s*\\d+)',
-      'HR\\s*B\\s*(\\d+)',
-      'class="register[^"]*"[^>]*>([^<]+)<'
-    ];
-
-    const registration = extractTextFromElement(html, regPatterns);
-    if (registration) {
-      data.registration_number = cleanText(registration);
-    }
-
-    console.log('Extracted data:', data);
+    
+    console.log('Final extracted data:', data);
     return data;
-
+    
   } catch (error) {
-    console.error('Error scraping Northdata:', error);
-    throw new Error(`Failed to scrape Northdata: ${error.message}`);
+    console.error('Error parsing Northdata URL:', error);
+    throw new Error(`Failed to parse Northdata URL: ${error.message}`);
   }
 }
 
@@ -269,7 +120,7 @@ serve(async (req) => {
       );
     }
 
-    const companyData = await scrapeNorthdata(url);
+    const companyData = parseNorthdataUrl(url);
 
     return new Response(
       JSON.stringify({ data: companyData }),
