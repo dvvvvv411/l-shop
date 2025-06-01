@@ -196,9 +196,10 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
   const netTotal = grossTotal / 1.19
   const vatAmount = grossTotal - netTotal
   
-  const netProductAmount = (order.liters * order.price_per_liter) / 1.19
-  const netDeliveryFee = (order.delivery_fee || 0) / 1.19
-  const netDiscount = (order.discount || 0) / 1.19
+  // For display in items table - show gross prices
+  const grossProductAmount = order.liters * order.price_per_liter
+  const grossDeliveryFee = order.delivery_fee || 0
+  const grossDiscount = order.discount || 0
 
   return `
     <!DOCTYPE html>
@@ -718,7 +719,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             <td>Liter</td>
                             <td class="text-right">€ ${order.price_per_liter.toFixed(2)}</td>
                             <td class="text-center">19%</td>
-                            <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
+                            <td class="text-right">€ ${grossProductAmount.toFixed(2)}</td>
                         </tr>
                         ${order.delivery_fee > 0 ? `
                         <tr>
@@ -731,7 +732,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             <td>Service</td>
                             <td class="text-right">€ ${order.delivery_fee.toFixed(2)}</td>
                             <td class="text-center">19%</td>
-                            <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
+                            <td class="text-right">€ ${grossDeliveryFee.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         ${order.discount > 0 ? `
@@ -745,7 +746,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             <td>Rabatt</td>
                             <td class="text-right">-€ ${order.discount.toFixed(2)}</td>
                             <td class="text-center">19%</td>
-                            <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
+                            <td class="text-right">-€ ${grossDiscount.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                     </tbody>
