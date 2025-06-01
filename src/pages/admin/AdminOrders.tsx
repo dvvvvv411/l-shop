@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone } from 'lucide-react';
+import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,10 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import OrderFilters from '@/components/admin/OrderFilters';
 import BulkActions from '@/components/admin/BulkActions';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
+import ManualOrderCreationDialog from '@/components/admin/ManualOrderCreationDialog';
 import { useOrders, Order } from '@/hooks/useOrders';
+import { useToast } from '@/hooks/use-toast';
+import type { ManualOrderFormData } from '@/schemas/manualOrderSchema';
 
 type SortConfig = {
   key: keyof Order;
@@ -19,7 +21,8 @@ type SortConfig = {
 };
 
 const AdminOrders = () => {
-  const { orders, isLoading, updateOrderStatus } = useOrders();
+  const { orders, isLoading, updateOrderStatus, createOrder } = useOrders();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -27,6 +30,8 @@ const AdminOrders = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'created_at', direction: 'desc' });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isManualOrderDialogOpen, setIsManualOrderDialogOpen] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const ordersPerPage = 20;
 
   // Filter and sort orders
@@ -115,6 +120,65 @@ const AdminOrders = () => {
     }
   };
 
+  const handleManualOrderSubmit = async (data: ManualOrderFormData) => {
+    setIsCreatingOrder(true);
+    try {
+      // Calculate total amount
+      const totalAmount = (data.liters * data.price_per_liter) + data.delivery_fee - data.discount;
+
+      // Prepare order data for creation
+      const orderData = {
+        customer_name: data.customer_name,
+        customer_email: data.customer_email,
+        customer_phone: data.customer_phone || null,
+        customer_address: data.customer_address,
+        
+        delivery_first_name: data.delivery_first_name,
+        delivery_last_name: data.delivery_last_name,
+        delivery_street: data.delivery_street,
+        delivery_postcode: data.delivery_postcode,
+        delivery_city: data.delivery_city,
+        delivery_phone: data.delivery_phone || null,
+        
+        billing_first_name: data.use_same_address ? data.delivery_first_name : (data.billing_first_name || null),
+        billing_last_name: data.use_same_address ? data.delivery_last_name : (data.billing_last_name || null),
+        billing_street: data.use_same_address ? data.delivery_street : (data.billing_street || null),
+        billing_postcode: data.use_same_address ? data.delivery_postcode : (data.billing_postcode || null),
+        billing_city: data.use_same_address ? data.delivery_city : (data.billing_city || null),
+        
+        product: data.product,
+        liters: data.liters,
+        price_per_liter: data.price_per_liter,
+        total_amount: totalAmount,
+        delivery_fee: data.delivery_fee,
+        discount: data.discount,
+        delivery_date: data.delivery_date || null,
+        payment_method: data.payment_method,
+        notes: data.notes || null,
+        status: 'pending',
+        use_same_address: data.use_same_address,
+      };
+
+      await createOrder(orderData);
+      
+      toast({
+        title: 'Erfolg',
+        description: 'Bestellung wurde erfolgreich manuell erstellt.',
+      });
+      
+      setIsManualOrderDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating manual order:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Bestellung konnte nicht erstellt werden.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status'];
     const csvContent = [
@@ -189,10 +253,19 @@ const AdminOrders = () => {
           </h1>
           <p className="text-gray-600 mt-2">Verwalten Sie alle Heizöl-Bestellungen</p>
         </div>
-        <Button onClick={exportToCSV} className="bg-red-600 hover:bg-red-700">
-          <Download className="h-4 w-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            onClick={() => setIsManualOrderDialogOpen(true)} 
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Manuell erfassen
+          </Button>
+          <Button onClick={exportToCSV} className="bg-red-600 hover:bg-red-700">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -423,6 +496,14 @@ const AdminOrders = () => {
         order={selectedOrder}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
+      />
+
+      {/* Manual Order Creation Dialog */}
+      <ManualOrderCreationDialog
+        isOpen={isManualOrderDialogOpen}
+        onClose={() => setIsManualOrderDialogOpen(false)}
+        onSubmit={handleManualOrderSubmit}
+        isLoading={isCreatingOrder}
       />
     </div>
   );
