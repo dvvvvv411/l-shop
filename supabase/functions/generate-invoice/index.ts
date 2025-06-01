@@ -342,11 +342,18 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 font-weight: bold;
             }
             
-            /* Optimized Table Layout */
+            /* Centered Table Layout */
+            .table-section {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin: 5mm 0;
+            }
+            
             .items-table {
                 width: 100%;
+                max-width: 170mm;
                 border-collapse: collapse;
-                margin: 5mm 0;
                 font-size: 7.5pt;
             }
             
@@ -396,10 +403,10 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 margin-top: 0.5mm;
             }
             
-            /* Compact Summary Table */
+            /* Centered Summary Table */
             .summary-section {
                 display: flex;
-                justify-content: flex-end;
+                justify-content: center;
                 margin: 4mm 0;
             }
             
@@ -453,15 +460,15 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 line-height: 1.2;
             }
             
-            /* Optimized Footer Layout */
+            /* Footer positioned at bottom */
             .footer {
-                margin-top: 8mm;
+                margin-top: auto;
                 border-top: 1px solid #333;
                 padding-top: 3mm;
                 font-size: 6.5pt;
                 color: #666;
                 position: absolute;
-                bottom: 10mm;
+                bottom: 5mm;
                 left: 10mm;
                 right: 10mm;
             }
@@ -592,56 +599,58 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
             </div>
             
             <!-- Items Table -->
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th style="width: 6%;">Pos.</th>
-                        <th style="width: 44%;">Bezeichnung</th>
-                        <th style="width: 10%;" class="text-right">Menge</th>
-                        <th style="width: 6%;">Einheit</th>
-                        <th style="width: 12%;" class="text-right">Einzelpreis (netto)</th>
-                        <th style="width: 6%;" class="text-center">MwSt.</th>
-                        <th style="width: 16%;" class="text-right">Gesamtpreis (netto)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>1</strong></td>
-                        <td>
-                            <strong>${order.product || 'Standard Heizöl'}</strong>
-                            ${deliveryDate ? `<small>Lieferung am ${deliveryDate}</small>` : ''}
-                            ${order.delivery_street ? `<small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
-                        </td>
-                        <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
-                        <td>Liter</td>
-                        <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(2)}</td>
-                        <td class="text-center">19%</td>
-                        <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
-                    </tr>
-                    ${order.delivery_fee > 0 ? `
-                    <tr>
-                        <td><strong>2</strong></td>
-                        <td><strong>Lieferung und Transport</strong></td>
-                        <td class="text-right">1</td>
-                        <td>Pauschal</td>
-                        <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
-                        <td class="text-center">19%</td>
-                        <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
-                    </tr>
-                    ` : ''}
-                    ${order.discount > 0 ? `
-                    <tr>
-                        <td></td>
-                        <td><strong>Rabatt</strong></td>
-                        <td class="text-right">1</td>
-                        <td>Pauschal</td>
-                        <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
-                        <td class="text-center">19%</td>
-                        <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
-                    </tr>
-                    ` : ''}
-                </tbody>
-            </table>
+            <div class="table-section">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 6%;">Pos.</th>
+                            <th style="width: 44%;">Bezeichnung</th>
+                            <th style="width: 10%;" class="text-right">Menge</th>
+                            <th style="width: 6%;">Einheit</th>
+                            <th style="width: 12%;" class="text-right">Einzelpreis (netto)</th>
+                            <th style="width: 6%;" class="text-center">MwSt.</th>
+                            <th style="width: 16%;" class="text-right">Gesamtpreis (netto)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td>
+                                <strong>${order.product || 'Standard Heizöl'}</strong>
+                                ${deliveryDate ? `<small>Lieferung am ${deliveryDate}</small>` : ''}
+                                ${order.delivery_street ? `<small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
+                            </td>
+                            <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
+                            <td>Liter</td>
+                            <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(2)}</td>
+                            <td class="text-center">19%</td>
+                            <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
+                        </tr>
+                        ${order.delivery_fee > 0 ? `
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td><strong>Lieferung und Transport</strong></td>
+                            <td class="text-right">1</td>
+                            <td>Pauschal</td>
+                            <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
+                            <td class="text-center">19%</td>
+                            <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        ${order.discount > 0 ? `
+                        <tr>
+                            <td></td>
+                            <td><strong>Rabatt</strong></td>
+                            <td class="text-right">1</td>
+                            <td>Pauschal</td>
+                            <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
+                            <td class="text-center">19%</td>
+                            <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                    </tbody>
+                </table>
+            </div>
             
             <!-- Summary -->
             <div class="summary-section">
@@ -698,7 +707,6 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                         ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
                         ${shopSettings.bank_bic ? `<p>BIC: ${shopSettings.bank_bic}</p>` : ''}
                         <p>Zahlbar sofort ohne Abzug</p>
-                        <p>Bei Verzug 8% p.a. über Basiszins</p>
                     </div>
                 </div>
             </div>
