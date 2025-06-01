@@ -85,9 +85,9 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
               
               <div className="text-right">
                 <p className="font-semibold text-gray-900">
-                  {formatCurrency(vatBreakdown.netPrice)}
+                  {formatCurrency(orderData.totalPrice)}
                 </p>
-                <p className="text-xs text-gray-500">zzgl. MwSt.</p>
+                <p className="text-xs text-gray-500">inkl. MwSt.</p>
               </div>
             </div>
           </div>
