@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -24,10 +23,6 @@ const FAQ = () => {
     {
       question: "Kann ich auch am Wochenende bestellen?",
       answer: "Ja, Sie können 24/7 online bestellen. Bestellungen am Wochenende werden am nächsten Werktag bearbeitet und geliefert."
-    },
-    {
-      question: "Gibt es Mengenrabatte?",
-      answer: "Ja, ab 5.000 Litern gewähren wir automatisch 2% Mengenrabatt. Bei größeren Bestellungen sprechen Sie uns gerne für individuelle Konditionen an."
     },
     {
       question: "Was passiert, wenn ich nicht zu Hause bin?",
