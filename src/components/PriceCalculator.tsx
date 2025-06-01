@@ -89,7 +89,7 @@ const PriceCalculator = () => {
         savings: 0
       };
       localStorage.setItem('orderData', JSON.stringify(orderData));
-      navigate('/checkout');
+      navigate('/kasse');
     }
   };
 
