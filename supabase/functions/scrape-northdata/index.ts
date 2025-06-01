@@ -43,41 +43,52 @@ function parseNorthdataUrl(url: string): NorthdataCompanyData {
     const companyPath = urlParts.slice(pathIndex + 1).join('/');
     console.log('Company path:', companyPath);
     
-    // Split by comma to separate company info from court info
-    const parts = companyPath.split(',');
+    // Split by comma to separate company info from location/court info
+    const mainParts = companyPath.split(',');
     
-    if (parts.length >= 1) {
+    if (mainParts.length >= 1) {
       // Extract company name (first part)
-      const companyName = parts[0].trim();
+      const companyName = mainParts[0].trim();
       data.company_name = companyName;
       data.name = companyName;
       console.log('Extracted company name:', companyName);
     }
     
-    if (parts.length >= 2) {
-      // Extract city (second part, usually contains the city)
-      const cityPart = parts[1].trim();
-      data.company_city = cityPart;
-      console.log('Extracted city:', cityPart);
-    }
-    
-    if (parts.length >= 3) {
-      // Extract court and registration info (third part)
-      const courtPart = parts[2].trim();
-      console.log('Court part:', courtPart);
+    if (mainParts.length >= 2) {
+      // Extract location and court info (second part)
+      const locationCourtPart = mainParts[1].trim();
+      console.log('Location/Court part:', locationCourtPart);
       
-      // Parse court and registration number
-      // Expected format: "Amtsgericht [Court Name] HRB [Number]"
-      const courtMatch = courtPart.match(/^(Amtsgericht\s+[^H]+)/);
-      if (courtMatch) {
-        data.court_name = courtMatch[1].trim();
-        console.log('Extracted court name:', data.court_name);
+      // Parse the location/court part which has format: "City/Amtsgericht CourtName HRB Number"
+      // Split by forward slash to separate city from court info
+      const locationParts = locationCourtPart.split('/');
+      
+      if (locationParts.length >= 1) {
+        // First part before slash is the city
+        const city = locationParts[0].trim();
+        data.company_city = city;
+        console.log('Extracted city:', city);
       }
       
-      const hrbMatch = courtPart.match(/HRB\s*(\d+)/);
-      if (hrbMatch) {
-        data.registration_number = `HRB ${hrbMatch[1]}`;
-        console.log('Extracted registration number:', data.registration_number);
+      if (locationParts.length >= 2) {
+        // Second part contains court info: "Amtsgericht CourtName HRB Number"
+        const courtInfo = locationParts[1].trim();
+        console.log('Court info:', courtInfo);
+        
+        // Extract court name - everything after "Amtsgericht" but before "HRB"
+        const amtsgerichtMatch = courtInfo.match(/Amtsgericht\s+(.+?)\s+HRB/);
+        if (amtsgerichtMatch) {
+          const courtName = `Amtsgericht ${amtsgerichtMatch[1].trim()}`;
+          data.court_name = courtName;
+          console.log('Extracted court name:', courtName);
+        }
+        
+        // Extract HRB registration number
+        const hrbMatch = courtInfo.match(/HRB\s*(\d+)/);
+        if (hrbMatch) {
+          data.registration_number = `HRB ${hrbMatch[1]}`;
+          console.log('Extracted registration number:', data.registration_number);
+        }
       }
     }
     
