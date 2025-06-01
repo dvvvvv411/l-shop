@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -778,6 +779,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 <p><strong>Bitte überweisen Sie den Rechnungsbetrag auf folgendes Konto:</strong></p>
                 
                 <div class="bank-details">
+                    <p><strong>Kontoinhaber:</strong> ${shopSettings.company_name}</p>
                     <p><strong>Bank:</strong> ${shopSettings.bank_name || 'Unsere Hausbank'}</p>
                     <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
                     ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
@@ -808,16 +810,16 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         <h4>Steuerdaten</h4>
                         ${shopSettings.tax_number ? `<p>Steuernr.: ${shopSettings.tax_number}</p>` : ''}
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
+                        ${shopSettings.court_name ? `<p>Amtsgericht: ${shopSettings.court_name}</p>` : ''}
+                        ${shopSettings.registration_number ? `<p>Handelsregister: ${shopSettings.registration_number}</p>` : ''}
                         <p>Lieferung gem. § 13b UStG</p>
                         ${shopSettings.business_owner ? `<p>Geschäftsführer: ${shopSettings.business_owner}</p>` : ''}
                     </div>
                     
                     <div class="footer-column">
-                        <h4>Unternehmen</h4>
+                        <h4>Banking</h4>
                         ${shopSettings.bank_name ? `<p>${shopSettings.bank_name}</p>` : ''}
                         ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
-                        ${shopSettings.court_name ? `<p>${shopSettings.court_name}</p>` : ''}
-                        ${shopSettings.registration_number ? `<p>${shopSettings.registration_number}</p>` : ''}
                         <p style="margin-top: 1.5mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
                     </div>
                 </div>
