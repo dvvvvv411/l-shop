@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -165,7 +166,7 @@ serve(async (req) => {
     }
 
     // Generate HTML content for PDF
-    const htmlContent = generateProfessionalInvoiceHTML(order, shopSettings, invoiceNumber)
+    const htmlContent = generateOptimizedInvoiceHTML(order, shopSettings, invoiceNumber)
 
     console.log('Invoice generated successfully for order:', orderId)
 
@@ -195,7 +196,7 @@ serve(async (req) => {
   }
 })
 
-function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
+function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
   const currentDate = new Date().toLocaleDateString('de-DE')
   const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
   
@@ -223,69 +224,71 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             body {
                 font-family: 'Arial', 'Helvetica', sans-serif;
-                font-size: 10pt;
-                line-height: 1.4;
+                font-size: 9pt;
+                line-height: 1.2;
                 color: #000;
                 background: #fff;
             }
             
             .invoice-container {
-                width: 210mm;
-                min-height: 297mm;
+                width: 190mm;
+                min-height: 277mm;
                 margin: 0 auto;
-                padding: 15mm;
+                padding: 10mm;
                 position: relative;
             }
             
-            /* Modern Header Layout */
+            /* Optimized Header Layout */
             .header {
                 display: grid;
                 grid-template-columns: 1fr auto;
-                gap: 20mm;
+                gap: 15mm;
                 align-items: start;
-                border-bottom: 2px solid #333;
-                padding-bottom: 10mm;
-                margin-bottom: 8mm;
+                border-bottom: 1.5px solid #333;
+                padding-bottom: 6mm;
+                margin-bottom: 6mm;
             }
             
             .company-info h1 {
-                font-size: 18pt;
+                font-size: 14pt;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 2mm;
+            }
+            
+            .company-info p {
+                font-size: 8pt;
+                margin-bottom: 0.8mm;
+                color: #666;
+                line-height: 1.1;
+            }
+            
+            .invoice-meta {
+                text-align: right;
+                min-width: 50mm;
+            }
+            
+            .invoice-meta h2 {
+                font-size: 16pt;
                 font-weight: bold;
                 color: #333;
                 margin-bottom: 3mm;
             }
             
-            .company-info p {
-                font-size: 9pt;
-                margin-bottom: 1mm;
-                color: #666;
-            }
-            
-            .invoice-meta {
-                text-align: right;
-                min-width: 60mm;
-            }
-            
-            .invoice-meta h2 {
-                font-size: 20pt;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 5mm;
-            }
-            
             .invoice-details {
                 background: #f8f9fa;
-                padding: 4mm;
+                padding: 3mm;
                 border: 1px solid #ddd;
-                border-radius: 2mm;
+                border-radius: 1mm;
             }
             
             .invoice-details p {
-                font-size: 8pt;
-                margin-bottom: 1.5mm;
+                font-size: 7.5pt;
+                margin-bottom: 1mm;
                 display: grid;
                 grid-template-columns: auto 1fr;
-                gap: 5mm;
+                gap: 3mm;
+                line-height: 1.1;
             }
             
             .invoice-details strong {
@@ -294,71 +297,68 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             /* Optimized Address Window */
             .customer-section {
-                margin: 10mm 0;
+                margin: 6mm 0;
             }
             
             .address-window {
                 border: 1px solid #333;
-                width: 80mm;
-                height: 40mm;
-                padding: 4mm;
+                width: 75mm;
+                height: 35mm;
+                padding: 3mm;
                 position: relative;
                 background: #fff;
             }
             
             .return-address {
-                font-size: 6pt;
+                font-size: 5.5pt;
                 border-bottom: 1px solid #ccc;
-                padding-bottom: 2mm;
-                margin-bottom: 3mm;
+                padding-bottom: 1.5mm;
+                margin-bottom: 2mm;
                 color: #666;
-                line-height: 1.2;
+                line-height: 1.1;
             }
             
             .customer-address {
-                font-size: 9pt;
-                line-height: 1.3;
+                font-size: 8pt;
+                line-height: 1.2;
             }
             
             .customer-address strong {
                 font-weight: bold;
                 display: block;
-                margin-bottom: 1mm;
+                margin-bottom: 0.8mm;
             }
             
-            /* Invoice Information Grid */
+            /* Compact Invoice Information Grid */
             .invoice-info {
                 display: grid;
-                grid-template-columns: 30mm 1fr;
-                gap: 3mm 5mm;
-                margin: 8mm 0;
-                font-size: 9pt;
+                grid-template-columns: 25mm 1fr;
+                gap: 2mm 4mm;
+                margin: 5mm 0;
+                font-size: 8pt;
             }
             
             .info-label {
                 font-weight: bold;
             }
             
-            .info-value {
-                /* Value styling */
-            }
-            
-            /* Modern Table Layout */
+            /* Optimized Table Layout */
             .items-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin: 8mm 0;
-                font-size: 8pt;
+                margin: 5mm 0;
+                font-size: 7.5pt;
             }
             
             .items-table th {
                 background: #333;
                 color: white;
-                padding: 3mm 2mm;
+                padding: 2mm 1.5mm;
                 text-align: left;
                 font-weight: bold;
                 border: 1px solid #333;
-                font-size: 8pt;
+                font-size: 7.5pt;
+                line-height: 1.1;
             }
             
             .items-table th.text-right {
@@ -370,10 +370,11 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             }
             
             .items-table td {
-                padding: 3mm 2mm;
+                padding: 2mm 1.5mm;
                 border: 1px solid #ddd;
                 vertical-align: top;
-                font-size: 8pt;
+                font-size: 7.5pt;
+                line-height: 1.1;
             }
             
             .items-table .text-right {
@@ -388,22 +389,30 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 background: #f9f9f9;
             }
             
-            /* Optimized Summary Table */
+            .items-table small {
+                font-size: 6.5pt;
+                color: #666;
+                display: block;
+                margin-top: 0.5mm;
+            }
+            
+            /* Compact Summary Table */
             .summary-section {
                 display: flex;
                 justify-content: flex-end;
-                margin: 5mm 0;
+                margin: 4mm 0;
             }
             
             .summary-table {
-                width: 60mm;
+                width: 50mm;
                 border-collapse: collapse;
-                font-size: 9pt;
+                font-size: 8pt;
             }
             
             .summary-table td {
-                padding: 2mm 4mm;
+                padding: 1.5mm 3mm;
                 border: 1px solid #ddd;
+                line-height: 1.1;
             }
             
             .summary-table .label {
@@ -415,63 +424,60 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 background: #333;
                 color: white;
                 font-weight: bold;
-                font-size: 10pt;
+                font-size: 9pt;
             }
             
             .summary-table .text-right {
                 text-align: right;
             }
             
-            /* Payment Section */
+            /* Compact Payment Section */
             .payment-section {
-                margin: 10mm 0;
-                padding: 4mm;
+                margin: 6mm 0;
+                padding: 3mm;
                 background: #f8f9fa;
                 border: 1px solid #ddd;
-                border-radius: 2mm;
+                border-radius: 1mm;
             }
             
             .payment-section h3 {
-                font-size: 10pt;
+                font-size: 9pt;
                 font-weight: bold;
-                margin-bottom: 3mm;
+                margin-bottom: 2mm;
                 color: #333;
             }
             
             .payment-section p {
-                margin-bottom: 1.5mm;
-                font-size: 8pt;
-                line-height: 1.3;
+                margin-bottom: 1mm;
+                font-size: 7.5pt;
+                line-height: 1.2;
             }
             
-            /* Footer Layout */
+            /* Optimized Footer Layout */
             .footer {
-                position: absolute;
-                bottom: 10mm;
-                left: 15mm;
-                right: 15mm;
+                margin-top: 8mm;
                 border-top: 1px solid #333;
-                padding-top: 4mm;
-                font-size: 7pt;
+                padding-top: 3mm;
+                font-size: 6.5pt;
                 color: #666;
             }
             
             .footer-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr 1fr;
-                gap: 5mm;
+                gap: 3mm;
             }
             
             .footer-column h4 {
-                font-size: 8pt;
+                font-size: 7pt;
                 font-weight: bold;
-                margin-bottom: 2mm;
+                margin-bottom: 1.5mm;
                 color: #333;
             }
             
             .footer-column p {
-                margin-bottom: 1mm;
-                line-height: 1.2;
+                margin-bottom: 0.8mm;
+                line-height: 1.1;
             }
             
             /* Print Optimizations */
@@ -483,7 +489,8 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 
                 .invoice-container {
                     margin: 0;
-                    padding: 10mm;
+                    padding: 8mm;
+                    page-break-inside: avoid;
                 }
                 
                 .header {
@@ -502,6 +509,10 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                     break-inside: avoid;
                 }
                 
+                .footer {
+                    break-inside: avoid;
+                }
+                
                 @page {
                     margin: 0;
                     size: A4;
@@ -512,7 +523,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             @media screen and (max-width: 800px) {
                 .header {
                     grid-template-columns: 1fr;
-                    gap: 5mm;
+                    gap: 3mm;
                 }
                 
                 .invoice-meta {
@@ -521,7 +532,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 
                 .footer-grid {
                     grid-template-columns: 1fr;
-                    gap: 3mm;
+                    gap: 2mm;
                 }
             }
         </style>
@@ -534,7 +545,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                     <h1>${shopSettings.company_name}</h1>
                     <p>${shopSettings.company_address}</p>
                     <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                    ${shopSettings.company_phone ? `<p>Telefon: ${shopSettings.company_phone}</p>` : ''}
+                    ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
                     ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
                     ${shopSettings.company_website ? `<p>Web: ${shopSettings.company_website}</p>` : ''}
                 </div>
@@ -542,10 +553,10 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <div class="invoice-meta">
                     <h2>RECHNUNG</h2>
                     <div class="invoice-details">
-                        <p><strong>Rechnungsnummer:</strong><span>${invoiceNumber}</span></p>
-                        <p><strong>Rechnungsdatum:</strong><span>${currentDate}</span></p>
-                        <p><strong>Bestellnummer:</strong><span>${order.order_number}</span></p>
-                        <p><strong>Kundennummer:</strong><span>${order.id.substring(0, 8)}</span></p>
+                        <p><strong>Rechnungsnr.:</strong><span>${invoiceNumber}</span></p>
+                        <p><strong>Datum:</strong><span>${currentDate}</span></p>
+                        <p><strong>Bestellnr.:</strong><span>${order.order_number}</span></p>
+                        <p><strong>Kundennr.:</strong><span>${order.id.substring(0, 8)}</span></p>
                     </div>
                 </div>
             </div>
@@ -578,22 +589,22 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th style="width: 8%;">Pos.</th>
-                        <th style="width: 40%;">Bezeichnung</th>
-                        <th style="width: 12%;" class="text-right">Menge</th>
-                        <th style="width: 8%;">Einheit</th>
+                        <th style="width: 6%;">Pos.</th>
+                        <th style="width: 44%;">Bezeichnung</th>
+                        <th style="width: 10%;" class="text-right">Menge</th>
+                        <th style="width: 6%;">Einheit</th>
                         <th style="width: 12%;" class="text-right">Einzelpreis (netto)</th>
-                        <th style="width: 8%;" class="text-center">MwSt.</th>
-                        <th style="width: 12%;" class="text-right">Gesamtpreis (netto)</th>
+                        <th style="width: 6%;" class="text-center">MwSt.</th>
+                        <th style="width: 16%;" class="text-right">Gesamtpreis (netto)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><strong>1</strong></td>
                         <td>
-                            <strong>${order.product || 'Standard Heizöl'}</strong><br>
+                            <strong>${order.product || 'Standard Heizöl'}</strong>
                             <small>Lieferung am ${deliveryDate}</small>
-                            ${order.delivery_street ? `<br><small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
+                            ${order.delivery_street ? `<small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
                         </td>
                         <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
                         <td>Liter</td>
@@ -673,8 +684,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <h4>Steuerdaten</h4>
                         ${shopSettings.tax_number ? `<p>Steuernummer: ${shopSettings.tax_number}</p>` : ''}
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
-                        <p>Lieferungen sind steuerpflichtig</p>
-                        <p>nach § 13b UStG</p>
+                        <p>Lieferungen sind steuerpflichtig nach § 13b UStG</p>
                     </div>
                     
                     <div class="footer-column">
