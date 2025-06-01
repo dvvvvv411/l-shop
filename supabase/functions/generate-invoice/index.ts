@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -262,6 +263,9 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 1mm;
                 opacity: 0.95;
                 line-height: 1.3;
+                display: flex;
+                align-items: center;
+                gap: 2mm;
             }
             
             .invoice-meta {
@@ -413,6 +417,9 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 display: block;
                 margin-top: 1mm;
                 font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 1.5mm;
             }
             
             /* Clean Summary Section */
@@ -485,11 +492,6 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 gap: 2mm;
             }
             
-            .payment-section h3::before {
-                content: '💳';
-                font-size: 11pt;
-            }
-            
             .payment-section p {
                 margin-bottom: 1.5mm;
                 font-size: 8.5pt;
@@ -523,7 +525,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Spacer Section to control footer position */
             .spacer-section {
-                min-height: 40mm;
+                min-height: 50mm;
                 flex-grow: 1;
             }
             
@@ -561,6 +563,21 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             .footer-column p {
                 margin-bottom: 0.8mm;
                 line-height: 1.2;
+            }
+            
+            /* Icon styles */
+            .icon {
+                width: 3mm;
+                height: 3mm;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            
+            .icon-small {
+                width: 2.5mm;
+                height: 2.5mm;
+                display: inline-block;
+                vertical-align: middle;
             }
             
             /* Print Optimizations for A4 */
@@ -645,9 +662,9 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         <h1>${shopSettings.company_name}</h1>
                         <p>${shopSettings.company_address}</p>
                         <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                        ${shopSettings.company_phone ? `<p>📞 ${shopSettings.company_phone}</p>` : ''}
-                        ${shopSettings.company_email ? `<p>✉️ ${shopSettings.company_email}</p>` : ''}
-                        ${shopSettings.company_website ? `<p>🌐 ${shopSettings.company_website}</p>` : ''}
+                        ${shopSettings.company_phone ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${shopSettings.company_phone}</p>` : ''}
+                        ${shopSettings.company_email ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> ${shopSettings.company_email}</p>` : ''}
+                        ${shopSettings.company_website ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg> ${shopSettings.company_website}</p>` : ''}
                     </div>
                     
                     <div class="invoice-meta">
@@ -694,8 +711,8 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             <td><strong>1</strong></td>
                             <td>
                                 <div class="product-name">${order.product || 'Premium Heizöl'}</div>
-                                ${deliveryDate ? `<small>📅 Lieferung am ${deliveryDate}</small>` : ''}
-                                ${order.delivery_street ? `<small>📍 ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
+                                ${deliveryDate ? `<small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Lieferung am ${deliveryDate}</small>` : ''}
+                                ${order.delivery_street ? `<small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
                             </td>
                             <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
                             <td>Liter</td>
@@ -708,7 +725,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             <td><strong>2</strong></td>
                             <td>
                                 <div class="product-name">Lieferung & Transport</div>
-                                <small>🚛 Professionelle Anlieferung</small>
+                                <small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM21 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0M17 17a2 2 0 104 0"></path></svg> Professionelle Anlieferung</small>
                             </td>
                             <td class="text-right">1</td>
                             <td>Service</td>
@@ -721,7 +738,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         <tr>
                             <td></td>
                             <td>
-                                <div class="product-name">💰 Sonderrabatt</div>
+                                <div class="product-name"><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Sonderrabatt</div>
                                 <small>Vielen Dank für Ihr Vertrauen</small>
                             </td>
                             <td class="text-right">1</td>
@@ -758,7 +775,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             <!-- Professional Payment Section -->
             ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
             <div class="payment-section">
-                <h3>Zahlungsinformationen</h3>
+                <h3><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Zahlungsinformationen</h3>
                 <p><strong>Bitte überweisen Sie den Rechnungsbetrag auf folgendes Konto:</strong></p>
                 
                 <div class="bank-details">
