@@ -202,20 +202,19 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 width: 210mm;
                 min-height: 297mm;
                 margin: 0 auto;
-                padding: 20mm;
+                padding: 15mm;
                 position: relative;
             }
             
-            /* Header */
+            /* Modern Header Layout */
             .header {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 20mm;
+                align-items: start;
                 border-bottom: 2px solid #333;
-                padding-bottom: 15mm;
-                margin-bottom: 10mm;
-            }
-            
-            .company-info {
-                float: left;
-                width: 60%;
+                padding-bottom: 10mm;
+                margin-bottom: 8mm;
             }
             
             .company-info h1 {
@@ -232,9 +231,8 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             }
             
             .invoice-meta {
-                float: right;
-                width: 35%;
                 text-align: right;
+                min-width: 60mm;
             }
             
             .invoice-meta h2 {
@@ -246,101 +244,105 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             .invoice-details {
                 background: #f8f9fa;
-                padding: 5mm;
+                padding: 4mm;
                 border: 1px solid #ddd;
+                border-radius: 2mm;
             }
             
             .invoice-details p {
-                font-size: 9pt;
-                margin-bottom: 2mm;
+                font-size: 8pt;
+                margin-bottom: 1.5mm;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 5mm;
             }
             
-            .clearfix::after {
-                content: "";
-                display: table;
-                clear: both;
+            .invoice-details strong {
+                white-space: nowrap;
             }
             
-            /* Customer Address */
+            /* Optimized Address Window */
             .customer-section {
-                margin: 15mm 0;
+                margin: 10mm 0;
             }
             
             .address-window {
                 border: 1px solid #333;
-                width: 85mm;
-                height: 45mm;
-                padding: 5mm;
+                width: 80mm;
+                height: 40mm;
+                padding: 4mm;
                 position: relative;
+                background: #fff;
             }
             
             .return-address {
-                font-size: 7pt;
+                font-size: 6pt;
                 border-bottom: 1px solid #ccc;
                 padding-bottom: 2mm;
                 margin-bottom: 3mm;
                 color: #666;
+                line-height: 1.2;
             }
             
             .customer-address {
-                font-size: 10pt;
+                font-size: 9pt;
                 line-height: 1.3;
             }
             
             .customer-address strong {
                 font-weight: bold;
+                display: block;
+                margin-bottom: 1mm;
             }
             
-            /* Invoice Details Grid */
-            .invoice-info-grid {
-                display: table;
-                width: 100%;
-                margin: 10mm 0;
-            }
-            
-            .info-row {
-                display: table-row;
+            /* Invoice Information Grid */
+            .invoice-info {
+                display: grid;
+                grid-template-columns: 30mm 1fr;
+                gap: 3mm 5mm;
+                margin: 8mm 0;
+                font-size: 9pt;
             }
             
             .info-label {
-                display: table-cell;
-                width: 30%;
-                padding: 2mm 0;
                 font-weight: bold;
-                vertical-align: top;
             }
             
             .info-value {
-                display: table-cell;
-                padding: 2mm 0;
-                vertical-align: top;
+                /* Value styling */
             }
             
-            /* Items Table */
+            /* Modern Table Layout */
             .items-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin: 10mm 0;
-                font-size: 9pt;
+                margin: 8mm 0;
+                font-size: 8pt;
             }
             
             .items-table th {
                 background: #333;
                 color: white;
-                padding: 3mm;
+                padding: 3mm 2mm;
                 text-align: left;
                 font-weight: bold;
                 border: 1px solid #333;
+                font-size: 8pt;
             }
             
             .items-table th.text-right {
                 text-align: right;
             }
             
+            .items-table th.text-center {
+                text-align: center;
+            }
+            
             .items-table td {
-                padding: 3mm;
+                padding: 3mm 2mm;
                 border: 1px solid #ddd;
                 vertical-align: top;
+                font-size: 8pt;
             }
             
             .items-table .text-right {
@@ -355,17 +357,21 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 background: #f9f9f9;
             }
             
-            /* Summary Table */
-            .summary-table {
-                width: 50%;
-                float: right;
-                border-collapse: collapse;
+            /* Optimized Summary Table */
+            .summary-section {
+                display: flex;
+                justify-content: flex-end;
                 margin: 5mm 0;
+            }
+            
+            .summary-table {
+                width: 60mm;
+                border-collapse: collapse;
                 font-size: 9pt;
             }
             
             .summary-table td {
-                padding: 2mm 5mm;
+                padding: 2mm 4mm;
                 border: 1px solid #ddd;
             }
             
@@ -381,49 +387,48 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 font-size: 10pt;
             }
             
-            /* Payment Terms */
+            .summary-table .text-right {
+                text-align: right;
+            }
+            
+            /* Payment Section */
             .payment-section {
-                clear: both;
-                margin: 15mm 0;
-                padding: 5mm;
+                margin: 10mm 0;
+                padding: 4mm;
                 background: #f8f9fa;
                 border: 1px solid #ddd;
+                border-radius: 2mm;
             }
             
             .payment-section h3 {
-                font-size: 11pt;
+                font-size: 10pt;
                 font-weight: bold;
                 margin-bottom: 3mm;
                 color: #333;
             }
             
             .payment-section p {
-                margin-bottom: 2mm;
-                font-size: 9pt;
+                margin-bottom: 1.5mm;
+                font-size: 8pt;
+                line-height: 1.3;
             }
             
-            /* Footer */
+            /* Footer Layout */
             .footer {
                 position: absolute;
-                bottom: 15mm;
-                left: 20mm;
-                right: 20mm;
+                bottom: 10mm;
+                left: 15mm;
+                right: 15mm;
                 border-top: 1px solid #333;
-                padding-top: 5mm;
+                padding-top: 4mm;
                 font-size: 7pt;
                 color: #666;
             }
             
             .footer-grid {
-                display: table;
-                width: 100%;
-            }
-            
-            .footer-column {
-                display: table-cell;
-                width: 33.33%;
-                vertical-align: top;
-                padding-right: 5mm;
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 5mm;
             }
             
             .footer-column h4 {
@@ -435,21 +440,57 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             .footer-column p {
                 margin-bottom: 1mm;
+                line-height: 1.2;
             }
             
-            /* Print Styles */
+            /* Print Optimizations */
             @media print {
                 body { 
                     print-color-adjust: exact;
                     -webkit-print-color-adjust: exact;
                 }
+                
                 .invoice-container {
                     margin: 0;
-                    padding: 15mm;
+                    padding: 10mm;
                 }
+                
+                .header {
+                    break-inside: avoid;
+                }
+                
+                .items-table {
+                    break-inside: avoid;
+                }
+                
+                .summary-section {
+                    break-inside: avoid;
+                }
+                
+                .payment-section {
+                    break-inside: avoid;
+                }
+                
                 @page {
                     margin: 0;
                     size: A4;
+                }
+            }
+            
+            /* Responsive Adjustments */
+            @media screen and (max-width: 800px) {
+                .header {
+                    grid-template-columns: 1fr;
+                    gap: 5mm;
+                }
+                
+                .invoice-meta {
+                    text-align: left;
+                }
+                
+                .footer-grid {
+                    grid-template-columns: 1fr;
+                    gap: 3mm;
                 }
             }
         </style>
@@ -457,7 +498,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
     <body>
         <div class="invoice-container">
             <!-- Header -->
-            <div class="header clearfix">
+            <div class="header">
                 <div class="company-info">
                     <h1>${shopSettings.company_name}</h1>
                     <p>${shopSettings.company_address}</p>
@@ -470,10 +511,10 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <div class="invoice-meta">
                     <h2>RECHNUNG</h2>
                     <div class="invoice-details">
-                        <p><strong>Rechnungsnummer:</strong> ${invoiceNumber}</p>
-                        <p><strong>Rechnungsdatum:</strong> ${currentDate}</p>
-                        <p><strong>Bestellnummer:</strong> ${order.order_number}</p>
-                        <p><strong>Kundennummer:</strong> ${order.id.substring(0, 8)}</p>
+                        <p><strong>Rechnungsnummer:</strong><span>${invoiceNumber}</span></p>
+                        <p><strong>Rechnungsdatum:</strong><span>${currentDate}</span></p>
+                        <p><strong>Bestellnummer:</strong><span>${order.order_number}</span></p>
+                        <p><strong>Kundennummer:</strong><span>${order.id.substring(0, 8)}</span></p>
                     </div>
                 </div>
             </div>
@@ -485,7 +526,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         ${shopSettings.company_name} • ${shopSettings.company_address} • ${shopSettings.company_postcode} ${shopSettings.company_city}
                     </div>
                     <div class="customer-address">
-                        <strong>${order.customer_name}</strong><br>
+                        <strong>${order.customer_name}</strong>
                         ${order.billing_street || order.delivery_street || order.customer_address}<br>
                         ${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}
                     </div>
@@ -493,19 +534,13 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             </div>
             
             <!-- Invoice Information -->
-            <div class="invoice-info-grid">
-                <div class="info-row">
-                    <div class="info-label">Lieferdatum:</div>
-                    <div class="info-value">${deliveryDate}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Zahlungsart:</div>
-                    <div class="info-value">${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method || 'Vorkasse'}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Zahlungsziel:</div>
-                    <div class="info-value">Sofort rein netto ohne Abzug</div>
-                </div>
+            <div class="invoice-info">
+                <div class="info-label">Lieferdatum:</div>
+                <div class="info-value">${deliveryDate}</div>
+                <div class="info-label">Zahlungsart:</div>
+                <div class="info-value">${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method || 'Vorkasse'}</div>
+                <div class="info-label">Zahlungsziel:</div>
+                <div class="info-value">Sofort rein netto ohne Abzug</div>
             </div>
             
             <!-- Items Table -->
@@ -561,20 +596,22 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             </table>
             
             <!-- Summary -->
-            <table class="summary-table">
-                <tr>
-                    <td class="label">Netto-Betrag:</td>
-                    <td class="text-right">€ ${netTotal.toFixed(2)}</td>
-                </tr>
-                <tr>
-                    <td class="label">MwSt. 19%:</td>
-                    <td class="text-right">€ ${vatAmount.toFixed(2)}</td>
-                </tr>
-                <tr class="total-row">
-                    <td><strong>Rechnungsbetrag:</strong></td>
-                    <td class="text-right"><strong>€ ${grossTotal.toFixed(2)}</strong></td>
-                </tr>
-            </table>
+            <div class="summary-section">
+                <table class="summary-table">
+                    <tr>
+                        <td class="label">Netto-Betrag:</td>
+                        <td class="text-right">€ ${netTotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">MwSt. 19%:</td>
+                        <td class="text-right">€ ${vatAmount.toFixed(2)}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Rechnungsbetrag:</strong></td>
+                        <td class="text-right"><strong>€ ${grossTotal.toFixed(2)}</strong></td>
+                    </tr>
+                </table>
+            </div>
             
             <!-- Payment Information -->
             ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
@@ -588,8 +625,6 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <p><em>Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum.</em></p>
             </div>
             ` : ''}
-            
-            <div class="clearfix"></div>
             
             <!-- Footer -->
             <div class="footer">
