@@ -33,9 +33,10 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   const [invoiceDate, setInvoiceDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [processedBy, setProcessedBy] = useState<string>('');
 
-  // Get active shops and default shop
-  const activeShops = shops.filter(shop => shop.is_active);
-  const defaultShop = shops.find(shop => shop.is_default);
+  // Get all shops (since is_active field no longer exists)
+  const availableShops = shops;
+  // Use the first shop as default (since is_default field no longer exists)
+  const defaultShop = shops.length > 0 ? shops[0] : null;
   const defaultBankAccount = bankAccounts.find(account => account.is_default);
 
   // Reset form when dialog opens
@@ -126,10 +127,9 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                     <SelectValue placeholder="Geschäft auswählen..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {activeShops.map((shop) => (
+                    {availableShops.map((shop) => (
                       <SelectItem key={shop.id} value={shop.id}>
                         <div className="flex items-center gap-2">
-                          {shop.is_default && <span className="text-yellow-600">⭐</span>}
                           <span>{shop.name}</span>
                           <span className="text-gray-500">({shop.company_name})</span>
                         </div>
