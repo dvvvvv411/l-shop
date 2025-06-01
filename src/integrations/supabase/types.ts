@@ -166,14 +166,17 @@ export type Database = {
           delivery_street: string | null
           discount: number | null
           id: string
+          invoice_date: string | null
           invoice_number: string | null
           liters: number
           notes: string | null
           order_number: string
           payment_method: string | null
           price_per_liter: number
+          processed_by: string | null
           product: string | null
           request_id: string | null
+          shop_id: string | null
           status: string
           supplier_id: string | null
           total_amount: number
@@ -204,14 +207,17 @@ export type Database = {
           delivery_street?: string | null
           discount?: number | null
           id?: string
+          invoice_date?: string | null
           invoice_number?: string | null
           liters: number
           notes?: string | null
           order_number: string
           payment_method?: string | null
           price_per_liter: number
+          processed_by?: string | null
           product?: string | null
           request_id?: string | null
+          shop_id?: string | null
           status?: string
           supplier_id?: string | null
           total_amount: number
@@ -242,14 +248,17 @@ export type Database = {
           delivery_street?: string | null
           discount?: number | null
           id?: string
+          invoice_date?: string | null
           invoice_number?: string | null
           liters?: number
           notes?: string | null
           order_number?: string
           payment_method?: string | null
           price_per_liter?: number
+          processed_by?: string | null
           product?: string | null
           request_id?: string | null
+          shop_id?: string | null
           status?: string
           supplier_id?: string | null
           total_amount?: number
@@ -257,6 +266,13 @@ export type Database = {
           use_same_address?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_supplier_id_fkey"
             columns: ["supplier_id"]
@@ -341,6 +357,69 @@ export type Database = {
           created_at?: string
           id?: string
           invoice_footer_text?: string | null
+          tax_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
+      shops: {
+        Row: {
+          bank_bic: string | null
+          bank_iban: string | null
+          bank_name: string | null
+          company_address: string
+          company_city: string
+          company_email: string | null
+          company_name: string
+          company_phone: string | null
+          company_postcode: string
+          company_website: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          tax_number: string | null
+          updated_at: string
+          vat_number: string | null
+        }
+        Insert: {
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          company_address: string
+          company_city: string
+          company_email?: string | null
+          company_name: string
+          company_phone?: string | null
+          company_postcode: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          tax_number?: string | null
+          updated_at?: string
+          vat_number?: string | null
+        }
+        Update: {
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          company_address?: string
+          company_city?: string
+          company_email?: string | null
+          company_name?: string
+          company_phone?: string | null
+          company_postcode?: string
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
           tax_number?: string | null
           updated_at?: string
           vat_number?: string | null

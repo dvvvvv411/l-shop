@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -18,13 +17,13 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { orderId } = await req.json()
+    const { orderId, shopId } = await req.json()
     
     if (!orderId) {
       throw new Error('Order ID is required')
     }
 
-    console.log('Generating invoice for order:', orderId)
+    console.log('Generating invoice for order:', orderId, 'with shop:', shopId)
 
     // Get order details
     const { data: order, error: orderError } = await supabase
@@ -37,15 +36,72 @@ serve(async (req) => {
       throw new Error('Order not found')
     }
 
-    // Get shop settings
-    const { data: shopSettings, error: settingsError } = await supabase
-      .from('shop_settings')
-      .select('*')
-      .limit(1)
-      .single()
+    // Get shop data - either specified shop or from order, or default shop
+    let shopSettings
+    let shopError
 
-    if (settingsError || !shopSettings) {
-      throw new Error('Shop settings not found')
+    if (shopId) {
+      // Use specified shop
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('id', shopId)
+        .eq('is_active', true)
+        .single()
+      shopSettings = data
+      shopError = error
+    } else if (order.shop_id) {
+      // Use shop from order
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('id', order.shop_id)
+        .eq('is_active', true)
+        .single()
+      shopSettings = data
+      shopError = error
+    } else {
+      // Use default shop
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('is_default', true)
+        .eq('is_active', true)
+        .single()
+      shopSettings = data
+      shopError = error
+    }
+
+    // Fallback to shop_settings table if no shop found
+    if (shopError || !shopSettings) {
+      console.log('No shop found, falling back to shop_settings')
+      const { data: fallbackSettings, error: settingsError } = await supabase
+        .from('shop_settings')
+        .select('*')
+        .limit(1)
+        .single()
+
+      if (settingsError || !fallbackSettings) {
+        throw new Error('No shop settings found')
+      }
+      
+      // Convert shop_settings to shop format
+      shopSettings = {
+        id: 'fallback',
+        name: 'Hauptgeschäft',
+        company_name: fallbackSettings.company_name,
+        company_address: fallbackSettings.company_address,
+        company_postcode: fallbackSettings.company_postcode,
+        company_city: fallbackSettings.company_city,
+        company_phone: fallbackSettings.company_phone,
+        company_email: fallbackSettings.company_email,
+        company_website: fallbackSettings.company_website,
+        tax_number: fallbackSettings.tax_number,
+        vat_number: fallbackSettings.vat_number,
+        bank_name: fallbackSettings.bank_name,
+        bank_iban: fallbackSettings.bank_iban,
+        bank_bic: fallbackSettings.bank_bic,
+      }
     }
 
     // Generate invoice number if not exists
@@ -60,10 +116,20 @@ serve(async (req) => {
 
       invoiceNumber = newInvoiceNumber
 
-      // Update order with invoice number
+      // Update order with invoice number and shop info
+      const updateData = { 
+        invoice_number: invoiceNumber,
+        invoice_date: new Date().toISOString().split('T')[0]
+      }
+      
+      // Add shop_id if we have one and it's not already set
+      if (shopSettings.id !== 'fallback' && !order.shop_id) {
+        updateData.shop_id = shopSettings.id
+      }
+
       await supabase
         .from('orders')
-        .update({ invoice_number: invoiceNumber })
+        .update(updateData)
         .eq('id', orderId)
     }
 

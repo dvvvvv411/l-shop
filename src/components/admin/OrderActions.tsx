@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
+import InvoiceCreationDialog from './InvoiceCreationDialog';
+import type { Order } from '@/hooks/useOrders';
 
 interface OrderActionsProps {
-  orderId: string;
+  order: Order;
   currentStatus: 'pending' | 'confirmed' | 'shipped' | 'completed';
   onStatusChange: (status: string) => void;
   onGenerateInvoice: () => void;
@@ -18,7 +20,7 @@ interface OrderActionsProps {
 }
 
 const OrderActions: React.FC<OrderActionsProps> = ({
-  orderId,
+  order,
   currentStatus,
   onStatusChange,
   onGenerateInvoice,
@@ -28,10 +30,11 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   hasNext
 }) => {
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
+  const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
 
   const handleGenerateInvoice = async () => {
     try {
-      await generateInvoice(orderId);
+      await generateInvoice(order.id);
     } catch (error) {
       console.error('Failed to generate invoice:', error);
     }
@@ -99,19 +102,19 @@ const OrderActions: React.FC<OrderActionsProps> = ({
           <Button
             variant="outline"
             className="w-full justify-start"
-            onClick={handleGenerateInvoice}
-            disabled={isGenerating}
+            onClick={() => setIsInvoiceDialogOpen(true)}
           >
             <Receipt className="h-4 w-4 mr-2" />
-            {isGenerating ? 'Generiere Rechnung...' : 'Rechnung generieren'}
+            Rechnung erstellen
           </Button>
           <Button
             variant="outline"
             className="w-full justify-start"
-            onClick={onGenerateInvoice}
+            onClick={handleGenerateInvoice}
+            disabled={isGenerating}
           >
             <FileText className="h-4 w-4 mr-2" />
-            Rechnung (Alt)
+            {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
           </Button>
           <Button
             variant="outline"
@@ -141,6 +144,13 @@ const OrderActions: React.FC<OrderActionsProps> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Invoice Creation Dialog */}
+      <InvoiceCreationDialog
+        order={order}
+        isOpen={isInvoiceDialogOpen}
+        onClose={() => setIsInvoiceDialogOpen(false)}
+      />
     </div>
   );
 };
