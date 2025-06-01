@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import QuickaddSection from './QuickaddSection';
 import type { Shop } from '@/hooks/useShops';
 
 const shopSchema = z.object({
@@ -56,12 +57,33 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
     await onSubmit(data);
   };
 
+  const handleQuickaddData = (scrapedData: any) => {
+    console.log('Received scraped data:', scrapedData);
+    
+    // Update form fields with scraped data
+    Object.entries(scrapedData).forEach(([key, value]) => {
+      if (value && typeof value === 'string' && value.trim()) {
+        form.setValue(key as keyof ShopFormData, value.trim());
+      }
+    });
+
+    // If no specific shop name was provided, use company name
+    if (scrapedData.company_name && !scrapedData.name) {
+      form.setValue('name', scrapedData.company_name);
+    }
+  };
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>{shop ? 'Geschäft bearbeiten' : 'Neues Geschäft erstellen'}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        {/* Quickadd Section - Only show for new shops */}
+        {!shop && (
+          <QuickaddSection onDataFetched={handleQuickaddData} />
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* Basic Information */}
