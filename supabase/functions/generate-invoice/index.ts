@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -522,9 +521,14 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 0;
             }
             
+            /* Spacer Section to control footer position */
+            .spacer-section {
+                min-height: 20mm;
+                flex-grow: 1;
+            }
+            
             /* Professional Footer - Full width at bottom */
             .footer {
-                margin-top: auto;
                 padding-top: 3mm;
                 border-top: 1px solid #e2e8f0;
                 font-size: 7pt;
@@ -769,6 +773,9 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             </div>
             ` : ''}
             
+            <!-- Spacer Section to Push Footer Down -->
+            <div class="spacer-section"></div>
+            
             <!-- Professional Footer -->
             <div class="footer">
                 <div class="footer-grid">
@@ -802,4 +809,3 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
     </html>
   `
 }
-
