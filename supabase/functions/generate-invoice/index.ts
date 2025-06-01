@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -135,21 +136,12 @@ serve(async (req) => {
       shopSettings.bank_bic = bankAccountSettings.bic
     }
 
-    // Generate invoice number if not exists
-    let invoiceNumber = order.invoice_number
-    if (!invoiceNumber) {
-      const { data: newInvoiceNumber, error: invoiceError } = await supabase
-        .rpc('generate_invoice_number')
+    // Use order number as invoice number
+    const invoiceNumber = order.order_number
 
-      if (invoiceError) {
-        throw new Error('Failed to generate invoice number')
-      }
-
-      invoiceNumber = newInvoiceNumber
-
-      // Update order with invoice number and shop info
+    // Update order with invoice date if not already set
+    if (!order.invoice_date) {
       const updateData = { 
-        invoice_number: invoiceNumber,
         invoice_date: new Date().toISOString().split('T')[0]
       }
       
@@ -232,21 +224,22 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .invoice-container {
                 width: 190mm;
-                min-height: 270mm;
+                max-height: 270mm;
                 margin: 0 auto;
-                padding: 12mm;
+                padding: 10mm;
                 position: relative;
                 background: #ffffff;
                 display: flex;
                 flex-direction: column;
+                overflow: hidden;
             }
             
             /* Professional Header */
             .header {
                 background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
                 color: white;
-                padding: 6mm;
-                margin: -12mm -12mm 6mm -12mm;
+                padding: 5mm;
+                margin: -10mm -10mm 5mm -10mm;
                 border-radius: 0 0 2mm 2mm;
                 box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
             }
@@ -254,19 +247,19 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             .header-content {
                 display: grid;
                 grid-template-columns: 1fr auto;
-                gap: 6mm;
+                gap: 5mm;
                 align-items: start;
             }
             
             .company-info h1 {
-                font-size: 16pt;
+                font-size: 15pt;
                 font-weight: 700;
                 margin-bottom: 2mm;
                 letter-spacing: -0.3px;
             }
             
             .company-info p {
-                font-size: 8.5pt;
+                font-size: 8pt;
                 margin-bottom: 1mm;
                 opacity: 0.95;
                 line-height: 1.3;
@@ -275,15 +268,15 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             .invoice-meta {
                 text-align: right;
                 background: rgba(255, 255, 255, 0.1);
-                padding: 4mm;
+                padding: 3mm;
                 border-radius: 2mm;
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
             
             .invoice-meta h2 {
-                font-size: 18pt;
+                font-size: 16pt;
                 font-weight: 700;
-                margin-bottom: 3mm;
+                margin-bottom: 2mm;
                 letter-spacing: -0.3px;
             }
             
@@ -301,14 +294,14 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Clean Customer Section */
             .customer-section {
-                margin: 6mm 0;
+                margin: 4mm 0;
             }
             
             .address-card {
                 background: #f8fafc;
                 border: 1px solid #e2e8f0;
                 border-radius: 2mm;
-                padding: 5mm;
+                padding: 4mm;
                 width: 80mm;
                 position: relative;
             }
@@ -329,7 +322,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             .return-address {
                 font-size: 6pt;
                 color: #64748b;
-                margin-bottom: 3mm;
+                margin-bottom: 2mm;
                 padding-bottom: 2mm;
                 border-bottom: 1px solid #e2e8f0;
                 line-height: 1.2;
@@ -349,39 +342,9 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 color: #111827;
             }
             
-            /* Professional Info Grid */
-            .invoice-info {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(60mm, 1fr));
-                gap: 4mm;
-                margin: 6mm 0;
-                padding: 4mm;
-                background: #f8fafc;
-                border-radius: 2mm;
-                border-left: 3px solid #2563eb;
-            }
-            
-            .info-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-size: 9pt;
-                padding: 1mm 0;
-            }
-            
-            .info-label {
-                font-weight: 600;
-                color: #475569;
-            }
-            
-            .info-value {
-                font-weight: 500;
-                color: #1e293b;
-            }
-            
             /* Professional Table Design */
             .table-section {
-                margin: 6mm 0;
+                margin: 4mm 0;
                 border-radius: 2mm;
                 overflow: hidden;
                 border: 1px solid #e2e8f0;
@@ -398,7 +361,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             .items-table th {
                 background: #1e293b;
                 color: white;
-                padding: 3mm 2mm;
+                padding: 2.5mm 2mm;
                 text-align: left;
                 font-weight: 600;
                 font-size: 8.5pt;
@@ -414,7 +377,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             }
             
             .items-table td {
-                padding: 3mm 2mm;
+                padding: 2.5mm 2mm;
                 border-bottom: 1px solid #f1f5f9;
                 vertical-align: top;
                 font-size: 8.5pt;
@@ -454,7 +417,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Clean Summary Section */
             .summary-section {
-                margin: 6mm 0 4mm 0;
+                margin: 4mm 0 3mm 0;
                 display: flex;
                 justify-content: flex-end;
             }
@@ -474,7 +437,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             }
             
             .summary-table td {
-                padding: 2.5mm 3mm;
+                padding: 2mm 3mm;
                 border-bottom: 1px solid #f1f5f9;
                 line-height: 1.3;
             }
@@ -504,18 +467,18 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Professional Payment Section */
             .payment-section {
-                margin: 6mm 0 8mm 0;
+                margin: 4mm 0 6mm 0;
                 background: #fff7ed;
                 border: 1px solid #fed7aa;
                 border-radius: 2mm;
-                padding: 5mm;
+                padding: 4mm;
                 border-left: 4px solid #ea580c;
             }
             
             .payment-section h3 {
-                font-size: 11pt;
+                font-size: 10pt;
                 font-weight: 700;
-                margin-bottom: 3mm;
+                margin-bottom: 2mm;
                 color: #9a3412;
                 display: flex;
                 align-items: center;
@@ -524,12 +487,12 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .payment-section h3::before {
                 content: '💳';
-                font-size: 12pt;
+                font-size: 11pt;
             }
             
             .payment-section p {
-                margin-bottom: 2mm;
-                font-size: 9pt;
+                margin-bottom: 1.5mm;
+                font-size: 8.5pt;
                 line-height: 1.4;
                 color: #7c2d12;
             }
@@ -541,15 +504,15 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .bank-details {
                 background: rgba(255, 255, 255, 0.8);
-                padding: 3mm;
+                padding: 2.5mm;
                 border-radius: 1.5mm;
-                margin-top: 3mm;
+                margin-top: 2mm;
                 border: 1px solid #fed7aa;
             }
             
             .bank-details p {
-                margin-bottom: 1.5mm;
-                font-size: 8.5pt;
+                margin-bottom: 1mm;
+                font-size: 8pt;
                 color: #9a3412;
                 font-weight: 500;
             }
@@ -558,41 +521,41 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 0;
             }
             
-            /* Professional Footer - Fixed Position */
+            /* Professional Footer - Compact for single page */
             .footer {
                 margin-top: auto;
-                padding-top: 4mm;
+                padding-top: 3mm;
                 border-top: 1px solid #e2e8f0;
-                font-size: 7.5pt;
+                font-size: 7pt;
                 color: #64748b;
                 background: #fafbfc;
-                margin-left: -12mm;
-                margin-right: -12mm;
-                margin-bottom: -12mm;
-                padding-left: 12mm;
-                padding-right: 12mm;
-                padding-bottom: 6mm;
+                margin-left: -10mm;
+                margin-right: -10mm;
+                margin-bottom: -10mm;
+                padding-left: 10mm;
+                padding-right: 10mm;
+                padding-bottom: 4mm;
             }
             
             .footer-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr 1fr;
-                gap: 6mm;
-                margin-top: 2mm;
+                gap: 4mm;
+                margin-top: 1.5mm;
             }
             
             .footer-column h4 {
-                font-size: 8pt;
+                font-size: 7.5pt;
                 font-weight: 700;
-                margin-bottom: 2mm;
+                margin-bottom: 1.5mm;
                 color: #374151;
                 text-transform: uppercase;
                 letter-spacing: 0.3px;
             }
             
             .footer-column p {
-                margin-bottom: 1mm;
-                line-height: 1.3;
+                margin-bottom: 0.8mm;
+                line-height: 1.2;
             }
             
             /* Print Optimizations */
@@ -606,6 +569,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                     margin: 0;
                     padding: 8mm;
                     min-height: auto;
+                    max-height: 270mm;
                     height: auto;
                 }
                 
@@ -624,7 +588,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             @media screen and (max-width: 800px) {
                 .header-content {
                     grid-template-columns: 1fr;
-                    gap: 4mm;
+                    gap: 3mm;
                 }
                 
                 .invoice-meta {
@@ -633,7 +597,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 
                 .footer-grid {
                     grid-template-columns: 1fr;
-                    gap: 3mm;
+                    gap: 2mm;
                 }
             }
         </style>
@@ -657,7 +621,6 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         <div class="invoice-details">
                             <p><strong>Nr.:</strong><span>${invoiceNumber}</span></p>
                             <p><strong>Datum:</strong><span>${currentDate}</span></p>
-                            <p><strong>Bestellung:</strong><span>${order.order_number}</span></p>
                             <p><strong>Kunde:</strong><span>${order.id.substring(0, 8)}</span></p>
                         </div>
                     </div>
@@ -675,24 +638,6 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         ${order.billing_street || order.delivery_street || order.customer_address}<br>
                         ${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}
                     </div>
-                </div>
-            </div>
-            
-            <!-- Invoice Information Grid -->
-            <div class="invoice-info">
-                ${deliveryDate ? `
-                <div class="info-item">
-                    <span class="info-label">Lieferdatum:</span>
-                    <span class="info-value">${deliveryDate}</span>
-                </div>
-                ` : ''}
-                <div class="info-item">
-                    <span class="info-label">Zahlungsart:</span>
-                    <span class="info-value">${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method || 'Vorkasse'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Zahlungsziel:</span>
-                    <span class="info-value">Sofort fällig</span>
                 </div>
             </div>
             
@@ -790,7 +735,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                     <p><strong>Betrag:</strong> € ${grossTotal.toFixed(2)}</p>
                 </div>
                 
-                <p style="margin-top: 3mm;"><strong>Der Rechnungsbetrag ist sofort nach Erhalt fällig.</strong> Bei Fragen zur Rechnung kontaktieren Sie uns gerne.</p>
+                <p style="margin-top: 2mm;"><strong>Der Rechnungsbetrag ist sofort nach Erhalt fällig.</strong> Bei Fragen zur Rechnung kontaktieren Sie uns gerne.</p>
             </div>
             ` : ''}
             
@@ -818,7 +763,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                         ${shopSettings.bank_name ? `<p>${shopSettings.bank_name}</p>` : ''}
                         ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
                         <p>Zahlbar sofort ohne Abzug</p>
-                        <p style="margin-top: 2mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
+                        <p style="margin-top: 1.5mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
                     </div>
                 </div>
             </div>
