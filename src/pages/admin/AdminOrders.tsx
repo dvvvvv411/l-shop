@@ -1,8 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import StatusBadge from '@/components/admin/StatusBadge';
 import OrderFilters from '@/components/admin/OrderFilters';
 import BulkActions from '@/components/admin/BulkActions';
+import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
 import { useOrders, Order } from '@/hooks/useOrders';
 
 type SortConfig = {
@@ -19,13 +19,14 @@ type SortConfig = {
 };
 
 const AdminOrders = () => {
-  const navigate = useNavigate();
   const { orders, isLoading, updateOrderStatus } = useOrders();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'created_at', direction: 'desc' });
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const ordersPerPage = 20;
 
   // Filter and sort orders
@@ -34,7 +35,8 @@ const AdminOrders = () => {
       const matchesSearch = 
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.delivery_postcode && order.delivery_postcode.includes(searchTerm));
+        (order.delivery_postcode && order.delivery_postcode.includes(searchTerm)) ||
+        (order.customer_phone && order.customer_phone.includes(searchTerm));
       
       const matchesStatus = statusFilter === 'alle' || order.status === statusFilter;
       
@@ -114,13 +116,14 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status'];
+    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredAndSortedOrders.map(order => [
         order.order_number,
         new Date(order.created_at).toLocaleDateString('de-DE'),
         order.customer_name,
+        order.customer_phone || '',
         order.delivery_postcode || '',
         order.delivery_city || '',
         order.product || 'Standard Heizöl',
@@ -147,8 +150,14 @@ const AdminOrders = () => {
       <ArrowDown className="h-4 w-4" />;
   };
 
-  const handleViewOrder = (orderId: string) => {
-    navigate(`/admin/orders/${orderId}`);
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedOrder(null);
   };
 
   if (isLoading) {
@@ -256,6 +265,16 @@ const AdminOrders = () => {
                         {getSortIcon('customer_name')}
                       </div>
                     </TableHead>
+                    <TableHead 
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleSort('customer_phone')}
+                    >
+                      <div className="flex items-center gap-1">
+                        <Phone className="h-4 w-4" />
+                        Telefon
+                        {getSortIcon('customer_phone')}
+                      </div>
+                    </TableHead>
                     <TableHead>PLZ / Stadt</TableHead>
                     <TableHead>Produkt</TableHead>
                     <TableHead 
@@ -292,12 +311,7 @@ const AdminOrders = () => {
                   {paginatedOrders.map((order) => (
                     <TableRow 
                       key={order.id} 
-                      className="hover:bg-gray-50 cursor-pointer"
-                      onClick={(e) => {
-                        if (e.target instanceof HTMLElement && !e.target.closest('input, button')) {
-                          handleViewOrder(order.id);
-                        }
-                      }}
+                      className="hover:bg-gray-50"
                     >
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
@@ -320,6 +334,18 @@ const AdminOrders = () => {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
+                          {order.customer_phone ? (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3 text-gray-400" />
+                              {order.customer_phone}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
                           <div>{order.delivery_postcode}</div>
                           <div className="text-gray-500">{order.delivery_city}</div>
                         </div>
@@ -334,7 +360,7 @@ const AdminOrders = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleViewOrder(order.id)}
+                          onClick={() => handleViewOrder(order)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -391,6 +417,13 @@ const AdminOrders = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Order Details Dialog */}
+      <OrderDetailsDialog
+        order={selectedOrder}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+      />
     </div>
   );
 };
