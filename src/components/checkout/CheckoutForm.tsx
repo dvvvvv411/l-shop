@@ -1,9 +1,7 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 import { Truck, CreditCard, Shield, TestTube, FileText } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -81,15 +79,15 @@ interface PriceCalculatorData {
 
 interface CheckoutFormProps {
   orderData: PriceCalculatorData;
+  onOrderSuccess: (orderNumber: string) => void;
 }
 
-const CheckoutForm = ({ orderData }: CheckoutFormProps) => {
+const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -174,8 +172,11 @@ const CheckoutForm = ({ orderData }: CheckoutFormProps) => {
       const createdOrder = await createOrder(dbOrderData);
 
       if (!createdOrder) {
-        console.log('Order was already processed, redirecting to home');
-        navigate('/');
+        console.log('Order was already processed');
+        toast({
+          title: 'Information',
+          description: 'Diese Bestellung wurde bereits verarbeitet.',
+        });
         return;
       }
 
@@ -209,12 +210,8 @@ const CheckoutForm = ({ orderData }: CheckoutFormProps) => {
 
       setContextOrderData(contextOrderData);
 
-      // Navigate to confirmation page with order number
-      navigate('/confirmation', {
-        state: {
-          orderNumber: createdOrder.order_number
-        }
-      });
+      // Call the success callback to move to confirmation step
+      onOrderSuccess(createdOrder.order_number);
 
       // Clear localStorage
       localStorage.removeItem('orderData');

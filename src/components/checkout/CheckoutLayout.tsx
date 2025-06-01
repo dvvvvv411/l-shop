@@ -1,10 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import CheckoutForm from './CheckoutForm';
 import CheckoutSummary from './CheckoutSummary';
+import CheckoutConfirmation from './CheckoutConfirmation';
 import { useOrder } from '@/contexts/OrderContext';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface PriceCalculatorData {
   product: {
@@ -22,7 +26,9 @@ interface PriceCalculatorData {
 }
 
 const CheckoutLayout = () => {
+  const [currentStep, setCurrentStep] = useState<'checkout' | 'confirmation'>('checkout');
   const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -70,11 +76,58 @@ const CheckoutLayout = () => {
     }
   }, [navigate, toast]);
 
+  const handleOrderSuccess = (generatedOrderNumber: string) => {
+    setOrderNumber(generatedOrderNumber);
+    setCurrentStep('confirmation');
+  };
+
+  const handleBackToCheckout = () => {
+    setCurrentStep('checkout');
+  };
+
+  const handleNewOrder = () => {
+    // Clear localStorage and navigate to home
+    localStorage.removeItem('orderData');
+    navigate('/');
+  };
+
   // Show loading state while order data is being loaded
   if (!orderData) {
     return (
       <div className="flex justify-center items-center min-h-96">
         <div className="text-lg text-gray-600">Bestelldaten werden geladen...</div>
+      </div>
+    );
+  }
+
+  if (currentStep === 'confirmation') {
+    return (
+      <div>
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <Button
+              variant="ghost"
+              onClick={handleBackToCheckout}
+              className="mr-4 p-2"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div className="bg-green-100 p-3 rounded-lg mr-4">
+              <CheckCircle className="text-green-600" size={24} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Bestellung bestätigt!</h1>
+              <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
+            </div>
+          </div>
+        </div>
+
+        <CheckoutConfirmation 
+          orderData={orderData} 
+          orderNumber={orderNumber}
+          onNewOrder={handleNewOrder}
+        />
       </div>
     );
   }
@@ -91,7 +144,7 @@ const CheckoutLayout = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Form */}
         <div>
-          <CheckoutForm orderData={orderData} />
+          <CheckoutForm orderData={orderData} onOrderSuccess={handleOrderSuccess} />
         </div>
 
         {/* Right Column - Summary */}

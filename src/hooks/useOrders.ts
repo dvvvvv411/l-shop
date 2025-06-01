@@ -36,7 +36,7 @@ export const useOrders = () => {
     }
   };
 
-  // Create new order with request deduplication and supplier assignment
+  // Create new order with request deduplication
   const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
       console.log('Creating order with data:', orderData);
@@ -44,23 +44,10 @@ export const useOrders = () => {
       // Generate a unique request ID for deduplication
       const requestId = crypto.randomUUID();
       
-      // Get supplier information based on delivery postcode
-      let supplierId = null;
-      if (orderData.delivery_postcode) {
-        const { data: supplierData, error: supplierError } = await supabase
-          .rpc('get_supplier_by_postcode', { input_postcode: orderData.delivery_postcode });
-
-        if (!supplierError && supplierData && supplierData.length > 0) {
-          supplierId = supplierData[0].supplier_id;
-          console.log('Assigned supplier:', supplierId);
-        }
-      }
-      
-      // Add order data with request_id, supplier_id and temporary order_number
+      // Add order data with request_id and temporary order_number
       const orderWithMetadata: OrderInsert = {
         ...orderData,
         request_id: requestId,
-        supplier_id: supplierId,
         order_number: 'TEMP', // This will be overwritten by the database trigger
       };
 
