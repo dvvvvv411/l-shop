@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Phone, Mail, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOrder } from '@/contexts/OrderContext';
-
 interface PriceCalculatorData {
   product: {
     id: string;
@@ -18,40 +17,42 @@ interface PriceCalculatorData {
   totalPrice: number;
   savings: number;
 }
-
 interface CheckoutConfirmationProps {
   orderData: PriceCalculatorData;
   orderNumber: string;
   onNewOrder: () => void;
 }
-
-const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutConfirmationProps) => {
-  const { orderData: contextOrderData } = useOrder();
-
+const CheckoutConfirmation = ({
+  orderData,
+  orderNumber,
+  onNewOrder
+}: CheckoutConfirmationProps) => {
+  const {
+    orderData: contextOrderData
+  } = useOrder();
   if (!contextOrderData) {
-    return (
-      <div className="text-center py-12">
+    return <div className="text-center py-12">
         <p className="text-gray-600">Bestelldaten nicht verfügbar</p>
-      </div>
-    );
+      </div>;
   }
 
   // VAT calculations (19% VAT)
   const vatRate = 0.19;
   const netPrice = orderData.totalPrice / (1 + vatRate);
   const vatAmount = orderData.totalPrice - netPrice;
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  return <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Confirmation Content */}
       <div className="lg:col-span-2 space-y-6">
         {/* Order Number */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-white rounded-xl p-8 shadow-lg text-center"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6
+      }} className="bg-white rounded-xl p-8 shadow-lg text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Ihre Bestellung wurde erfolgreich aufgenommen!
           </h2>
@@ -63,12 +64,16 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
         </motion.div>
 
         {/* Payment Instructions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white rounded-xl p-6 shadow-lg"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6,
+        delay: 0.1
+      }} className="bg-white rounded-xl p-6 shadow-lg">
           <div className="flex items-center mb-6">
             <div className="bg-blue-100 p-3 rounded-full mr-4">
               <CreditCard className="text-blue-600" size={24} />
@@ -87,7 +92,7 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
                   <Phone className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">1. Telefonischer Kontakt</div>
-                    <div className="text-blue-700">Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen und Ihnen unsere Bankverbindung mitzuteilen.</div>
+                    <div className="text-blue-700">Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen.</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -110,12 +115,16 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
         </motion.div>
 
         {/* Delivery Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-xl p-6 shadow-lg"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6,
+        delay: 0.2
+      }} className="bg-white rounded-xl p-6 shadow-lg">
           <div className="flex items-center mb-6">
             <div className="bg-orange-100 p-3 rounded-full mr-4">
               <Truck className="text-orange-600" size={24} />
@@ -156,12 +165,16 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
         </motion.div>
 
         {/* Contact Support */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="bg-white rounded-xl p-6 shadow-lg"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6,
+        delay: 0.3
+      }} className="bg-white rounded-xl p-6 shadow-lg">
           <h3 className="text-xl font-bold text-gray-900 mb-4">Fragen zu Ihrer Bestellung?</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,10 +196,7 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
           </div>
           
           <div className="mt-4 text-center">
-            <Button
-              onClick={onNewOrder}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold"
-            >
+            <Button onClick={onNewOrder} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold">
               Neue Bestellung aufgeben
             </Button>
           </div>
@@ -195,12 +205,16 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
 
       {/* Order Summary Sidebar */}
       <div className="lg:col-span-1">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white rounded-xl p-6 shadow-sm border sticky top-4"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.6,
+        delay: 0.1
+      }} className="bg-white rounded-xl p-6 shadow-sm border sticky top-4">
           <div className="flex items-center mb-6">
             <div className="bg-blue-100 p-3 rounded-lg mr-4">
               <Package className="text-blue-600" size={20} />
@@ -266,8 +280,6 @@ const CheckoutConfirmation = ({ orderData, orderNumber, onNewOrder }: CheckoutCo
           </div>
         </motion.div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CheckoutConfirmation;
