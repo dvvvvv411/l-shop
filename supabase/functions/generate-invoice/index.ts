@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -342,17 +341,14 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 font-weight: bold;
             }
             
-            /* Centered Table Layout */
+            /* Table Layout - Moved Down */
             .table-section {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin: 5mm 0;
+                margin: 15mm 0 8mm 0;
+                width: 100%;
             }
             
             .items-table {
                 width: 100%;
-                max-width: 170mm;
                 border-collapse: collapse;
                 font-size: 7.5pt;
             }
@@ -403,11 +399,11 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 margin-top: 0.5mm;
             }
             
-            /* Centered Summary Table */
+            /* Summary Table - Right Aligned and Moved Down */
             .summary-section {
+                margin: 8mm 0;
                 display: flex;
-                justify-content: center;
-                margin: 4mm 0;
+                justify-content: flex-end;
             }
             
             .summary-table {
@@ -438,9 +434,9 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 text-align: right;
             }
             
-            /* Compact Payment Section */
+            /* Payment Section - Moved Down */
             .payment-section {
-                margin: 6mm 0;
+                margin: 12mm 0;
                 padding: 3mm;
                 background: #f8f9fa;
                 border: 1px solid #ddd;
@@ -460,15 +456,14 @@ function generateOptimizedInvoiceHTML(order: any, shopSettings: any, invoiceNumb
                 line-height: 1.2;
             }
             
-            /* Footer positioned at bottom */
+            /* Footer positioned closer to bottom */
             .footer {
-                margin-top: auto;
                 border-top: 1px solid #333;
                 padding-top: 3mm;
                 font-size: 6.5pt;
                 color: #666;
                 position: absolute;
-                bottom: 5mm;
+                bottom: 8mm;
                 left: 10mm;
                 right: 10mm;
             }
