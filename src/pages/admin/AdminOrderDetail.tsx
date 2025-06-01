@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -331,7 +332,7 @@ const AdminOrderDetail = () => {
             transition={{ duration: 0.5 }}
           >
             <OrderActions
-              orderId={order.id}
+              order={order}
               currentStatus={currentStatus}
               onStatusChange={handleStatusChange}
               onGenerateInvoice={handleGenerateInvoice}

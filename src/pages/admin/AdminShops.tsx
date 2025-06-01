@@ -34,7 +34,9 @@ const AdminShops = () => {
       if (selectedShop) {
         await updateShop(selectedShop.id, shopData);
       } else {
-        await createShop(shopData);
+        // Remove the id, created_at, and updated_at fields for creating new shops
+        const { id, created_at, updated_at, ...createData } = shopData;
+        await createShop(createData);
       }
       setIsFormOpen(false);
       setSelectedShop(null);

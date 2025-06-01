@@ -32,7 +32,7 @@ type ShopFormData = z.infer<typeof shopSchema>;
 
 interface ShopFormProps {
   shop?: Shop;
-  onSubmit: (data: Omit<ShopInsert, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  onSubmit: (data: ShopFormData) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
