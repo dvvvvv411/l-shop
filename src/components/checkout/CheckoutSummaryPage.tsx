@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Package, User, CreditCard, MapPin, Phone, Edit3, Shield } from 'lucide-react';
+import { ArrowLeft, Edit3, Shield, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
@@ -154,201 +153,181 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="max-w-4xl mx-auto p-6"
-    >
-      {/* Header */}
-      <div className="border-b border-gray-200 pb-6 mb-8">
-        <div className="flex items-center mb-4">
-          <Button
-            variant="ghost"
-            onClick={onBack}
-            className="mr-4 p-2 hover:bg-gray-100"
-          >
-            <ArrowLeft size={20} />
-          </Button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung überprüfen</h1>
-            <p className="text-gray-600">Bitte überprüfen Sie Ihre Angaben vor der finalen Bestellung</p>
+    <div className="min-h-screen bg-white">
+      {/* Header with back button */}
+      <div className="border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              onClick={onBack}
+              className="mr-4 p-2 hover:bg-gray-100 -ml-2"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Bestellung überprüfen</h1>
+              <p className="text-sm text-gray-500">Überprüfen Sie Ihre Angaben vor der Bestellung</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Order Details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Product Summary */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-center mb-4">
-              <div className="bg-orange-100 p-2 rounded-lg mr-3">
-                <Package className="text-orange-600" size={20} />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Produktdetails</h3>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h4 className="font-semibold text-gray-900">{orderData.product.name}</h4>
-                  <p className="text-sm text-gray-600">{orderData.product.description}</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column - Order Details */}
+          <div className="lg:col-span-7">
+            <div className="space-y-6">
+              {/* Contact */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Kontakt</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
                 </div>
-                <span className="font-semibold text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
-              </div>
-              <div className="text-sm text-gray-600">
-                {orderData.amount.toLocaleString('de-DE')} Liter × {orderData.product.price.toFixed(2)}€/L
-              </div>
-            </div>
-          </div>
-
-          {/* Delivery Address */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                  <MapPin className="text-blue-600" size={20} />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Lieferadresse</h3>
-              </div>
-              <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50">
-                <Edit3 size={16} className="mr-1" />
-                Bearbeiten
-              </Button>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="space-y-1">
-                <div className="font-medium text-gray-900">
-                  {formData.deliveryFirstName} {formData.deliveryLastName}
-                </div>
-                <div className="text-gray-700">{formData.deliveryStreet}</div>
-                <div className="text-gray-700">
-                  {formData.deliveryPostcode} {formData.deliveryCity}
-                </div>
-                <div className="flex items-center text-gray-600 mt-2">
-                  <Phone size={14} className="mr-1" />
+                <div className="text-sm text-gray-700">
                   {formData.deliveryPhone}
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Billing Address */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="bg-green-100 p-2 rounded-lg mr-3">
-                  <User className="text-green-600" size={20} />
+              {/* Delivery Address */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Lieferadresse</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Rechnungsadresse</h3>
+                <div className="text-sm text-gray-700 space-y-1">
+                  <div>{formData.deliveryFirstName} {formData.deliveryLastName}</div>
+                  <div>{formData.deliveryStreet}</div>
+                  <div>{formData.deliveryPostcode} {formData.deliveryCity}</div>
+                </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50">
-                <Edit3 size={16} className="mr-1" />
-                Bearbeiten
-              </Button>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              {formData.useSameAddress ? (
-                <div className="text-gray-600">Identisch mit Lieferadresse</div>
-              ) : (
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-900">
-                    {formData.billingFirstName} {formData.billingLastName}
+
+              {/* Billing Address */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Rechnungsadresse</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  {formData.useSameAddress ? (
+                    <span>Identisch mit Lieferadresse</span>
+                  ) : (
+                    <div className="space-y-1">
+                      <div>{formData.billingFirstName} {formData.billingLastName}</div>
+                      <div>{formData.billingStreet}</div>
+                      <div>{formData.billingPostcode} {formData.billingCity}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Zahlungsart</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  <div className="font-medium">
+                    {formData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
                   </div>
-                  <div className="text-gray-700">{formData.billingStreet}</div>
-                  <div className="text-gray-700">
-                    {formData.billingPostcode} {formData.billingCity}
+                  <div className="text-gray-500 mt-1">
+                    {formData.paymentMethod === 'vorkasse' 
+                      ? 'Überweisung vor Lieferung' 
+                      : 'Zahlung nach Lieferung'
+                    }
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* Security Notice */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <Lock className="text-gray-600" size={16} />
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">Sichere Bestellung</span>
+                    <span className="text-gray-500 ml-2">SSL-verschlüsselt</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Payment Method */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="bg-purple-100 p-2 rounded-lg mr-3">
-                  <CreditCard className="text-purple-600" size={20} />
+          {/* Right Column - Order Summary */}
+          <div className="lg:col-span-5">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sticky top-8">
+              {/* Product */}
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                      H
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 text-sm">
+                        {orderData.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {orderData.amount.toLocaleString('de-DE')} Liter
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-medium text-gray-900 text-sm">
+                    {orderData.basePrice.toFixed(2)}€
+                  </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Zahlungsart</h3>
               </div>
-              <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50">
-                <Edit3 size={16} className="mr-1" />
-                Bearbeiten
+
+              {/* Subtotal */}
+              <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Zwischensumme</span>
+                  <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Versand</span>
+                  <span className="text-gray-900">
+                    {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-lg font-semibold text-gray-900">Gesamt</span>
+                <span className="text-lg font-semibold text-gray-900">{finalPrice.toFixed(2)}€</span>
+              </div>
+
+              {/* Complete Order Button */}
+              <Button
+                onClick={handleConfirmOrder}
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg disabled:bg-gray-400 mb-4"
+              >
+                {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
               </Button>
-            </div>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="font-medium text-gray-900">
-                {formData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">
-                {formData.paymentMethod === 'vorkasse' 
-                  ? 'Überweisung vor Lieferung' 
-                  : 'Zahlung nach Lieferung'
-                }
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Right Column - Order Summary */}
-        <div className="lg:col-span-1">
-          <div className="bg-white border border-gray-200 rounded-xl p-6 sticky top-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Bestellübersicht</h3>
-            
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Zwischensumme</span>
-                <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
-              </div>
-              
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Versand</span>
-                <span className="text-green-600 font-medium">
-                  {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
-                </span>
-              </div>
-              
-              <div className="border-t border-gray-200 pt-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-900">Gesamt</span>
-                  <span className="text-xl font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Security Notice */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center space-x-2">
-                <Shield className="text-green-600" size={16} />
-                <span className="text-sm font-medium text-green-800">Sichere Bestellung</span>
-              </div>
-              <p className="text-xs text-green-700 mt-1">
-                Ihre Daten werden SSL-verschlüsselt übertragen
+              {/* Terms */}
+              <p className="text-xs text-gray-500 text-center leading-relaxed">
+                Mit der Bestellung akzeptieren Sie unsere{' '}
+                <a href="/agb" className="underline hover:no-underline">AGB</a>
+                {' '}und{' '}
+                <a href="/widerrufsrecht" className="underline hover:no-underline">Widerrufsbelehrung</a>
               </p>
             </div>
-
-            {/* Confirm Button */}
-            <Button
-              onClick={handleConfirmOrder}
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold rounded-lg disabled:bg-gray-400"
-            >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
-            </Button>
-
-            <p className="text-xs text-gray-500 mt-3 text-center">
-              Mit der Bestellung akzeptieren Sie unsere AGB und Widerrufsbelehrung
-            </p>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
