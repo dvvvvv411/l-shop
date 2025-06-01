@@ -523,7 +523,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             /* Spacer Section to control footer position */
             .spacer-section {
-                min-height: 20mm;
+                min-height: 40mm;
                 flex-grow: 1;
             }
             
@@ -699,7 +699,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             </td>
                             <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
                             <td>Liter</td>
-                            <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(2)}</td>
+                            <td class="text-right">€ ${order.price_per_liter.toFixed(2)}</td>
                             <td class="text-center">19%</td>
                             <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
                         </tr>
@@ -712,7 +712,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             </td>
                             <td class="text-right">1</td>
                             <td>Service</td>
-                            <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
+                            <td class="text-right">€ ${order.delivery_fee.toFixed(2)}</td>
                             <td class="text-center">19%</td>
                             <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
                         </tr>
@@ -726,7 +726,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                             </td>
                             <td class="text-right">1</td>
                             <td>Rabatt</td>
-                            <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
+                            <td class="text-right">-€ ${order.discount.toFixed(2)}</td>
                             <td class="text-center">19%</td>
                             <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
                         </tr>
