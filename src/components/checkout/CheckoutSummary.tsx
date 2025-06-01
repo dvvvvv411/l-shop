@@ -65,20 +65,11 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
         className="overflow-hidden lg:overflow-visible"
       >
         <div className="space-y-6">
-          {/* Product Item */}
+          {/* Product Item - Without image */}
           <div className="bg-white lg:bg-transparent border border-gray-200 lg:border-0 rounded-lg lg:rounded-none p-4 lg:p-0">
-            <div className="flex items-start space-x-4">
-              <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
-                  <Package className="text-white" size={24} />
-                </div>
-                <div className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                  1
-                </div>
-              </div>
-              
+            <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-semibold text-gray-900">
                   {orderData.product.name}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -89,10 +80,13 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                 </p>
               </div>
               
-              <div className="text-right">
+              <div className="text-right ml-4">
                 <p className="font-semibold text-gray-900">
                   {orderData.basePrice.toFixed(2)}€
                 </p>
+                <div className="text-xs text-gray-500 mt-1">
+                  Menge: 1
+                </div>
               </div>
             </div>
           </div>

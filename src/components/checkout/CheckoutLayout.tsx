@@ -8,6 +8,15 @@ import CheckoutSummary from './CheckoutSummary';
 import CheckoutConfirmation from './CheckoutConfirmation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface PriceCalculatorData {
   product: {
@@ -136,22 +145,34 @@ const CheckoutLayout = () => {
       {/* Left Column - Form (Shopify style) */}
       <div className="lg:col-span-7 order-2 lg:order-1">
         <div className="bg-white lg:bg-transparent">
-          {/* Breadcrumb */}
+          {/* Breadcrumb using shadcn/ui component */}
           <div className="hidden lg:block mb-8">
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <button 
-                onClick={() => navigate('/')}
-                className="hover:text-gray-700 transition-colors"
-              >
-                Warenkorb
-              </button>
-              <span>›</span>
-              <span className="text-gray-900 font-medium">Informationen</span>
-              <span>›</span>
-              <span className="text-gray-400">Versand</span>
-              <span>›</span>
-              <span className="text-gray-400">Zahlung</span>
-            </div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink 
+                    href="/"
+                    className="hover:text-gray-700 transition-colors"
+                  >
+                    Warenkorb
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-gray-900 font-medium">
+                    Informationen
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <span className="text-gray-400">Versand</span>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <span className="text-gray-400">Zahlung</span>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
 
           {/* Express Checkout (Optional) */}
