@@ -10,6 +10,7 @@ import SupplierInfo from '@/components/SupplierInfo';
 import { useOrder } from '@/contexts/OrderContext';
 import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { Button } from '@/components/ui/button';
+import { calculateVATFromGross, formatCurrency } from '@/utils/vatCalculations';
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -23,6 +24,9 @@ const Summary = () => {
     navigate('/order');
     return null;
   }
+
+  // Calculate VAT breakdown
+  const vatBreakdown = calculateVATFromGross(orderData.total);
 
   // Fetch supplier information when component mounts or postcode changes
   useEffect(() => {
@@ -227,7 +231,7 @@ const Summary = () => {
                 </motion.div>
               </div>
 
-              {/* Order Summary Sidebar - Use orderData directly from context */}
+              {/* Order Summary Sidebar - Use orderData directly from context with VAT breakdown */}
               <div className="lg:col-span-1">
                 <OrderSummary
                   orderData={{
@@ -239,7 +243,7 @@ const Summary = () => {
                     },
                     amount: orderData.amount,
                     postcode: orderData.deliveryPostcode,
-                    basePrice: orderData.basePrice,
+                    basePrice: vatBreakdown.netPrice,
                     deliveryFee: orderData.deliveryFee,
                     totalPrice: orderData.total,
                     savings: orderData.discount
