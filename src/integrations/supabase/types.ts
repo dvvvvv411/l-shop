@@ -365,6 +365,7 @@ export type Database = {
       }
       shops: {
         Row: {
+          business_owner: string | null
           company_address: string
           company_city: string
           company_email: string | null
@@ -372,14 +373,16 @@ export type Database = {
           company_phone: string | null
           company_postcode: string
           company_website: string | null
-          court_register_info: string | null
+          court_name: string | null
           created_at: string
           id: string
           name: string
+          registration_number: string | null
           updated_at: string
           vat_number: string | null
         }
         Insert: {
+          business_owner?: string | null
           company_address: string
           company_city: string
           company_email?: string | null
@@ -387,14 +390,16 @@ export type Database = {
           company_phone?: string | null
           company_postcode: string
           company_website?: string | null
-          court_register_info?: string | null
+          court_name?: string | null
           created_at?: string
           id?: string
           name: string
+          registration_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
         Update: {
+          business_owner?: string | null
           company_address?: string
           company_city?: string
           company_email?: string | null
@@ -402,10 +407,11 @@ export type Database = {
           company_phone?: string | null
           company_postcode?: string
           company_website?: string | null
-          court_register_info?: string | null
+          court_name?: string | null
           created_at?: string
           id?: string
           name?: string
+          registration_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }

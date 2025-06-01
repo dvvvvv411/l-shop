@@ -108,6 +108,7 @@ const AdminShops = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Firmenname</TableHead>
+                    <TableHead>Geschäftsinhaber</TableHead>
                     <TableHead>Adresse</TableHead>
                     <TableHead>Kontakt</TableHead>
                     <TableHead>Rechtliche Angaben</TableHead>
@@ -119,6 +120,7 @@ const AdminShops = () => {
                     <TableRow key={shop.id} className="hover:bg-gray-50">
                       <TableCell className="font-medium">{shop.name}</TableCell>
                       <TableCell>{shop.company_name}</TableCell>
+                      <TableCell>{shop.business_owner || '-'}</TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{shop.company_address}</div>
@@ -142,8 +144,11 @@ const AdminShops = () => {
                           {shop.vat_number && (
                             <div>USt-IdNr.: {shop.vat_number}</div>
                           )}
-                          {shop.court_register_info && (
-                            <div className="text-gray-500">{shop.court_register_info}</div>
+                          {shop.court_name && (
+                            <div className="text-gray-500">{shop.court_name}</div>
+                          )}
+                          {shop.registration_number && (
+                            <div className="text-gray-500">HRB: {shop.registration_number}</div>
                           )}
                         </div>
                       </TableCell>

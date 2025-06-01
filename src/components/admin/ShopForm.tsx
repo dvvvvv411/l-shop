@@ -19,7 +19,9 @@ const shopSchema = z.object({
   company_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
   company_website: z.string().optional(),
   vat_number: z.string().optional(),
-  court_register_info: z.string().optional(),
+  business_owner: z.string().optional(),
+  court_name: z.string().optional(),
+  registration_number: z.string().optional(),
 });
 
 type ShopFormData = z.infer<typeof shopSchema>;
@@ -44,7 +46,9 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
       company_email: shop?.company_email || '',
       company_website: shop?.company_website || '',
       vat_number: shop?.vat_number || '',
-      court_register_info: shop?.court_register_info || '',
+      business_owner: shop?.business_owner || '',
+      court_name: shop?.court_name || '',
+      registration_number: shop?.registration_number || '',
     },
   });
 
@@ -91,6 +95,19 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="business_owner"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Geschäftsinhaber</FormLabel>
+                    <FormControl>
+                      <Input placeholder="z.B. Max Mustermann" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Address Information */}
@@ -188,15 +205,28 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
             {/* Legal Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Rechtliche Informationen</h3>
+              <FormField
+                control={form.control}
+                name="vat_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>USt-IdNr.</FormLabel>
+                    <FormControl>
+                      <Input placeholder="z.B. DE123456789" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="vat_number"
+                  name="court_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>USt-IdNr.</FormLabel>
+                      <FormLabel>Amtsgericht</FormLabel>
                       <FormControl>
-                        <Input placeholder="z.B. DE123456789" {...field} />
+                        <Input placeholder="z.B. Amtsgericht Berlin" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,12 +234,12 @@ const ShopForm: React.FC<ShopFormProps> = ({ shop, onSubmit, onCancel, isLoading
                 />
                 <FormField
                   control={form.control}
-                  name="court_register_info"
+                  name="registration_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amtsgericht & Handelsregisternr</FormLabel>
+                      <FormLabel>Handelsregisternummer</FormLabel>
                       <FormControl>
-                        <Input placeholder="z.B. Amtsgericht Berlin, HRB 12345" {...field} />
+                        <Input placeholder="z.B. HRB 12345" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
