@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt } from 'lucide-react';
@@ -10,8 +11,8 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import OrderFilters from '@/components/admin/OrderFilters';
 import BulkActions from '@/components/admin/BulkActions';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
+import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
 import { useOrders, Order } from '@/hooks/useOrders';
-import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 
 type SortConfig = {
   key: keyof Order;
@@ -20,7 +21,6 @@ type SortConfig = {
 
 const AdminOrders = () => {
   const { orders, isLoading, updateOrderStatus } = useOrders();
-  const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -28,7 +28,8 @@ const AdminOrders = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'created_at', direction: 'desc' });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [generatingInvoiceForOrder, setGeneratingInvoiceForOrder] = useState<string | null>(null);
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
+  const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const ordersPerPage = 20;
 
   // Filter and sort orders
@@ -162,15 +163,14 @@ const AdminOrders = () => {
     setSelectedOrder(null);
   };
 
-  const handleGenerateInvoice = async (orderId: string) => {
-    try {
-      setGeneratingInvoiceForOrder(orderId);
-      await generateInvoice(orderId);
-    } catch (error) {
-      console.error('Failed to generate invoice:', error);
-    } finally {
-      setGeneratingInvoiceForOrder(null);
-    }
+  const handleGenerateInvoice = (order: Order) => {
+    setSelectedOrderForInvoice(order);
+    setIsInvoiceDialogOpen(true);
+  };
+
+  const handleCloseInvoiceDialog = () => {
+    setIsInvoiceDialogOpen(false);
+    setSelectedOrderForInvoice(null);
   };
 
   if (isLoading) {
@@ -381,8 +381,7 @@ const AdminOrders = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            onClick={() => handleGenerateInvoice(order.id)}
-                            disabled={generatingInvoiceForOrder === order.id}
+                            onClick={() => handleGenerateInvoice(order)}
                           >
                             <Receipt className="h-4 w-4" />
                           </Button>
@@ -446,6 +445,13 @@ const AdminOrders = () => {
         order={selectedOrder}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
+      />
+
+      {/* Invoice Creation Dialog */}
+      <InvoiceCreationDialog
+        order={selectedOrderForInvoice}
+        isOpen={isInvoiceDialogOpen}
+        onClose={handleCloseInvoiceDialog}
       />
     </div>
   );
