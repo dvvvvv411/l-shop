@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, CreditCard, Calendar, Truck, Phone, Mail } from 'lucide-react';
@@ -7,19 +6,43 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProgressIndicator from '@/components/ProgressIndicator';
 import OrderSummary from '@/components/OrderSummary';
+import SupplierInfo from '@/components/SupplierInfo';
 import { useOrder } from '@/contexts/OrderContext';
+import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { Button } from '@/components/ui/button';
 
 const Confirmation = () => {
+  const [supplier, setSupplier] = useState<SupplierByPostcode | null>(null);
+  const [isLoadingSupplier, setIsLoadingSupplier] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { orderData, clearOrderData } = useOrder();
+  const { getSupplierByPostcode } = useSuppliers();
   const orderNumber = location.state?.orderNumber || 'HÖ12345678';
 
   if (!orderData) {
     navigate('/');
     return null;
   }
+
+  // Fetch supplier information when component mounts
+  useEffect(() => {
+    const fetchSupplier = async () => {
+      if (orderData.deliveryPostcode) {
+        setIsLoadingSupplier(true);
+        try {
+          const supplierData = await getSupplierByPostcode(orderData.deliveryPostcode);
+          setSupplier(supplierData);
+        } catch (error) {
+          console.error('Error fetching supplier:', error);
+        } finally {
+          setIsLoadingSupplier(false);
+        }
+      }
+    };
+
+    fetchSupplier();
+  }, [orderData.deliveryPostcode, getSupplierByPostcode]);
 
   const handleNewOrder = () => {
     clearOrderData();
@@ -65,6 +88,17 @@ const Confirmation = () => {
                     <div className="text-sm text-red-600 font-medium">Ihre Bestellnummer</div>
                     <div className="text-2xl font-bold text-red-700">{orderNumber}</div>
                   </div>
+                </motion.div>
+
+                {/* Supplier Information */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.15 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Ihr Lieferant</h3>
+                  <SupplierInfo supplier={supplier} isLoading={isLoadingSupplier} />
                 </motion.div>
 
                 {/* Payment Instructions */}
