@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -224,9 +223,10 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .invoice-container {
                 width: 210mm;
-                max-height: 297mm;
+                min-height: 277mm;
+                max-height: 277mm;
                 margin: 0 auto;
-                padding: 8mm;
+                padding: 10mm 10mm 20mm 10mm;
                 position: relative;
                 background: #ffffff;
                 display: flex;
@@ -239,7 +239,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
                 color: white;
                 padding: 5mm;
-                margin: -8mm -8mm 5mm -8mm;
+                margin: -10mm -10mm 5mm -10mm;
                 border-radius: 0 0 2mm 2mm;
                 box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
             }
@@ -349,7 +349,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 overflow: hidden;
                 border: 1px solid #e2e8f0;
                 flex-grow: 1;
-                max-height: 120mm;
+                max-height: 110mm;
             }
             
             .items-table {
@@ -522,20 +522,17 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 0;
             }
             
-            /* Professional Footer - Full width at bottom */
+            /* Professional Footer - Fixed position at bottom */
             .footer {
-                margin-top: auto;
-                padding-top: 3mm;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 3mm 10mm 3mm 10mm;
                 border-top: 1px solid #e2e8f0;
                 font-size: 7pt;
                 color: #64748b;
                 background: #fafbfc;
-                margin-left: -8mm;
-                margin-right: -8mm;
-                margin-bottom: -8mm;
-                padding-left: 8mm;
-                padding-right: 8mm;
-                padding-bottom: 3mm;
             }
             
             .footer-grid {
@@ -568,25 +565,24 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 
                 .invoice-container {
                     margin: 0;
-                    padding: 6mm;
-                    min-height: auto;
-                    max-height: 297mm;
-                    height: auto;
+                    padding: 8mm 8mm 20mm 8mm;
+                    min-height: 277mm;
+                    max-height: 277mm;
+                    height: 277mm;
                     width: 210mm;
                 }
                 
                 .header {
-                    margin: -6mm -6mm 4mm -6mm;
+                    margin: -8mm -8mm 4mm -8mm;
                     padding: 4mm;
                 }
                 
                 .footer {
-                    margin-left: -6mm;
-                    margin-right: -6mm;
-                    margin-bottom: -6mm;
-                    padding-left: 6mm;
-                    padding-right: 6mm;
-                    padding-bottom: 2mm;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 3mm 8mm 3mm 8mm;
                 }
                 
                 @page {
@@ -601,7 +597,8 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                     width: 100%;
                     max-width: 210mm;
                     margin: 0 auto;
-                    padding: 4mm;
+                    padding: 4mm 4mm 15mm 4mm;
+                    min-height: auto;
                 }
                 
                 .header {
@@ -618,11 +615,11 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 }
                 
                 .footer {
-                    margin-left: -4mm;
-                    margin-right: -4mm;
-                    margin-bottom: -4mm;
-                    padding-left: 4mm;
-                    padding-right: 4mm;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 3mm 4mm 3mm 4mm;
                 }
                 
                 .footer-grid {
@@ -802,4 +799,3 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
     </html>
   `
 }
-
