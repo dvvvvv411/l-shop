@@ -68,7 +68,7 @@ serve(async (req) => {
     }
 
     // Generate HTML content for PDF
-    const htmlContent = generateProfessionalInvoiceHTML(order, shopSettings, invoiceNumber)
+    const htmlContent = generateCompactInvoiceHTML(order, shopSettings, invoiceNumber)
 
     console.log('Invoice generated successfully for order:', orderId)
 
@@ -97,7 +97,7 @@ serve(async (req) => {
   }
 })
 
-function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
+function generateCompactInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
   const currentDate = new Date().toLocaleDateString('de-DE')
   const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
   const subtotal = order.liters * order.price_per_liter
@@ -118,130 +118,126 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                font-size: 11px;
-                line-height: 1.4;
+                font-size: 10px;
+                line-height: 1.3;
                 color: #333;
                 background: #fff;
-                margin: 0;
-                padding: 20px;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
             }
             
             .invoice-container {
-                max-width: 800px;
-                margin: 0 auto;
-                background: #fff;
-                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                width: 100%;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
                 position: relative;
             }
             
             .invoice-header {
                 background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
                 color: white;
-                padding: 30px;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .invoice-header::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -10%;
-                width: 200px;
-                height: 200px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 50%;
-            }
-            
-            .header-content {
+                padding: 20px 25px;
                 display: flex;
                 justify-content: space-between;
-                align-items: flex-start;
-                position: relative;
-                z-index: 2;
+                align-items: center;
+                flex-shrink: 0;
             }
             
             .company-info h1 {
-                font-size: 28px;
+                font-size: 22px;
                 font-weight: 700;
-                margin-bottom: 10px;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                margin-bottom: 8px;
             }
             
             .company-info p {
-                font-size: 12px;
-                opacity: 0.9;
-                margin-bottom: 3px;
-            }
-            
-            .invoice-title {
-                text-align: right;
+                font-size: 10px;
+                opacity: 0.95;
+                margin-bottom: 2px;
             }
             
             .invoice-title h2 {
-                font-size: 32px;
+                font-size: 24px;
                 font-weight: 700;
-                margin-bottom: 15px;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                margin-bottom: 10px;
+                text-align: right;
             }
             
             .invoice-meta {
-                background: rgba(255,255,255,0.15);
-                padding: 15px;
-                border-radius: 8px;
-                backdrop-filter: blur(10px);
+                background: rgba(255,255,255,0.2);
+                padding: 10px 15px;
+                border-radius: 6px;
+                text-align: right;
             }
             
             .invoice-meta p {
-                margin-bottom: 5px;
-                font-size: 11px;
+                margin-bottom: 3px;
+                font-size: 10px;
             }
             
             .invoice-meta strong {
                 font-weight: 600;
             }
             
+            .status-badge {
+                display: inline-block;
+                padding: 4px 8px;
+                background: #27ae60;
+                color: white;
+                border-radius: 12px;
+                font-size: 8px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-top: 5px;
+            }
+            
             .invoice-body {
-                padding: 30px;
+                padding: 20px 25px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
             }
             
             .addresses {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 40px;
-                gap: 30px;
+                margin-bottom: 20px;
+                gap: 20px;
             }
             
             .address-block {
                 flex: 1;
                 background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                border-left: 4px solid #3498db;
+                padding: 15px;
+                border-radius: 6px;
+                border-left: 3px solid #3498db;
             }
             
             .address-block h3 {
                 color: #2c3e50;
-                font-size: 14px;
+                font-size: 11px;
                 font-weight: 600;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
             
             .address-block p {
-                margin-bottom: 4px;
-                font-size: 11px;
+                margin-bottom: 3px;
+                font-size: 10px;
+                line-height: 1.4;
             }
             
             .items-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin: 30px 0;
+                margin: 15px 0;
                 background: #fff;
-                border-radius: 8px;
+                border-radius: 6px;
                 overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             }
             
             .items-table thead {
@@ -250,12 +246,12 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             }
             
             .items-table th {
-                padding: 15px 12px;
+                padding: 10px 8px;
                 text-align: left;
                 font-weight: 600;
-                font-size: 11px;
+                font-size: 9px;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
             
             .items-table th.text-right {
@@ -264,16 +260,11 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             
             .items-table tbody tr {
                 border-bottom: 1px solid #ecf0f1;
-                transition: background-color 0.2s ease;
-            }
-            
-            .items-table tbody tr:hover {
-                background-color: #f8f9fa;
             }
             
             .items-table td {
-                padding: 12px;
-                font-size: 11px;
+                padding: 8px;
+                font-size: 10px;
                 vertical-align: middle;
             }
             
@@ -281,83 +272,83 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 text-align: right;
             }
             
-            .total-section {
-                margin-top: 30px;
-                text-align: right;
-            }
-            
             .total-row {
                 background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
                 color: white;
                 font-weight: 700;
-                font-size: 13px;
+                font-size: 11px;
             }
             
             .total-row td {
-                padding: 15px 12px !important;
+                padding: 12px 8px !important;
             }
             
             .details-section {
                 display: flex;
                 justify-content: space-between;
-                margin: 30px 0;
-                gap: 30px;
+                margin: 15px 0;
+                gap: 15px;
+                flex-shrink: 0;
             }
             
             .detail-block {
                 flex: 1;
                 background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                border-top: 3px solid #3498db;
+                padding: 12px;
+                border-radius: 6px;
+                border-top: 2px solid #3498db;
             }
             
             .detail-block h4 {
                 color: #2c3e50;
-                font-size: 13px;
+                font-size: 10px;
                 font-weight: 600;
-                margin-bottom: 10px;
+                margin-bottom: 6px;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
             
             .detail-block p {
-                margin-bottom: 6px;
-                font-size: 11px;
+                margin-bottom: 4px;
+                font-size: 9px;
+                line-height: 1.3;
             }
             
             .payment-terms {
                 background: #e8f4fd;
                 border: 1px solid #3498db;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 30px 0;
+                border-radius: 6px;
+                padding: 12px;
+                margin: 15px 0;
+                flex-shrink: 0;
             }
             
             .payment-terms h4 {
                 color: #2c3e50;
-                font-size: 14px;
+                font-size: 11px;
                 font-weight: 600;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
             }
             
             .payment-terms p {
-                font-size: 11px;
-                margin-bottom: 6px;
+                font-size: 9px;
+                margin-bottom: 4px;
+                line-height: 1.3;
             }
             
             .footer {
                 background: #2c3e50;
                 color: white;
-                padding: 25px 30px;
-                margin-top: 40px;
-                font-size: 10px;
+                padding: 15px 25px;
+                font-size: 8px;
+                margin-top: auto;
+                flex-shrink: 0;
             }
             
             .footer-content {
                 display: flex;
                 justify-content: space-between;
-                gap: 30px;
+                gap: 20px;
             }
             
             .footer-section {
@@ -365,75 +356,56 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             }
             
             .footer-section h5 {
-                font-size: 11px;
+                font-size: 9px;
                 font-weight: 600;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
                 color: #3498db;
             }
             
             .footer-section p {
-                margin-bottom: 3px;
+                margin-bottom: 2px;
                 opacity: 0.9;
-            }
-            
-            .watermark {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(-45deg);
-                font-size: 120px;
-                color: rgba(52, 152, 219, 0.05);
-                font-weight: 900;
-                z-index: 1;
-                pointer-events: none;
-                user-select: none;
-            }
-            
-            .status-badge {
-                display: inline-block;
-                padding: 6px 12px;
-                background: #27ae60;
-                color: white;
-                border-radius: 20px;
-                font-size: 10px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
+                line-height: 1.3;
             }
             
             @media print {
-                body { padding: 0; }
-                .invoice-container { box-shadow: none; max-width: none; }
-                .watermark { position: absolute; }
+                body { 
+                    padding: 0;
+                    height: 100vh;
+                }
+                .invoice-container { 
+                    box-shadow: none;
+                    max-width: none;
+                    height: 100vh;
+                }
+                @page {
+                    margin: 0;
+                    size: A4;
+                }
             }
         </style>
     </head>
     <body>
-        <div class="watermark">RECHNUNG</div>
-        
         <div class="invoice-container">
             <!-- Header -->
             <div class="invoice-header">
-                <div class="header-content">
-                    <div class="company-info">
-                        <h1>${shopSettings.company_name}</h1>
-                        <p>${shopSettings.company_address}</p>
-                        <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                        ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
-                        ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
-                        ${shopSettings.company_website ? `<p>Web: ${shopSettings.company_website}</p>` : ''}
-                    </div>
-                    
-                    <div class="invoice-title">
-                        <h2>RECHNUNG</h2>
-                        <div class="invoice-meta">
-                            <p><strong>Rechnung Nr.:</strong> ${invoiceNumber}</p>
-                            <p><strong>Datum:</strong> ${currentDate}</p>
-                            <p><strong>Bestellung:</strong> ${order.order_number}</p>
-                            <p><span class="status-badge">Original</span></p>
-                        </div>
+                <div class="company-info">
+                    <h1>${shopSettings.company_name}</h1>
+                    <p>${shopSettings.company_address}</p>
+                    <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
+                    ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
+                    ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
+                </div>
+                
+                <div class="invoice-title">
+                    <h2>RECHNUNG</h2>
+                    <div class="invoice-meta">
+                        <p><strong>Nr.:</strong> ${invoiceNumber}</p>
+                        <p><strong>Datum:</strong> ${currentDate}</p>
+                        <p><strong>Bestellung:</strong> ${order.order_number}</p>
+                        <span class="status-badge">Original</span>
                     </div>
                 </div>
             </div>
@@ -447,8 +419,8 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <p><strong>${order.customer_name}</strong></p>
                         <p>${order.billing_street || order.customer_address}</p>
                         <p>${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}</p>
-                        ${order.customer_email ? `<p>E-Mail: ${order.customer_email}</p>` : ''}
-                        ${order.customer_phone ? `<p>Tel: ${order.customer_phone}</p>` : ''}
+                        ${order.customer_email ? `<p>${order.customer_email}</p>` : ''}
+                        ${order.customer_phone ? `<p>${order.customer_phone}</p>` : ''}
                     </div>
                     
                     ${order.delivery_street && order.use_same_address !== true ? `
@@ -457,7 +429,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <p><strong>${order.delivery_first_name} ${order.delivery_last_name}</strong></p>
                         <p>${order.delivery_street}</p>
                         <p>${order.delivery_postcode} ${order.delivery_city}</p>
-                        ${order.delivery_phone ? `<p>Tel: ${order.delivery_phone}</p>` : ''}
+                        ${order.delivery_phone ? `<p>${order.delivery_phone}</p>` : ''}
                     </div>
                     ` : ''}
                 </div>
@@ -466,12 +438,12 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">Pos.</th>
+                            <th style="width: 40px;">Pos.</th>
                             <th>Beschreibung</th>
-                            <th style="width: 100px;" class="text-right">Menge</th>
-                            <th style="width: 80px;">Einheit</th>
-                            <th style="width: 100px;" class="text-right">Einzelpreis</th>
-                            <th style="width: 120px;" class="text-right">Gesamtpreis</th>
+                            <th style="width: 80px;" class="text-right">Menge</th>
+                            <th style="width: 60px;">Einheit</th>
+                            <th style="width: 80px;" class="text-right">Preis</th>
+                            <th style="width: 90px;" class="text-right">Gesamt</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -479,7 +451,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                             <td><strong>1</strong></td>
                             <td>
                                 <strong>${order.product || 'Standard Heizöl'}</strong>
-                                <br><small style="color: #666;">Liefertermin: ${deliveryDate}</small>
+                                <br><small style="color: #666; font-size: 8px;">Lieferung: ${deliveryDate}</small>
                             </td>
                             <td class="text-right"><strong>${order.liters.toLocaleString('de-DE')}</strong></td>
                             <td>Liter</td>
@@ -517,27 +489,23 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <div class="details-section">
                     <div class="detail-block">
                         <h4>Zahlungskonditionen</h4>
-                        <p><strong>Zahlungsart:</strong> ${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method}</p>
-                        <p><strong>Zahlungsziel:</strong> Sofort bei Erhalt</p>
-                        <p><strong>Skonto:</strong> Keine Abzüge</p>
+                        <p><strong>Art:</strong> ${order.payment_method === 'vorkasse' ? 'Vorkasse' : order.payment_method}</p>
+                        <p><strong>Ziel:</strong> Sofort bei Erhalt</p>
                     </div>
                     
                     <div class="detail-block">
                         <h4>Lieferkonditionen</h4>
-                        <p><strong>Liefertermin:</strong> ${deliveryDate}</p>
-                        <p><strong>Lieferart:</strong> Tankwagen</p>
-                        <p><strong>Mindestbestellmenge:</strong> Nach Vereinbarung</p>
+                        <p><strong>Termin:</strong> ${deliveryDate}</p>
+                        <p><strong>Art:</strong> Tankwagen</p>
                     </div>
                 </div>
                 
                 ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
                 <div class="payment-terms">
                     <h4>💳 Zahlungsinformationen</h4>
-                    <p><strong>Bankverbindung für Vorkasse:</strong></p>
-                    <p><strong>${shopSettings.bank_name || 'Bank'}</strong></p>
-                    <p>IBAN: <strong>${shopSettings.bank_iban}</strong></p>
-                    ${shopSettings.bank_bic ? `<p>BIC: <strong>${shopSettings.bank_bic}</strong></p>` : ''}
-                    <p style="margin-top: 10px;"><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
+                    <p><strong>Bankverbindung:</strong> ${shopSettings.bank_name || 'Bank'}</p>
+                    <p><strong>IBAN:</strong> ${shopSettings.bank_iban} ${shopSettings.bank_bic ? `| BIC: ${shopSettings.bank_bic}` : ''}</p>
+                    <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
                 </div>
                 ` : ''}
             </div>
@@ -548,8 +516,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                     <div class="footer-section">
                         <h5>Kontakt</h5>
                         <p>${shopSettings.company_name}</p>
-                        <p>${shopSettings.company_address}</p>
-                        <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
+                        <p>${shopSettings.company_address}, ${shopSettings.company_postcode} ${shopSettings.company_city}</p>
                         ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
                         ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
                     </div>
@@ -565,7 +532,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <h5>Rechtliches</h5>
                         <p>Erfüllungsort: ${shopSettings.company_city}</p>
                         <p>Gerichtsstand: ${shopSettings.company_city}</p>
-                        ${shopSettings.invoice_footer_text ? `<p style="margin-top: 8px; font-style: italic;">${shopSettings.invoice_footer_text}</p>` : ''}
+                        ${shopSettings.invoice_footer_text ? `<p style="font-style: italic;">${shopSettings.invoice_footer_text}</p>` : ''}
                     </div>
                 </div>
             </div>
