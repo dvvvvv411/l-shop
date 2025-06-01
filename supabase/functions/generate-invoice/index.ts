@@ -237,29 +237,18 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 padding: 12mm;
                 position: relative;
                 background: #ffffff;
+                display: flex;
+                flex-direction: column;
             }
             
-            /* Modern Header with Gradient */
+            /* Professional Header */
             .header {
-                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
                 color: white;
-                padding: 8mm;
-                margin: -12mm -12mm 8mm -12mm;
-                border-radius: 0 0 4mm 4mm;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .header::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 100px;
-                height: 100px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
-                transform: translate(30px, -30px);
+                padding: 6mm;
+                margin: -12mm -12mm 6mm -12mm;
+                border-radius: 0 0 2mm 2mm;
+                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
             }
             
             .header-content {
@@ -267,19 +256,17 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 grid-template-columns: 1fr auto;
                 gap: 6mm;
                 align-items: start;
-                position: relative;
-                z-index: 1;
             }
             
             .company-info h1 {
-                font-size: 18pt;
+                font-size: 16pt;
                 font-weight: 700;
-                margin-bottom: 3mm;
-                letter-spacing: -0.5px;
+                margin-bottom: 2mm;
+                letter-spacing: -0.3px;
             }
             
             .company-info p {
-                font-size: 9pt;
+                font-size: 8.5pt;
                 margin-bottom: 1mm;
                 opacity: 0.95;
                 line-height: 1.3;
@@ -287,21 +274,21 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .invoice-meta {
                 text-align: right;
-                background: rgba(255, 255, 255, 0.15);
+                background: rgba(255, 255, 255, 0.1);
                 padding: 4mm;
-                border-radius: 3mm;
-                backdrop-filter: blur(10px);
+                border-radius: 2mm;
+                border: 1px solid rgba(255, 255, 255, 0.2);
             }
             
             .invoice-meta h2 {
-                font-size: 20pt;
-                font-weight: 800;
+                font-size: 18pt;
+                font-weight: 700;
                 margin-bottom: 3mm;
-                letter-spacing: -0.5px;
+                letter-spacing: -0.3px;
             }
             
             .invoice-details p {
-                font-size: 8.5pt;
+                font-size: 8pt;
                 margin-bottom: 1.5mm;
                 display: flex;
                 justify-content: space-between;
@@ -312,19 +299,18 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 font-weight: 600;
             }
             
-            /* Modern Card-based Customer Section */
+            /* Clean Customer Section */
             .customer-section {
                 margin: 6mm 0;
             }
             
             .address-card {
                 background: #f8fafc;
-                border: 2px solid #e2e8f0;
-                border-radius: 3mm;
+                border: 1px solid #e2e8f0;
+                border-radius: 2mm;
                 padding: 5mm;
                 width: 80mm;
                 position: relative;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             }
             
             .address-card::before {
@@ -337,7 +323,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 font-size: 7pt;
                 font-weight: 600;
                 padding: 0 2mm;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
             
             .return-address {
@@ -363,16 +349,16 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 color: #111827;
             }
             
-            /* Stylish Info Grid */
+            /* Professional Info Grid */
             .invoice-info {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(60mm, 1fr));
                 gap: 4mm;
                 margin: 6mm 0;
                 padding: 4mm;
-                background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
-                border-radius: 3mm;
-                border-left: 4px solid #3b82f6;
+                background: #f8fafc;
+                border-radius: 2mm;
+                border-left: 3px solid #2563eb;
             }
             
             .info-item {
@@ -393,12 +379,13 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 color: #1e293b;
             }
             
-            /* Modern Table Design */
+            /* Professional Table Design */
             .table-section {
-                margin: 8mm 0;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                border-radius: 3mm;
+                margin: 6mm 0;
+                border-radius: 2mm;
                 overflow: hidden;
+                border: 1px solid #e2e8f0;
+                flex-grow: 1;
             }
             
             .items-table {
@@ -409,13 +396,13 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             }
             
             .items-table th {
-                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                background: #1e293b;
                 color: white;
                 padding: 3mm 2mm;
                 text-align: left;
                 font-weight: 600;
                 font-size: 8.5pt;
-                letter-spacing: 0.3px;
+                letter-spacing: 0.2px;
             }
             
             .items-table th.text-right {
@@ -428,7 +415,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             
             .items-table td {
                 padding: 3mm 2mm;
-                border-bottom: 1px solid #e2e8f0;
+                border-bottom: 1px solid #f1f5f9;
                 vertical-align: top;
                 font-size: 8.5pt;
                 line-height: 1.3;
@@ -443,8 +430,8 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 text-align: center;
             }
             
-            .items-table tbody tr:hover {
-                background: #f8fafc;
+            .items-table tbody tr:nth-child(even) {
+                background: #fafbfc;
             }
             
             .items-table tbody tr:last-child td {
@@ -465,19 +452,18 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 font-style: italic;
             }
             
-            /* Premium Summary Section */
+            /* Clean Summary Section */
             .summary-section {
-                margin: 8mm 0;
+                margin: 6mm 0 4mm 0;
                 display: flex;
                 justify-content: flex-end;
             }
             
             .summary-card {
-                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-                border: 2px solid #e2e8f0;
-                border-radius: 3mm;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 2mm;
                 overflow: hidden;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 min-width: 65mm;
             }
             
@@ -505,7 +491,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
             }
             
             .summary-table .total-row {
-                background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+                background: #16a34a;
                 color: white;
                 font-weight: 700;
                 font-size: 11pt;
@@ -516,72 +502,83 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 padding: 3mm;
             }
             
-            /* Call-to-Action Payment Section */
+            /* Professional Payment Section */
             .payment-section {
-                margin: 8mm 0;
-                background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
-                border: 2px solid #f59e0b;
-                border-radius: 3mm;
+                margin: 6mm 0 8mm 0;
+                background: #fff7ed;
+                border: 1px solid #fed7aa;
+                border-radius: 2mm;
                 padding: 5mm;
-                position: relative;
-                box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
-            }
-            
-            .payment-section::before {
-                content: '💳';
-                position: absolute;
-                top: -2mm;
-                right: 4mm;
-                font-size: 16pt;
+                border-left: 4px solid #ea580c;
             }
             
             .payment-section h3 {
-                font-size: 12pt;
+                font-size: 11pt;
                 font-weight: 700;
                 margin-bottom: 3mm;
-                color: #92400e;
-                letter-spacing: -0.3px;
+                color: #9a3412;
+                display: flex;
+                align-items: center;
+                gap: 2mm;
+            }
+            
+            .payment-section h3::before {
+                content: '💳';
+                font-size: 12pt;
             }
             
             .payment-section p {
                 margin-bottom: 2mm;
                 font-size: 9pt;
                 line-height: 1.4;
-                color: #78350f;
+                color: #7c2d12;
             }
             
             .payment-section strong {
-                color: #451a03;
+                color: #7c2d12;
                 font-weight: 700;
             }
             
             .bank-details {
                 background: rgba(255, 255, 255, 0.8);
                 padding: 3mm;
-                border-radius: 2mm;
+                border-radius: 1.5mm;
                 margin-top: 3mm;
-                border-left: 3px solid #f59e0b;
+                border: 1px solid #fed7aa;
             }
             
-            /* Elegant Footer */
+            .bank-details p {
+                margin-bottom: 1.5mm;
+                font-size: 8.5pt;
+                color: #9a3412;
+                font-weight: 500;
+            }
+            
+            .bank-details p:last-child {
+                margin-bottom: 0;
+            }
+            
+            /* Professional Footer - Fixed Position */
             .footer {
-                position: absolute;
-                bottom: 8mm;
-                left: 12mm;
-                right: 12mm;
-                border-top: 2px solid #e2e8f0;
+                margin-top: auto;
                 padding-top: 4mm;
+                border-top: 1px solid #e2e8f0;
                 font-size: 7.5pt;
                 color: #64748b;
-                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-                border-radius: 2mm;
-                padding: 4mm;
+                background: #fafbfc;
+                margin-left: -12mm;
+                margin-right: -12mm;
+                margin-bottom: -12mm;
+                padding-left: 12mm;
+                padding-right: 12mm;
+                padding-bottom: 6mm;
             }
             
             .footer-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr 1fr;
-                gap: 4mm;
+                gap: 6mm;
+                margin-top: 2mm;
             }
             
             .footer-column h4 {
@@ -590,7 +587,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 margin-bottom: 2mm;
                 color: #374151;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
             
             .footer-column p {
@@ -608,6 +605,13 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 .invoice-container {
                     margin: 0;
                     padding: 8mm;
+                    min-height: auto;
+                    height: auto;
+                }
+                
+                .footer {
+                    position: relative;
+                    margin-top: auto;
                 }
                 
                 @page {
@@ -636,7 +640,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
     </head>
     <body>
         <div class="invoice-container">
-            <!-- Modern Header -->
+            <!-- Professional Header -->
             <div class="header">
                 <div class="header-content">
                     <div class="company-info">
@@ -692,7 +696,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 </div>
             </div>
             
-            <!-- Modern Items Table -->
+            <!-- Professional Items Table -->
             <div class="table-section">
                 <table class="items-table">
                     <thead>
@@ -752,7 +756,7 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 </table>
             </div>
             
-            <!-- Premium Summary -->
+            <!-- Clean Summary -->
             <div class="summary-section">
                 <div class="summary-card">
                     <table class="summary-table">
@@ -772,24 +776,25 @@ function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber:
                 </div>
             </div>
             
-            <!-- Call-to-Action Payment Section -->
+            <!-- Professional Payment Section -->
             ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
             <div class="payment-section">
-                <h3>💳 Einfache Zahlung per Überweisung</h3>
-                <p><strong>Bitte überweisen Sie den Rechnungsbetrag schnell und unkompliziert:</strong></p>
+                <h3>Zahlungsinformationen</h3>
+                <p><strong>Bitte überweisen Sie den Rechnungsbetrag auf folgendes Konto:</strong></p>
                 
                 <div class="bank-details">
-                    <p><strong>🏦 Bank:</strong> ${shopSettings.bank_name || 'Unsere Hausbank'}</p>
-                    <p><strong>💳 IBAN:</strong> ${shopSettings.bank_iban}</p>
-                    ${shopSettings.bank_bic ? `<p><strong>🔢 BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
-                    <p><strong>📝 Verwendungszweck:</strong> ${invoiceNumber}</p>
+                    <p><strong>Bank:</strong> ${shopSettings.bank_name || 'Unsere Hausbank'}</p>
+                    <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
+                    ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
+                    <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
+                    <p><strong>Betrag:</strong> € ${grossTotal.toFixed(2)}</p>
                 </div>
                 
-                <p style="margin-top: 3mm; font-size: 8.5pt;"><strong>⚡ Schnelle Zahlung = Schnelle Lieferung!</strong> Bei Fragen erreichen Sie uns jederzeit.</p>
+                <p style="margin-top: 3mm;"><strong>Der Rechnungsbetrag ist sofort nach Erhalt fällig.</strong> Bei Fragen zur Rechnung kontaktieren Sie uns gerne.</p>
             </div>
             ` : ''}
             
-            <!-- Elegant Footer -->
+            <!-- Professional Footer -->
             <div class="footer">
                 <div class="footer-grid">
                     <div class="footer-column">
