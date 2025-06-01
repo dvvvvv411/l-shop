@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Truck, Shield, Calculator, Clock, Phone } from 'lucide-react';
+import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface PriceCalculatorData {
   product: {
@@ -23,117 +24,143 @@ interface CheckoutSummaryProps {
 }
 
 const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
+  const [isExpanded, setIsExpanded] = useState(true);
   const finalPrice = orderData.totalPrice;
 
   return (
     <div className="space-y-6">
-      {/* Order Summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="bg-white rounded-xl p-6 shadow-sm border sticky top-4"
-      >
-        <div className="flex items-center mb-6">
-          <div className="bg-blue-100 p-3 rounded-lg mr-4">
+      {/* Mobile Toggle */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg"
+        >
+          <div className="flex items-center space-x-3">
             <Package className="text-blue-600" size={20} />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Bestellübersicht</h3>
-            <p className="text-sm text-gray-600">Ihre Auswahl im Überblick</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 mb-6">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Produkt</span>
-            <span className="font-semibold">{orderData.product.name}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Menge</span>
-            <span className="font-semibold">{orderData.amount.toLocaleString('de-DE')} Liter</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Preis pro Liter</span>
-            <span className="font-semibold">{orderData.product.price.toFixed(2)}€</span>
-          </div>
-          
-          <hr className="border-gray-200" />
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Grundpreis</span>
-            <span className="font-semibold">{orderData.basePrice.toFixed(2)}€</span>
-          </div>
-          
-          <div className="flex justify-between text-green-600">
-            <span>Lieferung</span>
-            <span className="font-semibold">
-              {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+            <span className="font-semibold text-gray-900">
+              Bestellung anzeigen
             </span>
           </div>
-          
-          <hr className="border-gray-200" />
-          
-          <div className="flex justify-between text-xl font-bold">
-            <span>Gesamtpreis</span>
-            <span className="text-blue-600">{finalPrice.toFixed(2)}€</span>
+          <div className="flex items-center space-x-2">
+            <span className="font-bold text-blue-600">{finalPrice.toFixed(2)}€</span>
+            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
-        </div>
+        </button>
+      </div>
 
-        {/* Delivery Info */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex items-center mb-3">
-            <Clock className="text-blue-600 mr-2" size={16} />
-            <span className="font-semibold text-gray-900">Liefertermin</span>
-          </div>
-          <p className="text-gray-700 font-semibold">4-7 Werktage</p>
-          <p className="text-sm text-gray-600">Nach Zahlungseingang</p>
-        </div>
-
-        {/* Trust Badges */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3 text-sm">
-            <Shield className="text-green-600" size={16} />
-            <span className="text-gray-700">Sichere Zahlung</span>
-          </div>
-          <div className="flex items-center space-x-3 text-sm">
-            <Truck className="text-blue-600" size={16} />
-            <span className="text-gray-700">Pünktliche Lieferung</span>
-          </div>
-          <div className="flex items-center space-x-3 text-sm">
-            <Calculator className="text-purple-600" size={16} />
-            <span className="text-gray-700">Transparente Preise</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Help Section */}
+      {/* Order Summary */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-blue-50 rounded-xl p-6 border border-blue-200"
+        initial={false}
+        animate={{ height: isExpanded || window.innerWidth >= 1024 ? 'auto' : 0 }}
+        className="overflow-hidden lg:overflow-visible"
       >
-        <div className="flex items-center mb-4">
-          <div className="bg-blue-100 p-2 rounded-lg mr-3">
-            <Phone className="text-blue-600" size={16} />
+        <div className="space-y-6">
+          {/* Product Item */}
+          <div className="bg-white lg:bg-transparent border border-gray-200 lg:border-0 rounded-lg lg:rounded-none p-4 lg:p-0">
+            <div className="flex items-start space-x-4">
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
+                  <Package className="text-white" size={24} />
+                </div>
+                <div className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                  1
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {orderData.product.name}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {orderData.amount.toLocaleString('de-DE')} Liter
+                </p>
+                <p className="text-sm text-gray-500">
+                  {orderData.product.price.toFixed(2)}€ pro Liter
+                </p>
+              </div>
+              
+              <div className="text-right">
+                <p className="font-semibold text-gray-900">
+                  {orderData.basePrice.toFixed(2)}€
+                </p>
+              </div>
+            </div>
           </div>
-          <h4 className="font-semibold text-blue-900">Fragen zur Bestellung?</h4>
-        </div>
-        <p className="text-blue-800 text-sm mb-4">
-          Unser Kundenservice hilft Ihnen gerne weiter.
-        </p>
-        <div className="space-y-2 text-sm">
-          <div className="text-blue-800">
-            <strong>Telefon:</strong> 0800 123 456 7
+
+          {/* Discount Code Input */}
+          <div className="space-y-3">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                placeholder="Rabattcode eingeben"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors">
+                Anwenden
+              </button>
+            </div>
           </div>
-          <div className="text-blue-800">
-            <strong>E-Mail:</strong> service@heizoeldirekt.de
+
+          {/* Price Breakdown */}
+          <div className="space-y-3 pt-4 border-t border-gray-200">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Zwischensumme</span>
+              <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Versand</span>
+              <span className="text-green-600 font-medium">
+                {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+              </span>
+            </div>
           </div>
-          <div className="text-blue-700">
-            Mo-Fr: 8:00-18:00 Uhr
+
+          {/* Total */}
+          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+            <span className="text-lg font-semibold text-gray-900">Gesamt</span>
+            <span className="text-lg font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
+          </div>
+
+          {/* Delivery Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+            <div className="flex items-start space-x-3">
+              <div className="bg-blue-100 p-2 rounded-full mt-0.5">
+                <Truck className="text-blue-600" size={16} />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-blue-900 text-sm">Lieferinformation</h4>
+                <div className="flex items-center space-x-2 mt-1">
+                  <Clock className="text-blue-600" size={14} />
+                  <p className="text-blue-800 text-sm">
+                    <strong>4-7 Werktage</strong> nach Zahlungseingang
+                  </p>
+                </div>
+                <p className="text-blue-700 text-xs mt-1">
+                  Kostenlose Lieferung ab 1.000 Liter
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="grid grid-cols-2 gap-3 mt-6">
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>SSL verschlüsselt</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Sichere Zahlung</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Pünktliche Lieferung</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>Faire Preise</span>
+            </div>
           </div>
         </div>
       </motion.div>

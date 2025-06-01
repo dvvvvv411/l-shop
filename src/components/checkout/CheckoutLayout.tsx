@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CheckoutForm from './CheckoutForm';
 import CheckoutSummary from './CheckoutSummary';
 import CheckoutConfirmation from './CheckoutConfirmation';
-import { useOrder } from '@/contexts/OrderContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
@@ -102,22 +101,22 @@ const CheckoutLayout = () => {
 
   if (currentStep === 'confirmation') {
     return (
-      <div>
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-4">
+      <div className="bg-white">
+        {/* Confirmation Header */}
+        <div className="border-b border-gray-200 pb-8 mb-8">
+          <div className="flex items-center mb-6">
             <Button
               variant="ghost"
               onClick={handleBackToCheckout}
-              className="mr-4 p-2"
+              className="mr-4 p-2 hover:bg-gray-100"
             >
               <ArrowLeft size={20} />
             </Button>
-            <div className="bg-green-100 p-3 rounded-lg mr-4">
+            <div className="bg-green-100 p-3 rounded-full mr-4">
               <CheckCircle className="text-green-600" size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Bestellung bestätigt!</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung bestätigt!</h1>
               <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
             </div>
           </div>
@@ -133,23 +132,48 @@ const CheckoutLayout = () => {
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
-        <p className="text-gray-600">Vervollständigen Sie Ihre Heizöl-Bestellung</p>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 min-h-screen">
+      {/* Left Column - Form (Shopify style) */}
+      <div className="lg:col-span-7 order-2 lg:order-1">
+        <div className="bg-white lg:bg-transparent">
+          {/* Breadcrumb */}
+          <div className="hidden lg:block mb-8">
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <button 
+                onClick={() => navigate('/')}
+                className="hover:text-gray-700 transition-colors"
+              >
+                Warenkorb
+              </button>
+              <span>›</span>
+              <span className="text-gray-900 font-medium">Informationen</span>
+              <span>›</span>
+              <span className="text-gray-400">Versand</span>
+              <span>›</span>
+              <span className="text-gray-400">Zahlung</span>
+            </div>
+          </div>
 
-      {/* Main Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Form */}
-        <div>
+          {/* Express Checkout (Optional) */}
+          <div className="mb-8 p-6 lg:p-0">
+            <div className="flex items-center justify-center p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <ShieldCheck className="text-green-600 mr-2" size={20} />
+              <span className="text-sm text-gray-700">
+                Sichere SSL-Verschlüsselung für Ihre Daten
+              </span>
+            </div>
+          </div>
+
           <CheckoutForm orderData={orderData} onOrderSuccess={handleOrderSuccess} />
         </div>
+      </div>
 
-        {/* Right Column - Summary */}
-        <div>
-          <CheckoutSummary orderData={orderData} />
+      {/* Right Column - Order Summary (Shopify style) */}
+      <div className="lg:col-span-5 order-1 lg:order-2 bg-gray-50 lg:bg-gray-50 border-b lg:border-b-0 border-gray-200">
+        <div className="lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+          <div className="p-6 lg:p-8">
+            <CheckoutSummary orderData={orderData} />
+          </div>
         </div>
       </div>
     </div>
