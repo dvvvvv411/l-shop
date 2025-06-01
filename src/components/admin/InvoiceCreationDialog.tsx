@@ -47,14 +47,8 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     if (!order || !selectedShopId) return;
 
     try {
-      // Update order with shop and processing info
-      await updateOrderStatus(order.id, order.status);
-      
-      // TODO: Update order with shop_id, invoice_date, and processed_by
-      // This would require extending the updateOrderStatus function or creating a new function
-      
-      // Generate the invoice
-      await generateInvoice(order.id);
+      // Generate the invoice with selected shop
+      await generateInvoice(order.id, selectedShopId);
       
       onClose();
     } catch (error) {

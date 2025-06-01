@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -167,15 +168,14 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
   const currentDate = new Date().toLocaleDateString('de-DE')
   const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
   
-  // VAT calculation (19% standard rate)
-  const VAT_RATE = 0.19
-  const netAmount = order.liters * order.price_per_liter
-  const netDeliveryFee = order.delivery_fee || 0
-  const netDiscount = order.discount || 0
+  // Calculate prices correctly - assuming total_amount includes VAT
+  const grossTotal = order.total_amount
+  const netTotal = grossTotal / 1.19
+  const vatAmount = grossTotal - netTotal
   
-  const totalNet = netAmount + netDeliveryFee - netDiscount
-  const vatAmount = totalNet * VAT_RATE
-  const grossTotal = totalNet + vatAmount
+  const netProductAmount = (order.liters * order.price_per_liter) / 1.19
+  const netDeliveryFee = (order.delivery_fee || 0) / 1.19
+  const netDiscount = (order.discount || 0) / 1.19
 
   return `
     <!DOCTYPE html>
@@ -486,7 +486,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                     </div>
                     <div class="customer-address">
                         <strong>${order.customer_name}</strong><br>
-                        ${order.billing_street || order.customer_address}<br>
+                        ${order.billing_street || order.delivery_street || order.customer_address}<br>
                         ${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}
                     </div>
                 </div>
@@ -527,12 +527,13 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <td>
                             <strong>${order.product || 'Standard Heizöl'}</strong><br>
                             <small>Lieferung am ${deliveryDate}</small>
+                            ${order.delivery_street ? `<br><small>Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
                         </td>
                         <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
                         <td>Liter</td>
                         <td class="text-right">€ ${(order.price_per_liter / 1.19).toFixed(4)}</td>
                         <td class="text-center">19%</td>
-                        <td class="text-right">€ ${(netAmount / 1.19).toFixed(2)}</td>
+                        <td class="text-right">€ ${netProductAmount.toFixed(2)}</td>
                     </tr>
                     ${order.delivery_fee > 0 ? `
                     <tr>
@@ -540,9 +541,9 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <td><strong>Lieferung und Transport</strong></td>
                         <td class="text-right">1</td>
                         <td>Pauschal</td>
-                        <td class="text-right">€ ${(order.delivery_fee / 1.19).toFixed(2)}</td>
+                        <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
                         <td class="text-center">19%</td>
-                        <td class="text-right">€ ${(order.delivery_fee / 1.19).toFixed(2)}</td>
+                        <td class="text-right">€ ${netDeliveryFee.toFixed(2)}</td>
                     </tr>
                     ` : ''}
                     ${order.discount > 0 ? `
@@ -551,9 +552,9 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <td><strong>Rabatt</strong></td>
                         <td class="text-right">1</td>
                         <td>Pauschal</td>
-                        <td class="text-right">-€ ${(order.discount / 1.19).toFixed(2)}</td>
+                        <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
                         <td class="text-center">19%</td>
-                        <td class="text-right">-€ ${(order.discount / 1.19).toFixed(2)}</td>
+                        <td class="text-right">-€ ${netDiscount.toFixed(2)}</td>
                     </tr>
                     ` : ''}
                 </tbody>
@@ -563,15 +564,15 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
             <table class="summary-table">
                 <tr>
                     <td class="label">Netto-Betrag:</td>
-                    <td class="text-right">€ ${(totalNet / 1.19).toFixed(2)}</td>
+                    <td class="text-right">€ ${netTotal.toFixed(2)}</td>
                 </tr>
                 <tr>
                     <td class="label">MwSt. 19%:</td>
-                    <td class="text-right">€ ${((totalNet / 1.19) * 0.19).toFixed(2)}</td>
+                    <td class="text-right">€ ${vatAmount.toFixed(2)}</td>
                 </tr>
                 <tr class="total-row">
                     <td><strong>Rechnungsbetrag:</strong></td>
-                    <td class="text-right"><strong>€ ${totalNet.toFixed(2)}</strong></td>
+                    <td class="text-right"><strong>€ ${grossTotal.toFixed(2)}</strong></td>
                 </tr>
             </table>
             
@@ -584,6 +585,7 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                 <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
                 ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
                 <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
+                <p><em>Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum.</em></p>
             </div>
             ` : ''}
             
@@ -605,8 +607,8 @@ function generateProfessionalInvoiceHTML(order: any, shopSettings: any, invoiceN
                         <h4>Steuerdaten</h4>
                         ${shopSettings.tax_number ? `<p>Steuernummer: ${shopSettings.tax_number}</p>` : ''}
                         ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
-                        <p>Geschäftsführer: [Name]</p>
-                        <p>Handelsregister: [HRB]</p>
+                        <p>Lieferungen sind steuerpflichtig</p>
+                        <p>nach § 13b UStG</p>
                     </div>
                     
                     <div class="footer-column">
