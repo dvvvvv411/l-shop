@@ -3,7 +3,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
-import { calculateVATFromGross, formatCurrency } from '@/utils/vatCalculations';
 
 interface PriceCalculatorData {
   product: {
@@ -26,9 +25,6 @@ interface CheckoutSummaryProps {
 
 const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  
-  // Calculate VAT breakdown
-  const vatBreakdown = calculateVATFromGross(orderData.totalPrice);
   const finalPrice = orderData.totalPrice;
 
   return (
@@ -46,7 +42,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
             </span>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-blue-600">{formatCurrency(finalPrice)}</span>
+            <span className="font-bold text-blue-600">{finalPrice.toFixed(2)}€</span>
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
         </button>
@@ -79,15 +75,14 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                   {orderData.amount.toLocaleString('de-DE')} Liter
                 </p>
                 <p className="text-sm text-gray-500">
-                  {formatCurrency(orderData.product.price)} pro Liter
+                  {orderData.product.price.toFixed(2)}€ pro Liter
                 </p>
               </div>
               
               <div className="text-right">
                 <p className="font-semibold text-gray-900">
-                  {formatCurrency(orderData.totalPrice)}
+                  {orderData.basePrice.toFixed(2)}€
                 </p>
-                <p className="text-xs text-gray-500">inkl. MwSt.</p>
               </div>
             </div>
           </div>
@@ -106,30 +101,25 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
             </div>
           </div>
 
-          {/* Price Breakdown with VAT */}
+          {/* Price Breakdown */}
           <div className="space-y-3 pt-4 border-t border-gray-200">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Nettobetrag</span>
-              <span className="text-gray-900">{formatCurrency(vatBreakdown.netPrice)}</span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">MwSt. (19%)</span>
-              <span className="text-gray-900">{formatCurrency(vatBreakdown.vatAmount)}</span>
+              <span className="text-gray-600">Zwischensumme</span>
+              <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Versand</span>
               <span className="text-green-600 font-medium">
-                {orderData.deliveryFee === 0 ? 'Kostenlos' : formatCurrency(orderData.deliveryFee)}
+                {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
             </div>
           </div>
 
           {/* Total */}
           <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-            <span className="text-lg font-semibold text-gray-900">Gesamt (inkl. MwSt.)</span>
-            <span className="text-lg font-bold text-gray-900">{formatCurrency(finalPrice)}</span>
+            <span className="text-lg font-semibold text-gray-900">Gesamt</span>
+            <span className="text-lg font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
           </div>
 
           {/* Delivery Info */}

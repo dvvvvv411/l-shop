@@ -1,13 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Edit3, Lock, ArrowLeft } from 'lucide-react';
+import { CheckCircle, FileText, CreditCard } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import ProgressIndicator from '@/components/ProgressIndicator';
+import OrderSummary from '@/components/OrderSummary';
+import SupplierInfo from '@/components/SupplierInfo';
 import { useOrder } from '@/contexts/OrderContext';
 import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { Button } from '@/components/ui/button';
-import { calculateVATFromGross, formatCurrency } from '@/utils/vatCalculations';
-import CheckoutSummary from '@/components/checkout/CheckoutSummary';
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -21,9 +23,6 @@ const Summary = () => {
     navigate('/order');
     return null;
   }
-
-  // Calculate VAT breakdown
-  const vatBreakdown = calculateVATFromGross(orderData.total);
 
   // Fetch supplier information when component mounts or postcode changes
   useEffect(() => {
@@ -58,285 +57,201 @@ const Summary = () => {
     });
   };
 
-  const handleBackToCheckout = () => {
-    navigate('/checkout');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Shopify-style Header */}
-      <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">H</span>
-            </div>
-            <span className="text-xl font-semibold text-gray-900">HeizölDirekt</span>
-          </div>
-          
-          <div className="hidden sm:flex items-center space-x-4 text-sm text-gray-600">
-            <span>Sichere Zahlung</span>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <span>SSL verschlüsselt</span>
-          </div>
-        </div>
-      </header>
+      <Header />
       
       <main className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 min-h-screen"
           >
-            {/* Left Column - Order Review (Shopify style) */}
-            <div className="lg:col-span-7 order-2 lg:order-1">
-              <div className="bg-white lg:bg-transparent p-6 lg:p-0">
-                {/* Breadcrumb */}
-                <div className="hidden lg:block mb-8">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <button 
-                      onClick={() => navigate('/')}
-                      className="hover:text-gray-700 transition-colors"
-                    >
-                      Warenkorb
-                    </button>
-                    <span>›</span>
-                    <button 
-                      onClick={handleBackToCheckout}
-                      className="hover:text-gray-700 transition-colors"
-                    >
-                      Informationen
-                    </button>
-                    <span>›</span>
-                    <span className="text-gray-900 font-medium">Zusammenfassung</span>
-                  </div>
-                </div>
+            <ProgressIndicator currentStep={3} />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Order Review */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Supplier Information */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.05 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Ihr Lieferant</h3>
+                  <SupplierInfo supplier={supplier} isLoading={isLoadingSupplier} />
+                </motion.div>
 
-                {/* Mobile back button */}
-                <div className="lg:hidden flex items-center mb-6">
-                  <Button
-                    variant="ghost"
-                    onClick={handleBackToCheckout}
-                    className="mr-4 p-2 hover:bg-gray-100 -ml-2"
-                  >
-                    <ArrowLeft size={20} />
-                  </Button>
-                  <h1 className="text-lg font-medium text-gray-900">Bestellung abschließen</h1>
-                </div>
-
-                <div className="space-y-4">
-                  {/* Contact */}
-                  <div className="border border-gray-200 rounded-md p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">Kontakt</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleBackToCheckout} 
-                        className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                      >
-                        <Edit3 size={12} className="mr-1" />
-                        Ändern
-                      </Button>
+                {/* Delivery Address Review */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="bg-red-100 p-3 rounded-full mr-4">
+                      <CheckCircle className="text-red-600" size={24} />
                     </div>
-                    <div className="text-sm text-gray-700">
-                      {orderData.deliveryPhone}
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Lieferadresse</h3>
+                      <p className="text-gray-600">Ihre Angaben zur Lieferung</p>
                     </div>
                   </div>
 
-                  {/* Delivery Address */}
-                  <div className="border border-gray-200 rounded-md p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">Lieferadresse</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleBackToCheckout} 
-                        className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                      >
-                        <Edit3 size={12} className="mr-1" />
-                        Ändern
-                      </Button>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="font-semibold text-gray-900 mb-2">
+                      {orderData.deliveryFirstName} {orderData.deliveryLastName}
                     </div>
-                    <div className="text-sm text-gray-700 space-y-0.5">
-                      <div>{orderData.deliveryFirstName} {orderData.deliveryLastName}</div>
+                    <div className="text-gray-700 space-y-1">
                       <div>{orderData.deliveryStreet}</div>
                       <div>{orderData.deliveryPostcode} {orderData.deliveryCity}</div>
+                      <div>Tel: {orderData.deliveryPhone}</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Billing Address Review */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="bg-blue-100 p-3 rounded-full mr-4">
+                      <FileText className="text-blue-600" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Rechnungsadresse</h3>
+                      <p className="text-gray-600">Ihre Angaben zur Rechnung</p>
                     </div>
                   </div>
 
-                  {/* Billing Address */}
-                  <div className="border border-gray-200 rounded-md p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">Rechnungsadresse</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleBackToCheckout} 
-                        className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                      >
-                        <Edit3 size={12} className="mr-1" />
-                        Ändern
-                      </Button>
-                    </div>
-                    <div className="text-sm text-gray-700">
-                      {orderData.useSameAddress ? (
-                        <span>Identisch mit Lieferadresse</span>
-                      ) : (
-                        <div className="space-y-0.5">
-                          <div>{orderData.billingFirstName} {orderData.billingLastName}</div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    {orderData.useSameAddress ? (
+                      <div className="text-gray-700">
+                        Identisch mit Lieferadresse
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="font-semibold text-gray-900 mb-2">
+                          {orderData.billingFirstName} {orderData.billingLastName}
+                        </div>
+                        <div className="text-gray-700 space-y-1">
                           <div>{orderData.billingStreet}</div>
                           <div>{orderData.billingPostcode} {orderData.billingCity}</div>
                         </div>
-                      )}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Payment Method Review */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="bg-green-100 p-3 rounded-full mr-4">
+                      <CreditCard className="text-green-600" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Zahlungsart</h3>
+                      <p className="text-gray-600">Ihre gewählte Zahlungsmethode</p>
                     </div>
                   </div>
 
-                  {/* Payment Method */}
-                  <div className="border border-gray-200 rounded-md p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">Zahlungsart</h3>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleBackToCheckout} 
-                        className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                      >
-                        <Edit3 size={12} className="mr-1" />
-                        Ändern
-                      </Button>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="font-semibold text-gray-900 mb-2">Vorkasse</div>
+                    <div className="text-gray-700 text-sm space-y-1">
+                      <div>• Überweisung vor Lieferung</div>
+                      <div>• Bankverbindung erhalten Sie per E-Mail</div>
+                      <div>• Lieferung erfolgt nach Zahlungseingang</div>
                     </div>
-                    <div className="text-sm text-gray-700">
-                      <div className="font-medium">
-                        {orderData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
-                      </div>
-                      <div className="text-gray-500 text-xs mt-1">
-                        {orderData.paymentMethod === 'vorkasse' 
-                          ? 'Überweisung vor Lieferung' 
-                          : 'Zahlung nach Lieferung'
-                        }
-                      </div>
+                  </div>
+                </motion.div>
+
+                {/* Terms and Cancellation Policy */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="bg-white rounded-xl p-6 shadow-lg"
+                >
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">AGB und Widerrufsbelehrung</h3>
+                  
+                  <div className="space-y-4 mb-6">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-yellow-800 mb-2">Widerrufsbelehrung</h4>
+                      <p className="text-yellow-700 text-sm">
+                        Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
+                        Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+                      </p>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="acceptTerms"
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                        className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1"
+                      />
+                      <label htmlFor="acceptTerms" className="text-sm text-gray-700 cursor-pointer">
+                        Ich akzeptiere die{' '}
+                        <a href="#" className="text-red-600 hover:underline">
+                          Allgemeinen Geschäftsbedingungen
+                        </a>{' '}
+                        und die{' '}
+                        <a href="#" className="text-red-600 hover:underline">
+                          Widerrufsbelehrung
+                        </a>
+                        . Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
+                        sobald die Lieferung begonnen hat. *
+                      </label>
                     </div>
                   </div>
 
-                  {/* Terms and Conditions */}
-                  <div className="border border-gray-200 rounded-md p-3">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">AGB und Widerrufsbelehrung</h3>
-                    
-                    <div className="space-y-3 mb-4">
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                        <h4 className="font-semibold text-yellow-800 mb-1 text-xs">Widerrufsbelehrung</h4>
-                        <p className="text-yellow-700 text-xs leading-relaxed">
-                          Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
-                          Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
-                        </p>
-                      </div>
-
-                      <div className="flex items-start space-x-2">
-                        <input
-                          type="checkbox"
-                          id="acceptTerms"
-                          checked={acceptTerms}
-                          onChange={(e) => setAcceptTerms(e.target.checked)}
-                          className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-0.5"
-                        />
-                        <label htmlFor="acceptTerms" className="text-xs text-gray-700 cursor-pointer leading-relaxed">
-                          Ich akzeptiere die{' '}
-                          <a href="#" className="text-red-600 hover:underline">
-                            Allgemeinen Geschäftsbedingungen
-                          </a>{' '}
-                          und die{' '}
-                          <a href="#" className="text-red-600 hover:underline">
-                            Widerrufsbelehrung
-                          </a>
-                          . Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
-                          sobald die Lieferung begonnen hat. *
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Security Notice */}
-                  <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-                    <div className="flex items-center space-x-2">
-                      <Lock className="text-gray-600 flex-shrink-0" size={14} />
-                      <div className="text-xs text-gray-700">
-                        <span className="font-medium">Sichere Bestellung</span>
-                        <span className="text-gray-500 ml-2">SSL-verschlüsselt</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Order Summary (Shopify style) */}
-            <div className="lg:col-span-5 order-1 lg:order-2 bg-gray-50 border-b lg:border-b-0 border-gray-200">
-              <div className="lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
-                <div className="p-6 lg:p-8">
-                  <CheckoutSummary
-                    orderData={{
-                      product: {
-                        id: 'standard',
-                        name: orderData.product,
-                        price: orderData.pricePerLiter,
-                        description: 'Qualitäts-Heizöl nach DIN 51603-1'
-                      },
-                      amount: orderData.amount,
-                      postcode: orderData.deliveryPostcode,
-                      basePrice: vatBreakdown.netPrice,
-                      deliveryFee: orderData.deliveryFee,
-                      totalPrice: orderData.total,
-                      savings: orderData.discount
-                    }}
-                  />
-
-                  {/* Complete Order Button */}
                   <Button
                     onClick={handlePlaceOrder}
                     disabled={!acceptTerms}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg disabled:bg-gray-400 mb-4 mt-6"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
                     Zahlungspflichtig bestellen
                   </Button>
+                </motion.div>
+              </div>
 
-                  {/* Terms */}
-                  <p className="text-xs text-gray-500 text-center leading-relaxed">
-                    Mit der Bestellung akzeptieren Sie unsere{' '}
-                    <a href="/agb" className="underline hover:no-underline">AGB</a>
-                    {' '}und{' '}
-                    <a href="/widerrufsrecht" className="underline hover:no-underline">Widerrufsbelehrung</a>
-                  </p>
-                </div>
+              {/* Order Summary Sidebar - Use orderData directly from context */}
+              <div className="lg:col-span-1">
+                <OrderSummary
+                  orderData={{
+                    product: {
+                      id: 'standard',
+                      name: orderData.product,
+                      price: orderData.pricePerLiter,
+                      description: 'Qualitäts-Heizöl nach DIN 51603-1'
+                    },
+                    amount: orderData.amount,
+                    postcode: orderData.deliveryPostcode,
+                    basePrice: orderData.basePrice,
+                    deliveryFee: orderData.deliveryFee,
+                    totalPrice: orderData.total,
+                    savings: orderData.discount
+                  }}
+                />
               </div>
             </div>
           </motion.div>
         </div>
       </main>
       
-      {/* Minimal Footer */}
-      <footer className="bg-white border-t border-gray-200 py-6 px-4 sm:px-6 lg:px-8 mt-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <a href="/datenschutz" className="hover:text-gray-900 transition-colors">
-                Datenschutz
-              </a>
-              <a href="/agb" className="hover:text-gray-900 transition-colors">
-                AGB
-              </a>
-              <a href="/impressum" className="hover:text-gray-900 transition-colors">
-                Impressum
-              </a>
-            </div>
-            <div className="text-sm text-gray-500">
-              © 2024 HeizölDirekt. Alle Rechte vorbehalten.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

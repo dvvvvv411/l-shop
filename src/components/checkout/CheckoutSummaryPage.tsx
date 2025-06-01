@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Edit3, Shield, Lock } from 'lucide-react';
@@ -51,11 +50,7 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
   const { createOrder } = useOrders();
   const { toast } = useToast();
 
-  // VAT calculations (19% VAT rate for Germany)
-  const VAT_RATE = 0.19;
-  const grossTotal = orderData.totalPrice;
-  const netPrice = grossTotal / (1 + VAT_RATE);
-  const vatAmount = grossTotal - netPrice;
+  const finalPrice = orderData.totalPrice;
 
   const handleConfirmOrder = async () => {
     console.log('Confirming order with form data:', formData);
@@ -90,7 +85,7 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
         base_price: orderData.basePrice,
         delivery_fee: orderData.deliveryFee,
         discount: 0,
-        total_amount: grossTotal,
+        total_amount: finalPrice,
         delivery_date_display: '4-7 Werktage',
         status: 'pending'
       };
@@ -132,7 +127,7 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
         basePrice: orderData.basePrice,
         deliveryFee: orderData.deliveryFee,
         discount: 0,
-        total: grossTotal,
+        total: finalPrice,
         deliveryDate: '4-7 Werktage',
         orderNumber: createdOrder.order_number
       };
@@ -158,33 +153,11 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 min-h-screen">
-      {/* Left Column - Order Review (Shopify style) */}
-      <div className="lg:col-span-7 order-2 lg:order-1">
-        <div className="bg-white lg:bg-transparent p-6 lg:p-0">
-          {/* Breadcrumb */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="hover:text-gray-700 transition-colors"
-              >
-                Warenkorb
-              </button>
-              <span>›</span>
-              <button 
-                onClick={onBack}
-                className="hover:text-gray-700 transition-colors"
-              >
-                Informationen
-              </button>
-              <span>›</span>
-              <span className="text-gray-900 font-medium">Bestellung überprüfen</span>
-            </div>
-          </div>
-
-          {/* Mobile back button */}
-          <div className="lg:hidden flex items-center mb-6">
+    <div className="min-h-screen bg-white">
+      {/* Header with back button */}
+      <div className="border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center">
             <Button
               variant="ghost"
               onClick={onBack}
@@ -192,186 +165,165 @@ const CheckoutSummaryPage = ({ orderData, formData, onBack, onOrderSuccess }: Ch
             >
               <ArrowLeft size={20} />
             </Button>
-            <h1 className="text-lg font-medium text-gray-900">Bestellung überprüfen</h1>
-          </div>
-
-          <div className="space-y-4">
-            {/* Contact */}
-            <div className="border border-gray-200 rounded-md p-3">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-900">Kontakt</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                >
-                  <Edit3 size={12} className="mr-1" />
-                  Ändern
-                </Button>
-              </div>
-              <div className="text-sm text-gray-700">
-                {formData.deliveryPhone}
-              </div>
-            </div>
-
-            {/* Delivery Address */}
-            <div className="border border-gray-200 rounded-md p-3">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-900">Lieferadresse</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                >
-                  <Edit3 size={12} className="mr-1" />
-                  Ändern
-                </Button>
-              </div>
-              <div className="text-sm text-gray-700 space-y-0.5">
-                <div>{formData.deliveryFirstName} {formData.deliveryLastName}</div>
-                <div>{formData.deliveryStreet}</div>
-                <div>{formData.deliveryPostcode} {formData.deliveryCity}</div>
-              </div>
-            </div>
-
-            {/* Billing Address */}
-            <div className="border border-gray-200 rounded-md p-3">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-900">Rechnungsadresse</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                >
-                  <Edit3 size={12} className="mr-1" />
-                  Ändern
-                </Button>
-              </div>
-              <div className="text-sm text-gray-700">
-                {formData.useSameAddress ? (
-                  <span>Identisch mit Lieferadresse</span>
-                ) : (
-                  <div className="space-y-0.5">
-                    <div>{formData.billingFirstName} {formData.billingLastName}</div>
-                    <div>{formData.billingStreet}</div>
-                    <div>{formData.billingPostcode} {formData.billingCity}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Payment Method */}
-            <div className="border border-gray-200 rounded-md p-3">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-900">Zahlungsart</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={onBack} 
-                  className="text-blue-600 hover:bg-blue-50 text-xs h-auto p-1"
-                >
-                  <Edit3 size={12} className="mr-1" />
-                  Ändern
-                </Button>
-              </div>
-              <div className="text-sm text-gray-700">
-                <div className="font-medium">
-                  {formData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
-                </div>
-                <div className="text-gray-500 text-xs mt-1">
-                  {formData.paymentMethod === 'vorkasse' 
-                    ? 'Überweisung vor Lieferung' 
-                    : 'Zahlung nach Lieferung'
-                  }
-                </div>
-              </div>
-            </div>
-
-            {/* Security Notice */}
-            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-              <div className="flex items-center space-x-2">
-                <Lock className="text-gray-600 flex-shrink-0" size={14} />
-                <div className="text-xs text-gray-700">
-                  <span className="font-medium">Sichere Bestellung</span>
-                  <span className="text-gray-500 ml-2">SSL-verschlüsselt</span>
-                </div>
-              </div>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Bestellung überprüfen</h1>
+              <p className="text-sm text-gray-500">Überprüfen Sie Ihre Angaben vor der Bestellung</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Column - Order Summary (Shopify style) */}
-      <div className="lg:col-span-5 order-1 lg:order-2 bg-gray-50 border-b lg:border-b-0 border-gray-200">
-        <div className="lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
-          <div className="p-6 lg:p-8">
-            {/* Product */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-start justify-between pb-4 border-b border-gray-200">
-                <div className="flex items-start space-x-3">
-                  <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                    H
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column - Order Details */}
+          <div className="lg:col-span-7">
+            <div className="space-y-6">
+              {/* Contact */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Kontakt</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  {formData.deliveryPhone}
+                </div>
+              </div>
+
+              {/* Delivery Address */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Lieferadresse</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700 space-y-1">
+                  <div>{formData.deliveryFirstName} {formData.deliveryLastName}</div>
+                  <div>{formData.deliveryStreet}</div>
+                  <div>{formData.deliveryPostcode} {formData.deliveryCity}</div>
+                </div>
+              </div>
+
+              {/* Billing Address */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Rechnungsadresse</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  {formData.useSameAddress ? (
+                    <span>Identisch mit Lieferadresse</span>
+                  ) : (
+                    <div className="space-y-1">
+                      <div>{formData.billingFirstName} {formData.billingLastName}</div>
+                      <div>{formData.billingStreet}</div>
+                      <div>{formData.billingPostcode} {formData.billingCity}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-medium text-gray-900">Zahlungsart</h3>
+                  <Button variant="ghost" size="sm" onClick={onBack} className="text-blue-600 hover:bg-blue-50 text-sm">
+                    Ändern
+                  </Button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  <div className="font-medium">
+                    {formData.paymentMethod === 'vorkasse' ? 'Vorkasse' : 'Rechnung'}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 text-sm">
-                      {orderData.product.name}
-                    </h4>
-                    <p className="text-sm text-gray-500">
-                      {orderData.amount.toLocaleString('de-DE')} Liter
-                    </p>
+                  <div className="text-gray-500 mt-1">
+                    {formData.paymentMethod === 'vorkasse' 
+                      ? 'Überweisung vor Lieferung' 
+                      : 'Zahlung nach Lieferung'
+                    }
                   </div>
                 </div>
-                <span className="font-medium text-gray-900 text-sm">
-                  {netPrice.toFixed(2)}€
-                </span>
+              </div>
+
+              {/* Security Notice */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <Lock className="text-gray-600" size={16} />
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">Sichere Bestellung</span>
+                    <span className="text-gray-500 ml-2">SSL-verschlüsselt</span>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Price Breakdown */}
-            <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Zwischensumme (netto)</span>
-                <span className="text-gray-900">{netPrice.toFixed(2)}€</span>
-              </div>
-              
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Versand</span>
-                <span className="text-gray-900">
-                  {orderData.deliveryFee === 0 ? 'Kostenlos' : `${(orderData.deliveryFee / (1 + VAT_RATE)).toFixed(2)}€`}
-                </span>
+          {/* Right Column - Order Summary */}
+          <div className="lg:col-span-5">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sticky top-8">
+              {/* Product */}
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                      H
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 text-sm">
+                        {orderData.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-500">
+                        {orderData.amount.toLocaleString('de-DE')} Liter
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-medium text-gray-900 text-sm">
+                    {orderData.basePrice.toFixed(2)}€
+                  </span>
+                </div>
               </div>
 
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Mehrwertsteuer (19%)</span>
-                <span className="text-gray-900">{vatAmount.toFixed(2)}€</span>
+              {/* Subtotal */}
+              <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Zwischensumme</span>
+                  <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Versand</span>
+                  <span className="text-gray-900">
+                    {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+                  </span>
+                </div>
               </div>
+
+              {/* Total */}
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-lg font-semibold text-gray-900">Gesamt</span>
+                <span className="text-lg font-semibold text-gray-900">{finalPrice.toFixed(2)}€</span>
+              </div>
+
+              {/* Complete Order Button */}
+              <Button
+                onClick={handleConfirmOrder}
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg disabled:bg-gray-400 mb-4"
+              >
+                {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
+              </Button>
+
+              {/* Terms */}
+              <p className="text-xs text-gray-500 text-center leading-relaxed">
+                Mit der Bestellung akzeptieren Sie unsere{' '}
+                <a href="/agb" className="underline hover:no-underline">AGB</a>
+                {' '}und{' '}
+                <a href="/widerrufsrecht" className="underline hover:no-underline">Widerrufsbelehrung</a>
+              </p>
             </div>
-
-            {/* Total */}
-            <div className="flex justify-between items-center mb-6 py-2">
-              <span className="text-lg font-semibold text-gray-900">Gesamt (inkl. MwSt.)</span>
-              <span className="text-lg font-semibold text-gray-900">{grossTotal.toFixed(2)}€</span>
-            </div>
-
-            {/* Complete Order Button */}
-            <Button
-              onClick={handleConfirmOrder}
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg disabled:bg-gray-400 mb-4"
-            >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
-            </Button>
-
-            {/* Terms */}
-            <p className="text-xs text-gray-500 text-center leading-relaxed">
-              Mit der Bestellung akzeptieren Sie unsere{' '}
-              <a href="/agb" className="underline hover:no-underline">AGB</a>
-              {' '}und{' '}
-              <a href="/widerrufsrecht" className="underline hover:no-underline">Widerrufsbelehrung</a>
-            </p>
           </div>
         </div>
       </div>
