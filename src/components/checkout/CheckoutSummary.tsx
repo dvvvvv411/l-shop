@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
 interface PriceCalculatorData {
   product: {
     id: string;
@@ -19,31 +17,30 @@ interface PriceCalculatorData {
   totalPrice: number;
   savings: number;
 }
-
 interface CheckoutSummaryProps {
   orderData: PriceCalculatorData;
 }
-
-const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
+const CheckoutSummary = ({
+  orderData
+}: CheckoutSummaryProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const finalPrice = orderData.totalPrice;
-  
+
   // VAT calculations (19% VAT)
   const vatRate = 0.19;
   const netPrice = finalPrice / (1 + vatRate);
   const vatAmount = finalPrice - netPrice;
-
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) {
       setCouponError('Bitte geben Sie einen Rabattcode ein.');
       return;
     }
-
     setIsApplying(true);
     setCouponError('');
 
@@ -51,32 +48,25 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
     setTimeout(() => {
       // Always show invalid code error
       setCouponError('Ungültiger Rabattcode. Bitte überprüfen Sie Ihren Code.');
-      
+
       // Show toast notification
       toast({
         title: 'Rabattcode ungültig',
         description: 'Der eingegebene Rabattcode ist nicht gültig oder abgelaufen.',
         variant: 'destructive'
       });
-      
       setIsApplying(false);
     }, 1000);
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleCouponSubmit();
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Mobile Toggle */}
       <div className="lg:hidden">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg"
-        >
+        <button onClick={() => setIsExpanded(!isExpanded)} className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
           <div className="flex items-center space-x-3">
             <Package className="text-blue-600" size={20} />
             <span className="font-semibold text-gray-900">
@@ -96,11 +86,9 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
       </div>
 
       {/* Order Summary */}
-      <motion.div
-        initial={false}
-        animate={{ height: isExpanded || window.innerWidth >= 1024 ? 'auto' : 0 }}
-        className="overflow-hidden lg:overflow-visible"
-      >
+      <motion.div initial={false} animate={{
+      height: isExpanded || window.innerWidth >= 1024 ? 'auto' : 0
+    }} className="overflow-hidden lg:overflow-visible">
         <div className="space-y-6">
           {/* Product Item - Without image */}
           <div className="bg-white lg:bg-transparent border border-gray-200 lg:border-0 rounded-lg lg:rounded-none p-4 lg:p-0">
@@ -131,29 +119,12 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           {/* Discount Code Input */}
           <div className="space-y-3">
             <div className="flex space-x-2">
-              <input
-                type="text"
-                placeholder="Rabattcode eingeben"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  couponError 
-                    ? 'border-red-300 focus:ring-red-500' 
-                    : 'border-gray-300'
-                }`}
-              />
-              <button 
-                onClick={handleCouponSubmit}
-                disabled={isApplying}
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <input type="text" placeholder="Rabattcode eingeben" value={couponCode} onChange={e => setCouponCode(e.target.value)} onKeyPress={handleKeyPress} className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${couponError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}`} />
+              <button onClick={handleCouponSubmit} disabled={isApplying} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {isApplying ? 'Prüfe...' : 'Anwenden'}
               </button>
             </div>
-            {couponError && (
-              <p className="text-red-600 text-sm">{couponError}</p>
-            )}
+            {couponError && <p className="text-red-600 text-sm">{couponError}</p>}
           </div>
 
           {/* Price Breakdown */}
@@ -209,9 +180,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                     <strong>4-7 Werktage</strong> nach Zahlungseingang
                   </p>
                 </div>
-                <p className="text-blue-700 text-xs mt-1">
-                  Kostenlose Lieferung ab 1.000 Liter
-                </p>
+                <p className="text-blue-700 text-xs mt-1">Kostenlose Lieferung ab 3.000 Liter</p>
               </div>
             </div>
           </div>
@@ -237,8 +206,6 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           </div>
         </div>
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default CheckoutSummary;
