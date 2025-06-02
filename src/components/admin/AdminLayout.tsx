@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ShoppingCart, 
-  Users, 
   Settings, 
   CreditCard,
   Building2
@@ -24,11 +22,6 @@ const AdminLayout = () => {
       name: 'Bestellungen',
       href: '/admin/orders',
       icon: ShoppingCart,
-    },
-    {
-      name: 'Kunden',
-      href: '/admin/customers',
-      icon: Users,
     },
     {
       name: 'Geschäfte',
