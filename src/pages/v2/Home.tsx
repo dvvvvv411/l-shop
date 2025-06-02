@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v2/Header';
@@ -7,7 +6,7 @@ import TrustElements from '../../components/v2/TrustElements';
 import ServiceAreas from '../../components/v2/ServiceAreas';
 import SavingsTips from '../../components/v2/SavingsTips';
 import CustomerReviews from '../../components/v2/CustomerReviews';
-import Footer from '../../components/Footer';
+import Footer from '../../components/v2/Footer';
 import { Zap, Award } from 'lucide-react';
 
 const Home = () => {

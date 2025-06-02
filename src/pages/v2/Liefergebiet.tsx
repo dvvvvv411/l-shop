@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/v2/Header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/v2/Footer';
 import DeliveryMap from '../../components/DeliveryMap';
 import { MapPin, Clock, Truck, Euro, Shield, Users, CheckCircle } from 'lucide-react';
 

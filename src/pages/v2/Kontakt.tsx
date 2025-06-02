@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, MessageCircle, Users } from 'lucide-react';
 import Header from '../../components/v2/Header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/v2/Footer';
 
 const Kontakt = () => {
   const contactMethods = [

@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Award, Truck, Clock, Users, CheckCircle } from 'lucide-react';
 import Header from '../../components/v2/Header';
-import Footer from '../../components/Footer';
+import Footer from '../../components/v2/Footer';
 
 const Service = () => {
   const qualityFeatures = [
