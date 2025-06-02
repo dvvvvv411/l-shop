@@ -26,14 +26,14 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
   };
 
   return (
-    <div className="flex gap-1 min-w-[160px] px-1">
+    <div className="flex gap-2 min-w-[200px] justify-start">
       {/* View Order - Always available */}
       <Button 
         variant="ghost" 
         size="sm"
         onClick={() => onViewOrder(order)}
         title="Bestellung anzeigen"
-        className="h-8 w-8 p-0"
+        className="h-8 w-8 p-0 flex-shrink-0"
       >
         <Eye className="h-3 w-3" />
       </Button>
@@ -44,7 +44,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
         size="sm"
         onClick={() => onGenerateInvoice(order)}
         title="Rechnung erstellen"
-        className="h-8 w-8 p-0"
+        className="h-8 w-8 p-0 flex-shrink-0"
       >
         <Receipt className="h-3 w-3" />
       </Button>
@@ -56,7 +56,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
           size="sm"
           onClick={handleMarkAsPaid}
           title="Als bezahlt markieren"
-          className="h-8 w-8 p-0 text-green-700 hover:text-green-800 hover:bg-green-50"
+          className="h-8 w-8 p-0 text-green-700 hover:text-green-800 hover:bg-green-50 flex-shrink-0"
         >
           <CheckCircle className="h-3 w-3" />
         </Button>
@@ -69,7 +69,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
           size="sm"
           onClick={() => onViewInvoice(order)}
           title="Rechnung anzeigen"
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 flex-shrink-0"
         >
           <FileText className="h-3 w-3" />
         </Button>

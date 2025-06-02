@@ -260,6 +260,7 @@ const AdminOrders = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -310,19 +311,19 @@ const AdminOrders = () => {
               {currentPage > 1 && ` (Seite ${currentPage} von ${totalPages})`}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12">
+                    <TableHead className="w-12 pl-4">
                       <Checkbox
                         checked={selectedOrders.length === paginatedOrders.length && paginatedOrders.length > 0}
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[120px]"
                       onClick={() => handleSort('order_number')}
                     >
                       <div className="flex items-center gap-1">
@@ -331,7 +332,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
                       onClick={() => handleSort('created_at')}
                     >
                       <div className="flex items-center gap-1">
@@ -340,7 +341,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[140px]"
                       onClick={() => handleSort('customer_name')}
                     >
                       <div className="flex items-center gap-1">
@@ -349,7 +350,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[120px]"
                       onClick={() => handleSort('customer_phone')}
                     >
                       <div className="flex items-center gap-1">
@@ -358,10 +359,10 @@ const AdminOrders = () => {
                         {getSortIcon('customer_phone')}
                       </div>
                     </TableHead>
-                    <TableHead>PLZ / Stadt</TableHead>
-                    <TableHead>Produkt</TableHead>
+                    <TableHead className="min-w-[100px]">PLZ / Stadt</TableHead>
+                    <TableHead className="min-w-[100px]">Produkt</TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
                       onClick={() => handleSort('liters')}
                     >
                       <div className="flex items-center gap-1">
@@ -370,7 +371,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
                       onClick={() => handleSort('total_amount')}
                     >
                       <div className="flex items-center gap-1">
@@ -379,7 +380,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
                       onClick={() => handleSort('status')}
                     >
                       <div className="flex items-center gap-1">
@@ -387,7 +388,7 @@ const AdminOrders = () => {
                         {getSortIcon('status')}
                       </div>
                     </TableHead>
-                    <TableHead className="min-w-[160px]">Aktionen</TableHead>
+                    <TableHead className="min-w-[200px] pr-4">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -396,7 +397,7 @@ const AdminOrders = () => {
                       key={order.id} 
                       className="hover:bg-gray-50"
                     >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
+                      <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
                         <Checkbox
                           checked={selectedOrders.includes(order.id)}
                           onCheckedChange={(checked) => handleSelectOrder(order.id, checked as boolean)}
@@ -439,7 +440,7 @@ const AdminOrders = () => {
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[160px]">
+                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[200px] pr-4">
                         <OrderTableActions
                           order={order}
                           onViewOrder={handleViewOrder}
@@ -462,7 +463,7 @@ const AdminOrders = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-4">
+              <div className="mt-4 px-4 pb-4">
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
