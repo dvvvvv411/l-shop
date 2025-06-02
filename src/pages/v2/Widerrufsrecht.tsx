@@ -78,7 +78,7 @@ const Widerrufsrecht = () => {
 
               <section>
                 <h3 className="text-lg font-medium text-gray-800 mb-2">Ausübung des Widerrufsrechts</h3>
-                <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Green Oil Trade and Service GmbH, Beethovenstraße 15, 60325 Frankfurt am Main, E-Mail: kontakt@oilexpress.de) mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
+                <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (Green Oil Trade and Service GmbH, Kühgassfelderweg 13, 90482 Nürnberg, E-Mail: kontakt@oilexpress.de) mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
               </section>
 
               <section>

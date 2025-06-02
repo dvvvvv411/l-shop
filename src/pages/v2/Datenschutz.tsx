@@ -83,8 +83,8 @@ const Datenschutz = () => {
                 <p>Verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:</p>
                 <div className="mt-2 p-4 bg-gray-50 rounded">
                   <p className="font-semibold">Green Oil Trade and Service GmbH</p>
-                  <p>Beethovenstraße 15</p>
-                  <p>60325 Frankfurt am Main</p>
+                  <p>Kühgassfelderweg 13</p>
+                  <p>90482 Nürnberg</p>
                   <p>Deutschland</p>
                   <p className="mt-2">E-Mail: kontakt@oilexpress.de</p>
                   <p>Telefon: 0800 987 654 3</p>

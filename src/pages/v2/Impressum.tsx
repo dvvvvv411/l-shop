@@ -31,8 +31,8 @@ const Impressum = () => {
                 <h2 className="text-xl font-semibold text-blue-900 mb-4">Angaben gemäß § 5 TMG</h2>
                 <div className="text-blue-800 space-y-1">
                   <p className="font-semibold">Green Oil Trade and Service GmbH</p>
-                  <p>Beethovenstraße 15</p>
-                  <p>60325 Frankfurt am Main</p>
+                  <p>Kühgassfelderweg 13</p>
+                  <p>90482 Nürnberg</p>
                   <p>Deutschland</p>
                 </div>
               </motion.section>
@@ -58,8 +58,8 @@ const Impressum = () => {
               >
                 <h2 className="text-xl font-semibold text-slate-900 mb-4">Handelsregister</h2>
                 <div className="text-slate-700 space-y-1">
-                  <p>Registergericht: Amtsgericht Frankfurt am Main</p>
-                  <p>Registernummer: HRB 112358</p>
+                  <p>Registergericht: Amtsgericht Nürnberg</p>
+                  <p>Registernummer: HRB 32692</p>
                 </div>
               </motion.section>
 
@@ -72,7 +72,7 @@ const Impressum = () => {
                 <h2 className="text-xl font-semibold text-purple-900 mb-4">Umsatzsteuer-ID</h2>
                 <div className="text-purple-800 space-y-1">
                   <p>Umsatzsteuer-Identifikationsnummer:</p>
-                  <p className="font-mono">DE987654321</p>
+                  <p className="font-mono">DE693676920</p>
                 </div>
               </motion.section>
             </div>
@@ -84,7 +84,7 @@ const Impressum = () => {
               className="mt-8 bg-gradient-to-r from-blue-50 to-emerald-50 rounded-xl p-6"
             >
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Geschäftsführung</h2>
-              <p className="text-gray-700">Michael Grünberg</p>
+              <p className="text-gray-700">Zhongfu Tang</p>
             </motion.section>
 
             <motion.section
@@ -95,9 +95,9 @@ const Impressum = () => {
             >
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
               <div className="text-gray-700 space-y-1">
-                <p>Michael Grünberg</p>
-                <p>Beethovenstraße 15</p>
-                <p>60325 Frankfurt am Main</p>
+                <p>Zhongfu Tang</p>
+                <p>Kühgassfelderweg 13</p>
+                <p>90482 Nürnberg</p>
               </div>
             </motion.section>
           </div>

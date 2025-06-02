@@ -13,7 +13,7 @@ const Footer = () => {
     {
       icon: MapPin,
       title: "Hauptsitz",
-      content: ["Green Oil Trade and Service GmbH", "Beethovenstraße 15", "60325 Frankfurt am Main"]
+      content: ["Green Oil Trade and Service GmbH", "Kühgassfelderweg 13", "90482 Nürnberg"]
     },
     {
       icon: Phone,
