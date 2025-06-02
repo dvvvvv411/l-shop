@@ -153,8 +153,8 @@ const Produkte = () => {
                 <tbody className="divide-y divide-gray-100">
                   <tr>
                     <td className="px-6 py-4 text-sm text-slate-600">Schwefelgehalt</td>
-                    <td className="px-6 py-4 text-center text-sm text-slate-800">< 1000 mg/kg</td>
-                    <td className="px-6 py-4 text-center text-sm text-emerald-600 font-medium">< 50 mg/kg</td>
+                    <td className="px-6 py-4 text-center text-sm text-slate-800">&lt; 1000 mg/kg</td>
+                    <td className="px-6 py-4 text-center text-sm text-emerald-600 font-medium">&lt; 50 mg/kg</td>
                   </tr>
                   <tr className="bg-gray-50">
                     <td className="px-6 py-4 text-sm text-slate-600">Heizwert</td>
