@@ -146,7 +146,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <FileText className="h-4 w-4 mr-2" />
             {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
           </Button>
-          {currentStatus === 'invoice_created' && order.invoice_file_url && (
+          {order.invoice_file_url && (
             <Button
               variant="outline"
               className="w-full justify-start"

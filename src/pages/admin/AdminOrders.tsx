@@ -431,7 +431,7 @@ const AdminOrders = () => {
                               <FileText className="h-4 w-4" />
                             </Button>
                           )}
-                          {(order.invoice_number && order.invoice_number.trim() !== '') && (
+                          {order.invoice_file_url && (
                             <Button 
                               variant="ghost" 
                               size="sm"
