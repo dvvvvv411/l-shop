@@ -149,8 +149,6 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               <SelectItem value="pending">Neu</SelectItem>
               <SelectItem value="confirmed">Bezahlt</SelectItem>
               <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
-              <SelectItem value="shipped">Versandt</SelectItem>
-              <SelectItem value="completed">Abgeschlossen</SelectItem>
               <SelectItem value="exchanged">Exchanged</SelectItem>
               <SelectItem value="down">Down</SelectItem>
             </SelectContent>
