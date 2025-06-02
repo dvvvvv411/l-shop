@@ -350,7 +350,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[120px]"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[110px]"
                       onClick={() => handleSort('customer_phone')}
                     >
                       <div className="flex items-center gap-1">
@@ -359,10 +359,10 @@ const AdminOrders = () => {
                         {getSortIcon('customer_phone')}
                       </div>
                     </TableHead>
-                    <TableHead className="min-w-[100px]">PLZ / Stadt</TableHead>
-                    <TableHead className="min-w-[100px]">Produkt</TableHead>
+                    <TableHead className="min-w-[90px]">PLZ / Stadt</TableHead>
+                    <TableHead className="min-w-[80px]">Produkt</TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[80px]"
                       onClick={() => handleSort('liters')}
                     >
                       <div className="flex items-center gap-1">
@@ -371,7 +371,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
                       onClick={() => handleSort('total_amount')}
                     >
                       <div className="flex items-center gap-1">
@@ -380,7 +380,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
+                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
                       onClick={() => handleSort('status')}
                     >
                       <div className="flex items-center gap-1">
@@ -388,7 +388,7 @@ const AdminOrders = () => {
                         {getSortIcon('status')}
                       </div>
                     </TableHead>
-                    <TableHead className="min-w-[200px] pr-4">Aktionen</TableHead>
+                    <TableHead className="min-w-[140px] pr-4">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -440,7 +440,7 @@ const AdminOrders = () => {
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[200px] pr-4">
+                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px] pr-4">
                         <OrderTableActions
                           order={order}
                           onViewOrder={handleViewOrder}

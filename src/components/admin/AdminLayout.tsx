@@ -50,7 +50,7 @@ const AdminLayout = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="hidden md:flex md:w-56 md:flex-col flex-shrink-0">
+      <div className="hidden md:flex md:w-48 md:flex-col flex-shrink-0">
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r">
           <div className="flex items-center flex-shrink-0 px-4">
             <h1 className="text-lg font-bold text-gray-900">Admin Panel</h1>
@@ -89,7 +89,7 @@ const AdminLayout = () => {
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <div className="py-6">
-            <div className="max-w-full mx-auto px-4 sm:px-6 md:px-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
               <Outlet />
             </div>
           </div>
