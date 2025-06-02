@@ -89,7 +89,7 @@ const AdminLayout = () => {
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <div className="py-6">
-            <div className="max-w-[1408px] mx-auto px-4 sm:px-6 md:px-8">
+            <div className="max-w-[1478px] mx-auto px-4 sm:px-6 md:px-8">
               <Outlet />
             </div>
           </div>
