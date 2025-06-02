@@ -8,10 +8,8 @@ import SavingsTips from '../../components/v2/SavingsTips';
 import CustomerReviews from '../../components/v2/CustomerReviews';
 import Footer from '../../components/v2/Footer';
 import { Zap, Award } from 'lucide-react';
-
 const Home = () => {
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <Header />
       
       {/* Hero Section */}
@@ -24,12 +22,15 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="mb-8"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            y: 30
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.8
+          }} className="mb-8">
               <div className="inline-flex items-center bg-gradient-to-r from-blue-100 to-emerald-100 text-slate-700 px-5 py-2 rounded-full text-sm font-medium mb-8">
                 <Zap size={16} className="mr-2" />
                 Premium Energielösungen seit 1998
@@ -47,25 +48,34 @@ const Home = () => {
           </div>
 
           {/* Price Calculator */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          scale: 0.95
+        }} animate={{
+          opacity: 1,
+          scale: 1
+        }} transition={{
+          duration: 0.8,
+          delay: 0.3
+        }}>
             <PriceCalculator />
           </motion.div>
 
           {/* Enhanced Benefits Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.8,
+          delay: 0.5
+        }} className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
               <div className="text-2xl font-light text-blue-600 mb-1">Schnell</div>
               <div className="text-slate-600 font-medium">Express-Lieferung</div>
-              <div className="text-xs text-slate-500 mt-1">In 2-5 Werktagen</div>
+              <div className="text-xs text-slate-500 mt-1">In 4-7 Werktagen</div>
             </div>
             <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
               <div className="text-2xl font-light text-emerald-600 mb-1">Premium</div>
@@ -75,7 +85,7 @@ const Home = () => {
             <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
               <div className="text-2xl font-light text-blue-600 mb-1">Service</div>
               <div className="text-slate-600 font-medium">Persönliche Betreuung</div>
-              <div className="text-xs text-slate-500 mt-1">7-20 Uhr täglich</div>
+              <div className="text-xs text-slate-500 mt-1">8-20 Uhr täglich</div>
             </div>
           </motion.div>
         </div>
@@ -87,8 +97,6 @@ const Home = () => {
       <SavingsTips />
       <CustomerReviews />
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
