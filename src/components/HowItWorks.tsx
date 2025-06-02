@@ -30,6 +30,13 @@ const HowItWorks = () => {
     }
   ];
 
+  const scrollToPriceCalculator = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -99,7 +106,10 @@ const HowItWorks = () => {
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
+          <button 
+            onClick={scrollToPriceCalculator}
+            className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+          >
             Jetzt starten
           </button>
         </motion.div>
