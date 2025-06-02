@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getLogoConfig } from '../../config/logoConfig';
 
@@ -33,24 +33,17 @@ const Footer = () => {
   ];
 
   const quickLinks = [
-    { label: "Sortiment", path: "/2/produkte" },
-    { label: "Lieferservice", path: "/2/liefergebiet" },
-    { label: "Premium Service", path: "/2/service" },
-    { label: "Support", path: "/2/kontakt" }
+    { label: "Heizöl-Produkte", path: "/2/produkte" },
+    { label: "Liefergebiete", path: "/2/liefergebiet" },
+    { label: "Service & Support", path: "/2/service" },
+    { label: "Kontakt & Beratung", path: "/2/kontakt" }
   ];
 
   const legalLinks = [
     { label: "Impressum", path: "/2/impressum" },
-    { label: "Datenschutz", path: "/2/datenschutz" },
-    { label: "AGB", path: "/2/agb" },
+    { label: "Datenschutzerklärung", path: "/2/datenschutz" },
+    { label: "Allgemeine Geschäftsbedingungen", path: "/2/agb" },
     { label: "Widerrufsrecht", path: "/2/widerrufsrecht" }
-  ];
-
-  const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" }
   ];
 
   return (
@@ -134,7 +127,7 @@ const Footer = () => {
             viewport={{ once: true }}
           >
             <h3 className="text-lg font-semibold mb-6 text-white">Rechtliches</h3>
-            <ul className="space-y-3 mb-6">
+            <ul className="space-y-3">
               {legalLinks.map((link, index) => (
                 <li key={index}>
                   <Link
@@ -147,23 +140,6 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-
-            {/* Social Links */}
-            <div>
-              <h4 className="text-sm font-medium mb-3 text-slate-200">Folgen Sie uns</h4>
-              <div className="flex space-x-3">
-                {socialLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.href}
-                    aria-label={social.label}
-                    className="bg-slate-700 hover:bg-blue-600 p-2 rounded-lg transition-colors group"
-                  >
-                    <social.icon size={16} className="text-slate-300 group-hover:text-white" />
-                  </a>
-                ))}
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
