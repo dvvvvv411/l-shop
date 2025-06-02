@@ -387,7 +387,7 @@ const AdminOrders = () => {
                         {getSortIcon('status')}
                       </div>
                     </TableHead>
-                    <TableHead className="min-w-[140px]">Aktionen</TableHead>
+                    <TableHead className="min-w-[160px]">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -439,7 +439,7 @@ const AdminOrders = () => {
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px]">
+                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[160px]">
                         <OrderTableActions
                           order={order}
                           onViewOrder={handleViewOrder}

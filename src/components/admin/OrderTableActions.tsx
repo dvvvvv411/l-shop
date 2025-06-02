@@ -26,7 +26,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
   };
 
   return (
-    <div className="flex gap-1 flex-wrap min-w-[140px]">
+    <div className="flex gap-1 min-w-[160px] px-1">
       {/* View Order - Always available */}
       <Button 
         variant="ghost" 
