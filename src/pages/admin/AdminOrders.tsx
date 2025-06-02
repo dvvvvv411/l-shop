@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone } from 'lucide-react';
+import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
 import InvoiceViewerDialog from '@/components/admin/InvoiceViewerDialog';
 import OrderTableActions from '@/components/admin/OrderTableActions';
 import { useOrders, Order } from '@/hooks/useOrders';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 type SortConfig = {
@@ -23,6 +24,7 @@ type SortConfig = {
 
 const AdminOrders = () => {
   const { orders, isLoading, updateOrderStatus } = useOrders();
+  const { bankAccounts } = useBankAccounts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -132,21 +134,25 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status'];
+    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto'];
     const csvContent = [
       headers.join(','),
-      ...filteredAndSortedOrders.map(order => [
-        order.order_number,
-        new Date(order.created_at).toLocaleDateString('de-DE'),
-        order.customer_name,
-        order.customer_phone || '',
-        order.delivery_postcode || '',
-        order.delivery_city || '',
-        order.product || 'Standard Heizöl',
-        order.liters,
-        order.total_amount,
-        order.status
-      ].join(','))
+      ...filteredAndSortedOrders.map(order => {
+        const bankAccount = bankAccounts.find(ba => ba.id === order.bank_account_id);
+        return [
+          order.order_number,
+          new Date(order.created_at).toLocaleDateString('de-DE'),
+          order.customer_name,
+          order.customer_phone || '',
+          order.delivery_postcode || '',
+          order.delivery_city || '',
+          order.product || 'Standard Heizöl',
+          order.liters,
+          order.total_amount,
+          order.status,
+          bankAccount ? bankAccount.bank_name : '-'
+        ].join(',');
+      })
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -164,6 +170,12 @@ const AdminOrders = () => {
     return sortConfig.direction === 'asc' ? 
       <ArrowUp className="h-4 w-4" /> : 
       <ArrowDown className="h-4 w-4" />;
+  };
+
+  const getBankAccountName = (bankAccountId: string | null) => {
+    if (!bankAccountId) return '-';
+    const bankAccount = bankAccounts.find(ba => ba.id === bankAccountId);
+    return bankAccount ? bankAccount.bank_name : 'Unbekannt';
   };
 
   const handleViewOrder = (order: Order) => {
@@ -379,6 +391,12 @@ const AdminOrders = () => {
                         {getSortIcon('total_amount')}
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[110px]">
+                      <div className="flex items-center gap-1">
+                        <CreditCard className="h-4 w-4" />
+                        Bankkonto
+                      </div>
+                    </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
                       onClick={() => handleSort('status')}
@@ -437,6 +455,18 @@ const AdminOrders = () => {
                       <TableCell className="text-sm">{order.product || 'Standard Heizöl'}</TableCell>
                       <TableCell className="font-medium">{order.liters.toLocaleString()}</TableCell>
                       <TableCell className="font-semibold">€{order.total_amount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {order.bank_account_id ? (
+                            <div className="flex items-center gap-1">
+                              <CreditCard className="h-3 w-3 text-gray-400" />
+                              {getBankAccountName(order.bank_account_id)}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>

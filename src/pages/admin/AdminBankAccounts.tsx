@@ -5,11 +5,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Star, StarOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, StarOff, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 import BankAccountForm from '@/components/admin/BankAccountForm';
 import BankAccountDeleteDialog from '@/components/admin/BankAccountDeleteDialog';
+import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialog';
 
 interface BankAccount {
   id: string;
@@ -27,6 +28,8 @@ const AdminBankAccounts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<BankAccount | null>(null);
+  const [selectedAccountForDetails, setSelectedAccountForDetails] = useState<BankAccount | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -89,6 +92,16 @@ const AdminBankAccounts = () => {
     setDefaultMutation.mutate(accountId);
   };
 
+  const handleViewDetails = (account: BankAccount) => {
+    setSelectedAccountForDetails(account);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleCloseDetailsDialog = () => {
+    setIsDetailsDialogOpen(false);
+    setSelectedAccountForDetails(null);
+  };
+
   const breadcrumbItems = [
     { label: 'Admin', href: '/admin' },
     { label: 'Bankkonten' },
@@ -117,7 +130,7 @@ const AdminBankAccounts = () => {
 
       <div className="grid gap-6">
         {bankAccounts?.map((account) => (
-          <Card key={account.id} className="relative">
+          <Card key={account.id} className="relative cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetails(account)}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -129,7 +142,15 @@ const AdminBankAccounts = () => {
                     </Badge>
                   )}
                 </CardTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewDetails(account)}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Details
+                  </Button>
                   {!account.is_default && (
                     <Button
                       variant="outline"
@@ -215,6 +236,12 @@ const AdminBankAccounts = () => {
       <BankAccountDeleteDialog
         account={deletingAccount}
         onClose={() => setDeletingAccount(null)}
+      />
+
+      <BankAccountDetailsDialog
+        bankAccount={selectedAccountForDetails}
+        isOpen={isDetailsDialogOpen}
+        onClose={handleCloseDetailsDialog}
       />
     </div>
   );
