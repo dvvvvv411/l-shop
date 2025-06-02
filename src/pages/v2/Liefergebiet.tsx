@@ -13,9 +13,11 @@ const Liefergebiet = () => {
   const [postcode, setPostcode] = useState('');
 
   const handlePostcodeCheck = () => {
-    if (postcode.trim()) {
-      navigate('/2/home');
-    }
+    navigate('/2/');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
   const heroFeatures = [
