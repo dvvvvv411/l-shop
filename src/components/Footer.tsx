@@ -1,6 +1,7 @@
 
+
 import React from 'react';
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 const Footer = () => {
   return <footer className="bg-gray-900 text-white">
@@ -14,17 +15,6 @@ const Footer = () => {
             <p className="text-gray-300 mb-4">
               Ihr zuverlässiger Partner für günstige Heizöllieferungen seit über 25 Jahren.
             </p>
-            <div className="flex space-x-4">
-              <div className="bg-gray-800 p-2 rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
-                <Facebook size={20} />
-              </div>
-              <div className="bg-gray-800 p-2 rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
-                <Twitter size={20} />
-              </div>
-              <div className="bg-gray-800 p-2 rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
-                <Instagram size={20} />
-              </div>
-            </div>
           </div>
 
           {/* Products & Services */}
@@ -42,13 +32,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#preise" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/home" className="text-gray-300 hover:text-white transition-colors">
                   Preisrechner
-                </a>
-              </li>
-              <li>
-                <Link to="/1/service" className="text-gray-300 hover:text-white transition-colors">
-                  Qualitätszertifikate
                 </Link>
               </li>
             </ul>
@@ -64,7 +49,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#faq" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/1/home#faq" className="text-gray-300 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
@@ -74,9 +59,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  Zahlung & Versand
-                </a>
+                <Link to="/1/service" className="text-gray-300 hover:text-white transition-colors">
+                  Service
+                </Link>
               </li>
             </ul>
           </div>
@@ -125,3 +110,4 @@ const Footer = () => {
     </footer>;
 };
 export default Footer;
+
