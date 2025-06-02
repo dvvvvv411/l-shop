@@ -26,7 +26,7 @@ const Kontakt = () => {
     {
       icon: MapPin,
       title: "Hauptsitz",
-      details: ["OilExpress GmbH", "Energiestraße 45", "20355 Hamburg"]
+      details: ["Green Oil Trade and Service GmbH", "Kühgassfelderweg 13", "90482 Nürnberg"]
     },
     {
       icon: Clock,
