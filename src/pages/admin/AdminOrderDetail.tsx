@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -109,6 +110,7 @@ const AdminOrderDetail = () => {
   ];
 
   const order = orders.find(o => o.id === orderId);
+  const [currentOrder, setCurrentOrder] = useState(order || null);
   const [currentStatus, setCurrentStatus] = useState(order?.status || 'pending');
 
   const orderIndex = orders.findIndex(o => o.id === orderId);
@@ -154,7 +156,7 @@ const AdminOrderDetail = () => {
     }] : [])
   ], [currentStatus]);
 
-  if (!order) {
+  if (!currentOrder) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Bestellung nicht gefunden</h2>
@@ -168,14 +170,14 @@ const AdminOrderDetail = () => {
   const breadcrumbItems = [
     { label: 'Admin', href: '/admin' },
     { label: 'Bestellungen', href: '/admin/orders' },
-    { label: order.order_number }
+    { label: currentOrder.order_number }
   ];
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(newStatus as typeof currentStatus);
     toast({
       title: "Status aktualisiert",
-      description: `Bestellung ${order.order_number} wurde auf "${newStatus}" gesetzt.`,
+      description: `Bestellung ${currentOrder.order_number} wurde auf "${newStatus}" gesetzt.`,
     });
   };
 
@@ -200,7 +202,14 @@ const AdminOrderDetail = () => {
     });
   };
 
-  const subtotal = order.liters * Number(order.price_per_liter);
+  const handleOrderUpdate = (updatedData: Partial<Order>) => {
+    setCurrentOrder(prev => prev ? { ...prev, ...updatedData } : null);
+    if (updatedData.status) {
+      setCurrentStatus(updatedData.status);
+    }
+  };
+
+  const subtotal = currentOrder.liters * Number(currentOrder.price_per_liter);
 
   return (
     <div className="space-y-6">
@@ -396,7 +405,7 @@ const AdminOrderDetail = () => {
             transition={{ duration: 0.5 }}
           >
             <OrderActions
-              order={order}
+              order={currentOrder}
               currentStatus={currentStatus}
               onStatusChange={handleStatusChange}
               onGenerateInvoice={handleGenerateInvoice}
@@ -404,6 +413,7 @@ const AdminOrderDetail = () => {
               onNavigateOrder={handleNavigateOrder}
               hasPrevious={hasPrevious}
               hasNext={hasNext}
+              onOrderUpdate={handleOrderUpdate}
             />
           </motion.div>
 

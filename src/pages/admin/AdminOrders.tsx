@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText } from 'lucide-react';
@@ -492,6 +493,7 @@ const AdminOrders = () => {
         order={selectedOrderForInvoice}
         isOpen={isInvoiceDialogOpen}
         onClose={handleCloseInvoiceDialog}
+        onOrderUpdate={handleOrderUpdate}
       />
 
       {/* Invoice Viewer Dialog */}

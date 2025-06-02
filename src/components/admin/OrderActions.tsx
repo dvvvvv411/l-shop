@@ -57,6 +57,12 @@ const OrderActions: React.FC<OrderActionsProps> = ({
     setIsInvoiceViewerOpen(false);
   };
 
+  const handleOrderUpdateFromDialog = (orderId: string, updatedData: Partial<Order>) => {
+    if (onOrderUpdate) {
+      onOrderUpdate(updatedData);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Navigation */}
@@ -187,6 +193,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
         order={order}
         isOpen={isInvoiceDialogOpen}
         onClose={() => setIsInvoiceDialogOpen(false)}
+        onOrderUpdate={handleOrderUpdateFromDialog}
       />
 
       {/* Invoice Viewer Dialog */}

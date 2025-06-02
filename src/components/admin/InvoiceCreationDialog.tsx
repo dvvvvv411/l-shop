@@ -17,12 +17,14 @@ interface InvoiceCreationDialogProps {
   order: Order | null;
   isOpen: boolean;
   onClose: () => void;
+  onOrderUpdate?: (orderId: string, updatedData: Partial<Order>) => void;
 }
 
 const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   order,
   isOpen,
-  onClose
+  onClose,
+  onOrderUpdate
 }) => {
   const { shops, isLoading: shopsLoading } = useShops();
   const { bankAccounts, isLoading: bankAccountsLoading, getDailyUsage, checkDailyLimit } = useBankAccounts();
@@ -79,7 +81,12 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
 
     try {
       // Generate the invoice with selected shop and bank account
-      await generateInvoice(order.id, selectedShopId, selectedBankAccountId);
+      const result = await generateInvoice(order.id, selectedShopId, selectedBankAccountId);
+      
+      // Update local state if onOrderUpdate is provided
+      if (result && result.updatedOrder && onOrderUpdate) {
+        onOrderUpdate(order.id, result.updatedOrder);
+      }
       
       onClose();
     } catch (error) {
