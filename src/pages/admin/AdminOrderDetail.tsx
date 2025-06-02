@@ -63,7 +63,8 @@ const AdminOrderDetail = () => {
       supplier_id: null,
       shop_id: null,
       bank_account_id: null,
-      processed_by: null
+      processed_by: null,
+      origin_domain: 'demo-shop.de'
     },
     {
       id: '2',
@@ -106,7 +107,8 @@ const AdminOrderDetail = () => {
       supplier_id: null,
       shop_id: null,
       bank_account_id: null,
-      processed_by: null
+      processed_by: null,
+      origin_domain: 'premium-heizoel.com'
     }
   ];
 
