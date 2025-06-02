@@ -13,6 +13,13 @@ const Liefergebiet = () => {
   const handlePostcodeCheck = () => {
     if (postcode.trim()) {
       navigate('/1/home');
+      // Scroll to top after navigation
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }, 100);
     }
   };
 
