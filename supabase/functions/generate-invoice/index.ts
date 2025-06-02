@@ -243,10 +243,16 @@ serve(async (req) => {
 function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string): Uint8Array {
   const doc = new jsPDF()
   
-  // Set font
+  // Define colors for the design
+  const primaryColor = [41, 98, 255] // Blue
+  const accentColor = [229, 231, 235] // Light gray
+  const textDark = [17, 24, 39] // Dark gray
+  const textMuted = [107, 114, 128] // Muted gray
+  
+  // Set default font
   doc.setFont('helvetica')
   
-  // Company header
+  // Company header with background
   const companyName = shop?.company_name || 'Heizöl-Express GmbH'
   const companyAddress = shop?.company_address || 'Musterstraße 123'
   const companyPostcode = shop?.company_postcode || '12345'
@@ -255,138 +261,227 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   const companyEmail = shop?.company_email || 'info@heizoel-express.de'
   const vatNumber = shop?.vat_number || 'DE123456789'
   
-  // Header
+  // Header background
+  doc.setFillColor(...primaryColor)
+  doc.rect(0, 0, 210, 25, 'F')
+  
+  // Company name in header
+  doc.setFontSize(20)
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.text(companyName, 15, 17)
+  
+  // Company details
+  doc.setFontSize(9)
+  doc.setTextColor(...textDark)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 32)
+  doc.text(`Tel: ${companyPhone} • E-Mail: ${companyEmail}`, 15, 37)
+  doc.text(`USt-IdNr: ${vatNumber}`, 15, 42)
+  
+  // Invoice title with accent background
+  doc.setFillColor(...accentColor)
+  doc.rect(140, 25, 55, 20, 'F')
   doc.setFontSize(18)
-  doc.setTextColor(0, 0, 0)
-  doc.text(companyName, 20, 20)
+  doc.setTextColor(...primaryColor)
+  doc.setFont('helvetica', 'bold')
+  doc.text('RECHNUNG', 145, 37)
   
-  doc.setFontSize(10)
-  doc.text(`${companyAddress}`, 20, 30)
-  doc.text(`${companyPostcode} ${companyCity}`, 20, 35)
-  doc.text(`Tel: ${companyPhone}`, 20, 40)
-  doc.text(`E-Mail: ${companyEmail}`, 20, 45)
-  doc.text(`USt-IdNr: ${vatNumber}`, 20, 50)
+  // Invoice info box
+  doc.setFillColor(250, 250, 250)
+  doc.rect(140, 48, 55, 30, 'F')
+  doc.setDrawColor(...accentColor)
+  doc.rect(140, 48, 55, 30, 'S')
   
-  // Invoice title and info
-  doc.setFontSize(16)
-  doc.text('RECHNUNG', 140, 20)
-  
-  doc.setFontSize(10)
+  doc.setFontSize(9)
+  doc.setTextColor(...textDark)
+  doc.setFont('helvetica', 'bold')
   const invoiceDate = new Date().toLocaleDateString('de-DE')
-  doc.text(`Rechnungsnummer: ${invoiceNumber}`, 140, 30)
-  doc.text(`Rechnungsdatum: ${invoiceDate}`, 140, 35)
-  doc.text(`Bestellnummer: ${order.order_number}`, 140, 40)
   
-  // Customer address
-  doc.setFontSize(12)
-  doc.text('Rechnungsanschrift:', 20, 70)
+  doc.text('Rechnungsnummer:', 142, 54)
+  doc.setFont('helvetica', 'normal')
+  doc.text(invoiceNumber, 142, 59)
+  
+  doc.setFont('helvetica', 'bold')
+  doc.text('Rechnungsdatum:', 142, 65)
+  doc.setFont('helvetica', 'normal')
+  doc.text(invoiceDate, 142, 70)
+  
+  doc.setFont('helvetica', 'bold')
+  doc.text('Bestellnummer:', 142, 76)
+  doc.setFont('helvetica', 'normal')
+  doc.text(order.order_number, 142, 81)
+  
+  // Customer address section
+  doc.setFontSize(11)
+  doc.setTextColor(...textDark)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Rechnungsanschrift:', 15, 58)
+  
+  // Customer address box
+  doc.setFillColor(255, 255, 255)
+  doc.setDrawColor(...accentColor)
+  doc.rect(15, 62, 100, 25, 'FD')
+  
   doc.setFontSize(10)
-  doc.text(order.customer_name, 20, 80)
-  doc.text(order.delivery_street || order.customer_address, 20, 85)
-  doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 20, 90)
+  doc.setFont('helvetica', 'normal')
+  doc.text(order.customer_name, 18, 68)
+  doc.text(order.delivery_street || order.customer_address, 18, 74)
+  doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 18, 80)
   
-  // Delivery details
-  doc.setFontSize(12)
-  doc.text('Lieferdetails:', 20, 110)
-  doc.setFontSize(10)
-  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'TBD'
-  doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 20, 120)
-  doc.text(`Gewünschter Liefertermin: ${deliveryDate}`, 20, 125)
-  doc.text(`Zahlungsart: ${order.payment_method}`, 20, 130)
+  // Delivery details section
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Lieferdetails:', 15, 98)
   
-  // Table header
-  let yPos = 150
-  doc.setFontSize(10)
-  doc.setFillColor(245, 245, 245)
-  doc.rect(20, yPos, 170, 8, 'F')
-  doc.text('Pos.', 25, yPos + 5)
-  doc.text('Beschreibung', 40, yPos + 5)
-  doc.text('Menge', 100, yPos + 5)
-  doc.text('Einheit', 120, yPos + 5)
-  doc.text('Einzelpreis', 140, yPos + 5)
-  doc.text('Gesamtpreis', 160, yPos + 5)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
+  doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 15, 105)
+  doc.text(`Gewünschter Liefertermin: ${deliveryDate}`, 15, 110)
+  doc.text(`Zahlungsart: ${order.payment_method}`, 15, 115)
   
-  // Table rows
+  // Table header with improved styling
+  let yPos = 130
+  doc.setFillColor(...primaryColor)
+  doc.rect(15, yPos, 180, 10, 'F')
+  
+  doc.setFontSize(9)
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Pos.', 18, yPos + 7)
+  doc.text('Beschreibung', 35, yPos + 7)
+  doc.text('Menge', 90, yPos + 7)
+  doc.text('Einheit', 110, yPos + 7)
+  doc.text('Einzelpreis', 135, yPos + 7)
+  doc.text('Gesamtpreis', 165, yPos + 7)
+  
+  // Table rows with alternating background
   yPos += 10
-  doc.text('1', 25, yPos + 5)
-  doc.text(order.product || 'Heizöl Standard', 40, yPos + 5)
-  doc.text(order.liters.toLocaleString(), 100, yPos + 5)
-  doc.text('Liter', 120, yPos + 5)
-  doc.text(`€${Number(order.price_per_liter).toFixed(2)}`, 140, yPos + 5)
-  doc.text(`€${(order.liters * Number(order.price_per_liter)).toFixed(2)}`, 160, yPos + 5)
+  let rowCount = 1
   
-  yPos += 8
-  doc.text('2', 25, yPos + 5)
-  doc.text('Lieferkosten', 40, yPos + 5)
-  doc.text('1', 100, yPos + 5)
-  doc.text('Stück', 120, yPos + 5)
-  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 140, yPos + 5)
-  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 160, yPos + 5)
-  
-  if (Number(order.discount) > 0) {
-    yPos += 8
-    doc.text('3', 25, yPos + 5)
-    doc.text('Rabatt', 40, yPos + 5)
-    doc.text('1', 100, yPos + 5)
-    doc.text('Stück', 120, yPos + 5)
-    doc.text(`-€${Number(order.discount).toFixed(2)}`, 140, yPos + 5)
-    doc.text(`-€${Number(order.discount).toFixed(2)}`, 160, yPos + 5)
+  // Product row
+  if (rowCount % 2 === 0) {
+    doc.setFillColor(250, 250, 250)
+    doc.rect(15, yPos, 180, 8, 'F')
   }
   
-  // Totals
+  doc.setFontSize(9)
+  doc.setTextColor(...textDark)
+  doc.setFont('helvetica', 'normal')
+  doc.text('1', 18, yPos + 5)
+  doc.text(order.product || 'Heizöl Standard', 35, yPos + 5)
+  doc.text(order.liters.toLocaleString(), 90, yPos + 5)
+  doc.text('Liter', 110, yPos + 5)
+  doc.text(`€${Number(order.price_per_liter).toFixed(2)}`, 135, yPos + 5)
+  doc.text(`€${(order.liters * Number(order.price_per_liter)).toFixed(2)}`, 165, yPos + 5)
+  
+  // Delivery fee row
+  yPos += 8
+  rowCount++
+  if (rowCount % 2 === 0) {
+    doc.setFillColor(250, 250, 250)
+    doc.rect(15, yPos, 180, 8, 'F')
+  }
+  
+  doc.text('2', 18, yPos + 5)
+  doc.text('Lieferkosten', 35, yPos + 5)
+  doc.text('1', 90, yPos + 5)
+  doc.text('Stück', 110, yPos + 5)
+  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 135, yPos + 5)
+  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 165, yPos + 5)
+  
+  // Discount row if applicable
+  if (Number(order.discount) > 0) {
+    yPos += 8
+    rowCount++
+    if (rowCount % 2 === 0) {
+      doc.setFillColor(250, 250, 250)
+      doc.rect(15, yPos, 180, 8, 'F')
+    }
+    
+    doc.text('3', 18, yPos + 5)
+    doc.text('Rabatt', 35, yPos + 5)
+    doc.text('1', 90, yPos + 5)
+    doc.text('Stück', 110, yPos + 5)
+    doc.setTextColor(220, 38, 38) // Red for discount
+    doc.text(`-€${Number(order.discount).toFixed(2)}`, 135, yPos + 5)
+    doc.text(`-€${Number(order.discount).toFixed(2)}`, 165, yPos + 5)
+    doc.setTextColor(...textDark) // Reset color
+  }
+  
+  // Totals section with improved styling
   yPos += 20
   const subtotal = order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)
   const vat = subtotal * 0.19
   
-  doc.text('Zwischensumme:', 130, yPos)
-  doc.text(`€${subtotal.toFixed(2)}`, 160, yPos)
+  // Totals background
+  doc.setFillColor(249, 250, 251)
+  doc.rect(120, yPos - 5, 75, 25, 'F')
+  doc.setDrawColor(...accentColor)
+  doc.rect(120, yPos - 5, 75, 25, 'S')
   
-  yPos += 6
-  doc.text('MwSt. (19%):', 130, yPos)
-  doc.text(`€${vat.toFixed(2)}`, 160, yPos)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Zwischensumme:', 125, yPos + 2)
+  doc.text(`€${subtotal.toFixed(2)}`, 175, yPos + 2)
   
-  yPos += 6
+  doc.text('MwSt. (19%):', 125, yPos + 8)
+  doc.text(`€${vat.toFixed(2)}`, 175, yPos + 8)
+  
+  // Total amount with emphasis
   doc.setFont('helvetica', 'bold')
-  doc.text('Gesamtbetrag:', 130, yPos)
-  doc.text(`€${Number(order.total_amount).toFixed(2)}`, 160, yPos)
+  doc.setFontSize(11)
+  doc.setTextColor(...primaryColor)
+  doc.text('Gesamtbetrag:', 125, yPos + 16)
+  doc.text(`€${Number(order.total_amount).toFixed(2)}`, 175, yPos + 16)
+  doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'normal')
   
-  // Bank details if available
+  // Bank details section with improved styling
   if (bankAccount) {
-    yPos += 20
-    doc.setFontSize(12)
-    doc.text('Bankverbindung:', 20, yPos)
-    doc.setFontSize(10)
-    yPos += 8
-    doc.text(`Bank: ${bankAccount.bank_name}`, 20, yPos)
-    yPos += 5
-    doc.text(`Kontoinhaber: ${bankAccount.account_holder}`, 20, yPos)
-    yPos += 5
-    doc.text(`IBAN: ${bankAccount.iban}`, 20, yPos)
+    yPos += 35
+    doc.setFillColor(...accentColor)
+    doc.rect(15, yPos - 3, 180, 35, 'F')
+    
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Bankverbindung:', 18, yPos + 3)
+    
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Bank: ${bankAccount.bank_name}`, 18, yPos + 10)
+    doc.text(`Kontoinhaber: ${bankAccount.account_holder}`, 18, yPos + 15)
+    doc.text(`IBAN: ${bankAccount.iban}`, 18, yPos + 20)
     if (bankAccount.bic) {
-      yPos += 5
-      doc.text(`BIC: ${bankAccount.bic}`, 20, yPos)
+      doc.text(`BIC: ${bankAccount.bic}`, 18, yPos + 25)
     }
-    yPos += 5
-    doc.text(`Verwendungszweck: ${invoiceNumber}`, 20, yPos)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Verwendungszweck: ${invoiceNumber}`, 18, yPos + 30)
+    doc.setFont('helvetica', 'normal')
   }
   
-  // Notes if available
+  // Notes section if available
   if (order.notes) {
-    yPos += 15
-    doc.setFontSize(12)
-    doc.text('Bemerkungen:', 20, yPos)
-    doc.setFontSize(10)
-    yPos += 8
-    doc.text(order.notes, 20, yPos)
+    yPos += bankAccount ? 45 : 25
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Bemerkungen:', 15, yPos)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text(order.notes, 15, yPos + 6)
   }
   
-  // Footer
+  // Footer with line separator
+  doc.setDrawColor(...primaryColor)
+  doc.setLineWidth(0.5)
+  doc.line(15, 265, 195, 265)
+  
   doc.setFontSize(8)
-  doc.setTextColor(102, 102, 102)
-  doc.text('Vielen Dank für Ihren Auftrag!', 20, 280)
-  doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 20, 285)
-  doc.text(`Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}`, 20, 290)
+  doc.setTextColor(...textMuted)
+  doc.text('Vielen Dank für Ihren Auftrag!', 15, 272)
+  doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 277)
+  doc.text(`Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}`, 15, 282)
   
   // Convert to Uint8Array
   const pdfOutput = doc.output('arraybuffer')
