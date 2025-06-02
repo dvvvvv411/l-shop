@@ -13,14 +13,11 @@ const CheckoutHeader = () => {
         <div className="flex justify-center mb-4">
           <div className="flex items-center space-x-2">
             {logoConfig.useImage && logoConfig.imageUrl ? (
-              <>
-                <img 
-                  src={logoConfig.imageUrl} 
-                  alt={logoConfig.name} 
-                  className={logoConfig.className}
-                />
-                <span className="text-xl font-semibold text-gray-900">{logoConfig.name}</span>
-              </>
+              <img 
+                src={logoConfig.imageUrl} 
+                alt={logoConfig.name} 
+                className={logoConfig.className}
+              />
             ) : logoConfig.name === 'OilExpress' ? (
               <div className={logoConfig.className}>
                 {logoConfig.textContent}
