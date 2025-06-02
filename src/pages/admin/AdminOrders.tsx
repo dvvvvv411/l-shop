@@ -14,6 +14,7 @@ import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
 import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
 import InvoiceViewerDialog from '@/components/admin/InvoiceViewerDialog';
 import OrderTableActions from '@/components/admin/OrderTableActions';
+import OrdersStatsCards from '@/components/admin/OrdersStatsCards';
 import { useOrders, Order } from '@/hooks/useOrders';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
@@ -264,6 +265,9 @@ const AdminOrders = () => {
           Export CSV
         </Button>
       </div>
+
+      {/* Statistics Cards */}
+      <OrdersStatsCards orders={displayOrders} />
 
       {/* Filters */}
       <Card>
