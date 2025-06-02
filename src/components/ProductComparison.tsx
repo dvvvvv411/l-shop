@@ -60,12 +60,12 @@ const ProductComparison = () => {
               transition={{ duration: 0.6, delay: index * 0.2 }}
               viewport={{ once: true }}
               className={`relative bg-white rounded-2xl shadow-xl p-8 ${
-                product.popular ? 'ring-2 ring-red-500' : 'border border-gray-200'
+                product.popular ? 'ring-2 ring-blue-500' : 'border border-gray-200'
               }`}
             >
               {product.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-red-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
+                  <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
                     <Star size={16} fill="currentColor" />
                     <span>Beliebteste Wahl</span>
                   </div>
@@ -74,7 +74,7 @@ const ProductComparison = () => {
 
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h3>
-                <div className="text-4xl font-bold text-red-600 mb-1">{product.price}</div>
+                <div className="text-4xl font-bold text-blue-600 mb-1">{product.price}</div>
                 <div className="text-gray-600">pro Liter</div>
               </div>
 
@@ -82,7 +82,7 @@ const ProductComparison = () => {
                 {product.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-center space-x-3">
                     {feature.included ? (
-                      <Check className="text-green-500 flex-shrink-0" size={20} />
+                      <Check className="text-emerald-500 flex-shrink-0" size={20} />
                     ) : (
                       <X className="text-gray-400 flex-shrink-0" size={20} />
                     )}
@@ -95,7 +95,7 @@ const ProductComparison = () => {
 
               <button className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                 product.popular 
-                  ? 'bg-red-600 text-white hover:bg-red-700' 
+                  ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700' 
                   : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}>
                 Jetzt wählen

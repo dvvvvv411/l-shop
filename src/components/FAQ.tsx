@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -63,7 +64,7 @@ const FAQ = () => {
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
                 <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 last:border-b-0">
-                  <AccordionTrigger className="text-left text-lg font-semibold text-gray-900 hover:text-red-600 transition-colors py-4">
+                  <AccordionTrigger className="text-left text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors py-4">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-gray-600 pb-4 leading-relaxed">
@@ -85,7 +86,7 @@ const FAQ = () => {
           <p className="text-gray-600 mb-6">
             Haben Sie weitere Fragen? Unser Kundenservice hilft Ihnen gerne weiter.
           </p>
-          <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
+          <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
             Kontakt aufnehmen
           </button>
         </motion.div>

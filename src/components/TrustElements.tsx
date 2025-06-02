@@ -15,21 +15,21 @@ const trustElements = [
     icon: Award,
     title: "Geprüfte Qualität",
     description: "DIN-zertifiziertes Premium-Heizöl nach höchsten Standards",
-    color: "bg-green-100 text-green-600",
+    color: "bg-emerald-100 text-emerald-600",
     delay: 0.2
   },
   {
     icon: CreditCard,
     title: "Sichere Zahlung",
     description: "Flexible Zahlungsoptionen mit SSL-verschlüsselter Abwicklung",
-    color: "bg-purple-100 text-purple-600",
+    color: "bg-blue-100 text-blue-600",
     delay: 0.3
   },
   {
     icon: Map,
     title: "Deutschland-weit",
     description: "Flächendeckende Lieferung in alle deutschen Postleitzahlengebiete",
-    color: "bg-orange-100 text-orange-600",
+    color: "bg-emerald-100 text-emerald-600",
     delay: 0.4
   }
 ];
@@ -79,7 +79,7 @@ const TrustElements = () => {
                 >
                   <element.icon size={28} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">
                   {element.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-sm">
@@ -98,7 +98,7 @@ const TrustElements = () => {
           className="mt-12 flex flex-wrap justify-center items-center gap-8 text-sm text-gray-600"
         >
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
             <span className="font-semibold">24/7 Support</span>
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
@@ -106,7 +106,7 @@ const TrustElements = () => {
             <span className="font-semibold">Kostenlose Beratung</span>
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
             <span className="font-semibold">Faire Preise garantiert</span>
           </div>
         </motion.div>
