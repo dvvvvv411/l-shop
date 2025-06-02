@@ -77,6 +77,10 @@ function App() {
                 <Route path="/1/liefergebiet" element={<LiefergebietV1 />} />
                 <Route path="/1/service" element={<ServiceV1 />} />
                 <Route path="/1/kontakt" element={<KontaktV1 />} />
+                <Route path="/1/impressum" element={<ImpressumV1 />} />
+                <Route path="/1/datenschutz" element={<DatenschutzV1 />} />
+                <Route path="/1/agb" element={<AGBV1 />} />
+                <Route path="/1/widerrufsrecht" element={<WiderrufsrechtV1 />} />
 
                 {/* Version 2 Routes */}
                 <Route path="/2/home" element={<HomeV2 />} />
@@ -84,6 +88,10 @@ function App() {
                 <Route path="/2/liefergebiet" element={<LiefergebietV2 />} />
                 <Route path="/2/service" element={<ServiceV2 />} />
                 <Route path="/2/kontakt" element={<KontaktV2 />} />
+                <Route path="/2/impressum" element={<ImpressumV2 />} />
+                <Route path="/2/datenschutz" element={<DatenschutzV2 />} />
+                <Route path="/2/agb" element={<AGBV2 />} />
+                <Route path="/2/widerrufsrecht" element={<WiderrufsrechtV2 />} />
 
                 {/* Order Pipeline Routes - Unchanged */}
                 <Route path="/bestellen" element={<Order />} />
