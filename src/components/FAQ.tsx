@@ -1,8 +1,12 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 const FAQ = () => {
+  const navigate = useNavigate();
+
   const faqs = [
     {
       question: "Wie schnell wird mein Heizöl geliefert?",
@@ -33,6 +37,10 @@ const FAQ = () => {
       answer: "Wir liefern deutschlandweit in fast alle Regionen. Geben Sie einfach Ihre PLZ in unseren Rechner ein - falls wir nicht liefern können, erhalten Sie sofort eine entsprechende Meldung."
     }
   ];
+
+  const handleContactClick = () => {
+    navigate('/1/kontakt');
+  };
 
   return (
     <section className="py-20 bg-gray-50">
@@ -85,7 +93,10 @@ const FAQ = () => {
           <p className="text-gray-600 mb-6">
             Haben Sie weitere Fragen? Unser Kundenservice hilft Ihnen gerne weiter.
           </p>
-          <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
+          <button 
+            onClick={handleContactClick}
+            className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+          >
             Kontakt aufnehmen
           </button>
         </motion.div>
