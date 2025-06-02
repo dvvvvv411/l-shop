@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -85,120 +84,32 @@ const Liefergebiet = () => {
         </div>
       </section>
 
-      {/* Interactive Map - Redesigned */}
-      <section className="relative py-24 bg-gradient-to-br from-red-600 via-red-700 to-red-800 overflow-hidden">
-        {/* Animated Background Effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-24 h-24 bg-white/10 rounded-full blur-lg oil-float-1"></div>
-          <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-red-400/30 rounded-full blur-lg oil-float-2"></div>
-          <div className="absolute bottom-40 right-1/3 w-28 h-28 bg-white/5 rounded-full blur-xl oil-float-3"></div>
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-red-900/20 to-transparent"></div>
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
+      {/* Interactive Map */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 border border-white/20">
-              <MapPin size={18} className="mr-2" />
-              Deutschlandweite Präsenz
-              <CheckCircle size={16} className="ml-2" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Liefergebiete in <span className="text-red-200">Deutschland</span>
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Liefergebiete in Deutschland
             </h2>
-            <p className="text-xl text-red-100 max-w-3xl mx-auto leading-relaxed">
-              Wir liefern deutschlandweit in nur 4-7 Werktagen - 
-              entdecken Sie unsere umfassende Abdeckung und zuverlässigen Service
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Wir liefern deutschlandweit in nur 4-7 Werktagen - klicken Sie auf die Karte für weitere Informationen
             </p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="max-w-7xl mx-auto"
+            className="max-w-6xl mx-auto"
           >
-            {/* Enhanced Map Container */}
-            <div className="relative bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl"></div>
-              
-              {/* Map Component with enhanced styling */}
-              <div className="relative z-10 bg-white rounded-2xl shadow-xl overflow-hidden">
-                <DeliveryMap />
-              </div>
-              
-              {/* Floating Stats */}
-              <div className="absolute -top-6 -right-6 bg-white/20 backdrop-blur-lg rounded-2xl p-6 border border-white/30 text-white">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-red-200">16</div>
-                  <div className="text-sm text-red-100">Bundesländer</div>
-                </div>
-              </div>
-              
-              <div className="absolute -bottom-6 -left-6 bg-white/20 backdrop-blur-lg rounded-2xl p-6 border border-white/30 text-white">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-red-200">4-7</div>
-                  <div className="text-sm text-red-100">Werktage</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Interactive Features Row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto"
-          >
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 hover:scale-105">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
-                <Truck className="text-white" size={24} />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Schnelle Lieferung</h3>
-              <p className="text-red-100 text-sm">Deutschlandweit in 4-7 Werktagen</p>
-            </div>
-            
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 hover:scale-105">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
-                <Shield className="text-white" size={24} />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Zuverlässig</h3>
-              <p className="text-red-100 text-sm">TÜV-geprüfte Qualität</p>
-            </div>
-            
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 text-center hover:bg-white/15 transition-all duration-300 hover:scale-105">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
-                <Award className="text-white" size={24} />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Premium</h3>
-              <p className="text-red-100 text-sm">Höchste Heizöl-Qualität</p>
-            </div>
-          </motion.div>
-
-          {/* Bottom CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mt-12"
-          >
-            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full text-lg font-semibold border border-white/30 hover:bg-white/30 transition-all duration-300">
-              <MapPin size={20} className="mr-3" />
-              Verfügbar in ganz Deutschland
-              <CheckCircle size={18} className="ml-3 text-red-200" />
-            </div>
+            <DeliveryMap />
           </motion.div>
         </div>
       </section>
