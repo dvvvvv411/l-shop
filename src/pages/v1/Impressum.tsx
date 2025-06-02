@@ -16,9 +16,9 @@ const Impressum = () => {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Angaben gemäß § 5 TMG</h2>
               <div>
-                <p className="font-semibold">HeizölDirekt GmbH</p>
-                <p>Musterstraße 123</p>
-                <p>12345 Musterstadt</p>
+                <p className="font-semibold">STANTON GmbH</p>
+                <p>Essener Straße 5</p>
+                <p>46047 Oberhausen</p>
                 <p>Deutschland</p>
               </div>
             </section>
@@ -31,26 +31,26 @@ const Impressum = () => {
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Handelsregister</h2>
-              <p>Registergericht: Amtsgericht Musterstadt</p>
-              <p>Registernummer: HRB 12345</p>
+              <p>Registergericht: Amtsgericht Duisburg</p>
+              <p>Registernummer: HRB 32213</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Umsatzsteuer-ID</h2>
               <p>Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz:</p>
-              <p>DE123456789</p>
+              <p>DE341971594</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Geschäftsführer</h2>
-              <p>Max Mustermann</p>
+              <p>Alexander Stanton</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-              <p>Max Mustermann</p>
-              <p>Musterstraße 123</p>
-              <p>12345 Musterstadt</p>
+              <p>Alexander Stanton</p>
+              <p>Essener Straße 5</p>
+              <p>46047 Oberhausen</p>
             </section>
           </div>
         </div>

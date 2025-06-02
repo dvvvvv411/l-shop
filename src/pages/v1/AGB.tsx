@@ -15,12 +15,12 @@ const AGB = () => {
           <div className="space-y-6 text-gray-700 leading-relaxed">
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">§ 1 Geltungsbereich</h2>
-              <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der HeizölDirekt GmbH und ihren Kunden über die Lieferung von Heizöl.</p>
+              <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der STANTON GmbH und ihren Kunden über die Lieferung von Heizöl.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">§ 2 Vertragsschluss</h2>
-              <p>Der Vertrag kommt durch die Annahme der Bestellung durch die HeizölDirekt GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware.</p>
+              <p>Der Vertrag kommt durch die Annahme der Bestellung durch die STANTON GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware.</p>
             </section>
 
             <section>

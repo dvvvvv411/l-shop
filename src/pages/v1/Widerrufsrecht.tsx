@@ -22,7 +22,7 @@ const Widerrufsrecht = () => {
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Ausübung des Widerrufsrechts</h2>
-              <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (HeizölDirekt GmbH, Musterstraße 123, 12345 Musterstadt, E-Mail: info@heizoeldirekt.de) mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
+              <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (STANTON GmbH, Essener Straße 5, 46047 Oberhausen, E-Mail: info@heizoeldirekt.de) mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
             </section>
 
             <section>
