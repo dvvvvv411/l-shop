@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/v1/Header';
 import Footer from '../../components/Footer';
-import DeliveryMap from '../../components/DeliveryMap';
+import DeliveryMap from '../../components/v1/DeliveryMap';
 import { MapPin, Clock, Truck, Euro, Shield, Award, CheckCircle } from 'lucide-react';
 
 const Liefergebiet = () => {
