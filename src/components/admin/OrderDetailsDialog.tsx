@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Receipt, Eye, CheckCircle, ExternalLink } from 'lucide-react';
+import { Receipt, Eye, CheckCircle } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
@@ -58,12 +58,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 
   const handleViewInvoice = () => {
     setIsInvoiceViewerOpen(true);
-  };
-
-  const handleViewPDF = () => {
-    if (order.invoice_file_url) {
-      window.open(order.invoice_file_url, '_blank');
-    }
   };
 
   const handleMarkAsPaid = async () => {
@@ -145,16 +139,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Rechnung anzeigen
-                    </Button>
-                  )}
-                  {order.invoice_file_url && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={handleViewPDF}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      PDF anzeigen
                     </Button>
                   )}
                 </CardContent>
