@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -57,6 +56,7 @@ const AdminOrderDetail = () => {
       delivery_date_display: '16.01.2024',
       invoice_number: null,
       invoice_date: null,
+      invoice_file_url: null,
       request_id: null,
       supplier_id: null,
       shop_id: null,
@@ -99,6 +99,7 @@ const AdminOrderDetail = () => {
       delivery_date_display: '16.01.2024',
       invoice_number: 'R-2024-001',
       invoice_date: '2024-01-15',
+      invoice_file_url: null,
       request_id: null,
       supplier_id: null,
       shop_id: null,
