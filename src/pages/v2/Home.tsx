@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import Header from '../../components/v2/Header';
 import PriceCalculator from '../../components/v2/PriceCalculator';
 import TrustElements from '../../components/v2/TrustElements';
-import StatsSection from '../../components/v2/StatsSection';
-import ProductComparison from '../../components/v2/ProductComparison';
+import ServiceAreas from '../../components/v2/ServiceAreas';
+import SavingsTips from '../../components/v2/SavingsTips';
+import CustomerReviews from '../../components/v2/CustomerReviews';
 import WhyChooseUs from '../../components/v2/WhyChooseUs';
 import HowItWorks from '../../components/v2/HowItWorks';
 import FAQ from '../../components/v2/FAQ';
@@ -84,10 +85,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* All Other Sections */}
+      {/* All Sections */}
       <TrustElements />
-      <StatsSection />
-      <ProductComparison />
+      <ServiceAreas />
+      <SavingsTips />
+      <CustomerReviews />
       <WhyChooseUs />
       <HowItWorks />
       <FAQ />
