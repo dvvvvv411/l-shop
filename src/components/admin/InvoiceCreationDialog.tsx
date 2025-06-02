@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, FileText, Building2, CreditCard, Landmark, AlertCircle } from 'lucide-react';
+import { FileText, Building2, CreditCard, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useShops } from '@/hooks/useShops';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrders, type Order } from '@/hooks/useOrders';
@@ -33,8 +33,6 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   
   const [selectedShopId, setSelectedShopId] = useState<string>('');
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('');
-  const [invoiceDate, setInvoiceDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [processedBy, setProcessedBy] = useState<string>('');
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [limitExceeded, setLimitExceeded] = useState<boolean>(false);
 
@@ -48,8 +46,6 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   useEffect(() => {
     if (isOpen && defaultShop) {
       setSelectedShopId(defaultShop.id);
-      setInvoiceDate(new Date().toISOString().split('T')[0]);
-      setProcessedBy('');
     }
   }, [isOpen, defaultShop]);
 
@@ -63,10 +59,11 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   useEffect(() => {
     const checkUsageAndLimit = async () => {
       if (selectedBankAccountId && order) {
-        const usage = await getDailyUsage(selectedBankAccountId, invoiceDate);
+        const today = new Date().toISOString().split('T')[0];
+        const usage = await getDailyUsage(selectedBankAccountId, today);
         setDailyUsage(usage);
         
-        const canProcess = await checkDailyLimit(selectedBankAccountId, order.total_amount, invoiceDate);
+        const canProcess = await checkDailyLimit(selectedBankAccountId, order.total_amount, today);
         setLimitExceeded(!canProcess);
       }
     };
@@ -74,7 +71,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     if (isOpen) {
       checkUsageAndLimit();
     }
-  }, [selectedBankAccountId, order, invoiceDate, getDailyUsage, checkDailyLimit, isOpen]);
+  }, [selectedBankAccountId, order, getDailyUsage, checkDailyLimit, isOpen]);
 
   const handleCreateInvoice = async () => {
     if (!order || !selectedShopId) return;
@@ -96,8 +93,10 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
 
   if (!order) return null;
 
-  const selectedShop = shops.find(shop => shop.id === selectedShopId);
   const selectedBankAccount = bankAccounts.find(account => account.id === selectedBankAccountId);
+  const usagePercentage = selectedBankAccount && selectedBankAccount.daily_limit > 0 
+    ? (dailyUsage / selectedBankAccount.daily_limit) * 100 
+    : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -186,32 +185,6 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Invoice Date */}
-              <div className="space-y-2">
-                <Label htmlFor="invoice-date">Rechnungsdatum</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="invoice-date"
-                    type="date"
-                    value={invoiceDate}
-                    onChange={(e) => setInvoiceDate(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              {/* Processed By */}
-              <div className="space-y-2">
-                <Label htmlFor="processed-by">Bearbeitet von (optional)</Label>
-                <Input
-                  id="processed-by"
-                  placeholder="Name des Bearbeiters..."
-                  value={processedBy}
-                  onChange={(e) => setProcessedBy(e.target.value)}
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -224,25 +197,17 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                   Tageslimit-Übersicht
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">Tageslimit:</span>
-                    <div>€{selectedBankAccount.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</div>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Verwendung heute:</span>
+                    <span className="font-medium">
+                      €{dailyUsage.toLocaleString('de-DE', { minimumFractionDigits: 2 })} / €{selectedBankAccount.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                    </span>
                   </div>
-                  <div>
-                    <span className="font-medium">Bereits verwendet:</span>
-                    <div>€{dailyUsage.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium">Verfügbar:</span>
-                    <div>€{Math.max(0, selectedBankAccount.daily_limit - dailyUsage).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium">Diese Rechnung:</span>
-                    <div className={limitExceeded ? 'text-red-600 font-bold' : ''}>
-                      €{order.total_amount.toFixed(2)}
-                    </div>
+                  <Progress value={usagePercentage} className="h-2" />
+                  <div className="text-xs text-gray-500 text-center">
+                    {usagePercentage.toFixed(1)}% des Tageslimits verwendet
                   </div>
                 </div>
                 
@@ -254,47 +219,6 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                     </AlertDescription>
                   </Alert>
                 )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Selected Shop Preview */}
-          {selectedShop && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Ausgewähltes Geschäft</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium">{selectedShop.company_name}</div>
-                  <div>{selectedShop.company_address}</div>
-                  <div>{selectedShop.company_postcode} {selectedShop.company_city}</div>
-                  {selectedShop.company_phone && <div>Tel: {selectedShop.company_phone}</div>}
-                  {selectedShop.company_email && <div>E-Mail: {selectedShop.company_email}</div>}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Selected Bank Account Preview */}
-          {selectedBankAccount && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Landmark className="h-5 w-5" />
-                  Ausgewähltes Bankkonto
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium">{selectedBankAccount.bank_name}</div>
-                  <div>Kontoinhaber: {selectedBankAccount.account_holder}</div>
-                  <div>IBAN: {selectedBankAccount.iban}</div>
-                  {selectedBankAccount.bic && <div>BIC: {selectedBankAccount.bic}</div>}
-                  {selectedBankAccount.daily_limit > 0 && (
-                    <div>Tageslimit: €{selectedBankAccount.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</div>
-                  )}
-                </div>
               </CardContent>
             </Card>
           )}
