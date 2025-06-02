@@ -1,13 +1,20 @@
 
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getLogoConfig } from '../../config/logoConfig';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const logoConfig = getLogoConfig('/2/home');
+
+  const handlePriceCalculatorClick = () => {
+    navigate('/2/home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="bg-white border-b border-gray-100 relative z-50">
@@ -15,30 +22,10 @@ const Header = () => {
       <div className="bg-slate-800 text-white py-2">
         <div className="container mx-auto px-4 flex justify-between items-center text-sm">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <Phone size={14} />
-              <span>0800 987 654 3</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Mail size={14} />
-              <span>kontakt@oilexpress.de</span>
-            </div>
+            <span>Persönliche Beratung täglich 8-18 Uhr</span>
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            <span>Persönliche Beratung täglich 8-18 Uhr</span>
-            <div className="flex items-center space-x-3">
-              <button className="flex items-center space-x-1 hover:text-emerald-400 transition-colors">
-                <User size={14} />
-                <span>Login</span>
-              </button>
-              <button className="flex items-center space-x-1 hover:text-emerald-400 transition-colors">
-                <ShoppingCart size={14} />
-                <span>Warenkorb</span>
-              </button>
-              <Link to="/admin" className="flex items-center space-x-1 hover:text-emerald-400 transition-colors">
-                <span>Admin</span>
-              </Link>
-            </div>
+            <span>0800 987 654 3 | kontakt@oilexpress.de</span>
           </div>
         </div>
       </div>
@@ -97,6 +84,7 @@ const Header = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handlePriceCalculatorClick}
               className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-6 py-2 rounded-md font-medium hover:from-blue-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
             >
               Preis berechnen
@@ -149,23 +137,11 @@ const Header = () => {
               >
                 Kundenservice
               </Link>
-              <div className="flex flex-col space-y-2 pt-3 border-t border-gray-100">
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 py-1">
-                  <User size={16} />
-                  <span>Login</span>
-                </button>
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 py-1">
-                  <ShoppingCart size={16} />
-                  <span>Warenkorb</span>
-                </button>
-                <Link 
-                  to="/admin" 
-                  className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 py-1" 
-                  onClick={() => setIsMenuOpen(false)}
+              <div className="pt-3 border-t border-gray-100">
+                <button 
+                  onClick={handlePriceCalculatorClick}
+                  className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-4 py-2 rounded-md font-medium w-full"
                 >
-                  <span>Admin</span>
-                </Link>
-                <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-4 py-2 rounded-md font-medium w-full mt-2">
                   Preis berechnen
                 </button>
               </div>
