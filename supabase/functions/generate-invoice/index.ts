@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -68,9 +67,82 @@ serve(async (req) => {
       bankAccount = bankData
     }
 
-    // Generate invoice number if not exists
-    let invoiceNumber = order.invoice_number
-    if (!invoiceNumber) {
+    // Check for existing invoice
+    console.log('Checking for existing invoice...');
+    const { data: existingInvoice, error: existingInvoiceError } = await supabaseClient
+      .from('invoices')
+      .select('*')
+      .eq('order_id', orderId)
+      .maybeSingle()
+
+    if (existingInvoiceError) {
+      console.error('Error checking for existing invoice:', existingInvoiceError);
+      throw new Error('Failed to check for existing invoice')
+    }
+
+    let invoiceNumber = null
+    let shouldReuseInvoiceNumber = false
+
+    if (existingInvoice) {
+      console.log('Found existing invoice:', existingInvoice.invoice_number);
+      console.log('Cleaning up existing invoice...');
+      
+      // Store the existing invoice number to reuse it
+      invoiceNumber = existingInvoice.invoice_number
+      shouldReuseInvoiceNumber = true
+
+      try {
+        // 1. Delete old PDF file from storage if it exists
+        if (existingInvoice.file_name) {
+          console.log('Deleting old PDF file:', existingInvoice.file_name);
+          const { error: deleteFileError } = await supabaseClient.storage
+            .from('invoices')
+            .remove([existingInvoice.file_name]);
+
+          if (deleteFileError) {
+            console.warn('Could not delete old PDF file:', deleteFileError);
+            // Don't throw here, continue with the process
+          } else {
+            console.log('Old PDF file deleted successfully');
+          }
+        }
+
+        // 2. Delete related bank account transactions
+        console.log('Deleting related bank account transactions...');
+        const { error: deleteTransactionsError } = await supabaseClient
+          .from('bank_account_transactions')
+          .delete()
+          .eq('order_id', orderId);
+
+        if (deleteTransactionsError) {
+          console.warn('Could not delete bank account transactions:', deleteTransactionsError);
+          // Don't throw here, continue with the process
+        } else {
+          console.log('Bank account transactions deleted successfully');
+        }
+
+        // 3. Delete the invoice record
+        console.log('Deleting old invoice record...');
+        const { error: deleteInvoiceError } = await supabaseClient
+          .from('invoices')
+          .delete()
+          .eq('id', existingInvoice.id);
+
+        if (deleteInvoiceError) {
+          console.error('Failed to delete old invoice record:', deleteInvoiceError);
+          throw new Error('Failed to delete old invoice record');
+        }
+
+        console.log('Old invoice record deleted successfully');
+
+      } catch (cleanupError) {
+        console.error('Error during cleanup:', cleanupError);
+        throw new Error('Failed to clean up existing invoice: ' + cleanupError.message);
+      }
+    }
+
+    // Generate invoice number if not reusing existing one
+    if (!shouldReuseInvoiceNumber) {
       const { data: invoiceGen, error: invoiceGenError } = await supabaseClient
         .rpc('generate_invoice_number')
 
@@ -80,6 +152,8 @@ serve(async (req) => {
       }
       invoiceNumber = invoiceGen
     }
+
+    console.log('Using invoice number:', invoiceNumber);
 
     // Generate PDF using jsPDF
     const pdfBuffer = generateInvoicePDF(order, shop, bankAccount, invoiceNumber)
@@ -128,8 +202,8 @@ serve(async (req) => {
         }
       }
 
-      // 2. Create invoice record
-      console.log('Creating invoice record...');
+      // 2. Create new invoice record
+      console.log('Creating new invoice record...');
       const { error: invoiceRecordError } = await supabaseClient
         .from('invoices')
         .insert({
@@ -212,6 +286,7 @@ serve(async (req) => {
         invoiceAmount: order.total_amount,
         fileUrl,
         fileName,
+        wasReplaced: shouldReuseInvoiceNumber,
         // Return updated order data for frontend
         updatedOrder: {
           status: 'invoice_created',
