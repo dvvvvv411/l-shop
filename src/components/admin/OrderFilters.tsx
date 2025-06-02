@@ -36,10 +36,12 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="alle">Alle Status</SelectItem>
-          <SelectItem value="Neu">Neu</SelectItem>
-          <SelectItem value="Bezahlt">Bezahlt</SelectItem>
-          <SelectItem value="Versandt">Versandt</SelectItem>
-          <SelectItem value="Abgeschlossen">Abgeschlossen</SelectItem>
+          <SelectItem value="pending">Neu</SelectItem>
+          <SelectItem value="confirmed">Bezahlt</SelectItem>
+          <SelectItem value="shipped">Versandt</SelectItem>
+          <SelectItem value="delivered">Geliefert</SelectItem>
+          <SelectItem value="completed">Abgeschlossen</SelectItem>
+          <SelectItem value="cancelled">Storniert</SelectItem>
         </SelectContent>
       </Select>
     </div>
