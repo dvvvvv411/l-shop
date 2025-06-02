@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CheckoutForm from './CheckoutForm';
@@ -39,6 +40,18 @@ const CheckoutLayout = () => {
   const [orderNumber, setOrderNumber] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Function to get legal link paths based on order referrer
+  const getLegalLinkPaths = () => {
+    const referrer = localStorage.getItem('orderReferrer');
+    const basePath = referrer === '/2/home' ? '/2' : '/1';
+    
+    return {
+      datenschutz: `${basePath}/datenschutz`,
+      agb: `${basePath}/agb`, 
+      impressum: `${basePath}/impressum`
+    };
+  };
 
   // Load order data from localStorage on component mount
   useEffect(() => {
@@ -117,6 +130,8 @@ const CheckoutLayout = () => {
     );
   }
 
+  const legalLinks = getLegalLinkPaths();
+
   if (currentStep === 'confirmation') {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -156,15 +171,15 @@ const CheckoutLayout = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <a href="/datenschutz" className="hover:text-gray-900 transition-colors">
+                <Link to={legalLinks.datenschutz} className="hover:text-gray-900 transition-colors">
                   Datenschutz
-                </a>
-                <a href="/agb" className="hover:text-gray-900 transition-colors">
+                </Link>
+                <Link to={legalLinks.agb} className="hover:text-gray-900 transition-colors">
                   AGB
-                </a>
-                <a href="/impressum" className="hover:text-gray-900 transition-colors">
+                </Link>
+                <Link to={legalLinks.impressum} className="hover:text-gray-900 transition-colors">
                   Impressum
-                </a>
+                </Link>
               </div>
               <div className="text-sm text-gray-500">
                 © 2024 HeizölDirekt. Alle Rechte vorbehalten.
@@ -265,15 +280,15 @@ const CheckoutLayout = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <a href="/datenschutz" className="hover:text-gray-900 transition-colors">
+              <Link to={legalLinks.datenschutz} className="hover:text-gray-900 transition-colors">
                 Datenschutz
-              </a>
-              <a href="/agb" className="hover:text-gray-900 transition-colors">
+              </Link>
+              <Link to={legalLinks.agb} className="hover:text-gray-900 transition-colors">
                 AGB
-              </a>
-              <a href="/impressum" className="hover:text-gray-900 transition-colors">
+              </Link>
+              <Link to={legalLinks.impressum} className="hover:text-gray-900 transition-colors">
                 Impressum
-              </a>
+              </Link>
             </div>
             <div className="text-sm text-gray-500">
               © 2024 HeizölDirekt. Alle Rechte vorbehalten.
