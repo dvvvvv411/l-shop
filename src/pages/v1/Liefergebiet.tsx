@@ -4,37 +4,45 @@ import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
 import Footer from '../../components/Footer';
 import DeliveryMap from '../../components/DeliveryMap';
-import { MapPin, Clock, Truck, Euro } from 'lucide-react';
+import { MapPin, Clock, Truck, Euro, Shield, Award, CheckCircle } from 'lucide-react';
 
 const Liefergebiet = () => {
-  const deliveryZones = [
+  const serviceAdvantages = [
     {
-      zone: "Zone 1",
-      states: ["Nordrhein-Westfalen", "Hessen", "Rheinland-Pfalz"],
-      deliveryTime: "24-48h",
-      minOrder: "1.000 Liter",
-      deliveryCost: "Kostenlos ab 3.000L"
+      icon: Clock,
+      title: "Schnelle Lieferung",
+      description: "Zuverlässige Lieferung in nur 4-7 Werktagen deutschlandweit",
+      highlight: "4-7 Werktage"
     },
     {
-      zone: "Zone 2", 
-      states: ["Bayern", "Baden-Württemberg", "Saarland"],
-      deliveryTime: "48-72h",
-      minOrder: "1.500 Liter",
-      deliveryCost: "Kostenlos ab 3.000L"
+      icon: Euro,
+      title: "Faire Preise",
+      description: "Transparente Preisgestaltung ohne versteckte Kosten",
+      highlight: "Keine Überraschungen"
     },
     {
-      zone: "Zone 3",
-      states: ["Niedersachsen", "Bremen", "Hamburg", "Schleswig-Holstein"],
-      deliveryTime: "48-72h", 
-      minOrder: "2.000 Liter",
-      deliveryCost: "Kostenlos ab 4.000L"
+      icon: Shield,
+      title: "Höchste Qualität",
+      description: "Geprüftes Heizöl nach DIN 51603-1 Standard",
+      highlight: "Zertifiziert"
     },
     {
-      zone: "Zone 4",
-      states: ["Berlin", "Brandenburg", "Sachsen", "Sachsen-Anhalt", "Thüringen", "Mecklenburg-Vorpommern"],
-      deliveryTime: "72-96h",
-      minOrder: "2.500 Liter",
-      deliveryCost: "Kostenlos ab 5.000L"
+      icon: Truck,
+      title: "Moderne Flotte",
+      description: "TÜV-geprüfte Tankfahrzeuge mit geschulten Fahrern",
+      highlight: "Sicher & Sauber"
+    },
+    {
+      icon: Award,
+      title: "Umweltfreundlich",
+      description: "Schwefelarmes Heizöl für umweltbewusste Kunden",
+      highlight: "Umweltschonend"
+    },
+    {
+      icon: CheckCircle,
+      title: "Kundenservice",
+      description: "Persönliche Beratung und Support bei allen Fragen",
+      highlight: "24/7 Erreichbar"
     }
   ];
 
@@ -53,7 +61,7 @@ const Liefergebiet = () => {
           >
             <div className="inline-flex items-center bg-red-100 text-red-700 px-6 py-3 rounded-full text-sm font-semibold mb-8">
               <MapPin size={18} className="mr-2" />
-              Deutschland-weite Lieferung
+              Deutschland-weite Lieferung in 4-7 Werktagen
               <Truck size={16} className="ml-2" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-8">
@@ -61,7 +69,7 @@ const Liefergebiet = () => {
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Zuverlässige Heizöl-Lieferung in ganz Deutschland - 
-              schnell, sicher und zu fairen Konditionen.
+              schnell, sicher und zu fairen Konditionen in nur 4-7 Werktagen.
             </p>
           </motion.div>
         </div>
@@ -81,7 +89,7 @@ const Liefergebiet = () => {
               Liefergebiete in Deutschland
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Klicken Sie auf die Karte, um detaillierte Informationen zu Ihrem Liefergebiet zu erhalten
+              Wir liefern deutschlandweit in nur 4-7 Werktagen - klicken Sie auf die Karte für weitere Informationen
             </p>
           </motion.div>
 
@@ -97,7 +105,7 @@ const Liefergebiet = () => {
         </div>
       </section>
 
-      {/* Delivery Zones */}
+      {/* Service Advantages */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
@@ -108,57 +116,31 @@ const Liefergebiet = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Lieferzonen & Konditionen
+              Unsere Service-Vorteile
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Übersicht über unsere Liefergebiete und die jeweiligen Konditionen
+              Warum Kunden deutschlandweit auf unseren zuverlässigen Heizöl-Service vertrauen
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {deliveryZones.map((zone, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {serviceAdvantages.map((advantage, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
               >
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{zone.zone}</h3>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {zone.states.map((state, stateIndex) => (
-                      <span key={stateIndex} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
-                        {state}
-                      </span>
-                    ))}
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
+                    <advantage.icon className="text-red-600" size={32} />
                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Clock className="text-red-600 flex-shrink-0" size={20} />
-                    <div>
-                      <div className="font-semibold">Lieferzeit</div>
-                      <div className="text-gray-600">{zone.deliveryTime}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Truck className="text-red-600 flex-shrink-0" size={20} />
-                    <div>
-                      <div className="font-semibold">Mindestbestellung</div>
-                      <div className="text-gray-600">{zone.minOrder}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Euro className="text-red-600 flex-shrink-0" size={20} />
-                    <div>
-                      <div className="font-semibold">Lieferkosten</div>
-                      <div className="text-gray-600">{zone.deliveryCost}</div>
-                    </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{advantage.title}</h3>
+                  <p className="text-gray-600 mb-4 leading-relaxed">{advantage.description}</p>
+                  <div className="inline-block bg-red-50 text-red-700 px-4 py-2 rounded-full text-sm font-semibold">
+                    {advantage.highlight}
                   </div>
                 </div>
               </motion.div>
@@ -181,7 +163,7 @@ const Liefergebiet = () => {
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Geben Sie Ihre Postleitzahl ein und erfahren Sie sofort, 
-              wann wir zu Ihnen liefern können.
+              dass wir auch zu Ihnen in 4-7 Werktagen liefern können.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
               <input
