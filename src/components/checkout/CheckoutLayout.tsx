@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -165,28 +164,6 @@ const CheckoutLayout = () => {
             </motion.div>
           </div>
         </main>
-        
-        {/* Minimal Footer */}
-        <footer className="bg-white border-t border-gray-200 py-6 px-4 sm:px-6 lg:px-8 mt-16">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
-                <Link to={legalLinks.datenschutz} className="hover:text-gray-900 transition-colors">
-                  Datenschutz
-                </Link>
-                <Link to={legalLinks.agb} className="hover:text-gray-900 transition-colors">
-                  AGB
-                </Link>
-                <Link to={legalLinks.impressum} className="hover:text-gray-900 transition-colors">
-                  Impressum
-                </Link>
-              </div>
-              <div className="text-sm text-gray-500">
-                © 2024 HeizölDirekt. Alle Rechte vorbehalten.
-              </div>
-            </div>
-          </div>
-        </footer>
       </div>
     );
   }
@@ -274,28 +251,6 @@ const CheckoutLayout = () => {
           </motion.div>
         </div>
       </main>
-      
-      {/* Minimal Footer */}
-      <footer className="bg-white border-t border-gray-200 py-6 px-4 sm:px-6 lg:px-8 mt-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <Link to={legalLinks.datenschutz} className="hover:text-gray-900 transition-colors">
-                Datenschutz
-              </Link>
-              <Link to={legalLinks.agb} className="hover:text-gray-900 transition-colors">
-                AGB
-              </Link>
-              <Link to={legalLinks.impressum} className="hover:text-gray-900 transition-colors">
-                Impressum
-              </Link>
-            </div>
-            <div className="text-sm text-gray-500">
-              © 2024 HeizölDirekt. Alle Rechte vorbehalten.
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
