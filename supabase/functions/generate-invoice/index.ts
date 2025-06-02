@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -242,8 +243,8 @@ serve(async (req) => {
 function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string): Uint8Array {
   const doc = new jsPDF()
   
-  // Define colors for the design
-  const primaryColor = [41, 98, 255] // Blue
+  // Define colors for the design - Changed primary color to green
+  const primaryColor = [46, 213, 115] // Green (#2ed573)
   const accentColor = [229, 231, 235] // Light gray
   const textDark = [17, 24, 39] // Dark gray
   const textMuted = [107, 114, 128] // Muted gray
