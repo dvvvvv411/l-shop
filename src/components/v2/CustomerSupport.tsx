@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Phone, MessageCircle, Clock, Headphones, AlertTriangle, Zap } from 'lucide-react';
+import { Phone, Mail, Clock, Headphones, AlertTriangle, Zap } from 'lucide-react';
 
 const CustomerSupport = () => {
   const supportFeatures = [
@@ -14,10 +13,10 @@ const CustomerSupport = () => {
       gradient: "from-blue-500 to-cyan-500"
     },
     {
-      icon: MessageCircle,
-      title: "Live-Chat Support",
-      description: "Direkter Chat mit unseren Kundenberatern über Website und App",
-      details: ["Echtzeit-Antworten", "Datei-Upload möglich", "Chat-Historie"],
+      icon: Mail,
+      title: "E-Mail Support",
+      description: "Professioneller E-Mail-Support für detaillierte Anfragen und Dokumentation",
+      details: ["24h Antwortzeit", "Dateianhänge möglich", "Vollständige Nachverfolgung"],
       color: "emerald",
       gradient: "from-emerald-500 to-green-500"
     },
@@ -48,10 +47,10 @@ const CustomerSupport = () => {
       color: "blue"
     },
     {
-      icon: MessageCircle,
-      method: "Live-Chat",
-      contact: "Sofort starten",
-      availability: "Mo-So 6:00-24:00",
+      icon: Mail,
+      method: "E-Mail",
+      contact: "support@oilexpress.de",
+      availability: "24h Antwortzeit",
       color: "emerald"
     },
     {
