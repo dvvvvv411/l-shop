@@ -1,8 +1,7 @@
-
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Truck, Clock, Phone, CheckCircle, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ServiceAreas = () => {
   const regions = [
@@ -78,7 +77,6 @@ const ServiceAreas = () => {
           </p>
         </motion.div>
 
-        {/* Service Map */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -148,7 +146,6 @@ const ServiceAreas = () => {
           </motion.div>
         </div>
 
-        {/* CTA Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -162,9 +159,11 @@ const ServiceAreas = () => {
           <p className="text-slate-600 mb-6">
             Kontaktieren Sie uns - wir erweitern kontinuierlich unsere Liefergebiete!
           </p>
-          <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
-            Verfügbarkeit anfragen
-          </button>
+          <Link to="/2/kontakt">
+            <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
+              Verfügbarkeit anfragen
+            </button>
+          </Link>
         </motion.div>
       </div>
     </section>
