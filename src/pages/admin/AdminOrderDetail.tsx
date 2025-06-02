@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,16 +9,18 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import OrderTimeline from '@/components/admin/OrderTimeline';
 import OrderActions from '@/components/admin/OrderActions';
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
+import OrderNotesSection from '@/components/admin/OrderNotesSection';
 import { useToast } from '@/hooks/use-toast';
+import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 import type { Order } from '@/hooks/useOrders';
 
 const AdminOrderDetail = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addStatusChange } = useOrderStatusHistory(orderId || '');
 
   // Demo order data - in a real app, this would come from an API
-  // Mapping demo data to match the database Order type
   const orders: Order[] = [
     {
       id: '1',
@@ -173,8 +174,17 @@ const AdminOrderDetail = () => {
     { label: currentOrder.order_number }
   ];
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = async (newStatus: string) => {
+    const oldStatus = currentStatus;
     setCurrentStatus(newStatus as typeof currentStatus);
+    
+    // Log the status change
+    try {
+      await addStatusChange(oldStatus, newStatus);
+    } catch (error) {
+      console.error('Failed to log status change:', error);
+    }
+    
     toast({
       title: "Status aktualisiert",
       description: `Bestellung ${currentOrder.order_number} wurde auf "${newStatus}" gesetzt.`,
@@ -395,6 +405,15 @@ const AdminOrderDetail = () => {
               </Card>
             </motion.div>
           )}
+
+          {/* Order Notes Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <OrderNotesSection orderId={currentOrder.id} />
+          </motion.div>
         </div>
 
         {/* Sidebar */}

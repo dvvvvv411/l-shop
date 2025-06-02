@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
-import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
+import OrderStatusHistorySection from './OrderStatusHistorySection';
+import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 import type { Order } from '@/hooks/useOrders';
 
 interface OrderActionsProps {
@@ -35,13 +37,12 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const { addStatusChange } = useOrderStatusHistory(order.id);
 
   const handleGenerateInvoice = async () => {
     try {
-      // Generate invoice with default shop and bank account (no specific selection)
       const result = await generateInvoice(order.id);
       if (result && result.updatedOrder && onOrderUpdate) {
-        // Update the order data locally to avoid page refresh
         onOrderUpdate(result.updatedOrder);
       }
     } catch (error) {
@@ -56,6 +57,18 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   const handleViewPDF = () => {
     if (order.invoice_file_url) {
       window.open(order.invoice_file_url, '_blank');
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    const oldStatus = currentStatus;
+    onStatusChange(newStatus);
+    
+    // Log the status change
+    try {
+      await addStatusChange(oldStatus, newStatus);
+    } catch (error) {
+      console.error('Failed to log status change:', error);
     }
   };
 
@@ -108,7 +121,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
           <CardTitle>Status ändern</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={currentStatus} onValueChange={onStatusChange}>
+          <Select value={currentStatus} onValueChange={handleStatusChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -137,25 +150,6 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <Receipt className="h-4 w-4 mr-2" />
             Rechnung erstellen
           </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={handleGenerateInvoice}
-            disabled={isGenerating}
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
-          </Button>
-          {order.invoice_file_url && (
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleViewPDF}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              PDF anzeigen
-            </Button>
-          )}
           {(order.invoice_file_url && order.invoice_number) && (
             <Button
               variant="outline"
@@ -166,43 +160,21 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               Rechnung anzeigen
             </Button>
           )}
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={onPrintDeliveryNote}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Lieferschein drucken
-          </Button>
-          {currentStatus === 'confirmed' && (
+          {order.invoice_file_url && (
             <Button
-              className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-              onClick={() => onStatusChange('shipped')}
+              variant="outline"
+              className="w-full justify-start"
+              onClick={handleViewPDF}
             >
-              <Truck className="h-4 w-4 mr-2" />
-              Als versandt markieren
-            </Button>
-          )}
-          {currentStatus === 'invoice_created' && (
-            <Button
-              className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-              onClick={() => onStatusChange('shipped')}
-            >
-              <Truck className="h-4 w-4 mr-2" />
-              Als versandt markieren
-            </Button>
-          )}
-          {currentStatus === 'shipped' && (
-            <Button
-              className="w-full justify-start bg-green-600 hover:bg-green-700"
-              onClick={() => onStatusChange('completed')}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Als abgeschlossen markieren
+              <ExternalLink className="h-4 w-4 mr-2" />
+              PDF anzeigen
             </Button>
           )}
         </CardContent>
       </Card>
+
+      {/* Status History */}
+      <OrderStatusHistorySection orderId={order.id} />
 
       {/* Invoice Creation Dialog */}
       <InvoiceCreationDialog

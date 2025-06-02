@@ -10,12 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Download, Truck, CheckCircle, Receipt, Eye, ExternalLink } from 'lucide-react';
+import { Receipt, Eye, ExternalLink } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
-import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
+import OrderNotesSection from './OrderNotesSection';
+import OrderStatusHistorySection from './OrderStatusHistorySection';
+import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -32,9 +34,9 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   onOrderUpdate,
   onStatusChange,
 }) => {
-  const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const { addStatusChange } = useOrderStatusHistory(order?.id || '');
 
   if (!order) return null;
 
@@ -55,17 +57,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     }).format(amount);
   };
 
-  const handleGenerateInvoice = async () => {
-    try {
-      const result = await generateInvoice(order.id);
-      if (result && result.updatedOrder && onOrderUpdate) {
-        onOrderUpdate(order.id, result.updatedOrder);
-      }
-    } catch (error) {
-      console.error('Failed to generate invoice:', error);
-    }
-  };
-
   const handleViewInvoice = () => {
     setIsInvoiceViewerOpen(true);
   };
@@ -76,9 +67,17 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     }
   };
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = async (newStatus: string) => {
     if (onStatusChange) {
+      const oldStatus = order.status;
       onStatusChange(order.id, newStatus);
+      
+      // Log the status change
+      try {
+        await addStatusChange(oldStatus, newStatus);
+      } catch (error) {
+        console.error('Failed to log status change:', error);
+      }
     }
   };
 
@@ -86,11 +85,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     if (onOrderUpdate) {
       onOrderUpdate(orderId, updatedData);
     }
-  };
-
-  const handlePrintDeliveryNote = () => {
-    console.log('Print delivery note for order:', order.id);
-    // TODO: Implement delivery note printing
   };
 
   return (
@@ -120,25 +114,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                     <Receipt className="h-4 w-4 mr-2" />
                     Rechnung erstellen
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={handleGenerateInvoice}
-                    disabled={isGenerating}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
-                  </Button>
-                  {order.invoice_file_url && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={handleViewPDF}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      PDF anzeigen
-                    </Button>
-                  )}
                   {(order.invoice_file_url && order.invoice_number) && (
                     <Button
                       variant="outline"
@@ -149,34 +124,23 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       Rechnung anzeigen
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={handlePrintDeliveryNote}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Lieferschein drucken
-                  </Button>
-                  {(order.status === 'confirmed' || order.status === 'invoice_created') && (
+                  {order.invoice_file_url && (
                     <Button
-                      className="w-full justify-start bg-blue-600 hover:bg-blue-700"
-                      onClick={() => handleStatusChange('shipped')}
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={handleViewPDF}
                     >
-                      <Truck className="h-4 w-4 mr-2" />
-                      Als versandt markieren
-                    </Button>
-                  )}
-                  {order.status === 'shipped' && (
-                    <Button
-                      className="w-full justify-start bg-green-600 hover:bg-green-700"
-                      onClick={() => handleStatusChange('completed')}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Als abgeschlossen markieren
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      PDF anzeigen
                     </Button>
                   )}
                 </CardContent>
               </Card>
+
+              {/* Status History Section */}
+              <div className="mt-6">
+                <OrderStatusHistorySection orderId={order.id} />
+              </div>
             </div>
 
             {/* Order Details Content */}
@@ -367,6 +331,9 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   )}
                 </CardContent>
               </Card>
+
+              {/* Order Notes Section */}
+              <OrderNotesSection orderId={order.id} />
             </div>
           </div>
         </DialogContent>
