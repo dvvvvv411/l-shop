@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt } from 'lucide-react';
+import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,10 +35,20 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   const handleGenerateInvoice = async () => {
     try {
       // Generate invoice with default shop and bank account (no specific selection)
-      await generateInvoice(order.id);
+      const result = await generateInvoice(order.id);
+      if (result) {
+        // Refresh the page or trigger a re-render to show updated status
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Failed to generate invoice:', error);
     }
+  };
+
+  const handleViewInvoice = () => {
+    // For now, just show a message that the invoice can be viewed
+    // In a real implementation, this would open the stored invoice
+    alert(`Rechnung ${order.invoice_number} anzeigen - Feature wird implementiert`);
   };
 
   return (
@@ -87,6 +97,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <SelectContent>
               <SelectItem value="pending">Neu</SelectItem>
               <SelectItem value="confirmed">Bezahlt</SelectItem>
+              <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
               <SelectItem value="shipped">Versandt</SelectItem>
               <SelectItem value="completed">Abgeschlossen</SelectItem>
             </SelectContent>
@@ -117,6 +128,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <FileText className="h-4 w-4 mr-2" />
             {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
           </Button>
+          {(currentStatus === 'invoice_created' || order.invoice_number) && (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={handleViewInvoice}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Rechnung anzeigen
+            </Button>
+          )}
           <Button
             variant="outline"
             className="w-full justify-start"
@@ -126,6 +147,15 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             Lieferschein drucken
           </Button>
           {currentStatus === 'confirmed' && (
+            <Button
+              className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+              onClick={() => onStatusChange('shipped')}
+            >
+              <Truck className="h-4 w-4 mr-2" />
+              Als versandt markieren
+            </Button>
+          )}
+          {currentStatus === 'invoice_created' && (
             <Button
               className="w-full justify-start bg-blue-600 hover:bg-blue-700"
               onClick={() => onStatusChange('shipped')}

@@ -189,6 +189,47 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          invoice_date: string
+          invoice_number: string
+          order_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_date: string
+          invoice_number: string
+          order_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          order_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount: number | null
@@ -216,6 +257,7 @@ export type Database = {
           discount: number | null
           id: string
           invoice_date: string | null
+          invoice_file_url: string | null
           invoice_number: string | null
           liters: number
           notes: string | null
@@ -258,6 +300,7 @@ export type Database = {
           discount?: number | null
           id?: string
           invoice_date?: string | null
+          invoice_file_url?: string | null
           invoice_number?: string | null
           liters: number
           notes?: string | null
@@ -300,6 +343,7 @@ export type Database = {
           discount?: number | null
           id?: string
           invoice_date?: string | null
+          invoice_file_url?: string | null
           invoice_number?: string | null
           liters?: number
           notes?: string | null

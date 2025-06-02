@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -92,12 +93,12 @@ const AdminOrderDetail = () => {
       discount: 100,
       total_amount: 1890.00,
       payment_method: 'lastschrift',
-      status: 'confirmed',
+      status: 'invoice_created',
       notes: null,
       delivery_date: '2024-01-16',
       delivery_date_display: '16.01.2024',
-      invoice_number: null,
-      invoice_date: null,
+      invoice_number: 'R-2024-001',
+      invoice_date: '2024-01-15',
       request_id: null,
       supplier_id: null,
       shop_id: null,
@@ -129,15 +130,22 @@ const AdminOrderDetail = () => {
       description: 'Zahlung erhalten',
       user: 'Admin'
     }] : []),
-    ...(currentStatus === 'shipped' || currentStatus === 'completed' ? [{
+    ...(currentStatus === 'invoice_created' ? [{
       id: '3',
+      status: 'Rechnung erstellt',
+      timestamp: '15.01.2024 15:45',
+      description: 'Rechnung generiert und versendet',
+      user: 'Admin'
+    }] : []),
+    ...(currentStatus === 'shipped' || currentStatus === 'completed' ? [{
+      id: '4',
       status: 'Versandt',
       timestamp: '16.01.2024 08:15',
       description: 'Lieferung gestartet',
       user: 'Fahrer'
     }] : []),
     ...(currentStatus === 'completed' ? [{
-      id: '4',
+      id: '5',
       status: 'Abgeschlossen',
       timestamp: '16.01.2024 11:30',
       description: 'Lieferung abgeschlossen',
@@ -349,6 +357,12 @@ const AdminOrderDetail = () => {
                     <span className="text-gray-600">Status</span>
                     <StatusBadge status={currentStatus} />
                   </div>
+                  {order.invoice_number && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Rechnungsnummer</span>
+                      <span className="font-medium">{order.invoice_number}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

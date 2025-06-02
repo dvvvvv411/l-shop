@@ -40,6 +40,22 @@ export const useInvoiceGeneration = () => {
 
       console.log('Invoice generated successfully:', data.invoiceNumber);
 
+      // Update order status to invoice_created
+      const { error: statusUpdateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'invoice_created',
+          invoice_number: data.invoiceNumber,
+          invoice_date: new Date().toISOString().split('T')[0],
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (statusUpdateError) {
+        console.error('Error updating order status:', statusUpdateError);
+        // Don't throw here as the invoice was successfully generated
+      }
+
       // If invoice was generated successfully and bank account was used, create transaction record
       if (bankAccountId && data.invoiceAmount) {
         const { error: transactionError } = await supabase
@@ -57,12 +73,29 @@ export const useInvoiceGeneration = () => {
         }
       }
 
+      // Store invoice record in the invoices table
+      if (data.invoiceNumber) {
+        const { error: invoiceRecordError } = await supabase
+          .from('invoices')
+          .insert({
+            order_id: orderId,
+            invoice_number: data.invoiceNumber,
+            invoice_date: new Date().toISOString().split('T')[0],
+            file_name: `${data.invoiceNumber}.pdf`
+          });
+
+        if (invoiceRecordError) {
+          console.error('Error creating invoice record:', invoiceRecordError);
+          // Don't throw here as the invoice was successfully generated
+        }
+      }
+
       // Convert HTML to PDF and download
       await downloadInvoiceAsPDF(data.htmlContent, data.invoiceNumber);
 
       toast({
         title: 'Erfolg',
-        description: `Rechnung ${data.invoiceNumber} wurde generiert und heruntergeladen.`,
+        description: `Rechnung ${data.invoiceNumber} wurde generiert und der Status auf "Rechnung erstellt" gesetzt.`,
       });
 
       return data;
