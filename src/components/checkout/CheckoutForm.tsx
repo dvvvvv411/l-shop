@@ -584,15 +584,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                       />
                     </FormControl>
                     <FormLabel className="text-sm text-gray-700 cursor-pointer">
-                      Ich akzeptiere die{' '}
-                      <a href="/agb" className="text-blue-600 hover:underline" target="_blank">
-                        Allgemeinen Geschäftsbedingungen
-                      </a>{' '}
-                      und die{' '}
-                      <a href="/widerrufsrecht" className="text-blue-600 hover:underline" target="_blank">
-                        Widerrufsbelehrung
-                      </a>
-                      . Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
+                      Ich akzeptiere die Allgemeinen Geschäftsbedingungen und die Widerrufsbelehrung. 
+                      Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
                       sobald die Lieferung begonnen hat. *
                     </FormLabel>
                   </div>
