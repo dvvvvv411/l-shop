@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -62,6 +62,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({
     if (order.invoice_file_url) {
       window.open(order.invoice_file_url, '_blank');
     }
+  };
+
+  const handleMarkAsPaid = async () => {
+    await handleStatusChange('confirmed');
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -158,6 +162,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <Receipt className="h-4 w-4 mr-2" />
             Rechnung erstellen
           </Button>
+          {currentStatus === 'invoice_created' && (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+              onClick={handleMarkAsPaid}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Als bezahlt markieren
+            </Button>
+          )}
           {(order.invoice_file_url && order.invoice_number) && (
             <Button
               variant="outline"
