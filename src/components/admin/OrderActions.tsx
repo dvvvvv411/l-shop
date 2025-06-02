@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ interface OrderActionsProps {
   onNavigateOrder: (direction: 'prev' | 'next') => void;
   hasPrevious: boolean;
   hasNext: boolean;
+  onOrderUpdate?: (updatedOrder: Partial<Order>) => void;
 }
 
 const OrderActions: React.FC<OrderActionsProps> = ({
@@ -27,7 +29,8 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   onPrintDeliveryNote,
   onNavigateOrder,
   hasPrevious,
-  hasNext
+  hasNext,
+  onOrderUpdate
 }) => {
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
@@ -37,9 +40,9 @@ const OrderActions: React.FC<OrderActionsProps> = ({
     try {
       // Generate invoice with default shop and bank account (no specific selection)
       const result = await generateInvoice(order.id);
-      if (result) {
-        // Refresh the page or trigger a re-render to show updated status
-        window.location.reload();
+      if (result && result.updatedOrder && onOrderUpdate) {
+        // Update the order data locally to avoid page refresh
+        onOrderUpdate(result.updatedOrder);
       }
     } catch (error) {
       console.error('Failed to generate invoice:', error);

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Download, ExternalLink, X } from 'lucide-react';
+import { FileText, Download, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText } from 'lucide-react';
@@ -32,11 +33,20 @@ const AdminOrders = () => {
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [selectedOrderForInvoiceView, setSelectedOrderForInvoiceView] = useState<Order | null>(null);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const [localOrders, setLocalOrders] = useState<Order[]>([]);
   const ordersPerPage = 20;
+
+  // Use local orders state if available, otherwise use orders from hook
+  const displayOrders = localOrders.length > 0 ? localOrders : orders;
+
+  // Update local orders when orders change
+  React.useEffect(() => {
+    setLocalOrders(orders);
+  }, [orders]);
 
   // Filter and sort orders
   const filteredAndSortedOrders = useMemo(() => {
-    let filtered = orders.filter(order => {
+    let filtered = displayOrders.filter(order => {
       const matchesSearch = 
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,7 +79,7 @@ const AdminOrders = () => {
     });
 
     return filtered;
-  }, [orders, searchTerm, statusFilter, sortConfig]);
+  }, [displayOrders, searchTerm, statusFilter, sortConfig]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedOrders.length / ordersPerPage);
@@ -79,7 +89,7 @@ const AdminOrders = () => {
   );
 
   // New orders count (using 'pending' instead of 'Neu')
-  const newOrdersCount = orders.filter(order => order.status === 'pending').length;
+  const newOrdersCount = displayOrders.filter(order => order.status === 'pending').length;
 
   const handleSort = (key: keyof Order) => {
     setSortConfig(prev => ({
@@ -185,6 +195,13 @@ const AdminOrders = () => {
     setSelectedOrderForInvoiceView(null);
   };
 
+  // Function to update order locally after invoice generation
+  const handleOrderUpdate = (orderId: string, updatedData: Partial<Order>) => {
+    setLocalOrders(prev => prev.map(order => 
+      order.id === orderId ? { ...order, ...updatedData } : order
+    ));
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -248,7 +265,7 @@ const AdminOrders = () => {
           <CardHeader>
             <CardTitle>Bestellübersicht</CardTitle>
             <CardDescription>
-              {filteredAndSortedOrders.length} von {orders.length} Bestellungen
+              {filteredAndSortedOrders.length} von {displayOrders.length} Bestellungen
               {currentPage > 1 && ` (Seite ${currentPage} von ${totalPages})`}
             </CardDescription>
           </CardHeader>
@@ -417,7 +434,7 @@ const AdminOrders = () => {
               </Table>
             </div>
 
-            {orders.length === 0 && (
+            {displayOrders.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 Noch keine Bestellungen vorhanden
               </div>
@@ -469,6 +486,7 @@ const AdminOrders = () => {
         order={selectedOrder}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
+        onOrderUpdate={selectedOrder ? (updatedData) => handleOrderUpdate(selectedOrder.id, updatedData) : undefined}
       />
 
       {/* Invoice Creation Dialog */}

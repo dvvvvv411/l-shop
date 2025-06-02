@@ -97,7 +97,16 @@ export const useInvoiceGeneration = () => {
         description: `Rechnung ${data.invoiceNumber} wurde generiert und gespeichert. Der Status wurde auf "Rechnung erstellt" gesetzt.`,
       });
 
-      return data;
+      return {
+        ...data,
+        // Return the updated order data to avoid needing a page refresh
+        updatedOrder: {
+          status: 'invoice_created',
+          invoice_number: data.invoiceNumber,
+          invoice_date: new Date().toISOString().split('T')[0],
+          invoice_file_url: data.fileUrl
+        }
+      };
     } catch (error) {
       console.error('Error generating invoice:', error);
       toast({
