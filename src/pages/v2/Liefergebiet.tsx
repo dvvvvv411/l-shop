@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +12,7 @@ const Liefergebiet = () => {
   const [postcode, setPostcode] = useState('');
 
   const handlePostcodeCheck = () => {
-    navigate('/2/');
+    navigate('/2/home');
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
