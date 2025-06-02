@@ -19,7 +19,7 @@ export const logoConfigs: Record<string, LogoConfig> = {
     name: 'OilExpress',
     className: 'h-24 w-auto',
     textContent: 'OilExpress',
-    imageUrl: 'https://i.imgur.com/qwFr7Og.png',
+    imageUrl: 'https://i.imgur.com/HvoI1pD.png',
     useImage: true
   }
 };
