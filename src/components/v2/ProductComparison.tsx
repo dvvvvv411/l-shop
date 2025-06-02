@@ -65,7 +65,7 @@ const ProductComparison = () => {
             >
               {product.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-1">
+                  <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-1 shadow-md">
                     <Star size={16} fill="currentColor" />
                     <span>Beliebteste Wahl</span>
                   </div>
@@ -93,9 +93,9 @@ const ProductComparison = () => {
                 ))}
               </div>
 
-              <button className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+              <button className={`w-full py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg ${
                 product.popular 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700' 
                   : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}>
                 Jetzt wählen
