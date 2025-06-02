@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Receipt, Eye, ExternalLink } from 'lucide-react';
+import { Receipt, Eye, ExternalLink, CheckCircle } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
@@ -67,6 +67,20 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     }
   };
 
+  const handleMarkAsPaid = async () => {
+    if (onStatusChange) {
+      const oldStatus = order.status;
+      onStatusChange(order.id, 'confirmed');
+      
+      // Log the status change
+      try {
+        await addStatusChange(oldStatus, 'confirmed');
+      } catch (error) {
+        console.error('Failed to log status change:', error);
+      }
+    }
+  };
+
   const handleStatusChange = async (newStatus: string) => {
     if (onStatusChange) {
       const oldStatus = order.status;
@@ -114,6 +128,16 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                     <Receipt className="h-4 w-4 mr-2" />
                     Rechnung erstellen
                   </Button>
+                  {order.status === 'invoice_created' && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+                      onClick={handleMarkAsPaid}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Als bezahlt markieren
+                    </Button>
+                  )}
                   {(order.invoice_file_url && order.invoice_number) && (
                     <Button
                       variant="outline"
