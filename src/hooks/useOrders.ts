@@ -4,7 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-export type Order = Tables<'orders'>;
+export type Order = Tables<'orders'> & {
+  latest_status_change?: string;
+};
 
 // Use the official Supabase insert type
 export type OrderInsert = TablesInsert<'orders'>;
@@ -14,16 +16,41 @@ export const useOrders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch orders
+  // Fetch orders with latest status change information
   const fetchOrders = async () => {
     try {
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select(`
+          *,
+          order_status_history!left (
+            created_at
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+
+      // Process orders to get the latest status change
+      const processedOrders = (data || []).map(order => {
+        let latestStatusChange = order.created_at;
+        
+        if (order.order_status_history && order.order_status_history.length > 0) {
+          // Get the most recent status change
+          const sortedHistory = order.order_status_history.sort(
+            (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          latestStatusChange = sortedHistory[0].created_at;
+        }
+
+        return {
+          ...order,
+          latest_status_change: latestStatusChange,
+          order_status_history: undefined // Remove the joined data to keep the interface clean
+        };
+      });
+
+      setOrders(processedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
@@ -136,10 +163,10 @@ export const useOrders = () => {
           console.log('Real-time order update:', payload);
           
           if (payload.eventType === 'INSERT') {
-            setOrders(prev => [payload.new as Order, ...prev]);
+            setOrders(prev => [{ ...payload.new as Order, latest_status_change: payload.new.created_at }, ...prev]);
           } else if (payload.eventType === 'UPDATE') {
             setOrders(prev => prev.map(order => 
-              order.id === payload.new.id ? payload.new as Order : order
+              order.id === payload.new.id ? { ...payload.new as Order, latest_status_change: order.latest_status_change } : order
             ));
           } else if (payload.eventType === 'DELETE') {
             setOrders(prev => prev.filter(order => order.id !== payload.old.id));
@@ -148,8 +175,32 @@ export const useOrders = () => {
       )
       .subscribe();
 
+    // Also listen for status history changes to update latest_status_change
+    const statusHistoryChannel = supabase
+      .channel('status-history-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'order_status_history',
+        },
+        (payload) => {
+          console.log('Real-time status history update:', payload);
+          
+          // Update the latest_status_change for the affected order
+          setOrders(prev => prev.map(order => 
+            order.id === payload.new.order_id 
+              ? { ...order, latest_status_change: payload.new.created_at } 
+              : order
+          ));
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(statusHistoryChannel);
     };
   }, []);
 

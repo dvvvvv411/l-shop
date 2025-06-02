@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Phone, CreditCard, Globe, Copy } from 'lucide-react';
+import { Download, Phone, CreditCard, Globe, Copy, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -103,11 +103,15 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    // Updated headers to match new column order: Date first, then others
-    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto', 'Domain'];
+    // Updated headers to include "Letztes Update" column
+    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Letztes Update', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(order => {
+        const lastUpdate = order.latest_status_change 
+          ? new Date(order.latest_status_change).toLocaleString('de-DE')
+          : new Date(order.created_at).toLocaleString('de-DE');
+        
         return [
           new Date(order.created_at).toLocaleDateString('de-DE'),
           order.order_number,
@@ -118,9 +122,10 @@ const AdminOrders = () => {
           order.product || 'Standard Heizöl',
           order.liters,
           order.total_amount,
-          order.status,
           getBankAccountSystemName(order.bank_account_id),
-          order.origin_domain || ''
+          order.origin_domain || '',
+          lastUpdate,
+          order.status
         ].join(',');
       })
     ].join('\n');
@@ -205,13 +210,14 @@ const AdminOrders = () => {
   const handleStatusChangeFromDialog = async (orderId: string, newStatus: string) => {
     try {
       await updateOrderStatus(orderId, newStatus);
-      // Update local state
+      // Update local state with new status and update latest_status_change
+      const now = new Date().toISOString();
       setLocalOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
+        order.id === orderId ? { ...order, status: newStatus, latest_status_change: now } : order
       ));
       // Update selected order if it's currently being viewed
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
+        setSelectedOrder(prev => prev ? { ...prev, status: newStatus, latest_status_change: now } : null);
       }
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -221,9 +227,10 @@ const AdminOrders = () => {
   const handleMarkAsPaidFromTable = async (order: Order) => {
     try {
       await updateOrderStatus(order.id, 'confirmed');
-      // Update local state
+      // Update local state with new status and update latest_status_change
+      const now = new Date().toISOString();
       setLocalOrders(prev => prev.map(o => 
-        o.id === order.id ? { ...o, status: 'confirmed' } : o
+        o.id === order.id ? { ...o, status: 'confirmed', latest_status_change: now } : o
       ));
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -347,6 +354,12 @@ const AdminOrders = () => {
                         Domain
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[120px]">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        Letztes Update
+                      </div>
+                    </TableHead>
                     <TableHead className="min-w-[90px]">
                       Status
                     </TableHead>
@@ -354,98 +367,110 @@ const AdminOrders = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedOrders.map((order) => (
-                    <TableRow 
-                      key={order.id} 
-                      className="hover:bg-gray-50"
-                    >
-                      <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
-                        <Checkbox
-                          checked={selectedOrders.includes(order.id)}
-                          onCheckedChange={(checked) => handleSelectOrder(order.id, checked as boolean)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{new Date(order.created_at).toLocaleDateString('de-DE')}</div>
-                          <div className="text-gray-500">{new Date(order.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{order.order_number}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="font-medium">{order.customer_name}</div>
-                          <div className="text-gray-500">{order.customer_email}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {order.customer_phone ? (
-                            <div 
-                              className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
-                              onClick={() => handleCopyPhone(order.customer_phone)}
-                              title="Klicken zum Kopieren"
-                            >
-                              <Phone className="h-3 w-3 text-gray-400" />
-                              <span>{order.customer_phone}</span>
-                              <Copy className="h-3 w-3 text-gray-400 ml-1 opacity-0 group-hover:opacity-100" />
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{order.delivery_postcode}</div>
-                          <div className="text-gray-500">{order.delivery_city}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">{order.product || 'Standard Heizöl'}</TableCell>
-                      <TableCell className="font-medium">{order.liters.toLocaleString()}</TableCell>
-                      <TableCell className="font-semibold">€{order.total_amount.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {order.bank_account_id ? (
-                            <div className="flex items-center gap-1">
-                              <CreditCard className="h-3 w-3 text-gray-400" />
-                              <span className="font-medium text-blue-600">
-                                {getBankAccountSystemName(order.bank_account_id)}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {order.origin_domain ? (
-                            <div className="flex items-center gap-1">
-                              <Globe className="h-3 w-3 text-gray-400" />
-                              <span className="font-medium text-green-600">
-                                {order.origin_domain}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={order.status} />
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px] pr-4">
-                        <OrderTableActions
-                          order={order}
-                          onViewOrder={handleViewOrder}
-                          onGenerateInvoice={handleGenerateInvoice}
-                          onViewInvoice={handleViewInvoice}
-                          onMarkAsPaid={handleMarkAsPaidFromTable}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {paginatedOrders.map((order) => {
+                    const lastUpdate = order.latest_status_change 
+                      ? new Date(order.latest_status_change)
+                      : new Date(order.created_at);
+                    
+                    return (
+                      <TableRow 
+                        key={order.id} 
+                        className="hover:bg-gray-50"
+                      >
+                        <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
+                          <Checkbox
+                            checked={selectedOrders.includes(order.id)}
+                            onCheckedChange={(checked) => handleSelectOrder(order.id, checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{new Date(order.created_at).toLocaleDateString('de-DE')}</div>
+                            <div className="text-gray-500">{new Date(order.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">{order.order_number}</TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="font-medium">{order.customer_name}</div>
+                            <div className="text-gray-500">{order.customer_email}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {order.customer_phone ? (
+                              <div 
+                                className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
+                                onClick={() => handleCopyPhone(order.customer_phone)}
+                                title="Klicken zum Kopieren"
+                              >
+                                <Phone className="h-3 w-3 text-gray-400" />
+                                <span>{order.customer_phone}</span>
+                                <Copy className="h-3 w-3 text-gray-400 ml-1 opacity-0 group-hover:opacity-100" />
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{order.delivery_postcode}</div>
+                            <div className="text-gray-500">{order.delivery_city}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{order.product || 'Standard Heizöl'}</TableCell>
+                        <TableCell className="font-medium">{order.liters.toLocaleString()}</TableCell>
+                        <TableCell className="font-semibold">€{order.total_amount.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {order.bank_account_id ? (
+                              <div className="flex items-center gap-1">
+                                <CreditCard className="h-3 w-3 text-gray-400" />
+                                <span className="font-medium text-blue-600">
+                                  {getBankAccountSystemName(order.bank_account_id)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {order.origin_domain ? (
+                              <div className="flex items-center gap-1">
+                                <Globe className="h-3 w-3 text-gray-400" />
+                                <span className="font-medium text-green-600">
+                                  {order.origin_domain}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{lastUpdate.toLocaleDateString('de-DE')}</div>
+                            <div className="text-gray-500">{lastUpdate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={order.status} />
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px] pr-4">
+                          <OrderTableActions
+                            order={order}
+                            onViewOrder={handleViewOrder}
+                            onGenerateInvoice={handleGenerateInvoice}
+                            onViewInvoice={handleViewInvoice}
+                            onMarkAsPaid={handleMarkAsPaidFromTable}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
