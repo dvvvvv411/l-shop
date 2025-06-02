@@ -67,6 +67,13 @@ const CustomerReviews = () => {
     }
   ];
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 via-slate-50 to-emerald-50">
       <div className="container mx-auto px-4">
@@ -184,12 +191,12 @@ const CustomerReviews = () => {
             <p className="text-gray-600 mb-6">
               Über 15.000 Bewertungen sprechen für sich - überzeugen Sie sich selbst von unserem Service.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+            <div className="flex justify-center">
+              <button 
+                onClick={scrollToTop}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              >
                 Jetzt bestellen
-              </button>
-              <button className="bg-white text-gray-700 px-8 py-3 rounded-lg font-semibold border border-gray-300 hover:bg-gray-50 transition-all">
-                Alle Bewertungen ansehen
               </button>
             </div>
           </div>
