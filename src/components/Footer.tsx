@@ -11,9 +11,11 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <Link to="/1/home" className="inline-block">
-              <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xl mb-4">
-                HeizölDirekt
-              </div>
+              <img 
+                src="https://i.imgur.com/vX78e29.png" 
+                alt="HeizölDirekt" 
+                className="h-8 w-auto mb-4"
+              />
             </Link>
             <p className="text-gray-300 mb-4">
               Ihr zuverlässiger Partner für günstige Heizöllieferungen seit über 25 Jahren.

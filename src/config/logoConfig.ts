@@ -3,13 +3,17 @@ export interface LogoConfig {
   name: string;
   className: string;
   textContent: string;
+  imageUrl?: string;
+  useImage?: boolean;
 }
 
 export const logoConfigs: Record<string, LogoConfig> = {
   '/1/home': {
     name: 'HeizölDirekt',
-    className: 'w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center',
-    textContent: 'H'
+    className: 'h-8 md:h-10',
+    textContent: 'H',
+    imageUrl: 'https://i.imgur.com/vX78e29.png',
+    useImage: true
   },
   '/2/home': {
     name: 'OilExpress',

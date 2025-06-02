@@ -53,9 +53,11 @@ const Header = () => {
             className="flex items-center"
           >
             <Link to="/1/home" className="flex items-center">
-              <div className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-2xl">
-                HeizölDirekt
-              </div>
+              <img 
+                src="https://i.imgur.com/vX78e29.png" 
+                alt="HeizölDirekt" 
+                className="h-8 md:h-10 w-auto"
+              />
               <div className="ml-4 hidden md:block">
                 <div className="text-sm text-gray-600">Deutschlands günstigster</div>
                 <div className="text-lg font-semibold text-gray-900">Heizöl-Service</div>
