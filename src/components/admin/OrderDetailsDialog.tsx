@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -9,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
@@ -156,55 +158,79 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                 <CardHeader>
                   <CardTitle>Schnellaktionen</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => setIsInvoiceDialogOpen(true)}
-                  >
-                    <Receipt className="h-4 w-4 mr-2" />
-                    Rechnung erstellen
-                  </Button>
-                  {order.status === 'invoice_created' && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
-                      onClick={handleMarkAsPaid}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Als bezahlt markieren
-                    </Button>
-                  )}
-                  {order.status === 'confirmed' && (
-                    <>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
-                        onClick={handleMarkAsExchanged}
-                      >
-                        <ArrowUpDown className="h-4 w-4 mr-2" />
-                        Als Exchanged markieren
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
-                        onClick={handleMarkAsDown}
-                      >
-                        <ArrowDown className="h-4 w-4 mr-2" />
-                        Als Down markieren
-                      </Button>
-                    </>
-                  )}
-                  {(order.invoice_file_url && order.invoice_number) && (
+                <CardContent className="space-y-4">
+                  {/* Status Change Dropdown */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Status ändern
+                    </label>
+                    <Select value={order.status} onValueChange={handleStatusChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Neu</SelectItem>
+                        <SelectItem value="confirmed">Bezahlt</SelectItem>
+                        <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
+                        <SelectItem value="exchanged">Exchanged</SelectItem>
+                        <SelectItem value="down">Down</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
                     <Button
                       variant="outline"
                       className="w-full justify-start"
-                      onClick={handleViewInvoice}
+                      onClick={() => setIsInvoiceDialogOpen(true)}
                     >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Rechnung anzeigen
+                      <Receipt className="h-4 w-4 mr-2" />
+                      Rechnung erstellen
                     </Button>
-                  )}
+                    {order.status === 'invoice_created' && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+                        onClick={handleMarkAsPaid}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Als bezahlt markieren
+                      </Button>
+                    )}
+                    {order.status === 'confirmed' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+                          onClick={handleMarkAsExchanged}
+                        >
+                          <ArrowUpDown className="h-4 w-4 mr-2" />
+                          Als Exchanged markieren
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
+                          onClick={handleMarkAsDown}
+                        >
+                          <ArrowDown className="h-4 w-4 mr-2" />
+                          Als Down markieren
+                        </Button>
+                      </>
+                    )}
+                    {(order.invoice_file_url && order.invoice_number) && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={handleViewInvoice}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Rechnung anzeigen
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
