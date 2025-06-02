@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Truck, Smartphone, MapPin, Clock, Wifi, Database, Shield, CheckCircle, Zap, Globe, Monitor } from 'lucide-react';
@@ -125,36 +124,6 @@ const LogisticsTechnology = () => {
             </div>
           ))}
         </motion.div>
-
-        {/* Technology Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-          {technologies.map((tech, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="group bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl p-6 hover:bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className={`inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br ${tech.gradient} rounded-xl mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                <tech.icon className="text-white" size={24} />
-              </div>
-              
-              <h3 className="text-lg font-semibold text-slate-800 mb-3">{tech.title}</h3>
-              <p className="text-slate-600 text-sm mb-4 leading-relaxed">{tech.description}</p>
-              
-              <ul className="space-y-2">
-                {tech.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center space-x-2 text-xs text-slate-500">
-                    <CheckCircle className={`text-${tech.color}-500 flex-shrink-0`} size={12} />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </div>
 
         {/* Process Timeline */}
         <motion.div
