@@ -2,10 +2,17 @@
 import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleJetztBestellenClick = () => {
+    navigate('/1/home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="bg-white shadow-lg relative z-50">
@@ -50,7 +57,7 @@ const Header = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex items-center"
+            className="flex items-center lg:justify-start justify-center flex-1 lg:flex-initial"
           >
             <Link to="/1/home" className="flex items-center">
               <img 
@@ -90,6 +97,7 @@ const Header = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={handleJetztBestellenClick}
               className="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
             >
               Jetzt bestellen
@@ -142,23 +150,11 @@ const Header = () => {
               >
                 Kontakt
               </Link>
-              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200">
-                <button className="flex items-center space-x-2 text-gray-700 hover:text-red-600 py-2">
-                  <User size={18} />
-                  <span>Anmelden</span>
-                </button>
-                <button className="flex items-center space-x-2 text-gray-700 hover:text-red-600 py-2">
-                  <ShoppingCart size={18} />
-                  <span>Warenkorb (0)</span>
-                </button>
-                <Link 
-                  to="/admin" 
-                  className="flex items-center space-x-2 text-gray-700 hover:text-red-600 py-2"
-                  onClick={() => setIsMenuOpen(false)}
+              <div className="pt-4 border-t border-gray-200">
+                <button 
+                  onClick={handleJetztBestellenClick}
+                  className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold w-full"
                 >
-                  <span>Admin</span>
-                </Link>
-                <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold w-full mt-4">
                   Jetzt bestellen
                 </button>
               </div>
