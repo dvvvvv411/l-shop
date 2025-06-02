@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -287,30 +286,25 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFont('helvetica', 'bold')
   doc.text('RECHNUNG', 145, 37)
   
-  // Invoice info box
+  // Invoice info box (removed invoice number, kept date and order number)
   doc.setFillColor(250, 250, 250)
-  doc.rect(140, 48, 55, 30, 'F')
+  doc.rect(140, 48, 55, 25, 'F')
   doc.setDrawColor(...accentColor)
-  doc.rect(140, 48, 55, 30, 'S')
+  doc.rect(140, 48, 55, 25, 'S')
   
   doc.setFontSize(9)
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'bold')
   const invoiceDate = new Date().toLocaleDateString('de-DE')
   
-  doc.text('Rechnungsnummer:', 142, 54)
+  doc.text('Rechnungsdatum:', 142, 54)
   doc.setFont('helvetica', 'normal')
-  doc.text(invoiceNumber, 142, 59)
+  doc.text(invoiceDate, 142, 59)
   
   doc.setFont('helvetica', 'bold')
-  doc.text('Rechnungsdatum:', 142, 65)
+  doc.text('Bestellnummer:', 142, 65)
   doc.setFont('helvetica', 'normal')
-  doc.text(invoiceDate, 142, 70)
-  
-  doc.setFont('helvetica', 'bold')
-  doc.text('Bestellnummer:', 142, 76)
-  doc.setFont('helvetica', 'normal')
-  doc.text(order.order_number, 142, 81)
+  doc.text(order.order_number, 142, 70)
   
   // Customer address section
   doc.setFontSize(11)
@@ -329,20 +323,18 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.text(order.delivery_street || order.customer_address, 18, 74)
   doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 18, 80)
   
-  // Delivery details section
+  // Delivery details section (removed delivery date)
   doc.setFontSize(11)
   doc.setFont('helvetica', 'bold')
   doc.text('Lieferdetails:', 15, 98)
   
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
-  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'Nach Vereinbarung'
   doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 15, 105)
-  doc.text(`Gewünschter Liefertermin: ${deliveryDate}`, 15, 110)
-  doc.text(`Zahlungsart: ${order.payment_method}`, 15, 115)
+  doc.text(`Zahlungsart: ${order.payment_method}`, 15, 110)
   
   // Table header with improved styling
-  let yPos = 130
+  let yPos = 125
   doc.setFillColor(...primaryColor)
   doc.rect(15, yPos, 180, 10, 'F')
   
@@ -457,7 +449,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
       doc.text(`BIC: ${bankAccount.bic}`, 18, yPos + 25)
     }
     doc.setFont('helvetica', 'bold')
-    doc.text(`Verwendungszweck: ${invoiceNumber}`, 18, yPos + 30)
+    doc.text(`Bestellnummer: ${order.order_number}`, 18, yPos + 30)
     doc.setFont('helvetica', 'normal')
   }
   
@@ -472,7 +464,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.text(order.notes, 15, yPos + 6)
   }
   
-  // Footer with line separator
+  // Footer with line separator and dynamic shop information
   doc.setDrawColor(...primaryColor)
   doc.setLineWidth(0.5)
   doc.line(15, 265, 195, 265)
@@ -481,7 +473,13 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setTextColor(...textMuted)
   doc.text('Vielen Dank für Ihren Auftrag!', 15, 272)
   doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 277)
-  doc.text(`Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}`, 15, 282)
+  
+  // Dynamic footer information using shop data
+  const businessOwner = shop?.business_owner || 'Max Mustermann'
+  const courtName = shop?.court_name || 'Amtsgericht Berlin'
+  const registrationNumber = shop?.registration_number || 'HRB 12345'
+  
+  doc.text(`Geschäftsführung: ${businessOwner} • ${courtName}: ${registrationNumber} • USt-IdNr: ${vatNumber}`, 15, 282)
   
   // Convert to Uint8Array
   const pdfOutput = doc.output('arraybuffer')
