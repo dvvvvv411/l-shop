@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
@@ -5,12 +6,16 @@ import {
   ShoppingCart, 
   Settings, 
   CreditCard,
-  Building2
+  Building2,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Button } from '@/components/ui/button';
 
 const AdminLayout = () => {
   const location = useLocation();
+  const { logout } = useAdminAuth();
 
   const navigation = [
     {
@@ -39,6 +44,10 @@ const AdminLayout = () => {
       icon: Settings,
     },
   ];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -74,6 +83,17 @@ const AdminLayout = () => {
                 );
               })}
             </nav>
+            {/* Logout Button */}
+            <div className="px-2 pb-4">
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              >
+                <LogOut className="mr-3 h-5 w-5" />
+                Abmelden
+              </Button>
+            </div>
           </div>
         </div>
       </div>
