@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Droplets, Shield, Award, Zap, Leaf, CheckCircle } from 'lucide-react';
 import Header from '../../components/v2/Header';
 import Footer from '../../components/v2/Footer';
-import ProductComparison from '../../components/ProductComparison';
-import { Droplets, Shield, Award, Zap, Leaf, CheckCircle } from 'lucide-react';
 
 const Produkte = () => {
   const productFeatures = [
@@ -118,9 +117,6 @@ const Produkte = () => {
           </div>
         </div>
       </section>
-
-      {/* Product Comparison Section */}
-      <ProductComparison />
 
       {/* Technical Specifications */}
       <section className="py-16 bg-gray-50">
