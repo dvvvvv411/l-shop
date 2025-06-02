@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { FileText, Building2, CreditCard, AlertCircle } from 'lucide-react';
+import { FileText, Building2, CreditCard, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -205,17 +205,20 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                       €{dailyUsage.toLocaleString('de-DE', { minimumFractionDigits: 2 })} / €{selectedBankAccount.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <Progress value={usagePercentage} className="h-2" />
+                  <Progress 
+                    value={usagePercentage} 
+                    className={`h-2 ${limitExceeded ? '[&_.bg-primary]:bg-orange-500' : ''}`}
+                  />
                   <div className="text-xs text-gray-500 text-center">
                     {usagePercentage.toFixed(1)}% des Tageslimits verwendet
                   </div>
                 </div>
                 
                 {limitExceeded && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Diese Rechnung würde das Tageslimit überschreiten! Bitte wählen Sie ein anderes Bankkonto oder verschieben Sie die Rechnung auf einen anderen Tag.
+                  <Alert variant="default" className="border-orange-200 bg-orange-50">
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    <AlertDescription className="text-orange-800">
+                      <strong>Warnung:</strong> Diese Rechnung würde das Tageslimit überschreiten! Sie können trotzdem fortfahren, sollten aber das Risiko berücksichtigen.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -230,11 +233,11 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
             </Button>
             <Button
               onClick={handleCreateInvoice}
-              disabled={!selectedShopId || !selectedBankAccountId || isGenerating || shopsLoading || bankAccountsLoading || limitExceeded}
-              className="bg-red-600 hover:bg-red-700"
+              disabled={!selectedShopId || !selectedBankAccountId || isGenerating || shopsLoading || bankAccountsLoading}
+              className={`${limitExceeded ? 'bg-orange-600 hover:bg-orange-700' : 'bg-red-600 hover:bg-red-700'}`}
             >
               <FileText className="h-4 w-4 mr-2" />
-              {isGenerating ? 'Erstelle Rechnung...' : 'Rechnung erstellen'}
+              {isGenerating ? 'Erstelle Rechnung...' : limitExceeded ? 'Trotzdem erstellen' : 'Rechnung erstellen'}
             </Button>
           </div>
         </div>
