@@ -5,12 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Plus, Edit, Trash2, Star, StarOff, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 import BankAccountForm from '@/components/admin/BankAccountForm';
 import BankAccountDeleteDialog from '@/components/admin/BankAccountDeleteDialog';
 import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialog';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 
 interface BankAccount {
   id: string;
@@ -32,6 +34,7 @@ const AdminBankAccounts = () => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { getDailyUsage } = useBankAccounts();
 
   const { data: bankAccounts, isLoading } = useQuery({
     queryKey: ['bank-accounts'],
@@ -45,6 +48,28 @@ const AdminBankAccounts = () => {
       if (error) throw error;
       return data as BankAccount[];
     },
+  });
+
+  // Fetch daily usage for all accounts
+  const { data: dailyUsageMap } = useQuery({
+    queryKey: ['daily-usage-all', bankAccounts?.map(acc => acc.id)],
+    queryFn: async () => {
+      if (!bankAccounts?.length) return {};
+      
+      const usagePromises = bankAccounts.map(async (account) => {
+        const usage = await getDailyUsage(account.id);
+        return { accountId: account.id, usage };
+      });
+
+      const results = await Promise.all(usagePromises);
+      const usageMap: Record<string, number> = {};
+      results.forEach(({ accountId, usage }) => {
+        usageMap[accountId] = usage;
+      });
+      
+      return usageMap;
+    },
+    enabled: !!bankAccounts?.length,
   });
 
   const setDefaultMutation = useMutation({
@@ -102,6 +127,23 @@ const AdminBankAccounts = () => {
     setSelectedAccountForDetails(null);
   };
 
+  const formatDailyUsage = (usage: number, limit: number) => {
+    const formattedUsage = usage.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedLimit = limit.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${formattedUsage}/${formattedLimit}€`;
+  };
+
+  const getUsagePercentage = (usage: number, limit: number) => {
+    if (limit === 0) return 0;
+    return Math.min((usage / limit) * 100, 100);
+  };
+
+  const getUsageColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-red-600';
+    if (percentage >= 75) return 'text-yellow-600';
+    return 'text-green-600';
+  };
+
   const breadcrumbItems = [
     { label: 'Admin', href: '/admin' },
     { label: 'Bankkonten' },
@@ -129,90 +171,112 @@ const AdminBankAccounts = () => {
       </div>
 
       <div className="grid gap-6">
-        {bankAccounts?.map((account) => (
-          <Card key={account.id} className="relative cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetails(account)}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  {account.bank_name}
-                  {account.is_default && (
-                    <Badge variant="default" className="bg-green-100 text-green-800">
-                      <Star className="h-3 w-3 mr-1" />
-                      Standard
-                    </Badge>
-                  )}
-                </CardTitle>
-                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleViewDetails(account)}
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
-                  {!account.is_default && (
+        {bankAccounts?.map((account) => {
+          const dailyUsage = dailyUsageMap?.[account.id] || 0;
+          const hasLimit = account.daily_limit > 0;
+          const usagePercentage = hasLimit ? getUsagePercentage(dailyUsage, account.daily_limit) : 0;
+
+          return (
+            <Card key={account.id} className="relative cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetails(account)}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {account.bank_name}
+                    {account.is_default && (
+                      <Badge variant="default" className="bg-green-100 text-green-800">
+                        <Star className="h-3 w-3 mr-1" />
+                        Standard
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleSetDefault(account.id)}
-                      disabled={setDefaultMutation.isPending}
+                      onClick={() => handleViewDetails(account)}
                     >
-                      <StarOff className="h-4 w-4 mr-1" />
-                      Als Standard festlegen
+                      <Eye className="h-4 w-4 mr-1" />
+                      Details
                     </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(account)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setDeletingAccount(account)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    {!account.is_default && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSetDefault(account.id)}
+                        disabled={setDefaultMutation.isPending}
+                      >
+                        <StarOff className="h-4 w-4 mr-1" />
+                        Als Standard festlegen
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(account)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeletingAccount(account)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Kontoinhaber</p>
-                  <p className="font-medium">{account.account_holder}</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Kontoinhaber</p>
+                    <p className="font-medium">{account.account_holder}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">IBAN</p>
+                    <p className="font-medium font-mono">{account.iban}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">BIC</p>
+                    <p className="font-medium font-mono">{account.bic}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Tageslimit</p>
+                    <div className="space-y-2">
+                      <p className="font-medium">
+                        {hasLimit ? (
+                          <span className={getUsageColor(usagePercentage)}>
+                            {formatDailyUsage(dailyUsage, account.daily_limit)}
+                          </span>
+                        ) : (
+                          'Unbegrenzt'
+                        )}
+                      </p>
+                      {hasLimit && (
+                        <div className="space-y-1">
+                          <Progress 
+                            value={usagePercentage} 
+                            className="h-2"
+                          />
+                          <p className="text-xs text-gray-500">
+                            {usagePercentage.toFixed(1)}% genutzt
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Erstellt am</p>
+                    <p className="font-medium">
+                      {new Date(account.created_at).toLocaleDateString('de-DE')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">IBAN</p>
-                  <p className="font-medium font-mono">{account.iban}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">BIC</p>
-                  <p className="font-medium font-mono">{account.bic}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Tageslimit</p>
-                  <p className="font-medium">
-                    {account.daily_limit > 0 
-                      ? `€${account.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` 
-                      : 'Unbegrenzt'
-                    }
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Erstellt am</p>
-                  <p className="font-medium">
-                    {new Date(account.created_at).toLocaleDateString('de-DE')}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
 
         {!bankAccounts?.length && (
           <Card>

@@ -12,9 +12,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import StatusBadge from './StatusBadge';
 import { BankAccount } from '@/hooks/useBankAccounts';
 import { Order } from '@/hooks/useOrders';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 
 interface BankAccountDetailsDialogProps {
   bankAccount: BankAccount | null;
@@ -27,6 +29,8 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { getDailyUsage } = useBankAccounts();
+
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['bank-account-orders', bankAccount?.id],
     queryFn: async () => {
@@ -69,7 +73,36 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
     enabled: !!bankAccount?.id && isOpen,
   });
 
+  const { data: dailyUsage } = useQuery({
+    queryKey: ['daily-usage', bankAccount?.id],
+    queryFn: async () => {
+      if (!bankAccount?.id) return 0;
+      return await getDailyUsage(bankAccount.id);
+    },
+    enabled: !!bankAccount?.id && isOpen,
+  });
+
+  const formatDailyUsage = (usage: number, limit: number) => {
+    const formattedUsage = usage.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedLimit = limit.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${formattedUsage}/${formattedLimit}€`;
+  };
+
+  const getUsagePercentage = (usage: number, limit: number) => {
+    if (limit === 0) return 0;
+    return Math.min((usage / limit) * 100, 100);
+  };
+
+  const getUsageColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-red-600';
+    if (percentage >= 75) return 'text-yellow-600';
+    return 'text-green-600';
+  };
+
   if (!bankAccount) return null;
+
+  const hasLimit = bankAccount.daily_limit > 0;
+  const usagePercentage = hasLimit && dailyUsage ? getUsagePercentage(dailyUsage, bankAccount.daily_limit) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -109,13 +142,29 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
                   <p className="font-medium font-mono">{bankAccount.bic}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Tageslimit</p>
-                  <p className="font-medium">
-                    {bankAccount.daily_limit > 0 
-                      ? `€${bankAccount.daily_limit.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` 
-                      : 'Unbegrenzt'
-                    }
-                  </p>
+                  <p className="text-sm text-gray-500">Tageslimit & Nutzung</p>
+                  <div className="space-y-2">
+                    <p className="font-medium">
+                      {hasLimit ? (
+                        <span className={getUsageColor(usagePercentage)}>
+                          {formatDailyUsage(dailyUsage || 0, bankAccount.daily_limit)}
+                        </span>
+                      ) : (
+                        'Unbegrenzt'
+                      )}
+                    </p>
+                    {hasLimit && dailyUsage !== undefined && (
+                      <div className="space-y-1">
+                        <Progress 
+                          value={usagePercentage} 
+                          className="h-2"
+                        />
+                        <p className="text-xs text-gray-500">
+                          {usagePercentage.toFixed(1)}% des Tageslimits genutzt
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -123,7 +172,7 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
 
           {/* Statistics */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold">{stats.orderCount}</div>
@@ -144,6 +193,14 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
                     {stats.totalLiters.toLocaleString('de-DE')} L
                   </div>
                   <p className="text-gray-600">Gesamtmenge</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold">
+                    €{(dailyUsage || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                  </div>
+                  <p className="text-gray-600">Heute verwendet</p>
                 </CardContent>
               </Card>
             </div>
