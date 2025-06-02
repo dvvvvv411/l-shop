@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye } from 'lucide-react';
+import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -51,6 +51,12 @@ const OrderActions: React.FC<OrderActionsProps> = ({
 
   const handleViewInvoice = () => {
     setIsInvoiceViewerOpen(true);
+  };
+
+  const handleViewPDF = () => {
+    if (order.invoice_file_url) {
+      window.open(order.invoice_file_url, '_blank');
+    }
   };
 
   const handleCloseInvoiceViewer = () => {
@@ -140,6 +146,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <FileText className="h-4 w-4 mr-2" />
             {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
           </Button>
+          {currentStatus === 'invoice_created' && order.invoice_file_url && (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={handleViewPDF}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              PDF anzeigen
+            </Button>
+          )}
           {(order.invoice_file_url && order.invoice_number) && (
             <Button
               variant="outline"
