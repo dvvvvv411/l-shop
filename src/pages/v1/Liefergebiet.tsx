@@ -1,12 +1,21 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/v1/Header';
 import Footer from '../../components/Footer';
 import DeliveryMap from '../../components/DeliveryMap';
 import { MapPin, Clock, Truck, Euro, Shield, Award, CheckCircle } from 'lucide-react';
 
 const Liefergebiet = () => {
+  const navigate = useNavigate();
+  const [postcode, setPostcode] = useState('');
+
+  const handlePostcodeCheck = () => {
+    if (postcode.trim()) {
+      navigate('/1/home');
+    }
+  };
+
   const serviceAdvantages = [
     {
       icon: Clock,
@@ -169,9 +178,14 @@ const Liefergebiet = () => {
               <input
                 type="text"
                 placeholder="Ihre Postleitzahl eingeben..."
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
                 className="flex-1 px-6 py-3 rounded-lg text-gray-900 font-medium"
               />
-              <button className="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              <button 
+                onClick={handlePostcodeCheck}
+                className="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              >
                 Prüfen
               </button>
             </div>
