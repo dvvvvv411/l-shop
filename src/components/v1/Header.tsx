@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, Phone, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -31,20 +31,6 @@ const Header = () => {
           </div>
           <div className="hidden md:flex items-center space-x-6">
             <span>Kostenlose Beratung Mo-Fr 8-18 Uhr</span>
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-1 hover:text-red-400 transition-colors">
-                <User size={16} />
-                <span>Anmelden</span>
-              </button>
-              <button className="flex items-center space-x-1 hover:text-red-400 transition-colors">
-                <ShoppingCart size={16} />
-                <span>Warenkorb (0)</span>
-              </button>
-              {/* Admin Link - for development */}
-              <Link to="/admin" className="flex items-center space-x-1 hover:text-red-400 transition-colors">
-                <span>Admin</span>
-              </Link>
-            </div>
           </div>
         </div>
       </div>
