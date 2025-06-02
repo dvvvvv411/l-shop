@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText } from 'lucide-react';
+import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -193,6 +192,12 @@ const AdminOrders = () => {
   const handleCloseInvoiceViewer = () => {
     setIsInvoiceViewerOpen(false);
     setSelectedOrderForInvoiceView(null);
+  };
+
+  const handleViewPDF = (order: Order) => {
+    if (order.invoice_file_url) {
+      window.open(order.invoice_file_url, '_blank');
+    }
   };
 
   // Function to update order locally after invoice generation
@@ -424,6 +429,16 @@ const AdminOrders = () => {
                               title="Rechnung anzeigen"
                             >
                               <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {(order.invoice_number && order.invoice_number.trim() !== '') && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleViewPDF(order)}
+                              title="PDF anzeigen"
+                            >
+                              <ExternalLink className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
