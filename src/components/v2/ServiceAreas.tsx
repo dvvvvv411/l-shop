@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Truck, Clock, Phone, CheckCircle, Zap } from 'lucide-react';
@@ -43,7 +44,7 @@ const ServiceAreas = () => {
     {
       icon: Phone,
       title: "Persönliche Beratung",
-      description: "Mo-Fr 7:00-20:00 Uhr",
+      description: "Mo-Sa: 8:00-18:00 Uhr",
       highlight: "Direkter Draht zu Experten"
     },
     {
