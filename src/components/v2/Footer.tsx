@@ -37,10 +37,10 @@ const Footer = () => {
   ];
 
   const legalLinks = [
-    { label: "Impressum", path: "/impressum" },
-    { label: "Datenschutz", path: "/datenschutz" },
-    { label: "AGB", path: "/agb" },
-    { label: "Widerrufsrecht", path: "/widerrufsrecht" }
+    { label: "Impressum", path: "/2/impressum" },
+    { label: "Datenschutz", path: "/2/datenschutz" },
+    { label: "AGB", path: "/2/agb" },
+    { label: "Widerrufsrecht", path: "/2/widerrufsrecht" }
   ];
 
   const socialLinks = [

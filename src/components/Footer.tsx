@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <Link to="/" className="inline-block">
+            <Link to="/1/home" className="inline-block">
               <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xl mb-4">
                 HeizölDirekt
               </div>
@@ -36,12 +36,12 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Produkte & Service</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/produkte" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/produkte" className="text-gray-300 hover:text-white transition-colors">
                   Heizöl-Produkte
                 </Link>
               </li>
               <li>
-                <Link to="/liefergebiet" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/liefergebiet" className="text-gray-300 hover:text-white transition-colors">
                   Liefergebiete
                 </Link>
               </li>
@@ -51,9 +51,9 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#service" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/service" className="text-gray-300 hover:text-white transition-colors">
                   Qualitätszertifikate
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -63,7 +63,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Kundenservice</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/kontakt" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/kontakt" className="text-gray-300 hover:text-white transition-colors">
                   Kontakt
                 </Link>
               </li>
@@ -73,7 +73,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <Link to="/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/1/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
                   Widerrufsrecht
                 </Link>
               </li>
@@ -115,13 +115,13 @@ const Footer = () => {
               © 2024 HeizölDirekt GmbH. Alle Rechte vorbehalten.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/impressum" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/1/impressum" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Impressum
               </Link>
-              <Link to="/datenschutz" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/1/datenschutz" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Datenschutz
               </Link>
-              <Link to="/agb" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/1/agb" className="text-gray-400 hover:text-white text-sm transition-colors">
                 AGB
               </Link>
             </div>

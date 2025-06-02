@@ -36,6 +36,10 @@ import ServiceV1 from "./pages/v1/Service";
 import ProdukteV1 from "./pages/v1/Produkte";
 import LiefergebietV1 from "./pages/v1/Liefergebiet";
 import KontaktV1 from "./pages/v1/Kontakt";
+import ImpressumV1 from "./pages/v1/Impressum";
+import DatenschutzV1 from "./pages/v1/Datenschutz";
+import AGBV1 from "./pages/v1/AGB";
+import WiderrufsrechtV1 from "./pages/v1/Widerrufsrecht";
 
 // Version 2 pages
 import HomeV2 from "./pages/v2/Home";
@@ -43,6 +47,10 @@ import ServiceV2 from "./pages/v2/Service";
 import ProdukteV2 from "./pages/v2/Produkte";
 import LiefergebietV2 from "./pages/v2/Liefergebiet";
 import KontaktV2 from "./pages/v2/Kontakt";
+import ImpressumV2 from "./pages/v2/Impressum";
+import DatenschutzV2 from "./pages/v2/Datenschutz";
+import AGBV2 from "./pages/v2/AGB";
+import WiderrufsrechtV2 from "./pages/v2/Widerrufsrecht";
 
 const queryClient = new QueryClient();
 
