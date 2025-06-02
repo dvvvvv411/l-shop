@@ -38,10 +38,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
           <SelectItem value="alle">Alle Status</SelectItem>
           <SelectItem value="pending">Neu</SelectItem>
           <SelectItem value="confirmed">Bezahlt</SelectItem>
-          <SelectItem value="shipped">Versandt</SelectItem>
-          <SelectItem value="delivered">Geliefert</SelectItem>
-          <SelectItem value="completed">Abgeschlossen</SelectItem>
-          <SelectItem value="cancelled">Storniert</SelectItem>
+          <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
         </SelectContent>
       </Select>
     </div>
