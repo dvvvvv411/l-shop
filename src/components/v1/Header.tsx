@@ -56,7 +56,7 @@ const Header = () => {
               <img 
                 src="https://i.imgur.com/vX78e29.png" 
                 alt="HeizölDirekt" 
-                className="h-8 md:h-10 w-auto"
+                className="h-12 md:h-15 w-auto"
               />
               <div className="ml-4 hidden md:block">
                 <div className="text-sm text-gray-600">Deutschlands günstigster</div>

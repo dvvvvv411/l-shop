@@ -10,7 +10,7 @@ export interface LogoConfig {
 export const logoConfigs: Record<string, LogoConfig> = {
   '/1/home': {
     name: 'HeizölDirekt',
-    className: 'h-8 md:h-10',
+    className: 'h-12 md:h-15',
     textContent: 'H',
     imageUrl: 'https://i.imgur.com/vX78e29.png',
     useImage: true

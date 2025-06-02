@@ -14,7 +14,7 @@ const Footer = () => {
               <img 
                 src="https://i.imgur.com/vX78e29.png" 
                 alt="HeizölDirekt" 
-                className="h-8 w-auto mb-4"
+                className="h-12 w-auto mb-4"
               />
             </Link>
             <p className="text-gray-300 mb-4">
