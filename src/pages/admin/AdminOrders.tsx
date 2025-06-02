@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText } from 'lucide-react';
@@ -486,7 +485,6 @@ const AdminOrders = () => {
         order={selectedOrder}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
-        onOrderUpdate={selectedOrder ? (updatedData) => handleOrderUpdate(selectedOrder.id, updatedData) : undefined}
       />
 
       {/* Invoice Creation Dialog */}
