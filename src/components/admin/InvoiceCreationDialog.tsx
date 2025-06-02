@@ -98,6 +98,9 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     ? (dailyUsage / selectedBankAccount.daily_limit) * 100 
     : 0;
 
+  // Show 100% when limit is exceeded
+  const displayPercentage = limitExceeded ? 100 : usagePercentage;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -206,11 +209,11 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                     </span>
                   </div>
                   <Progress 
-                    value={usagePercentage} 
+                    value={displayPercentage} 
                     className={`h-2 ${limitExceeded ? '[&_.bg-primary]:bg-orange-500' : ''}`}
                   />
                   <div className="text-xs text-gray-500 text-center">
-                    {usagePercentage.toFixed(1)}% des Tageslimits verwendet
+                    {limitExceeded ? '100' : usagePercentage.toFixed(1)}% des Tageslimits verwendet
                   </div>
                 </div>
                 
