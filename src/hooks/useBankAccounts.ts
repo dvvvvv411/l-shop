@@ -66,6 +66,12 @@ export const useBankAccounts = () => {
     }
   };
 
+  const getBankAccountSystemName = (bankAccountId: string | null) => {
+    if (!bankAccountId) return '-';
+    const bankAccount = bankAccounts.find(ba => ba.id === bankAccountId);
+    return bankAccount ? bankAccount.system_name : 'Unbekannt';
+  };
+
   useEffect(() => {
     fetchBankAccounts();
 
@@ -105,5 +111,6 @@ export const useBankAccounts = () => {
     refetch: fetchBankAccounts,
     getDailyUsage,
     checkDailyLimit,
+    getBankAccountSystemName,
   };
 };

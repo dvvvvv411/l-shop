@@ -64,6 +64,7 @@ export type Database = {
           iban: string
           id: string
           is_default: boolean
+          system_name: string
           updated_at: string
         }
         Insert: {
@@ -75,6 +76,7 @@ export type Database = {
           iban: string
           id?: string
           is_default?: boolean
+          system_name: string
           updated_at?: string
         }
         Update: {
@@ -86,6 +88,7 @@ export type Database = {
           iban?: string
           id?: string
           is_default?: boolean
+          system_name?: string
           updated_at?: string
         }
         Relationships: []

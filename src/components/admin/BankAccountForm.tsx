@@ -30,6 +30,7 @@ interface BankAccount {
   bic: string;
   is_default: boolean;
   daily_limit?: number;
+  system_name: string;
 }
 
 interface BankAccountFormProps {
@@ -45,6 +46,7 @@ interface FormData {
   bic: string;
   is_default: boolean;
   daily_limit: number;
+  system_name: string;
 }
 
 const BankAccountForm: React.FC<BankAccountFormProps> = ({
@@ -63,6 +65,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
       bic: account?.bic || '',
       is_default: account?.is_default || false,
       daily_limit: account?.daily_limit || 0,
+      system_name: account?.system_name || '',
     },
   });
 
@@ -75,6 +78,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         bic: account.bic,
         is_default: account.is_default,
         daily_limit: account.daily_limit || 0,
+        system_name: account.system_name,
       });
     } else {
       form.reset({
@@ -84,6 +88,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         bic: '',
         is_default: false,
         daily_limit: 0,
+        system_name: '',
       });
     }
   }, [account, form]);
@@ -138,6 +143,24 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="system_name"
+              rules={{ required: 'Systemname ist erforderlich' }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Systemname</FormLabel>
+                  <FormControl>
+                    <Input placeholder="z.B. Alpha, Beta, Gamma" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-sm text-gray-500">
+                    Interner Name zur einfachen Identifizierung
+                  </p>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="bank_name"

@@ -22,6 +22,7 @@ interface BankAccount {
   bic: string;
   is_default: boolean;
   daily_limit: number;
+  system_name: string;
   created_at: string;
   updated_at: string;
 }
@@ -181,7 +182,9 @@ const AdminBankAccounts = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {account.bank_name}
+                    <span className="font-bold text-blue-600">{account.system_name}</span>
+                    <span className="text-gray-500">•</span>
+                    <span>{account.bank_name}</span>
                     {account.is_default && (
                       <Badge variant="default" className="bg-green-100 text-green-800">
                         <Star className="h-3 w-3 mr-1" />

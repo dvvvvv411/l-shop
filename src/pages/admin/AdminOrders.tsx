@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone, CreditCard } from 'lucide-react';
@@ -24,7 +25,7 @@ type SortConfig = {
 
 const AdminOrders = () => {
   const { orders, isLoading, updateOrderStatus } = useOrders();
-  const { bankAccounts } = useBankAccounts();
+  const { getBankAccountSystemName } = useBankAccounts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -138,7 +139,6 @@ const AdminOrders = () => {
     const csvContent = [
       headers.join(','),
       ...filteredAndSortedOrders.map(order => {
-        const bankAccount = bankAccounts.find(ba => ba.id === order.bank_account_id);
         return [
           order.order_number,
           new Date(order.created_at).toLocaleDateString('de-DE'),
@@ -150,7 +150,7 @@ const AdminOrders = () => {
           order.liters,
           order.total_amount,
           order.status,
-          bankAccount ? bankAccount.bank_name : '-'
+          getBankAccountSystemName(order.bank_account_id)
         ].join(',');
       })
     ].join('\n');
@@ -170,12 +170,6 @@ const AdminOrders = () => {
     return sortConfig.direction === 'asc' ? 
       <ArrowUp className="h-4 w-4" /> : 
       <ArrowDown className="h-4 w-4" />;
-  };
-
-  const getBankAccountName = (bankAccountId: string | null) => {
-    if (!bankAccountId) return '-';
-    const bankAccount = bankAccounts.find(ba => ba.id === bankAccountId);
-    return bankAccount ? bankAccount.bank_name : 'Unbekannt';
   };
 
   const handleViewOrder = (order: Order) => {
@@ -460,7 +454,9 @@ const AdminOrders = () => {
                           {order.bank_account_id ? (
                             <div className="flex items-center gap-1">
                               <CreditCard className="h-3 w-3 text-gray-400" />
-                              {getBankAccountName(order.bank_account_id)}
+                              <span className="font-medium text-blue-600">
+                                {getBankAccountSystemName(order.bank_account_id)}
+                              </span>
                             </div>
                           ) : (
                             <span className="text-gray-400">-</span>
