@@ -56,8 +56,8 @@ const LogisticsTechnology = () => {
     },
     {
       step: "04",
-      title: "Pünktliche Lieferung",
-      description: "Termingerechte Zustellung mit Bestätigung",
+      title: "Zuverlässige Lieferung",
+      description: "Termingerechte Zustellung in 4-7 Werktagen",
       icon: Clock
     }
   ];

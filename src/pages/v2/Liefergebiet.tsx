@@ -5,13 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/v2/Header';
 import Footer from '../../components/v2/Footer';
 import DeliveryMap from '../../components/DeliveryMap';
-import DeliveryZoneExplorer from '../../components/v2/DeliveryZoneExplorer';
-import ServiceGuarantees from '../../components/v2/ServiceGuarantees';
 import LogisticsTechnology from '../../components/v2/LogisticsTechnology';
-import ExpressServiceInfo from '../../components/v2/ExpressServiceInfo';
-import PriceTransparency from '../../components/v2/PriceTransparency';
-import EnvironmentalSustainability from '../../components/v2/EnvironmentalSustainability';
-import { MapPin, Clock, Truck, Euro, Shield, Users, CheckCircle, ArrowRight, Phone, Mail } from 'lucide-react';
+import { MapPin, Clock, Truck, Shield, CheckCircle, ArrowRight, Phone, Mail } from 'lucide-react';
 
 const Liefergebiet = () => {
   const navigate = useNavigate();
@@ -24,14 +19,14 @@ const Liefergebiet = () => {
   };
 
   const heroFeatures = [
-    { icon: Clock, text: "Express-Lieferung 2-5 Tage", color: "blue" },
+    { icon: Clock, text: "Lieferung 4-7 Werktage", color: "blue" },
     { icon: Shield, text: "100% Qualitätsgarantie", color: "emerald" },
     { icon: Truck, text: "Deutschlandweit verfügbar", color: "slate" }
   ];
 
   const quickStats = [
     { number: "500+", label: "Städte erreicht", icon: MapPin },
-    { number: "48h", label: "Durchschnittliche Lieferzeit", icon: Clock },
+    { number: "4-7", label: "Werktage Lieferzeit", icon: Clock },
     { number: "99.7%", label: "Pünktlichkeitsrate", icon: CheckCircle }
   ];
 
@@ -58,8 +53,8 @@ const Liefergebiet = () => {
               Unser <span className="font-semibold text-blue-600">Liefernetzwerk</span>
             </h1>
             <p className="text-xl text-slate-600 max-w-4xl mx-auto mb-8">
-              Professionelle Heizöl-Lieferung in ganz Deutschland mit Express-Service, 
-              modernster Logistik und persönlicher Betreuung für höchste Kundenzufriedenheit.
+              Professionelle Heizöl-Lieferung in ganz Deutschland mit zuverlässiger Logistik 
+              und persönlicher Betreuung für höchste Kundenzufriedenheit.
             </p>
 
             {/* Hero Features */}
@@ -131,23 +126,8 @@ const Liefergebiet = () => {
         </div>
       </section>
 
-      {/* Delivery Zone Explorer */}
-      <DeliveryZoneExplorer />
-
-      {/* Service Guarantees */}
-      <ServiceGuarantees />
-
-      {/* Express Service Information */}
-      <ExpressServiceInfo />
-
       {/* Logistics Technology */}
       <LogisticsTechnology />
-
-      {/* Price Transparency */}
-      <PriceTransparency />
-
-      {/* Environmental Sustainability */}
-      <EnvironmentalSustainability />
 
       {/* Enhanced CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 text-white relative overflow-hidden">
@@ -164,7 +144,7 @@ const Liefergebiet = () => {
             </h2>
             <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
               Geben Sie Ihre Postleitzahl ein und erfahren Sie sofort, 
-              wie schnell wir Premium-Heizöl zu Ihnen liefern können.
+              ob wir Premium-Heizöl zu Ihnen liefern können.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto mb-12">
