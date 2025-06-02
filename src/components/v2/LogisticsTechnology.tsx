@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, Smartphone, MapPin, Clock, Wifi, Database, Shield, CheckCircle, Zap, Globe, Monitor } from 'lucide-react';
+import { Truck, Smartphone, MapPin, Clock, Wifi, Database, Shield, CheckCircle, Zap, Globe, Monitor, Calculator, CreditCard, ShoppingCart } from 'lucide-react';
 
 const LogisticsTechnology = () => {
   const technologies = [
@@ -41,30 +41,30 @@ const LogisticsTechnology = () => {
   const processSteps = [
     {
       step: "01",
-      title: "Bestellungseingang",
-      description: "Automatische Verarbeitung und Bestätigung",
-      icon: CheckCircle,
+      title: "Preiskalkulation",
+      description: "Ermitteln Sie Ihren individuellen Heizöl-Preis mit unserem Online-Rechner",
+      icon: Calculator,
       color: "blue"
     },
     {
       step: "02", 
-      title: "Routenoptimierung",
-      description: "KI-basierte Planung der effizientesten Route",
-      icon: MapPin,
+      title: "Bestellung aufgeben",
+      description: "Schnelle und sichere Online-Bestellung in wenigen Klicks",
+      icon: ShoppingCart,
       color: "emerald"
     },
     {
       step: "03",
-      title: "Live-Tracking",
-      description: "Echtzeit-Verfolgung während der Anfahrt",
-      icon: Wifi,
+      title: "Sichere Bezahlung",
+      description: "Flexible Zahlungsoptionen für Ihre Bequemlichkeit",
+      icon: CreditCard,
       color: "purple"
     },
     {
       step: "04",
-      title: "Zuverlässige Lieferung",
-      description: "Termingerechte Zustellung in 4-7 Werktagen",
-      icon: Clock,
+      title: "Pünktliche Lieferung",
+      description: "Zuverlässige Zustellung direkt zu Ihnen nach Hause",
+      icon: Truck,
       color: "orange"
     }
   ];
@@ -134,7 +134,7 @@ const LogisticsTechnology = () => {
           className="max-w-6xl mx-auto bg-white/60 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-slate-200/50 shadow-xl"
         >
           <h3 className="text-3xl font-light text-center text-slate-800 mb-12">
-            Ihr Lieferprozess im <span className="font-semibold text-blue-600">Detail</span>
+            So einfach bestellen Sie <span className="font-semibold text-blue-600">Ihr Heizöl</span>
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
