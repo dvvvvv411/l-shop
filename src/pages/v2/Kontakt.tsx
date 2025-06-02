@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock, MessageCircle, Users } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Users } from 'lucide-react';
 import Header from '../../components/v2/Header';
 import Footer from '../../components/v2/Footer';
 
@@ -20,13 +19,6 @@ const Kontakt = () => {
       info: "kontakt@oilexpress.de",
       description: "Antwort binnen 2 Stunden während der Geschäftszeiten",
       action: "E-Mail senden"
-    },
-    {
-      icon: MessageCircle,
-      title: "Live Chat",
-      info: "Sofortige Hilfe",
-      description: "Direkter Chat mit unseren Experten",
-      action: "Chat starten"
     }
   ];
 
@@ -95,7 +87,7 @@ const Kontakt = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {contactMethods.map((method, index) => (
               <motion.div
                 key={index}
