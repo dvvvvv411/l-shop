@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Smartphone, Monitor, Bell, BarChart3, Calendar, QrCode, Wifi } from 'lucide-react';
+import { Calculator, ShoppingCart, CreditCard, Truck, Bell, BarChart3, Calendar, QrCode, Wifi } from 'lucide-react';
 
 const DigitalServices = () => {
   const innovationStats = [
@@ -28,27 +27,27 @@ const DigitalServices = () => {
   const digitalSteps = [
     {
       step: "01",
-      title: "App Download",
-      description: "Kostenlose App aus dem Store herunterladen",
-      icon: Smartphone
+      title: "Preis berechnen",
+      description: "Kostenlos und unverbindlich den aktuellen Heizölpreis ermitteln",
+      icon: Calculator
     },
     {
       step: "02",
-      title: "Account erstellen",
-      description: "Schnelle Registrierung mit Ihren Daten",
-      icon: Monitor
+      title: "Heizöl bestellen",
+      description: "Gewünschte Menge auswählen und Bestellung aufgeben",
+      icon: ShoppingCart
     },
     {
       step: "03",
-      title: "Heizöl bestellen",
-      description: "Mit wenigen Klicks zur optimalen Bestellung",
-      icon: QrCode
+      title: "Bestellung bezahlen",
+      description: "Sichere Bezahlung per Überweisung oder Kreditkarte",
+      icon: CreditCard
     },
     {
       step: "04",
-      title: "Live verfolgen",
-      description: "Lieferung in Echtzeit verfolgen und verwalten",
-      icon: Bell
+      title: "Lieferung erhalten",
+      description: "Pünktliche Lieferung direkt zu Ihnen nach Hause",
+      icon: Truck
     }
   ];
 
@@ -63,9 +62,9 @@ const DigitalServices = () => {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center bg-gradient-to-r from-purple-100 to-blue-100 text-slate-700 px-6 py-3 rounded-full text-sm font-medium mb-6">
-            <Smartphone size={16} className="mr-2 text-purple-600" />
+            <Calculator size={16} className="mr-2 text-purple-600" />
             Digitale Innovation
-            <Monitor size={14} className="ml-2 text-blue-600" />
+            <Bell size={14} className="ml-2 text-blue-600" />
           </div>
           <h2 className="text-4xl md:text-5xl font-light text-slate-800 mb-6">
             Digitale <span className="font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Services</span>
