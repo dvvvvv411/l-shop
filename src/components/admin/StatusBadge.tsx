@@ -12,7 +12,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
       case 'pending':
         return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
       case 'confirmed':
-        return 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200';
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
       case 'invoice_created':
         return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
       case 'shipped':
@@ -22,7 +22,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
       case 'Neu':
         return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
       case 'Bezahlt':
-        return 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200';
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
       case 'Rechnung erstellt':
         return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
       case 'Versandt':
