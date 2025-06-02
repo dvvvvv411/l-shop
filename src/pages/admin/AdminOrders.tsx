@@ -387,7 +387,7 @@ const AdminOrders = () => {
                         {getSortIcon('status')}
                       </div>
                     </TableHead>
-                    <TableHead>Aktionen</TableHead>
+                    <TableHead className="min-w-[140px]">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -439,16 +439,14 @@ const AdminOrders = () => {
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <div className="flex gap-1">
-                          <OrderTableActions
-                            order={order}
-                            onViewOrder={handleViewOrder}
-                            onGenerateInvoice={handleGenerateInvoice}
-                            onViewInvoice={handleViewInvoice}
-                            onMarkAsPaid={handleMarkAsPaidFromTable}
-                          />
-                        </div>
+                      <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px]">
+                        <OrderTableActions
+                          order={order}
+                          onViewOrder={handleViewOrder}
+                          onGenerateInvoice={handleGenerateInvoice}
+                          onViewInvoice={handleViewInvoice}
+                          onMarkAsPaid={handleMarkAsPaidFromTable}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
