@@ -338,6 +338,7 @@ export type Database = {
           liters: number
           notes: string | null
           order_number: string
+          origin_domain: string | null
           payment_method: string | null
           price_per_liter: number
           processed_by: string | null
@@ -381,6 +382,7 @@ export type Database = {
           liters: number
           notes?: string | null
           order_number: string
+          origin_domain?: string | null
           payment_method?: string | null
           price_per_liter: number
           processed_by?: string | null
@@ -424,6 +426,7 @@ export type Database = {
           liters?: number
           notes?: string | null
           order_number?: string
+          origin_domain?: string | null
           payment_method?: string | null
           price_per_liter?: number
           processed_by?: string | null

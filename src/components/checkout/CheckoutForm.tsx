@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -135,6 +136,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     try {
       const finalPrice = orderData.totalPrice;
 
+      // Capture the origin domain
+      const originDomain = window.location.hostname;
+
       // Create order data for database
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
@@ -163,7 +167,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
         discount: 0,
         total_amount: finalPrice,
         delivery_date_display: '4-7 Werktage',
-        status: 'pending'
+        status: 'pending',
+        origin_domain: originDomain
       };
 
       console.log('Sending order data to database:', dbOrderData);

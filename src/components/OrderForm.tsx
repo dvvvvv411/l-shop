@@ -184,6 +184,9 @@ const OrderForm = () => {
       // Calculate final price
       const finalPrice = orderData.totalPrice;
 
+      // Capture the origin domain
+      const originDomain = window.location.hostname;
+
       // Create order data for database using the calculator data
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
@@ -213,7 +216,8 @@ const OrderForm = () => {
         discount: 0,
         total_amount: finalPrice,
         delivery_date_display: '4-7 Werktage',
-        status: 'pending'
+        status: 'pending',
+        origin_domain: originDomain
       };
       console.log('Sending order data to database:', dbOrderData);
 

@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone, CreditCard } from 'lucide-react';
+import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone, CreditCard, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -135,7 +134,7 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto'];
+    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto', 'Domain'];
     const csvContent = [
       headers.join(','),
       ...filteredAndSortedOrders.map(order => {
@@ -150,7 +149,8 @@ const AdminOrders = () => {
           order.liters,
           order.total_amount,
           order.status,
-          getBankAccountSystemName(order.bank_account_id)
+          getBankAccountSystemName(order.bank_account_id),
+          order.origin_domain || ''
         ].join(',');
       })
     ].join('\n');
@@ -391,6 +391,12 @@ const AdminOrders = () => {
                         Bankkonto
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[100px]">
+                      <div className="flex items-center gap-1">
+                        <Globe className="h-4 w-4" />
+                        Domain
+                      </div>
+                    </TableHead>
                     <TableHead 
                       className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
                       onClick={() => handleSort('status')}
@@ -456,6 +462,20 @@ const AdminOrders = () => {
                               <CreditCard className="h-3 w-3 text-gray-400" />
                               <span className="font-medium text-blue-600">
                                 {getBankAccountSystemName(order.bank_account_id)}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {order.origin_domain ? (
+                            <div className="flex items-center gap-1">
+                              <Globe className="h-3 w-3 text-gray-400" />
+                              <span className="font-medium text-green-600">
+                                {order.origin_domain}
                               </span>
                             </div>
                           ) : (
