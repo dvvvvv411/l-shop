@@ -31,6 +31,7 @@ serve(async (req) => {
       .single()
 
     if (orderError || !order) {
+      console.error('Order fetch error:', orderError);
       throw new Error('Order not found')
     }
 
@@ -44,6 +45,7 @@ serve(async (req) => {
         .single()
 
       if (shopError || !shopData) {
+        console.error('Shop fetch error:', shopError);
         throw new Error('Shop not found')
       }
       shop = shopData
@@ -59,6 +61,7 @@ serve(async (req) => {
         .single()
 
       if (bankError || !bankData) {
+        console.error('Bank account fetch error:', bankError);
         throw new Error('Bank account not found')
       }
       bankAccount = bankData
@@ -71,6 +74,7 @@ serve(async (req) => {
         .rpc('generate_invoice_number')
 
       if (invoiceGenError || !invoiceGen) {
+        console.error('Invoice number generation error:', invoiceGenError);
         throw new Error('Failed to generate invoice number')
       }
       invoiceNumber = invoiceGen
@@ -82,8 +86,13 @@ serve(async (req) => {
     // Convert HTML to PDF using Puppeteer
     const pdfBuffer = await generatePDF(htmlContent)
 
-    // Store PDF in Supabase Storage
-    const fileName = `${order.order_number}_${invoiceNumber}.pdf`
+    // Store PDF in Supabase Storage - sanitize filename
+    const sanitizedOrderNumber = order.order_number.replace(/[^a-zA-Z0-9_-]/g, '_')
+    const sanitizedInvoiceNumber = invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, '_')
+    const fileName = `${sanitizedOrderNumber}_${sanitizedInvoiceNumber}.pdf`
+    
+    console.log('Uploading PDF with filename:', fileName);
+    
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from('invoices')
       .upload(fileName, pdfBuffer, {
@@ -102,6 +111,99 @@ serve(async (req) => {
       .getPublicUrl(fileName)
 
     const fileUrl = urlData.publicUrl
+    const currentDate = new Date().toISOString().split('T')[0]
+
+    console.log('Starting database transaction...');
+
+    // Start a transaction-like approach by doing operations in order with proper error handling
+    try {
+      // 1. Update the order with bank account if provided
+      if (bankAccountId) {
+        const { error: bankUpdateError } = await supabaseClient
+          .from('orders')
+          .update({ bank_account_id: bankAccountId })
+          .eq('id', orderId);
+
+        if (bankUpdateError) {
+          console.error('Error updating order with bank account:', bankUpdateError);
+          throw new Error('Failed to update order with bank account');
+        }
+      }
+
+      // 2. Create invoice record
+      console.log('Creating invoice record...');
+      const { error: invoiceRecordError } = await supabaseClient
+        .from('invoices')
+        .insert({
+          order_id: orderId,
+          invoice_number: invoiceNumber,
+          invoice_date: currentDate,
+          file_name: fileName,
+          file_url: fileUrl
+        });
+
+      if (invoiceRecordError) {
+        console.error('Error creating invoice record:', invoiceRecordError);
+        throw new Error('Failed to create invoice record');
+      }
+
+      console.log('Invoice record created successfully');
+
+      // 3. Create bank account transaction record if applicable
+      if (bankAccountId && order.total_amount) {
+        console.log('Creating bank account transaction...');
+        const { error: transactionError } = await supabaseClient
+          .from('bank_account_transactions')
+          .insert({
+            bank_account_id: bankAccountId,
+            order_id: orderId,
+            amount: order.total_amount,
+            transaction_date: currentDate
+          });
+
+        if (transactionError) {
+          console.error('Error creating transaction record:', transactionError);
+          throw new Error('Failed to create transaction record');
+        }
+
+        console.log('Bank account transaction created successfully');
+      }
+
+      // 4. Update order status and invoice information
+      console.log('Updating order status...');
+      const { error: statusUpdateError } = await supabaseClient
+        .from('orders')
+        .update({ 
+          status: 'invoice_created',
+          invoice_number: invoiceNumber,
+          invoice_date: currentDate,
+          invoice_file_url: fileUrl,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (statusUpdateError) {
+        console.error('Error updating order status:', statusUpdateError);
+        throw new Error('Failed to update order status');
+      }
+
+      console.log('Order status updated successfully');
+
+    } catch (dbError) {
+      console.error('Database operation failed:', dbError);
+      
+      // Clean up uploaded file if database operations failed
+      try {
+        await supabaseClient.storage
+          .from('invoices')
+          .remove([fileName]);
+        console.log('Cleaned up uploaded file after database error');
+      } catch (cleanupError) {
+        console.error('Failed to clean up uploaded file:', cleanupError);
+      }
+      
+      throw dbError;
+    }
 
     console.log('Invoice generated successfully for order:', orderId);
 
@@ -112,7 +214,14 @@ serve(async (req) => {
         invoiceAmount: order.total_amount,
         htmlContent,
         fileUrl,
-        fileName
+        fileName,
+        // Return updated order data for frontend
+        updatedOrder: {
+          status: 'invoice_created',
+          invoice_number: invoiceNumber,
+          invoice_date: currentDate,
+          invoice_file_url: fileUrl
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
