@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Eye, Receipt, CheckCircle, FileText } from 'lucide-react';
+import { Eye, Receipt, CheckCircle, FileText, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 
 interface OrderTableActionsProps {
@@ -10,6 +10,8 @@ interface OrderTableActionsProps {
   onGenerateInvoice: (order: Order) => void;
   onViewInvoice: (order: Order) => void;
   onMarkAsPaid?: (order: Order) => void;
+  onMarkAsExchanged?: (order: Order) => void;
+  onMarkAsDown?: (order: Order) => void;
 }
 
 const OrderTableActions: React.FC<OrderTableActionsProps> = ({
@@ -18,10 +20,24 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
   onGenerateInvoice,
   onViewInvoice,
   onMarkAsPaid,
+  onMarkAsExchanged,
+  onMarkAsDown,
 }) => {
   const handleMarkAsPaid = () => {
     if (onMarkAsPaid) {
       onMarkAsPaid(order);
+    }
+  };
+
+  const handleMarkAsExchanged = () => {
+    if (onMarkAsExchanged) {
+      onMarkAsExchanged(order);
+    }
+  };
+
+  const handleMarkAsDown = () => {
+    if (onMarkAsDown) {
+      onMarkAsDown(order);
     }
   };
 
@@ -59,6 +75,32 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
           className="h-7 w-7 p-0 text-green-700 hover:text-green-800 hover:bg-green-50 flex-shrink-0"
         >
           <CheckCircle className="h-3 w-3" />
+        </Button>
+      )}
+
+      {/* Mark as Exchanged - Only when status is confirmed */}
+      {order.status === 'confirmed' && (
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={handleMarkAsExchanged}
+          title="Als Exchanged markieren"
+          className="h-7 w-7 p-0 text-green-700 hover:text-green-800 hover:bg-green-50 flex-shrink-0"
+        >
+          <ArrowUpDown className="h-3 w-3" />
+        </Button>
+      )}
+
+      {/* Mark as Down - Only when status is confirmed */}
+      {order.status === 'confirmed' && (
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={handleMarkAsDown}
+          title="Als Down markieren"
+          className="h-7 w-7 p-0 text-red-700 hover:text-red-800 hover:bg-red-50 flex-shrink-0"
+        >
+          <ArrowDown className="h-3 w-3" />
         </Button>
       )}
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Phone, CreditCard, Globe, Copy, Clock } from 'lucide-react';
@@ -237,6 +236,32 @@ const AdminOrders = () => {
     }
   };
 
+  const handleMarkAsExchangedFromTable = async (order: Order) => {
+    try {
+      await updateOrderStatus(order.id, 'exchanged');
+      // Update local state with new status and update latest_status_change
+      const now = new Date().toISOString();
+      setLocalOrders(prev => prev.map(o => 
+        o.id === order.id ? { ...o, status: 'exchanged', latest_status_change: now } : o
+      ));
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
+  const handleMarkAsDownFromTable = async (order: Order) => {
+    try {
+      await updateOrderStatus(order.id, 'down');
+      // Update local state with new status and update latest_status_change
+      const now = new Date().toISOString();
+      setLocalOrders(prev => prev.map(o => 
+        o.id === order.id ? { ...o, status: 'down', latest_status_change: now } : o
+      ));
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -363,7 +388,7 @@ const AdminOrders = () => {
                     <TableHead className="min-w-[90px]">
                       Status
                     </TableHead>
-                    <TableHead className="min-w-[140px] pr-4">Aktionen</TableHead>
+                    <TableHead className="min-w-[180px] pr-4">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -459,13 +484,15 @@ const AdminOrders = () => {
                         <TableCell>
                           <StatusBadge status={order.status} />
                         </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[140px] pr-4">
+                        <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[180px] pr-4">
                           <OrderTableActions
                             order={order}
                             onViewOrder={handleViewOrder}
                             onGenerateInvoice={handleGenerateInvoice}
                             onViewInvoice={handleViewInvoice}
                             onMarkAsPaid={handleMarkAsPaidFromTable}
+                            onMarkAsExchanged={handleMarkAsExchangedFromTable}
+                            onMarkAsDown={handleMarkAsDownFromTable}
                           />
                         </TableCell>
                       </TableRow>

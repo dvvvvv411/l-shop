@@ -39,6 +39,8 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
           <SelectItem value="pending">Neu</SelectItem>
           <SelectItem value="confirmed">Bezahlt</SelectItem>
           <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
+          <SelectItem value="exchanged">Exchanged</SelectItem>
+          <SelectItem value="down">Down</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -19,6 +19,10 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
         return 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200';
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+      case 'exchanged':
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+      case 'down':
+        return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
       case 'Neu':
         return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
       case 'Bezahlt':
@@ -46,6 +50,10 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
         return 'Versandt';
       case 'completed':
         return 'Abgeschlossen';
+      case 'exchanged':
+        return 'Exchanged';
+      case 'down':
+        return 'Down';
       default:
         return status;
     }

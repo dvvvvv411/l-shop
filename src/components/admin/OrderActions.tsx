@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -66,6 +66,14 @@ const OrderActions: React.FC<OrderActionsProps> = ({
 
   const handleMarkAsPaid = async () => {
     await handleStatusChange('confirmed');
+  };
+
+  const handleMarkAsExchanged = async () => {
+    await handleStatusChange('exchanged');
+  };
+
+  const handleMarkAsDown = async () => {
+    await handleStatusChange('down');
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -143,6 +151,8 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               <SelectItem value="invoice_created">Rechnung erstellt</SelectItem>
               <SelectItem value="shipped">Versandt</SelectItem>
               <SelectItem value="completed">Abgeschlossen</SelectItem>
+              <SelectItem value="exchanged">Exchanged</SelectItem>
+              <SelectItem value="down">Down</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -171,6 +181,26 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               <CheckCircle className="h-4 w-4 mr-2" />
               Als bezahlt markieren
             </Button>
+          )}
+          {currentStatus === 'confirmed' && (
+            <>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+                onClick={handleMarkAsExchanged}
+              >
+                <ArrowUpDown className="h-4 w-4 mr-2" />
+                Als Exchanged markieren
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
+                onClick={handleMarkAsDown}
+              >
+                <ArrowDown className="h-4 w-4 mr-2" />
+                Als Down markieren
+              </Button>
+            </>
           )}
           {(order.invoice_file_url && order.invoice_number) && (
             <Button

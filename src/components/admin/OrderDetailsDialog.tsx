@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Receipt, Eye, CheckCircle, Globe } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
@@ -90,6 +90,34 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     }
   };
 
+  const handleMarkAsExchanged = async () => {
+    if (onStatusChange) {
+      const oldStatus = order.status;
+      onStatusChange(order.id, 'exchanged');
+      
+      // Log the status change
+      try {
+        await addStatusChange(oldStatus, 'exchanged');
+      } catch (error) {
+        console.error('Failed to log status change:', error);
+      }
+    }
+  };
+
+  const handleMarkAsDown = async () => {
+    if (onStatusChange) {
+      const oldStatus = order.status;
+      onStatusChange(order.id, 'down');
+      
+      // Log the status change
+      try {
+        await addStatusChange(oldStatus, 'down');
+      } catch (error) {
+        console.error('Failed to log status change:', error);
+      }
+    }
+  };
+
   const handleStatusChange = async (newStatus: string) => {
     if (onStatusChange) {
       const oldStatus = order.status;
@@ -146,6 +174,26 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Als bezahlt markieren
                     </Button>
+                  )}
+                  {order.status === 'confirmed' && (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-green-700 border-green-200 hover:bg-green-50"
+                        onClick={handleMarkAsExchanged}
+                      >
+                        <ArrowUpDown className="h-4 w-4 mr-2" />
+                        Als Exchanged markieren
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
+                        onClick={handleMarkAsDown}
+                      >
+                        <ArrowDown className="h-4 w-4 mr-2" />
+                        Als Down markieren
+                      </Button>
+                    </>
                   )}
                   {(order.invoice_file_url && order.invoice_number) && (
                     <Button
