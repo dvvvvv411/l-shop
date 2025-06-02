@@ -2,13 +2,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v2/Header';
-import PriceCalculator from '../../components/PriceCalculator';
-import TrustElements from '../../components/TrustElements';
-import StatsSection from '../../components/StatsSection';
-import ProductComparison from '../../components/ProductComparison';
-import WhyChooseUs from '../../components/WhyChooseUs';
-import HowItWorks from '../../components/HowItWorks';
-import FAQ from '../../components/FAQ';
+import PriceCalculator from '../../components/v2/PriceCalculator';
+import TrustElements from '../../components/v2/TrustElements';
+import StatsSection from '../../components/v2/StatsSection';
+import ProductComparison from '../../components/v2/ProductComparison';
+import WhyChooseUs from '../../components/v2/WhyChooseUs';
+import HowItWorks from '../../components/v2/HowItWorks';
+import FAQ from '../../components/v2/FAQ';
 import Footer from '../../components/Footer';
 import { Zap, Award } from 'lucide-react';
 
