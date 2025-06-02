@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, Clock, Headphones, AlertTriangle, Zap } from 'lucide-react';
+import { Phone, Mail, Clock, Headphones, Zap } from 'lucide-react';
 
 const CustomerSupport = () => {
   const supportFeatures = [
@@ -19,14 +20,6 @@ const CustomerSupport = () => {
       details: ["24h Antwortzeit", "Dateianhänge möglich", "Vollständige Nachverfolgung"],
       color: "emerald",
       gradient: "from-emerald-500 to-green-500"
-    },
-    {
-      icon: AlertTriangle,
-      title: "Notfall-Service",
-      description: "Spezielle Notfall-Hotline für dringende Heizöl-Lieferungen",
-      details: ["Express-Lieferung", "Wochenend-Service", "Feiertags-Verfügbarkeit"],
-      color: "orange",
-      gradient: "from-orange-500 to-red-500"
     },
     {
       icon: Headphones,
@@ -52,13 +45,6 @@ const CustomerSupport = () => {
       contact: "support@oilexpress.de",
       availability: "24h Antwortzeit",
       color: "emerald"
-    },
-    {
-      icon: AlertTriangle,
-      method: "Notfall-Hotline",
-      contact: "0800 123 456 7",
-      availability: "Immer erreichbar",
-      color: "orange"
     }
   ];
 
@@ -93,7 +79,7 @@ const CustomerSupport = () => {
         </motion.div>
 
         {/* Support Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
           {supportFeatures.map((feature, index) => (
             <motion.div
               key={index}
@@ -134,7 +120,7 @@ const CustomerSupport = () => {
             Kontaktieren Sie uns <span className="font-semibold text-blue-600">sofort</span>
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {contactMethods.map((method, index) => (
               <div key={index} className="text-center group">
                 <div className={`inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-${method.color}-500 to-${method.color}-600 rounded-xl mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
