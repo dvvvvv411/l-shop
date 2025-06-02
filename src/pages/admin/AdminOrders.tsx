@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText, ExternalLink } from 'lucide-react';
+import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,9 @@ import BulkActions from '@/components/admin/BulkActions';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
 import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
 import InvoiceViewerDialog from '@/components/admin/InvoiceViewerDialog';
+import OrderTableActions from '@/components/admin/OrderTableActions';
 import { useOrders, Order } from '@/hooks/useOrders';
+import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 type SortConfig = {
   key: keyof Order;
@@ -229,6 +231,18 @@ const AdminOrders = () => {
     }
   };
 
+  const handleMarkAsPaidFromTable = async (order: Order) => {
+    try {
+      await updateOrderStatus(order.id, 'confirmed');
+      // Update local state
+      setLocalOrders(prev => prev.map(o => 
+        o.id === order.id ? { ...o, status: 'confirmed' } : o
+      ));
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -427,42 +441,13 @@ const AdminOrders = () => {
                       </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <div className="flex gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleViewOrder(order)}
-                            title="Bestellung anzeigen"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleGenerateInvoice(order)}
-                            title="Rechnung erstellen"
-                          >
-                            <Receipt className="h-4 w-4" />
-                          </Button>
-                          {(order.invoice_file_url && order.invoice_number) && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleViewInvoice(order)}
-                              title="Rechnung anzeigen"
-                            >
-                              <FileText className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {order.invoice_file_url && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleViewPDF(order)}
-                              title="PDF anzeigen"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          )}
+                          <OrderTableActions
+                            order={order}
+                            onViewOrder={handleViewOrder}
+                            onGenerateInvoice={handleGenerateInvoice}
+                            onViewInvoice={handleViewInvoice}
+                            onMarkAsPaid={handleMarkAsPaidFromTable}
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
