@@ -84,6 +84,15 @@ const CheckoutLayout = () => {
     }
   }, [navigate, toast]);
 
+  const handleBack = () => {
+    // Try to go back in history, fallback to homepage if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/1/home');
+    }
+  };
+
   const handleOrderSuccess = (generatedOrderNumber: string) => {
     setOrderNumber(generatedOrderNumber);
     setCurrentStep('confirmation');
@@ -138,6 +147,18 @@ const CheckoutLayout = () => {
       {/* Left Column - Form (Shopify style) */}
       <div className="lg:col-span-7 order-2 lg:order-1">
         <div className="bg-white lg:bg-transparent">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="text-gray-600 hover:text-gray-900 p-0 h-auto font-normal"
+            >
+              <ArrowLeft size={18} className="mr-2" />
+              Zurück
+            </Button>
+          </div>
+
           {/* Breadcrumb using shadcn/ui component */}
           <div className="hidden lg:block mb-8">
             <Breadcrumb>
