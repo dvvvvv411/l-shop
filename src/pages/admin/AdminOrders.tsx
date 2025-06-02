@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, ArrowUpDown, ArrowUp, ArrowDown, Phone, CreditCard, Globe } from 'lucide-react';
+import { Download, Phone, CreditCard, Globe, Copy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -16,11 +17,7 @@ import OrderTableActions from '@/components/admin/OrderTableActions';
 import { useOrders, Order } from '@/hooks/useOrders';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
-
-type SortConfig = {
-  key: keyof Order;
-  direction: 'asc' | 'desc';
-};
+import { useToast } from '@/hooks/use-toast';
 
 const AdminOrders = () => {
   const { orders, isLoading, updateOrderStatus } = useOrders();
@@ -29,7 +26,6 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('alle');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'created_at', direction: 'desc' });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
@@ -37,6 +33,7 @@ const AdminOrders = () => {
   const [selectedOrderForInvoiceView, setSelectedOrderForInvoiceView] = useState<Order | null>(null);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
   const [localOrders, setLocalOrders] = useState<Order[]>([]);
+  const { toast } = useToast();
   const ordersPerPage = 20;
 
   // Use local orders state if available, otherwise use orders from hook
@@ -47,9 +44,9 @@ const AdminOrders = () => {
     setLocalOrders(orders);
   }, [orders]);
 
-  // Filter and sort orders
-  const filteredAndSortedOrders = useMemo(() => {
-    let filtered = displayOrders.filter(order => {
+  // Filter orders (no sorting functionality)
+  const filteredOrders = useMemo(() => {
+    return displayOrders.filter(order => {
       const matchesSearch = 
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,46 +57,17 @@ const AdminOrders = () => {
       
       return matchesSearch && matchesStatus;
     });
-
-    // Sort orders
-    filtered.sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
-
-      // Handle date sorting specially
-      if (sortConfig.key === 'created_at') {
-        aValue = new Date(a.created_at).getTime();
-        bValue = new Date(b.created_at).getTime();
-      }
-
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    return filtered;
-  }, [displayOrders, searchTerm, statusFilter, sortConfig]);
+  }, [displayOrders, searchTerm, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredAndSortedOrders.length / ordersPerPage);
-  const paginatedOrders = filteredAndSortedOrders.slice(
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const paginatedOrders = filteredOrders.slice(
     (currentPage - 1) * ordersPerPage,
     currentPage * ordersPerPage
   );
 
   // New orders count (using 'pending' instead of 'Neu')
   const newOrdersCount = displayOrders.filter(order => order.status === 'pending').length;
-
-  const handleSort = (key: keyof Order) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -134,13 +102,14 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Bestellnummer', 'Datum', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto', 'Domain'];
+    // Updated headers to match new column order: Date first, then others
+    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Status', 'Bankkonto', 'Domain'];
     const csvContent = [
       headers.join(','),
-      ...filteredAndSortedOrders.map(order => {
+      ...filteredOrders.map(order => {
         return [
-          order.order_number,
           new Date(order.created_at).toLocaleDateString('de-DE'),
+          order.order_number,
           order.customer_name,
           order.customer_phone || '',
           order.delivery_postcode || '',
@@ -161,15 +130,6 @@ const AdminOrders = () => {
     a.href = url;
     a.download = 'bestellungen.csv';
     a.click();
-  };
-
-  const getSortIcon = (key: keyof Order) => {
-    if (sortConfig.key !== key) {
-      return <ArrowUpDown className="h-4 w-4" />;
-    }
-    return sortConfig.direction === 'asc' ? 
-      <ArrowUp className="h-4 w-4" /> : 
-      <ArrowDown className="h-4 w-4" />;
   };
 
   const handleViewOrder = (order: Order) => {
@@ -205,6 +165,26 @@ const AdminOrders = () => {
   const handleViewPDF = (order: Order) => {
     if (order.invoice_file_url) {
       window.open(order.invoice_file_url, '_blank');
+    }
+  };
+
+  // Function to copy phone number to clipboard
+  const handleCopyPhone = async (phone: string | null) => {
+    if (!phone) return;
+    
+    try {
+      await navigator.clipboard.writeText(phone);
+      toast({
+        title: "Kopiert",
+        description: "Telefonnummer wurde in die Zwischenablage kopiert.",
+      });
+    } catch (error) {
+      console.error('Failed to copy phone number:', error);
+      toast({
+        title: "Fehler",
+        description: "Telefonnummer konnte nicht kopiert werden.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -313,7 +293,7 @@ const AdminOrders = () => {
           <CardHeader>
             <CardTitle>Bestellübersicht</CardTitle>
             <CardDescription>
-              {filteredAndSortedOrders.length} von {displayOrders.length} Bestellungen
+              {filteredOrders.length} von {displayOrders.length} Bestellungen
               {currentPage > 1 && ` (Seite ${currentPage} von ${totalPages})`}
             </CardDescription>
           </CardHeader>
@@ -328,62 +308,28 @@ const AdminOrders = () => {
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[120px]"
-                      onClick={() => handleSort('order_number')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Bestellnummer
-                        {getSortIcon('order_number')}
-                      </div>
+                    <TableHead className="min-w-[100px]">
+                      Datum
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[100px]"
-                      onClick={() => handleSort('created_at')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Datum
-                        {getSortIcon('created_at')}
-                      </div>
+                    <TableHead className="min-w-[120px]">
+                      Bestellnummer
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[140px]"
-                      onClick={() => handleSort('customer_name')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Kunde
-                        {getSortIcon('customer_name')}
-                      </div>
+                    <TableHead className="min-w-[140px]">
+                      Kunde
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[110px]"
-                      onClick={() => handleSort('customer_phone')}
-                    >
+                    <TableHead className="min-w-[110px]">
                       <div className="flex items-center gap-1">
                         <Phone className="h-4 w-4" />
                         Telefon
-                        {getSortIcon('customer_phone')}
                       </div>
                     </TableHead>
                     <TableHead className="min-w-[90px]">PLZ / Stadt</TableHead>
                     <TableHead className="min-w-[80px]">Produkt</TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[80px]"
-                      onClick={() => handleSort('liters')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Menge (L)
-                        {getSortIcon('liters')}
-                      </div>
+                    <TableHead className="min-w-[80px]">
+                      Menge (L)
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
-                      onClick={() => handleSort('total_amount')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Gesamtpreis
-                        {getSortIcon('total_amount')}
-                      </div>
+                    <TableHead className="min-w-[90px]">
+                      Gesamtpreis
                     </TableHead>
                     <TableHead className="min-w-[110px]">
                       <div className="flex items-center gap-1">
@@ -397,14 +343,8 @@ const AdminOrders = () => {
                         Domain
                       </div>
                     </TableHead>
-                    <TableHead 
-                      className="cursor-pointer hover:bg-gray-50 min-w-[90px]"
-                      onClick={() => handleSort('status')}
-                    >
-                      <div className="flex items-center gap-1">
-                        Status
-                        {getSortIcon('status')}
-                      </div>
+                    <TableHead className="min-w-[90px]">
+                      Status
                     </TableHead>
                     <TableHead className="min-w-[140px] pr-4">Aktionen</TableHead>
                   </TableRow>
@@ -421,13 +361,13 @@ const AdminOrders = () => {
                           onCheckedChange={(checked) => handleSelectOrder(order.id, checked as boolean)}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{order.order_number}</TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{new Date(order.created_at).toLocaleDateString('de-DE')}</div>
                           <div className="text-gray-500">{new Date(order.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
                         </div>
                       </TableCell>
+                      <TableCell className="font-medium">{order.order_number}</TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div className="font-medium">{order.customer_name}</div>
@@ -437,9 +377,14 @@ const AdminOrders = () => {
                       <TableCell>
                         <div className="text-sm">
                           {order.customer_phone ? (
-                            <div className="flex items-center gap-1">
+                            <div 
+                              className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors"
+                              onClick={() => handleCopyPhone(order.customer_phone)}
+                              title="Klicken zum Kopieren"
+                            >
                               <Phone className="h-3 w-3 text-gray-400" />
-                              {order.customer_phone}
+                              <span>{order.customer_phone}</span>
+                              <Copy className="h-3 w-3 text-gray-400 ml-1 opacity-0 group-hover:opacity-100" />
                             </div>
                           ) : (
                             <span className="text-gray-400">-</span>
