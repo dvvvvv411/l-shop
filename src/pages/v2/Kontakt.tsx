@@ -56,7 +56,6 @@ const Kontakt = () => {
             <div className="inline-flex items-center bg-gradient-to-r from-blue-100 to-emerald-100 text-slate-700 px-5 py-2 rounded-full text-sm font-medium mb-8">
               <Users size={16} className="mr-2" />
               Persönlicher Expertenservice
-              <MessageCircle size={14} className="ml-2" />
             </div>
             <h1 className="text-4xl md:text-5xl font-light text-slate-800 mb-6">
               Ihr direkter <span className="font-semibold text-blue-600">Support</span>
