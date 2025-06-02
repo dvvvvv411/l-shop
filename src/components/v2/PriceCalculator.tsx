@@ -1,10 +1,9 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator, TrendingDown, Clock, AlertCircle, CheckCircle, Zap, Shield, ArrowRight } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -33,11 +32,17 @@ const products: Product[] = [
 
 const PriceCalculator = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [amount, setAmount] = useState(3000);
   const [postcode, setPostcode] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('standard');
   const [isValidPostcode, setIsValidPostcode] = useState(true);
   const [isValidAmount, setIsValidAmount] = useState(true);
+
+  // Save referrer information when component mounts
+  useEffect(() => {
+    localStorage.setItem('orderReferrer', location.pathname);
+  }, [location.pathname]);
 
   // Get selected product
   const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
@@ -93,6 +98,7 @@ const PriceCalculator = () => {
         savings
       };
       localStorage.setItem('orderData', JSON.stringify(orderData));
+      // Referrer is already saved in useEffect, so we can navigate directly
       navigate('/kasse');
     }
   };
