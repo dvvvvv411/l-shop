@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Receipt, Eye, CheckCircle } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
@@ -54,6 +54,22 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
       style: 'currency',
       currency: 'EUR',
     }).format(amount);
+  };
+
+  const isValidUrl = (string: string) => {
+    try {
+      new URL(string.startsWith('http') ? string : `https://${string}`);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const formatDomainUrl = (domain: string) => {
+    if (domain.startsWith('http')) {
+      return domain;
+    }
+    return `https://${domain}`;
   };
 
   const handleViewInvoice = () => {
@@ -177,6 +193,26 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       <div>
                         <span className="font-medium">Lieferdatum:</span>
                         <span className="ml-2">{new Date(order.delivery_date).toLocaleDateString('de-DE')}</span>
+                      </div>
+                    )}
+                    {order.origin_domain && (
+                      <div>
+                        <span className="font-medium">Domain:</span>
+                        <span className="ml-2 flex items-center gap-1">
+                          <Globe className="h-3 w-3 text-gray-400" />
+                          {isValidUrl(order.origin_domain) ? (
+                            <a
+                              href={formatDomainUrl(order.origin_domain)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {order.origin_domain}
+                            </a>
+                          ) : (
+                            <span className="text-gray-600">{order.origin_domain}</span>
+                          )}
+                        </span>
                       </div>
                     )}
                     {order.notes && (
