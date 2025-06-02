@@ -30,12 +30,19 @@ import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import AdminSettings from "./pages/admin/AdminSettings";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
 
-// Versioned pages
+// Version 1 pages
 import HomeV1 from "./pages/v1/Home";
 import ServiceV1 from "./pages/v1/Service";
 import ProdukteV1 from "./pages/v1/Produkte";
 import LiefergebietV1 from "./pages/v1/Liefergebiet";
 import KontaktV1 from "./pages/v1/Kontakt";
+
+// Version 2 pages
+import HomeV2 from "./pages/v2/Home";
+import ServiceV2 from "./pages/v2/Service";
+import ProdukteV2 from "./pages/v2/Produkte";
+import LiefergebietV2 from "./pages/v2/Liefergebiet";
+import KontaktV2 from "./pages/v2/Kontakt";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +69,13 @@ function App() {
                 <Route path="/1/liefergebiet" element={<LiefergebietV1 />} />
                 <Route path="/1/service" element={<ServiceV1 />} />
                 <Route path="/1/kontakt" element={<KontaktV1 />} />
+
+                {/* Version 2 Public Routes */}
+                <Route path="/2/home" element={<HomeV2 />} />
+                <Route path="/2/produkte" element={<ProdukteV2 />} />
+                <Route path="/2/liefergebiet" element={<LiefergebietV2 />} />
+                <Route path="/2/service" element={<ServiceV2 />} />
+                <Route path="/2/kontakt" element={<KontaktV2 />} />
 
                 {/* Order Pipeline Routes - Unchanged */}
                 <Route path="/bestellen" element={<Order />} />
