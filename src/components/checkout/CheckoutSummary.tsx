@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Truck, Clock, ChevronDown, ChevronUp, Home } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+
 interface PriceCalculatorData {
   product: {
     id: string;
@@ -17,25 +20,40 @@ interface PriceCalculatorData {
   totalPrice: number;
   savings: number;
 }
+
 interface CheckoutSummaryProps {
   orderData: PriceCalculatorData;
 }
-const CheckoutSummary = ({
-  orderData
-}: CheckoutSummaryProps) => {
+
+const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const finalPrice = orderData.totalPrice;
 
   // VAT calculations (19% VAT)
   const vatRate = 0.19;
   const netPrice = finalPrice / (1 + vatRate);
   const vatAmount = finalPrice - netPrice;
+
+  // Determine the correct homepage path based on referrer
+  const getHomepagePath = () => {
+    const referrer = localStorage.getItem('orderReferrer');
+    if (referrer === '/2/home') {
+      return '/2/home';
+    }
+    return '/1/home'; // Default fallback
+  };
+
+  const handleBackToHomepage = () => {
+    const homepagePath = getHomepagePath();
+    navigate(homepagePath);
+  };
+
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) {
       setCouponError('Bitte geben Sie einen Rabattcode ein.');
@@ -58,12 +76,15 @@ const CheckoutSummary = ({
       setIsApplying(false);
     }, 1000);
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleCouponSubmit();
     }
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       {/* Mobile Toggle */}
       <div className="lg:hidden">
         <button onClick={() => setIsExpanded(!isExpanded)} className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
@@ -87,8 +108,8 @@ const CheckoutSummary = ({
 
       {/* Order Summary */}
       <motion.div initial={false} animate={{
-      height: isExpanded || window.innerWidth >= 1024 ? 'auto' : 0
-    }} className="overflow-hidden lg:overflow-visible">
+        height: isExpanded || window.innerWidth >= 1024 ? 'auto' : 0
+      }} className="overflow-hidden lg:overflow-visible">
         <div className="space-y-6">
           {/* Product Item - Without image */}
           <div className="bg-white lg:bg-transparent border border-gray-200 lg:border-0 rounded-lg lg:rounded-none p-4 lg:p-0">
@@ -166,6 +187,18 @@ const CheckoutSummary = ({
             </div>
           </div>
 
+          {/* Back to Homepage Button */}
+          <div className="pt-4 border-t border-gray-200">
+            <Button
+              onClick={handleBackToHomepage}
+              variant="outline"
+              className="w-full flex items-center justify-center space-x-2 hover:bg-gray-50"
+            >
+              <Home size={16} />
+              <span>Zurück zur Startseite</span>
+            </Button>
+          </div>
+
           {/* Delivery Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
             <div className="flex items-start space-x-3">
@@ -206,6 +239,8 @@ const CheckoutSummary = ({
           </div>
         </div>
       </motion.div>
-    </div>;
+    </div>
+  );
 };
+
 export default CheckoutSummary;

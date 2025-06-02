@@ -1,17 +1,28 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { getLogoConfig } from '../../config/logoConfig';
 
 const CheckoutHeader = () => {
   const referrer = localStorage.getItem('orderReferrer');
   const logoConfig = getLogoConfig(referrer || undefined);
+  
+  // Determine the correct homepage path based on referrer
+  const getHomepagePath = () => {
+    if (referrer === '/2/home') {
+      return '/2/home';
+    }
+    return '/1/home'; // Default fallback
+  };
+
+  const homepagePath = getHomepagePath();
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Centered Logo */}
+        {/* Centered Logo - Now clickable */}
         <div className="flex justify-center mb-4">
-          <div className="flex items-center space-x-2">
+          <Link to={homepagePath} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             {logoConfig.useImage && logoConfig.imageUrl ? (
               <img 
                 src={logoConfig.imageUrl} 
@@ -30,7 +41,7 @@ const CheckoutHeader = () => {
                 <span className="text-xl font-semibold text-gray-900">{logoConfig.name}</span>
               </>
             )}
-          </div>
+          </Link>
         </div>
         
         {/* Security Indicators - Centered below logo */}
