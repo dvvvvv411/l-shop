@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FileText, Download, Truck, CheckCircle, ArrowLeft, ArrowRight, Receipt, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
+import InvoiceViewerDialog from './InvoiceViewerDialog';
 import type { Order } from '@/hooks/useOrders';
 
 interface OrderActionsProps {
@@ -31,6 +31,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
 }) => {
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
+  const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
 
   const handleGenerateInvoice = async () => {
     try {
@@ -46,9 +47,11 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   };
 
   const handleViewInvoice = () => {
-    // For now, just show a message that the invoice can be viewed
-    // In a real implementation, this would open the stored invoice
-    alert(`Rechnung ${order.invoice_number} anzeigen - Feature wird implementiert`);
+    setIsInvoiceViewerOpen(true);
+  };
+
+  const handleCloseInvoiceViewer = () => {
+    setIsInvoiceViewerOpen(false);
   };
 
   return (
@@ -128,7 +131,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             <FileText className="h-4 w-4 mr-2" />
             {isGenerating ? 'Generiere Rechnung...' : 'Rechnung (Schnell)'}
           </Button>
-          {(currentStatus === 'invoice_created' || order.invoice_number) && (
+          {(order.invoice_file_url && order.invoice_number) && (
             <Button
               variant="outline"
               className="w-full justify-start"
@@ -181,6 +184,13 @@ const OrderActions: React.FC<OrderActionsProps> = ({
         order={order}
         isOpen={isInvoiceDialogOpen}
         onClose={() => setIsInvoiceDialogOpen(false)}
+      />
+
+      {/* Invoice Viewer Dialog */}
+      <InvoiceViewerDialog
+        order={order}
+        isOpen={isInvoiceViewerOpen}
+        onClose={handleCloseInvoiceViewer}
       />
     </div>
   );

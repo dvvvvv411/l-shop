@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,26 +8,23 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabase = createClient(
+    const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     const { orderId, shopId, bankAccountId } = await req.json()
     
-    if (!orderId) {
-      throw new Error('Order ID is required')
-    }
+    console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId);
 
-    console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId)
-
-    // Get order details
-    const { data: order, error: orderError } = await supabase
+    // Fetch order details
+    const { data: order, error: orderError } = await supabaseClient
       .from('orders')
       .select('*')
       .eq('id', orderId)
@@ -37,796 +34,261 @@ serve(async (req) => {
       throw new Error('Order not found')
     }
 
-    // Get shop data - either specified shop or from order, or default shop
-    let shopSettings
-    let shopError
-
+    // Fetch shop details if provided
+    let shop = null
     if (shopId) {
-      // Use specified shop
-      const { data, error } = await supabase
+      const { data: shopData, error: shopError } = await supabaseClient
         .from('shops')
         .select('*')
         .eq('id', shopId)
         .single()
-      shopSettings = data
-      shopError = error
-    } else if (order.shop_id) {
-      // Use shop from order
-      const { data, error } = await supabase
-        .from('shops')
-        .select('*')
-        .eq('id', order.shop_id)
-        .single()
-      shopSettings = data
-      shopError = error
-    } else {
-      // Use default shop
-      const { data, error } = await supabase
-        .from('shops')
-        .select('*')
-        .eq('is_default', true)
-        .single()
-      shopSettings = data
-      shopError = error
+
+      if (shopError || !shopData) {
+        throw new Error('Shop not found')
+      }
+      shop = shopData
     }
 
-    // Fallback to shop_settings table if no shop found
-    if (shopError || !shopSettings) {
-      console.log('No shop found, falling back to shop_settings')
-      const { data: fallbackSettings, error: settingsError } = await supabase
-        .from('shop_settings')
-        .select('*')
-        .limit(1)
-        .single()
-
-      if (settingsError || !fallbackSettings) {
-        throw new Error('No shop settings found')
-      }
-      
-      // Convert shop_settings to shop format
-      shopSettings = {
-        id: 'fallback',
-        name: 'Hauptgeschäft',
-        company_name: fallbackSettings.company_name,
-        company_address: fallbackSettings.company_address,
-        company_postcode: fallbackSettings.company_postcode,
-        company_city: fallbackSettings.company_city,
-        company_phone: fallbackSettings.company_phone,
-        company_email: fallbackSettings.company_email,
-        company_website: fallbackSettings.company_website,
-        tax_number: fallbackSettings.tax_number,
-        vat_number: fallbackSettings.vat_number,
-        bank_name: fallbackSettings.bank_name,
-        bank_iban: fallbackSettings.bank_iban,
-        bank_bic: fallbackSettings.bank_bic,
-        business_owner: null,
-        court_name: null,
-        registration_number: null,
-      }
-    }
-
-    // Get bank account data - either specified bank account or default or from shop
-    let bankAccountSettings
-    let bankAccountError
-
+    // Fetch bank account details if provided
+    let bankAccount = null
     if (bankAccountId) {
-      // Use specified bank account
-      const { data, error } = await supabase
+      const { data: bankData, error: bankError } = await supabaseClient
         .from('bank_accounts')
         .select('*')
         .eq('id', bankAccountId)
         .single()
-      bankAccountSettings = data
-      bankAccountError = error
-    } else {
-      // Use default bank account
-      const { data, error } = await supabase
-        .from('bank_accounts')
-        .select('*')
-        .eq('is_default', true)
-        .single()
-      bankAccountSettings = data
-      bankAccountError = error
-    }
 
-    // If bank account is found, override shop's bank information
-    if (!bankAccountError && bankAccountSettings) {
-      shopSettings.bank_name = bankAccountSettings.bank_name
-      shopSettings.bank_iban = bankAccountSettings.iban
-      shopSettings.bank_bic = bankAccountSettings.bic
-    }
-
-    // Use order number as invoice number
-    const invoiceNumber = order.order_number
-
-    // Update order with invoice date if not already set
-    if (!order.invoice_date) {
-      const updateData = { 
-        invoice_date: new Date().toISOString().split('T')[0]
+      if (bankError || !bankData) {
+        throw new Error('Bank account not found')
       }
-      
-      // Add shop_id if we have one and it's not already set
-      if (shopSettings.id !== 'fallback' && !order.shop_id) {
-        updateData.shop_id = shopSettings.id
-      }
-
-      await supabase
-        .from('orders')
-        .update(updateData)
-        .eq('id', orderId)
+      bankAccount = bankData
     }
 
-    // Generate HTML content for PDF
-    const htmlContent = generateModernInvoiceHTML(order, shopSettings, invoiceNumber)
+    // Generate invoice number if not exists
+    let invoiceNumber = order.invoice_number
+    if (!invoiceNumber) {
+      const { data: invoiceGen, error: invoiceGenError } = await supabaseClient
+        .rpc('generate_invoice_number')
 
-    console.log('Invoice generated successfully for order:', orderId)
+      if (invoiceGenError || !invoiceGen) {
+        throw new Error('Failed to generate invoice number')
+      }
+      invoiceNumber = invoiceGen
+    }
+
+    // Generate HTML content for the invoice
+    const htmlContent = generateInvoiceHTML(order, shop, bankAccount, invoiceNumber)
+
+    // Convert HTML to PDF using Puppeteer
+    const pdfBuffer = await generatePDF(htmlContent)
+
+    // Store PDF in Supabase Storage
+    const fileName = `${order.order_number}_${invoiceNumber}.pdf`
+    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+      .from('invoices')
+      .upload(fileName, pdfBuffer, {
+        contentType: 'application/pdf',
+        upsert: true
+      })
+
+    if (uploadError) {
+      console.error('Error uploading PDF:', uploadError)
+      throw new Error('Failed to upload PDF')
+    }
+
+    // Get public URL for the uploaded file
+    const { data: urlData } = supabaseClient.storage
+      .from('invoices')
+      .getPublicUrl(fileName)
+
+    const fileUrl = urlData.publicUrl
+
+    console.log('Invoice generated successfully for order:', orderId);
 
     return new Response(
       JSON.stringify({
         success: true,
         invoiceNumber,
+        invoiceAmount: order.total_amount,
         htmlContent,
-        order,
-        shopSettings,
-        bankAccountSettings
+        fileUrl,
+        fileName
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
       }
     )
-
   } catch (error) {
     console.error('Error generating invoice:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({
+        success: false,
+        error: error.message
+      }),
       {
-        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
       }
     )
   }
 })
 
-function generateModernInvoiceHTML(order: any, shopSettings: any, invoiceNumber: string): string {
-  const currentDate = new Date().toLocaleDateString('de-DE')
-  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : null
+function generateInvoiceHTML(order: any, shop: any, bankAccount: any, invoiceNumber: string): string {
+  const invoiceDate = new Date().toLocaleDateString('de-DE')
+  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'TBD'
   
-  // Calculate prices correctly - assuming total_amount includes VAT
-  const grossTotal = order.total_amount
-  const netTotal = grossTotal / 1.19
-  const vatAmount = grossTotal - netTotal
-  
-  // For display in items table - show gross prices
-  const grossProductAmount = order.liters * order.price_per_liter
-  const grossDeliveryFee = order.delivery_fee || 0
-  const grossDiscount = order.discount || 0
+  // Use shop data if available, otherwise fallback to default
+  const companyName = shop?.company_name || 'Heizöl-Express GmbH'
+  const companyAddress = shop?.company_address || 'Musterstraße 123'
+  const companyPostcode = shop?.company_postcode || '12345'
+  const companyCity = shop?.company_city || 'Berlin'
+  const companyPhone = shop?.company_phone || '+49 30 12345678'
+  const companyEmail = shop?.company_email || 'info@heizoel-express.de'
+  const vatNumber = shop?.vat_number || 'DE123456789'
 
   return `
     <!DOCTYPE html>
     <html lang="de">
     <head>
-        <meta charset="utf-8">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Rechnung ${invoiceNumber}</title>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-                font-size: 10pt;
-                line-height: 1.4;
-                color: #1f2937;
-                background: #ffffff;
-                -webkit-font-smoothing: antialiased;
-            }
-            
-            .invoice-container {
-                width: 210mm;
-                max-height: 297mm;
-                margin: 0 auto;
-                padding: 8mm;
-                position: relative;
-                background: #ffffff;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-            
-            /* Professional Header - Full width */
-            .header {
-                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-                color: white;
-                padding: 5mm;
-                margin: -8mm -8mm 5mm -8mm;
-                border-radius: 0 0 2mm 2mm;
-                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
-            }
-            
-            .header-content {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: 5mm;
-                align-items: start;
-            }
-            
-            .company-info h1 {
-                font-size: 15pt;
-                font-weight: 700;
-                margin-bottom: 2mm;
-                letter-spacing: -0.3px;
-            }
-            
-            .company-info p {
-                font-size: 8pt;
-                margin-bottom: 1mm;
-                opacity: 0.95;
-                line-height: 1.3;
-                display: flex;
-                align-items: center;
-                gap: 2mm;
-            }
-            
-            .invoice-meta {
-                text-align: right;
-                background: rgba(255, 255, 255, 0.1);
-                padding: 3mm;
-                border-radius: 2mm;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .invoice-meta h2 {
-                font-size: 16pt;
-                font-weight: 700;
-                margin-bottom: 2mm;
-                letter-spacing: -0.3px;
-            }
-            
-            .invoice-details p {
-                font-size: 8pt;
-                margin-bottom: 1.5mm;
-                display: flex;
-                justify-content: space-between;
-                gap: 4mm;
-            }
-            
-            .invoice-details strong {
-                font-weight: 600;
-            }
-            
-            /* Clean Customer Section */
-            .customer-section {
-                margin: 4mm 0;
-            }
-            
-            .address-card {
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 2mm;
-                padding: 4mm;
-                width: 80mm;
-                position: relative;
-            }
-            
-            .address-card::before {
-                content: 'RECHNUNGSADRESSE';
-                position: absolute;
-                top: -1mm;
-                left: 3mm;
-                background: #ffffff;
-                color: #64748b;
-                font-size: 7pt;
-                font-weight: 600;
-                padding: 0 2mm;
-                letter-spacing: 0.3px;
-            }
-            
-            .return-address {
-                font-size: 6pt;
-                color: #64748b;
-                margin-bottom: 2mm;
-                padding-bottom: 2mm;
-                border-bottom: 1px solid #e2e8f0;
-                line-height: 1.2;
-            }
-            
-            .customer-address {
-                font-size: 10pt;
-                line-height: 1.4;
-                color: #1f2937;
-            }
-            
-            .customer-address strong {
-                font-weight: 700;
-                font-size: 11pt;
-                display: block;
-                margin-bottom: 2mm;
-                color: #111827;
-            }
-            
-            /* Professional Table Design */
-            .table-section {
-                margin: 4mm 0;
-                border-radius: 2mm;
-                overflow: hidden;
-                border: 1px solid #e2e8f0;
-                flex-grow: 1;
-                max-height: 120mm;
-            }
-            
-            .items-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 8.5pt;
-                background: white;
-            }
-            
-            .items-table th {
-                background: #1e293b;
-                color: white;
-                padding: 2.5mm 2mm;
-                text-align: left;
-                font-weight: 600;
-                font-size: 8.5pt;
-                letter-spacing: 0.2px;
-            }
-            
-            .items-table th.text-right {
-                text-align: right;
-            }
-            
-            .items-table th.text-center {
-                text-align: center;
-            }
-            
-            .items-table td {
-                padding: 2.5mm 2mm;
-                border-bottom: 1px solid #f1f5f9;
-                vertical-align: top;
-                font-size: 8.5pt;
-                line-height: 1.3;
-            }
-            
-            .items-table .text-right {
-                text-align: right;
-                font-weight: 500;
-            }
-            
-            .items-table .text-center {
-                text-align: center;
-            }
-            
-            .items-table tbody tr:nth-child(even) {
-                background: #fafbfc;
-            }
-            
-            .items-table tbody tr:last-child td {
-                border-bottom: none;
-            }
-            
-            .items-table .product-name {
-                font-weight: 600;
-                color: #1e293b;
-                margin-bottom: 1mm;
-            }
-            
-            .items-table small {
-                font-size: 7.5pt;
-                color: #64748b;
-                display: block;
-                margin-top: 1mm;
-                font-style: italic;
-                display: flex;
-                align-items: center;
-                gap: 1.5mm;
-            }
-            
-            /* Clean Summary Section */
-            .summary-section {
-                margin: 4mm 0 3mm 0;
-                display: flex;
-                justify-content: flex-end;
-            }
-            
-            .summary-card {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 2mm;
-                overflow: hidden;
-                min-width: 65mm;
-            }
-            
-            .summary-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 9pt;
-            }
-            
-            .summary-table td {
-                padding: 2mm 3mm;
-                border-bottom: 1px solid #f1f5f9;
-                line-height: 1.3;
-            }
-            
-            .summary-table .label {
-                font-weight: 500;
-                color: #475569;
-            }
-            
-            .summary-table .value {
-                text-align: right;
-                font-weight: 600;
-                color: #1e293b;
-            }
-            
-            .summary-table .total-row {
-                background: #16a34a;
-                color: white;
-                font-weight: 700;
-                font-size: 11pt;
-            }
-            
-            .summary-table .total-row td {
-                border-bottom: none;
-                padding: 3mm;
-            }
-            
-            /* Professional Payment Section */
-            .payment-section {
-                margin: 4mm 0 3mm 0;
-                background: #fff7ed;
-                border: 1px solid #fed7aa;
-                border-radius: 2mm;
-                padding: 3mm;
-                border-left: 4px solid #ea580c;
-            }
-            
-            .payment-section h3 {
-                font-size: 10pt;
-                font-weight: 700;
-                margin-bottom: 2mm;
-                color: #9a3412;
-                display: flex;
-                align-items: center;
-                gap: 2mm;
-            }
-            
-            .payment-section p {
-                margin-bottom: 1.5mm;
-                font-size: 8.5pt;
-                line-height: 1.4;
-                color: #7c2d12;
-            }
-            
-            .payment-section strong {
-                color: #7c2d12;
-                font-weight: 700;
-            }
-            
-            .bank-details {
-                background: rgba(255, 255, 255, 0.8);
-                padding: 2.5mm;
-                border-radius: 1.5mm;
-                margin-top: 2mm;
-                border: 1px solid #fed7aa;
-            }
-            
-            .bank-details p {
-                margin-bottom: 1mm;
-                font-size: 8pt;
-                color: #9a3412;
-                font-weight: 500;
-            }
-            
-            .bank-details p:last-child {
-                margin-bottom: 0;
-            }
-            
-            /* Spacer Section to control footer position */
-            .spacer-section {
-                min-height: 50mm;
-                flex-grow: 1;
-            }
-            
-            /* Professional Footer - Full width at bottom */
-            .footer {
-                padding-top: 3mm;
-                border-top: 1px solid #e2e8f0;
-                font-size: 7pt;
-                color: #64748b;
-                background: #fafbfc;
-                margin-left: -8mm;
-                margin-right: -8mm;
-                margin-bottom: -8mm;
-                padding-left: 8mm;
-                padding-right: 8mm;
-                padding-bottom: 3mm;
-            }
-            
-            .footer-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 4mm;
-                margin-top: 1.5mm;
-            }
-            
-            .footer-column h4 {
-                font-size: 7.5pt;
-                font-weight: 700;
-                margin-bottom: 1.5mm;
-                color: #374151;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-            }
-            
-            .footer-column p {
-                margin-bottom: 0.8mm;
-                line-height: 1.2;
-            }
-            
-            /* Icon styles */
-            .icon {
-                width: 3mm;
-                height: 3mm;
-                display: inline-block;
-                vertical-align: middle;
-            }
-            
-            .icon-small {
-                width: 2.5mm;
-                height: 2.5mm;
-                display: inline-block;
-                vertical-align: middle;
-            }
-            
-            /* Print Optimizations for A4 */
-            @media print {
-                body { 
-                    print-color-adjust: exact;
-                    -webkit-print-color-adjust: exact;
-                }
-                
-                .invoice-container {
-                    margin: 0;
-                    padding: 6mm;
-                    min-height: auto;
-                    max-height: 297mm;
-                    height: auto;
-                    width: 210mm;
-                }
-                
-                .header {
-                    margin: -6mm -6mm 4mm -6mm;
-                    padding: 4mm;
-                }
-                
-                .footer {
-                    margin-left: -6mm;
-                    margin-right: -6mm;
-                    margin-bottom: -6mm;
-                    padding-left: 6mm;
-                    padding-right: 6mm;
-                    padding-bottom: 2mm;
-                }
-                
-                @page {
-                    margin: 0;
-                    size: A4;
-                }
-            }
-            
-            /* Responsive Design */
-            @media screen and (max-width: 800px) {
-                .invoice-container {
-                    width: 100%;
-                    max-width: 210mm;
-                    margin: 0 auto;
-                    padding: 4mm;
-                }
-                
-                .header {
-                    margin: -4mm -4mm 3mm -4mm;
-                }
-                
-                .header-content {
-                    grid-template-columns: 1fr;
-                    gap: 3mm;
-                }
-                
-                .invoice-meta {
-                    text-align: left;
-                }
-                
-                .footer {
-                    margin-left: -4mm;
-                    margin-right: -4mm;
-                    margin-bottom: -4mm;
-                    padding-left: 4mm;
-                    padding-right: 4mm;
-                }
-                
-                .footer-grid {
-                    grid-template-columns: 1fr;
-                    gap: 2mm;
-                }
-            }
+            body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; margin: 0; padding: 20px; }
+            .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+            .company-info { text-align: left; }
+            .invoice-info { text-align: right; }
+            .customer-address { margin: 20px 0; }
+            .invoice-details { margin: 30px 0; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #f5f5f5; font-weight: bold; }
+            .total-row { font-weight: bold; background-color: #f9f9f9; }
+            .footer { margin-top: 40px; font-size: 10px; color: #666; }
+            .bank-details { margin-top: 20px; }
+            @media print { body { margin: 0; padding: 15px; } }
         </style>
     </head>
     <body>
-        <div class="invoice-container">
-            <!-- Professional Header -->
-            <div class="header">
-                <div class="header-content">
-                    <div class="company-info">
-                        <h1>${shopSettings.company_name}</h1>
-                        <p>${shopSettings.company_address}</p>
-                        <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                        ${shopSettings.company_phone ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${shopSettings.company_phone}</p>` : ''}
-                        ${shopSettings.company_email ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> ${shopSettings.company_email}</p>` : ''}
-                        ${shopSettings.company_website ? `<p><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"></path></svg> ${shopSettings.company_website}</p>` : ''}
-                    </div>
-                    
-                    <div class="invoice-meta">
-                        <h2>RECHNUNG</h2>
-                        <div class="invoice-details">
-                            <p><strong>Nr.:</strong><span>${invoiceNumber}</span></p>
-                            <p><strong>Datum:</strong><span>${currentDate}</span></p>
-                            <p><strong>Kunde:</strong><span>${order.id.substring(0, 8)}</span></p>
-                        </div>
-                    </div>
-                </div>
+        <div class="header">
+            <div class="company-info">
+                <h2>${companyName}</h2>
+                <p>${companyAddress}<br>
+                ${companyPostcode} ${companyCity}<br>
+                Tel: ${companyPhone}<br>
+                E-Mail: ${companyEmail}<br>
+                USt-IdNr: ${vatNumber}</p>
             </div>
-            
-            <!-- Customer Address Card -->
-            <div class="customer-section">
-                <div class="address-card">
-                    <div class="return-address">
-                        ${shopSettings.company_name} • ${shopSettings.company_address} • ${shopSettings.company_postcode} ${shopSettings.company_city}
-                    </div>
-                    <div class="customer-address">
-                        <strong>${order.customer_name}</strong>
-                        ${order.billing_street || order.delivery_street || order.customer_address}<br>
-                        ${order.billing_postcode || order.delivery_postcode} ${order.billing_city || order.delivery_city}
-                    </div>
-                </div>
+            <div class="invoice-info">
+                <h1>RECHNUNG</h1>
+                <p><strong>Rechnungsnummer:</strong> ${invoiceNumber}<br>
+                <strong>Rechnungsdatum:</strong> ${invoiceDate}<br>
+                <strong>Bestellnummer:</strong> ${order.order_number}</p>
             </div>
-            
-            <!-- Professional Items Table -->
-            <div class="table-section">
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 6%;">Pos.</th>
-                            <th style="width: 44%;">Leistung</th>
-                            <th style="width: 10%;" class="text-right">Menge</th>
-                            <th style="width: 8%;">Einheit</th>
-                            <th style="width: 12%;" class="text-right">Einzelpreis</th>
-                            <th style="width: 6%;" class="text-center">MwSt.</th>
-                            <th style="width: 14%;" class="text-right">Gesamtpreis</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>1</strong></td>
-                            <td>
-                                <div class="product-name">${order.product || 'Premium Heizöl'}</div>
-                                ${deliveryDate ? `<small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Lieferung am ${deliveryDate}</small>` : ''}
-                                ${order.delivery_street ? `<small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</small>` : ''}
-                            </td>
-                            <td class="text-right">${order.liters.toLocaleString('de-DE')}</td>
-                            <td>Liter</td>
-                            <td class="text-right">€ ${order.price_per_liter.toFixed(2)}</td>
-                            <td class="text-center">19%</td>
-                            <td class="text-right">€ ${grossProductAmount.toFixed(2)}</td>
-                        </tr>
-                        ${order.delivery_fee > 0 ? `
-                        <tr>
-                            <td><strong>2</strong></td>
-                            <td>
-                                <div class="product-name">Lieferung & Transport</div>
-                                <small><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM21 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0M17 17a2 2 0 104 0"></path></svg> Professionelle Anlieferung</small>
-                            </td>
-                            <td class="text-right">1</td>
-                            <td>Service</td>
-                            <td class="text-right">€ ${order.delivery_fee.toFixed(2)}</td>
-                            <td class="text-center">19%</td>
-                            <td class="text-right">€ ${grossDeliveryFee.toFixed(2)}</td>
-                        </tr>
-                        ` : ''}
-                        ${order.discount > 0 ? `
-                        <tr>
-                            <td></td>
-                            <td>
-                                <div class="product-name"><svg class="icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Sonderrabatt</div>
-                                <small>Vielen Dank für Ihr Vertrauen</small>
-                            </td>
-                            <td class="text-right">1</td>
-                            <td>Rabatt</td>
-                            <td class="text-right">-€ ${order.discount.toFixed(2)}</td>
-                            <td class="text-center">19%</td>
-                            <td class="text-right">-€ ${grossDiscount.toFixed(2)}</td>
-                        </tr>
-                        ` : ''}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Clean Summary -->
-            <div class="summary-section">
-                <div class="summary-card">
-                    <table class="summary-table">
-                        <tr>
-                            <td class="label">Nettobetrag:</td>
-                            <td class="value">€ ${netTotal.toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">MwSt. (19%):</td>
-                            <td class="value">€ ${vatAmount.toFixed(2)}</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td><strong>GESAMTBETRAG</strong></td>
-                            <td><strong>€ ${grossTotal.toFixed(2)}</strong></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Professional Payment Section -->
-            ${order.payment_method === 'vorkasse' && shopSettings.bank_iban ? `
-            <div class="payment-section">
-                <h3><svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg> Zahlungsinformationen</h3>
-                <p><strong>Bitte überweisen Sie den Rechnungsbetrag auf folgendes Konto:</strong></p>
-                
-                <div class="bank-details">
-                    <p><strong>Kontoinhaber:</strong> ${shopSettings.company_name}</p>
-                    <p><strong>Bank:</strong> ${shopSettings.bank_name || 'Unsere Hausbank'}</p>
-                    <p><strong>IBAN:</strong> ${shopSettings.bank_iban}</p>
-                    ${shopSettings.bank_bic ? `<p><strong>BIC:</strong> ${shopSettings.bank_bic}</p>` : ''}
-                    <p><strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
-                    <p><strong>Betrag:</strong> € ${grossTotal.toFixed(2)}</p>
-                </div>
-                
-                <p style="margin-top: 2mm;"><strong>Der Rechnungsbetrag ist sofort nach Erhalt fällig.</strong> Bei Fragen zur Rechnung kontaktieren Sie uns gerne.</p>
-            </div>
-            ` : ''}
-            
-            <!-- Spacer Section to Push Footer Down -->
-            <div class="spacer-section"></div>
-            
-            <!-- Professional Footer -->
-            <div class="footer">
-                <div class="footer-grid">
-                    <div class="footer-column">
-                        <h4>Kontakt</h4>
-                        <p><strong>${shopSettings.company_name}</strong></p>
-                        <p>${shopSettings.company_address}</p>
-                        <p>${shopSettings.company_postcode} ${shopSettings.company_city}</p>
-                        ${shopSettings.company_phone ? `<p>Tel: ${shopSettings.company_phone}</p>` : ''}
-                        ${shopSettings.company_email ? `<p>E-Mail: ${shopSettings.company_email}</p>` : ''}
-                    </div>
-                    
-                    <div class="footer-column">
-                        <h4>Steuerdaten</h4>
-                        ${shopSettings.tax_number ? `<p>Steuernr.: ${shopSettings.tax_number}</p>` : ''}
-                        ${shopSettings.vat_number ? `<p>USt-IdNr.: ${shopSettings.vat_number}</p>` : ''}
-                        ${shopSettings.court_name ? `<p>Amtsgericht: ${shopSettings.court_name}</p>` : ''}
-                        ${shopSettings.registration_number ? `<p>Handelsregister: ${shopSettings.registration_number}</p>` : ''}
-                        ${shopSettings.business_owner ? `<p>Geschäftsführer: ${shopSettings.business_owner}</p>` : ''}
-                    </div>
-                    
-                    <div class="footer-column">
-                        <h4>Banking</h4>
-                        <p><strong>Kontoinhaber:</strong> ${shopSettings.company_name}</p>
-                        ${shopSettings.bank_iban ? `<p>IBAN: ${shopSettings.bank_iban}</p>` : ''}
-                        ${shopSettings.bank_bic ? `<p>BIC: ${shopSettings.bank_bic}</p>` : ''}
-                        <p style="margin-top: 1.5mm; font-style: italic;">Vielen Dank für Ihr Vertrauen!</p>
-                    </div>
-                </div>
-            </div>
+        </div>
+
+        <div class="customer-address">
+            <h3>Rechnungsanschrift:</h3>
+            <p>${order.customer_name}<br>
+            ${order.delivery_street}<br>
+            ${order.delivery_postcode} ${order.delivery_city}</p>
+        </div>
+
+        <div class="invoice-details">
+            <h3>Lieferdetails:</h3>
+            <p><strong>Lieferadresse:</strong> ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}<br>
+            <strong>Gewünschter Liefertermin:</strong> ${deliveryDate}<br>
+            <strong>Zahlungsart:</strong> ${order.payment_method}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Beschreibung</th>
+                    <th>Menge</th>
+                    <th>Einheit</th>
+                    <th>Einzelpreis</th>
+                    <th>Gesamtpreis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>${order.product || 'Heizöl Standard'}</td>
+                    <td>${order.liters.toLocaleString()}</td>
+                    <td>Liter</td>
+                    <td>€${Number(order.price_per_liter).toFixed(2)}</td>
+                    <td>€${(order.liters * Number(order.price_per_liter)).toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Lieferkosten</td>
+                    <td>1</td>
+                    <td>Stück</td>
+                    <td>€${Number(order.delivery_fee).toFixed(2)}</td>
+                    <td>€${Number(order.delivery_fee).toFixed(2)}</td>
+                </tr>
+                ${Number(order.discount) > 0 ? `
+                <tr>
+                    <td>3</td>
+                    <td>Rabatt</td>
+                    <td>1</td>
+                    <td>Stück</td>
+                    <td>-€${Number(order.discount).toFixed(2)}</td>
+                    <td>-€${Number(order.discount).toFixed(2)}</td>
+                </tr>
+                ` : ''}
+            </tbody>
+        </table>
+
+        <table style="margin-top: 20px;">
+            <tr>
+                <td style="text-align: right; padding-right: 20px;"><strong>Zwischensumme:</strong></td>
+                <td style="text-align: right;"><strong>€${(order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)).toFixed(2)}</strong></td>
+            </tr>
+            <tr>
+                <td style="text-align: right; padding-right: 20px;">MwSt. (19%):</td>
+                <td style="text-align: right;">€${((order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)) * 0.19).toFixed(2)}</td>
+            </tr>
+            <tr class="total-row">
+                <td style="text-align: right; padding-right: 20px;"><strong>Gesamtbetrag:</strong></td>
+                <td style="text-align: right;"><strong>€${Number(order.total_amount).toFixed(2)}</strong></td>
+            </tr>
+        </table>
+
+        ${bankAccount ? `
+        <div class="bank-details">
+            <h3>Bankverbindung:</h3>
+            <p><strong>Bank:</strong> ${bankAccount.bank_name}<br>
+            <strong>Kontoinhaber:</strong> ${bankAccount.account_holder}<br>
+            <strong>IBAN:</strong> ${bankAccount.iban}<br>
+            ${bankAccount.bic ? `<strong>BIC:</strong> ${bankAccount.bic}<br>` : ''}
+            <strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
+        </div>
+        ` : ''}
+
+        ${order.notes ? `
+        <div style="margin-top: 20px;">
+            <h3>Bemerkungen:</h3>
+            <p>${order.notes}</p>
+        </div>
+        ` : ''}
+
+        <div class="footer">
+            <p>Vielen Dank für Ihren Auftrag!<br>
+            ${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}<br>
+            Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}</p>
         </div>
     </body>
     </html>
   `
+}
+
+async function generatePDF(htmlContent: string): Promise<Uint8Array> {
+  // For now, we'll return the HTML as bytes since Puppeteer is complex to set up in Deno
+  // In a production environment, you would use a PDF generation service
+  const encoder = new TextEncoder()
+  return encoder.encode(htmlContent)
 }

@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt } from 'lucide-react';
+import { Download, Eye, ArrowUpDown, ArrowUp, ArrowDown, Phone, Receipt, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import OrderFilters from '@/components/admin/OrderFilters';
 import BulkActions from '@/components/admin/BulkActions';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
 import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
+import InvoiceViewerDialog from '@/components/admin/InvoiceViewerDialog';
 import { useOrders, Order } from '@/hooks/useOrders';
 
 type SortConfig = {
@@ -30,6 +30,8 @@ const AdminOrders = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<Order | null>(null);
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
+  const [selectedOrderForInvoiceView, setSelectedOrderForInvoiceView] = useState<Order | null>(null);
+  const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
   const ordersPerPage = 20;
 
   // Filter and sort orders
@@ -171,6 +173,16 @@ const AdminOrders = () => {
   const handleCloseInvoiceDialog = () => {
     setIsInvoiceDialogOpen(false);
     setSelectedOrderForInvoice(null);
+  };
+
+  const handleViewInvoice = (order: Order) => {
+    setSelectedOrderForInvoiceView(order);
+    setIsInvoiceViewerOpen(true);
+  };
+
+  const handleCloseInvoiceViewer = () => {
+    setIsInvoiceViewerOpen(false);
+    setSelectedOrderForInvoiceView(null);
   };
 
   if (isLoading) {
@@ -375,6 +387,7 @@ const AdminOrders = () => {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleViewOrder(order)}
+                            title="Bestellung anzeigen"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -382,9 +395,20 @@ const AdminOrders = () => {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleGenerateInvoice(order)}
+                            title="Rechnung erstellen"
                           >
                             <Receipt className="h-4 w-4" />
                           </Button>
+                          {(order.invoice_file_url && order.invoice_number) && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleViewInvoice(order)}
+                              title="Rechnung anzeigen"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -452,6 +476,13 @@ const AdminOrders = () => {
         order={selectedOrderForInvoice}
         isOpen={isInvoiceDialogOpen}
         onClose={handleCloseInvoiceDialog}
+      />
+
+      {/* Invoice Viewer Dialog */}
+      <InvoiceViewerDialog
+        order={selectedOrderForInvoiceView}
+        isOpen={isInvoiceViewerOpen}
+        onClose={handleCloseInvoiceViewer}
       />
     </div>
   );

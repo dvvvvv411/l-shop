@@ -40,13 +40,14 @@ export const useInvoiceGeneration = () => {
 
       console.log('Invoice generated successfully:', data.invoiceNumber);
 
-      // Update order status to invoice_created
+      // Update order status to invoice_created and store file URL
       const { error: statusUpdateError } = await supabase
         .from('orders')
         .update({ 
           status: 'invoice_created',
           invoice_number: data.invoiceNumber,
           invoice_date: new Date().toISOString().split('T')[0],
+          invoice_file_url: data.fileUrl,
           updated_at: new Date().toISOString()
         })
         .eq('id', orderId);
@@ -81,7 +82,8 @@ export const useInvoiceGeneration = () => {
             order_id: orderId,
             invoice_number: data.invoiceNumber,
             invoice_date: new Date().toISOString().split('T')[0],
-            file_name: `${data.invoiceNumber}.pdf`
+            file_name: data.fileName,
+            file_url: data.fileUrl
           });
 
         if (invoiceRecordError) {
@@ -90,12 +92,9 @@ export const useInvoiceGeneration = () => {
         }
       }
 
-      // Convert HTML to PDF and download
-      await downloadInvoiceAsPDF(data.htmlContent, data.invoiceNumber);
-
       toast({
         title: 'Erfolg',
-        description: `Rechnung ${data.invoiceNumber} wurde generiert und der Status auf "Rechnung erstellt" gesetzt.`,
+        description: `Rechnung ${data.invoiceNumber} wurde generiert und gespeichert. Der Status wurde auf "Rechnung erstellt" gesetzt.`,
       });
 
       return data;
@@ -110,25 +109,6 @@ export const useInvoiceGeneration = () => {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const downloadInvoiceAsPDF = async (htmlContent: string, invoiceNumber: string) => {
-    // Create a new window with the HTML content
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      throw new Error('Pop-up blocked. Please allow pop-ups for this site.');
-    }
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-
-    // Wait for content to load then print
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
-    };
   };
 
   return {
