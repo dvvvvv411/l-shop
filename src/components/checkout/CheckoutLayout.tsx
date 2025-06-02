@@ -119,27 +119,59 @@ const CheckoutLayout = () => {
 
   if (currentStep === 'confirmation') {
     return (
-      <div className="bg-white">
+      <div className="min-h-screen bg-gray-50">
         <CheckoutHeader />
         
-        {/* Confirmation Header */}
-        <div className="border-b border-gray-200 pb-8 mb-8 pt-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-green-100 p-3 rounded-full mr-4">
-              <CheckCircle className="text-green-600" size={24} />
-            </div>
-            <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung bestätigt!</h1>
-              <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
+        <main className="py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Confirmation Header */}
+              <div className="border-b border-gray-200 pb-8 mb-8">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="bg-green-100 p-3 rounded-full mr-4">
+                    <CheckCircle className="text-green-600" size={24} />
+                  </div>
+                  <div className="text-center">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung bestätigt!</h1>
+                    <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
+                  </div>
+                </div>
+              </div>
+
+              <CheckoutConfirmation 
+                orderData={orderData} 
+                orderNumber={orderNumber}
+                onNewOrder={handleNewOrder}
+              />
+            </motion.div>
+          </div>
+        </main>
+        
+        {/* Minimal Footer */}
+        <footer className="bg-white border-t border-gray-200 py-6 px-4 sm:px-6 lg:px-8 mt-16">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+              <div className="flex items-center space-x-6 text-sm text-gray-600">
+                <a href="/datenschutz" className="hover:text-gray-900 transition-colors">
+                  Datenschutz
+                </a>
+                <a href="/agb" className="hover:text-gray-900 transition-colors">
+                  AGB
+                </a>
+                <a href="/impressum" className="hover:text-gray-900 transition-colors">
+                  Impressum
+                </a>
+              </div>
+              <div className="text-sm text-gray-500">
+                © 2024 HeizölDirekt. Alle Rechte vorbehalten.
+              </div>
             </div>
           </div>
-        </div>
-
-        <CheckoutConfirmation 
-          orderData={orderData} 
-          orderNumber={orderNumber}
-          onNewOrder={handleNewOrder}
-        />
+        </footer>
       </div>
     );
   }
