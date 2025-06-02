@@ -4,7 +4,6 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 interface Product {
   id: string;
   name: string;
@@ -12,24 +11,19 @@ interface Product {
   description: string;
   badge?: string;
 }
-
-const products: Product[] = [
-  {
-    id: 'standard',
-    name: 'Standard Heizöl',
-    price: 0.70,
-    description: 'Qualitäts-Heizöl nach DIN 51603-1',
-    badge: 'Bestseller'
-  },
-  {
-    id: 'premium',
-    name: 'Premium Heizöl',
-    price: 0.75,
-    description: 'Schwefelarmes Premium-Heizöl mit Additiven',
-    badge: 'Empfohlen'
-  }
-];
-
+const products: Product[] = [{
+  id: 'standard',
+  name: 'Standard Heizöl',
+  price: 0.70,
+  description: 'Qualitäts-Heizöl nach DIN 51603-1',
+  badge: 'Bestseller'
+}, {
+  id: 'premium',
+  name: 'Premium Heizöl',
+  price: 0.75,
+  description: 'Schwefelarmes Premium-Heizöl mit Additiven',
+  badge: 'Empfohlen'
+}];
 const PriceCalculator = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,7 +40,7 @@ const PriceCalculator = () => {
 
   // Get selected product
   const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
-  
+
   // Calculate prices
   const basePrice = amount * currentProduct.price;
   const deliveryFee = amount >= 3000 ? 0 : 25;
@@ -59,13 +53,11 @@ const PriceCalculator = () => {
     setIsValidPostcode(isValid);
     return isValid;
   };
-
   const validateAmount = (value: number) => {
     const isValid = value >= 1500 && value <= 32000;
     setIsValidAmount(isValid);
     return isValid;
   };
-
   const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 5);
     setPostcode(value);
@@ -75,12 +67,10 @@ const PriceCalculator = () => {
       setIsValidPostcode(true);
     }
   };
-
   const handleAmountChange = (value: number) => {
     setAmount(value);
     validateAmount(value);
   };
-
   const handleOrderClick = () => {
     if (isFormValid) {
       const orderData = {
@@ -102,18 +92,18 @@ const PriceCalculator = () => {
       navigate('/kasse');
     }
   };
-
   const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
-
-  return (
-    <div className="max-w-6xl mx-auto">
+  return <div className="max-w-6xl mx-auto">
       {/* Compact Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8"
-      >
+      <motion.div initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.6
+    }} className="text-center mb-8">
         <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
           <Zap size={16} className="mr-2" />
           Sofortberechnung • Bestpreisgarantie
@@ -129,12 +119,16 @@ const PriceCalculator = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Form Inputs */}
         <div className="lg:col-span-2">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          x: -20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} transition={{
+          duration: 0.6,
+          delay: 0.1
+        }} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* PLZ Input */}
               <div className="space-y-3">
@@ -145,43 +139,26 @@ const PriceCalculator = () => {
                   <label className="text-sm font-semibold text-gray-700">Postleitzahl</label>
                 </div>
                 <div className="relative">
-                  <input
-                    type="text"
-                    value={postcode}
-                    onChange={handlePostcodeChange}
-                    placeholder="z.B. 12345"
-                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-all ${
-                      !isValidPostcode && postcode.length === 5
-                        ? 'border-red-400 bg-red-50'
-                        : isValidPostcode && postcode.length === 5
-                        ? 'border-green-400 bg-green-50'
-                        : 'border-gray-200 focus:border-blue-500'
-                    }`}
-                    maxLength={5}
-                  />
-                  {postcode.length === 5 && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="absolute right-4 top-3"
-                    >
-                      {isValidPostcode ? (
-                        <CheckCircle className="text-green-500" size={20} />
-                      ) : (
-                        <AlertCircle className="text-red-500" size={20} />
-                      )}
-                    </motion.div>
-                  )}
+                  <input type="text" value={postcode} onChange={handlePostcodeChange} placeholder="z.B. 12345" className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-all ${!isValidPostcode && postcode.length === 5 ? 'border-red-400 bg-red-50' : isValidPostcode && postcode.length === 5 ? 'border-green-400 bg-green-50' : 'border-gray-200 focus:border-blue-500'}`} maxLength={5} />
+                  {postcode.length === 5 && <motion.div initial={{
+                  opacity: 0,
+                  scale: 0.9
+                }} animate={{
+                  opacity: 1,
+                  scale: 1
+                }} className="absolute right-4 top-3">
+                      {isValidPostcode ? <CheckCircle className="text-green-500" size={20} /> : <AlertCircle className="text-red-500" size={20} />}
+                    </motion.div>}
                 </div>
-                {!isValidPostcode && postcode.length === 5 && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm"
-                  >
+                {!isValidPostcode && postcode.length === 5 && <motion.p initial={{
+                opacity: 0,
+                y: -10
+              }} animate={{
+                opacity: 1,
+                y: 0
+              }} className="text-red-500 text-sm">
                     Gültige PLZ erforderlich
-                  </motion.p>
-                )}
+                  </motion.p>}
               </div>
 
               {/* Amount Input */}
@@ -195,46 +172,25 @@ const PriceCalculator = () => {
                   </label>
                 </div>
                 <div className="relative">
-                  <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => handleAmountChange(Number(e.target.value))}
-                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-emerald-500 text-lg font-semibold transition-all ${
-                      !isValidAmount
-                        ? 'border-red-400 bg-red-50'
-                        : 'border-gray-200 focus:border-emerald-500'
-                    }`}
-                    min="1500"
-                    max="32000"
-                    step="500"
-                  />
+                  <input type="number" value={amount} onChange={e => handleAmountChange(Number(e.target.value))} className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-emerald-500 text-lg font-semibold transition-all ${!isValidAmount ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-emerald-500'}`} min="1500" max="32000" step="500" />
                   <span className="absolute right-4 top-3 text-gray-500 font-medium">L</span>
                 </div>
-                <input
-                  type="range"
-                  value={amount}
-                  onChange={(e) => handleAmountChange(Number(e.target.value))}
-                  min="1500"
-                  max="32000"
-                  step="500"
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(to right, #10b981 0%, #10b981 ${((amount - 1500) / (32000 - 1500)) * 100}%, #e5e7eb ${((amount - 1500) / (32000 - 1500)) * 100}%, #e5e7eb 100%)`
-                  }}
-                />
+                <input type="range" value={amount} onChange={e => handleAmountChange(Number(e.target.value))} min="1500" max="32000" step="500" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style={{
+                background: `linear-gradient(to right, #10b981 0%, #10b981 ${(amount - 1500) / (32000 - 1500) * 100}%, #e5e7eb ${(amount - 1500) / (32000 - 1500) * 100}%, #e5e7eb 100%)`
+              }} />
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>1.500L</span>
                   <span>32.000L</span>
                 </div>
-                {!isValidAmount && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm"
-                  >
+                {!isValidAmount && <motion.p initial={{
+                opacity: 0,
+                y: -10
+              }} animate={{
+                opacity: 1,
+                y: 0
+              }} className="text-red-500 text-sm">
                     1.500L - 32.000L erlaubt
-                  </motion.p>
-                )}
+                  </motion.p>}
               </div>
             </div>
 
@@ -248,22 +204,12 @@ const PriceCalculator = () => {
               </div>
               <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {products.map((product) => (
-                    <motion.div
-                      key={product.id}
-                      whileHover={{ scale: 1.02 }}
-                      className={`relative flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                        selectedProduct === product.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedProduct(product.id)}
-                    >
-                      {product.badge && (
-                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                  {products.map(product => <motion.div key={product.id} whileHover={{
+                  scale: 1.02
+                }} className={`relative flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedProduct === product.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => setSelectedProduct(product.id)}>
+                      {product.badge && <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                           {product.badge}
-                        </div>
-                      )}
+                        </div>}
                       <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor={product.id} className="cursor-pointer">
@@ -279,8 +225,7 @@ const PriceCalculator = () => {
                           </div>
                         </Label>
                       </div>
-                    </motion.div>
-                  ))}
+                    </motion.div>)}
                 </div>
               </RadioGroup>
             </div>
@@ -289,13 +234,15 @@ const PriceCalculator = () => {
 
         {/* Right Column - Sticky Price Display */}
         <div className="lg:sticky lg:top-6 lg:h-fit">
-          <motion.div
-            key={`${amount}-${selectedProduct}`}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-            className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl border border-blue-100 overflow-hidden"
-          >
+          <motion.div key={`${amount}-${selectedProduct}`} initial={{
+          opacity: 0,
+          scale: 0.95
+        }} animate={{
+          opacity: 1,
+          scale: 1
+        }} transition={{
+          duration: 0.4
+        }} className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl border border-blue-100 overflow-hidden">
             {/* Price Header */}
             <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white p-4">
               <div className="flex items-center justify-between">
@@ -303,11 +250,9 @@ const PriceCalculator = () => {
                   <Calculator size={20} />
                   <span className="font-semibold">Ihr Preis</span>
                 </div>
-                {savings > 0 && (
-                  <div className="bg-white/20 px-2 py-1 rounded-full text-xs font-bold">
+                {savings > 0 && <div className="bg-white/20 px-2 py-1 rounded-full text-xs font-bold">
                     {savings}€ gespart!
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
 
@@ -320,17 +265,13 @@ const PriceCalculator = () => {
                 </div>
                 
                 <div className="flex justify-between items-center text-sm">
-                  {deliveryFee > 0 ? (
-                    <>
+                  {deliveryFee > 0 ? <>
                       <span className="text-gray-600">Lieferung</span>
                       <span className="font-semibold">{deliveryFee.toFixed(2)}€</span>
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <span className="text-emerald-600 font-medium">Kostenlose Lieferung</span>
                       <span className="font-semibold text-emerald-600 line-through text-gray-400">25,00€</span>
-                    </>
-                  )}
+                    </>}
                 </div>
                 
                 <hr className="border-gray-200" />
@@ -349,7 +290,7 @@ const PriceCalculator = () => {
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Clock className="text-blue-500" size={16} />
-                  <span>Lieferung in 2-5 Werktagen</span>
+                  <span>Lieferung in 4-7 Werktagen</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Shield className="text-emerald-500" size={16} />
@@ -358,56 +299,48 @@ const PriceCalculator = () => {
               </div>
 
               {/* CTA Button */}
-              <motion.button
-                whileHover={{ scale: isFormValid ? 1.02 : 1 }}
-                whileTap={{ scale: isFormValid ? 0.98 : 1 }}
-                disabled={!isFormValid}
-                onClick={handleOrderClick}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 ${
-                  isFormValid
-                    ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 shadow-lg hover:shadow-xl'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
+              <motion.button whileHover={{
+              scale: isFormValid ? 1.02 : 1
+            }} whileTap={{
+              scale: isFormValid ? 0.98 : 1
+            }} disabled={!isFormValid} onClick={handleOrderClick} className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 ${isFormValid ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 shadow-lg hover:shadow-xl' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
                 <span>{isFormValid ? 'Jetzt bestellen' : 'Felder ausfüllen'}</span>
                 {isFormValid && <ArrowRight size={20} />}
               </motion.button>
 
               {/* Urgency Element */}
-              {isFormValid && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center"
-                >
+              {isFormValid && <motion.div initial={{
+              opacity: 0,
+              y: 10
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} className="text-center">
                   <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 text-orange-700 px-3 py-2 rounded-lg text-sm font-medium">
                     <div className="flex items-center justify-center space-x-1">
                       <TrendingDown size={16} />
                       <span>Aktuelle Marktpreise • Jetzt sichern</span>
                     </div>
                   </div>
-                </motion.div>
-              )}
+                </motion.div>}
 
               {/* Free Delivery Badge */}
-              {deliveryFee === 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center"
-                >
+              {deliveryFee === 0 && <motion.div initial={{
+              opacity: 0,
+              scale: 0.9
+            }} animate={{
+              opacity: 1,
+              scale: 1
+            }} className="text-center">
                   <div className="inline-flex items-center space-x-2 bg-emerald-100 text-emerald-700 px-3 py-2 rounded-full text-sm font-medium">
                     <CheckCircle size={16} />
                     <span>Kostenlose Lieferung freigeschaltet!</span>
                   </div>
-                </motion.div>
-              )}
+                </motion.div>}
             </div>
           </motion.div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PriceCalculator;
