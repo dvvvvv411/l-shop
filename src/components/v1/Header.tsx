@@ -60,6 +60,10 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-8">
+            <Link to="/1/home" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
+              Startseite
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
+            </Link>
             <Link to="/1/produkte" className="text-gray-700 hover:text-red-600 font-medium transition-colors relative group">
               Produkte
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
@@ -108,6 +112,13 @@ const Header = () => {
             className="lg:hidden mt-6 pb-6 border-t border-gray-200 pt-6"
           >
             <nav className="flex flex-col space-y-4">
+              <Link 
+                to="/1/home" 
+                className="text-gray-700 hover:text-red-600 font-medium py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Startseite
+              </Link>
               <Link 
                 to="/1/produkte" 
                 className="text-gray-700 hover:text-red-600 font-medium py-2"
