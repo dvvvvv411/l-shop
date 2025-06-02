@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
@@ -22,7 +21,7 @@ const Kontakt = () => {
     {
       icon: MapPin,
       title: "Adresse",
-      value: "Musterstraße 123, 12345 Musterstadt",
+      value: "Schellingstr. 109a, 80798 München",
       description: "Hauptsitz und Verwaltung"
     },
     {
