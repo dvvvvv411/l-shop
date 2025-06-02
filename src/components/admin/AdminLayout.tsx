@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
@@ -48,6 +47,9 @@ const AdminLayout = () => {
   const handleLogout = () => {
     logout();
   };
+
+  // Determine max width based on current route
+  const maxWidth = location.pathname === '/admin/orders' ? 'max-w-[1921px]' : 'max-w-[1478px]';
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -102,7 +104,7 @@ const AdminLayout = () => {
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
           <div className="py-6">
-            <div className="max-w-[1478px] mx-auto px-4 sm:px-6 md:px-8">
+            <div className={cn(maxWidth, "mx-auto px-4 sm:px-6 md:px-8")}>
               <Outlet />
             </div>
           </div>
