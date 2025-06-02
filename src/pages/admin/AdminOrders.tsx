@@ -205,6 +205,28 @@ const AdminOrders = () => {
     setLocalOrders(prev => prev.map(order => 
       order.id === orderId ? { ...order, ...updatedData } : order
     ));
+    
+    // Also update the selected order if it's currently being viewed
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder(prev => prev ? { ...prev, ...updatedData } : null);
+    }
+  };
+
+  // Function to handle status changes from the dialog
+  const handleStatusChangeFromDialog = async (orderId: string, newStatus: string) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      // Update local state
+      setLocalOrders(prev => prev.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+      // Update selected order if it's currently being viewed
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
   };
 
   if (isLoading) {
@@ -496,11 +518,13 @@ const AdminOrders = () => {
         </Card>
       </motion.div>
 
-      {/* Order Details Dialog */}
+      {/* Order Details Dialog with Actions */}
       <OrderDetailsDialog
         order={selectedOrder}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
+        onOrderUpdate={handleOrderUpdate}
+        onStatusChange={handleStatusChangeFromDialog}
       />
 
       {/* Invoice Creation Dialog */}
