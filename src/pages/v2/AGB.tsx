@@ -10,12 +10,12 @@ const AGB = () => {
     {
       icon: FileText,
       title: "Geltungsbereich",
-      content: "Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der OilExpress GmbH und ihren Kunden über die Lieferung von Premium-Heizöl."
+      content: "Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der Green Oil Trade and Service GmbH und ihren Kunden über die Lieferung von Premium-Heizöl."
     },
     {
       icon: CheckCircle,
       title: "Vertragsschluss",
-      content: "Der Vertrag kommt durch die Annahme der Bestellung durch die OilExpress GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware."
+      content: "Der Vertrag kommt durch die Annahme der Bestellung durch die Green Oil Trade and Service GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware."
     },
     {
       icon: CreditCard,
@@ -80,12 +80,12 @@ const AGB = () => {
             <div className="space-y-6 text-gray-700 leading-relaxed">
               <section>
                 <h3 className="text-lg font-medium text-gray-800 mb-2">§ 1 Geltungsbereich</h3>
-                <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der OilExpress GmbH und ihren Kunden über die Lieferung von Premium-Heizöl. Abweichende Bedingungen des Kunden werden nicht anerkannt, es sei denn, wir haben ausdrücklich schriftlich zugestimmt.</p>
+                <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der Green Oil Trade and Service GmbH und ihren Kunden über die Lieferung von Premium-Heizöl. Abweichende Bedingungen des Kunden werden nicht anerkannt, es sei denn, wir haben ausdrücklich schriftlich zugestimmt.</p>
               </section>
 
               <section>
                 <h3 className="text-lg font-medium text-gray-800 mb-2">§ 2 Vertragsschluss</h3>
-                <p>Der Vertrag kommt durch die Annahme der Bestellung durch die OilExpress GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware. Unsere Angebote sind freibleibend und unverbindlich.</p>
+                <p>Der Vertrag kommt durch die Annahme der Bestellung durch die Green Oil Trade and Service GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung oder durch Auslieferung der Ware. Unsere Angebote sind freibleibend und unverbindlich.</p>
               </section>
 
               <section>

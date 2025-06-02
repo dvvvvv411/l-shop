@@ -30,9 +30,9 @@ const Impressum = () => {
               >
                 <h2 className="text-xl font-semibold text-blue-900 mb-4">Angaben gemäß § 5 TMG</h2>
                 <div className="text-blue-800 space-y-1">
-                  <p className="font-semibold">OilExpress GmbH</p>
-                  <p>Energiestraße 45</p>
-                  <p>20355 Hamburg</p>
+                  <p className="font-semibold">Green Oil Trade and Service GmbH</p>
+                  <p>Beethovenstraße 15</p>
+                  <p>60325 Frankfurt am Main</p>
                   <p>Deutschland</p>
                 </div>
               </motion.section>
@@ -58,8 +58,8 @@ const Impressum = () => {
               >
                 <h2 className="text-xl font-semibold text-slate-900 mb-4">Handelsregister</h2>
                 <div className="text-slate-700 space-y-1">
-                  <p>Registergericht: Amtsgericht Hamburg</p>
-                  <p>Registernummer: HRB 98765</p>
+                  <p>Registergericht: Amtsgericht Frankfurt am Main</p>
+                  <p>Registernummer: HRB 112358</p>
                 </div>
               </motion.section>
 
@@ -84,7 +84,7 @@ const Impressum = () => {
               className="mt-8 bg-gradient-to-r from-blue-50 to-emerald-50 rounded-xl p-6"
             >
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Geschäftsführung</h2>
-              <p className="text-gray-700">Dr. Sarah Müller, Thomas Weber</p>
+              <p className="text-gray-700">Michael Grünberg</p>
             </motion.section>
 
             <motion.section
@@ -95,9 +95,9 @@ const Impressum = () => {
             >
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
               <div className="text-gray-700 space-y-1">
-                <p>Dr. Sarah Müller</p>
-                <p>Energiestraße 45</p>
-                <p>20355 Hamburg</p>
+                <p>Michael Grünberg</p>
+                <p>Beethovenstraße 15</p>
+                <p>60325 Frankfurt am Main</p>
               </div>
             </motion.section>
           </div>

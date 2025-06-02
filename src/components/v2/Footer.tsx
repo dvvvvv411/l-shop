@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
@@ -12,7 +13,7 @@ const Footer = () => {
     {
       icon: MapPin,
       title: "Hauptsitz",
-      content: ["OilExpress GmbH", "Energiestraße 45", "20355 Hamburg"]
+      content: ["Green Oil Trade and Service GmbH", "Beethovenstraße 15", "60325 Frankfurt am Main"]
     },
     {
       icon: Phone,
@@ -172,7 +173,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-400">
             <div>
-              © {currentYear} OilExpress GmbH. Alle Rechte vorbehalten.
+              © {currentYear} Green Oil Trade and Service GmbH. Alle Rechte vorbehalten.
             </div>
             <div className="flex items-center space-x-4 mt-3 md:mt-0">
               <span className="flex items-center space-x-2">
