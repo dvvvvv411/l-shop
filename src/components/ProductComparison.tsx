@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Star } from 'lucide-react';
@@ -32,6 +31,14 @@ const ProductComparison = () => {
       ]
     }
   ];
+
+  const scrollToPriceCalculator = () => {
+    // Scroll to the top of the page where the price calculator is located
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   return (
     <section className="py-20 bg-white">
@@ -93,11 +100,14 @@ const ProductComparison = () => {
                 ))}
               </div>
 
-              <button className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                product.popular 
-                  ? 'bg-red-600 text-white hover:bg-red-700' 
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-              }`}>
+              <button 
+                onClick={scrollToPriceCalculator}
+                className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                  product.popular 
+                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
                 Jetzt wählen
               </button>
             </motion.div>
