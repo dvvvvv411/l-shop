@@ -22,9 +22,9 @@ export const useInvoiceGeneration = () => {
         throw error;
       }
 
-      if (!data.success) {
-        console.error('Invoice generation failed:', data.error);
-        throw new Error(data.error || 'Failed to generate invoice');
+      if (!data || !data.success) {
+        console.error('Invoice generation failed:', data?.error);
+        throw new Error(data?.error || 'Failed to generate invoice');
       }
 
       console.log('Invoice generated successfully:', data.invoiceNumber);
