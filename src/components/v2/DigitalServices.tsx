@@ -1,44 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Smartphone, Monitor, Bell, CreditCard, BarChart3, Calendar, QrCode, Wifi } from 'lucide-react';
+import { Smartphone, Monitor, Bell, BarChart3, Calendar, QrCode, Wifi } from 'lucide-react';
 
 const DigitalServices = () => {
-  const digitalFeatures = [
-    {
-      icon: Smartphone,
-      title: "Mobile App",
-      description: "Vollständige Kontrolle über Ihre Heizöl-Versorgung unterwegs",
-      features: ["Live-Tracking", "Push-Benachrichtigungen", "Bestellhistorie", "Rechnungsarchiv"],
-      color: "blue",
-      gradient: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: Monitor,
-      title: "Online-Dashboard",
-      description: "Übersichtliches Web-Portal für alle Ihre Heizöl-Services",
-      features: ["Verbrauchsanalyse", "Kostenübersicht", "Lieferplanung", "Dokumentenverwaltung"],
-      color: "emerald",
-      gradient: "from-emerald-500 to-green-500"
-    },
-    {
-      icon: Bell,
-      title: "Smart Notifications",
-      description: "Intelligente Benachrichtigungen für optimales Bestelltiming",
-      features: ["Füllstand-Warnung", "Preis-Alerts", "Liefertermin-Erinnerung", "Wartungshinweise"],
-      color: "purple",
-      gradient: "from-purple-500 to-indigo-500"
-    },
-    {
-      icon: CreditCard,
-      title: "Digitale Zahlung",
-      description: "Sichere und bequeme Online-Zahlungsabwicklung",
-      features: ["PayPal & Kreditkarte", "SEPA-Lastschrift", "Rechnungskauf", "Sofort-Überweisung"],
-      color: "orange",
-      gradient: "from-orange-500 to-red-500"
-    }
-  ];
-
   const innovationStats = [
     {
       icon: BarChart3,
@@ -130,36 +95,6 @@ const DigitalServices = () => {
             </div>
           ))}
         </motion.div>
-
-        {/* Digital Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-6xl mx-auto">
-          {digitalFeatures.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="group bg-gradient-to-br from-slate-50 to-blue-50/50 border border-slate-200/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
-                <feature.icon className="text-white" size={28} />
-              </div>
-              
-              <h3 className="text-xl font-semibold text-slate-800 mb-3">{feature.title}</h3>
-              <p className="text-slate-600 mb-4 leading-relaxed">{feature.description}</p>
-              
-              <div className="grid grid-cols-2 gap-2">
-                {feature.features.map((featureItem, featureIndex) => (
-                  <div key={featureIndex} className="flex items-center space-x-2 text-sm text-slate-600">
-                    <div className={`w-1.5 h-1.5 bg-${feature.color}-500 rounded-full`}></div>
-                    <span>{featureItem}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </div>
 
         {/* Digital Process */}
         <motion.div
