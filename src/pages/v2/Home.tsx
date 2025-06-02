@@ -7,9 +7,6 @@ import TrustElements from '../../components/v2/TrustElements';
 import ServiceAreas from '../../components/v2/ServiceAreas';
 import SavingsTips from '../../components/v2/SavingsTips';
 import CustomerReviews from '../../components/v2/CustomerReviews';
-import WhyChooseUs from '../../components/v2/WhyChooseUs';
-import HowItWorks from '../../components/v2/HowItWorks';
-import FAQ from '../../components/v2/FAQ';
 import Footer from '../../components/Footer';
 import { Zap, Award } from 'lucide-react';
 
@@ -90,9 +87,6 @@ const Home = () => {
       <ServiceAreas />
       <SavingsTips />
       <CustomerReviews />
-      <WhyChooseUs />
-      <HowItWorks />
-      <FAQ />
       <Footer />
     </div>
   );
