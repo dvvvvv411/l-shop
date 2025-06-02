@@ -17,8 +17,8 @@ const Impressum = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Angaben gemäß § 5 TMG</h2>
               <div>
                 <p className="font-semibold">STANTON GmbH</p>
-                <p>Essener Straße 5</p>
-                <p>46047 Oberhausen</p>
+                <p>Schellingstr. 109 a</p>
+                <p>80798 München</p>
                 <p>Deutschland</p>
               </div>
             </section>
@@ -31,8 +31,8 @@ const Impressum = () => {
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Handelsregister</h2>
-              <p>Registergericht: Amtsgericht Duisburg</p>
-              <p>Registernummer: HRB 32213</p>
+              <p>Registergericht: Amtsgericht Traunstein</p>
+              <p>Registernummer: HRB 27690</p>
             </section>
 
             <section>
@@ -43,14 +43,14 @@ const Impressum = () => {
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Geschäftsführer</h2>
-              <p>Alexander Stanton</p>
+              <p>Antonio Vacca</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-              <p>Alexander Stanton</p>
-              <p>Essener Straße 5</p>
-              <p>46047 Oberhausen</p>
+              <p>Antonio Vacca</p>
+              <p>Schellingstr. 109 a</p>
+              <p>80798 München</p>
             </section>
           </div>
         </div>

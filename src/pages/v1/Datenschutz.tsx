@@ -23,6 +23,17 @@ const Datenschutz = () => {
               <h2 className="text-xl font-semibold text-gray-900 mb-3">2. Allgemeine Hinweise und Pflichtinformationen</h2>
               <h3 className="text-lg font-medium text-gray-800 mb-2">Datenschutz</h3>
               <p>Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
+              
+              <h3 className="text-lg font-medium text-gray-800 mb-2 mt-4">Verantwortliche Stelle</h3>
+              <p>Verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:</p>
+              <div className="mt-2 p-4 bg-gray-50 rounded">
+                <p className="font-semibold">STANTON GmbH</p>
+                <p>Schellingstr. 109 a</p>
+                <p>80798 München</p>
+                <p>Deutschland</p>
+                <p className="mt-2">E-Mail: info@heizoeldirekt.de</p>
+                <p>Telefon: 0800 123 456 7</p>
+              </div>
             </section>
 
             <section>
