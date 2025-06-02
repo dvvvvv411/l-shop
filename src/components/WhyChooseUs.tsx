@@ -66,8 +66,8 @@ const WhyChooseUs = () => {
               className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-gradient-to-br from-blue-100 to-emerald-100 p-4 rounded-full">
-                  <reason.icon className="text-blue-600" size={32} />
+                <div className="bg-red-100 p-4 rounded-full">
+                  <reason.icon className="text-red-600" size={32} />
                 </div>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
@@ -87,7 +87,7 @@ const WhyChooseUs = () => {
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <button className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
+          <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
             Jetzt Angebot anfordern
           </button>
         </motion.div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -105,8 +104,8 @@ const PriceCalculator = () => {
     >
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <div className="bg-blue-100 p-3 rounded-full">
-            <Calculator className="text-blue-600" size={32} />
+          <div className="bg-red-100 p-3 rounded-full">
+            <Calculator className="text-red-600" size={32} />
           </div>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -131,10 +130,10 @@ const PriceCalculator = () => {
                 value={postcode}
                 onChange={handlePostcodeChange}
                 placeholder="z.B. 12345"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
                   !isValidPostcode && postcode.length === 5
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-blue-500'
+                    : 'border-gray-300 focus:border-red-500'
                 }`}
                 maxLength={5}
               />
@@ -169,10 +168,10 @@ const PriceCalculator = () => {
                 type="number"
                 value={amount}
                 onChange={(e) => handleAmountChange(Number(e.target.value))}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
                   !isValidAmount
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-blue-500'
+                    : 'border-gray-300 focus:border-red-500'
                 }`}
                 min="1500"
                 max="32000"
@@ -219,7 +218,7 @@ const PriceCalculator = () => {
                     whileHover={{ scale: 1.02 }}
                     className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedProduct === product.id
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'border-red-500 bg-red-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setSelectedProduct(product.id)}
@@ -233,7 +232,7 @@ const PriceCalculator = () => {
                             <div className="text-sm text-gray-600">{product.description}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-blue-600">{product.price.toFixed(2)}€</div>
+                            <div className="font-bold text-red-600">{product.price.toFixed(2)}€</div>
                             <div className="text-sm text-gray-500">pro Liter</div>
                           </div>
                         </div>
@@ -271,7 +270,7 @@ const PriceCalculator = () => {
               )}
               
               {deliveryFee === 0 && (
-                <div className="flex justify-between text-emerald-600">
+                <div className="flex justify-between text-green-600">
                   <span>Kostenlose Lieferung</span>
                   <span className="font-semibold">0,00€</span>
                 </div>
@@ -281,7 +280,7 @@ const PriceCalculator = () => {
               
               <div className="flex justify-between text-xl font-bold">
                 <span>Gesamtpreis</span>
-                <span className="text-blue-600">{totalPrice.toFixed(2)}€</span>
+                <span className="text-red-600">{totalPrice.toFixed(2)}€</span>
               </div>
             </div>
 
@@ -292,7 +291,7 @@ const PriceCalculator = () => {
               onClick={handleOrderClick}
               className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
                 isFormValid
-                  ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 shadow-lg hover:shadow-xl'
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
