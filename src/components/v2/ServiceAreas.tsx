@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Truck, Clock, Phone, CheckCircle, Zap } from 'lucide-react';
@@ -30,7 +31,7 @@ const ServiceAreas = () => {
     {
       icon: Truck,
       title: "Express-Lieferung",
-      description: "2-5 Werktage deutschlandweit",
+      description: "4-7 Werktage deutschlandweit",
       highlight: "Notfall-Service verfügbar"
     },
     {
