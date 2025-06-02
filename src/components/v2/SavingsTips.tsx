@@ -60,6 +60,13 @@ const SavingsTips = () => {
     setExpandedTip(expandedTip === index ? null : index);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 via-slate-50 to-emerald-50">
       <div className="container mx-auto px-4">
@@ -83,7 +90,6 @@ const SavingsTips = () => {
           </p>
         </motion.div>
 
-        {/* Savings Calculator Teaser */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -110,7 +116,6 @@ const SavingsTips = () => {
           </div>
         </motion.div>
 
-        {/* Interactive Tips */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {savingsTips.map((tip, index) => (
             <motion.div
@@ -172,7 +177,6 @@ const SavingsTips = () => {
           ))}
         </div>
 
-        {/* CTA Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -187,7 +191,10 @@ const SavingsTips = () => {
             <p className="text-gray-600 mb-6">
               Starten Sie jetzt mit Premium-Heizöl zum Bestpreis und unseren Expertentipps!
             </p>
-            <button className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl">
+            <button 
+              onClick={scrollToTop}
+              className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+            >
               Heizöl bestellen & sparen
             </button>
           </div>
