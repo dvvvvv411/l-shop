@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Quote, MapPin, Calendar, CheckCircle, Users } from 'lucide-react';
@@ -69,7 +68,7 @@ const CustomerReviews = () => {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gradient-to-br from-blue-50 via-slate-50 to-emerald-50">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
