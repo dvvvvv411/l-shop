@@ -2,9 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getLogoConfig } from '../../config/logoConfig';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const logoConfig = getLogoConfig('/2/home');
 
   const companyInfo = [
     {
@@ -65,9 +67,17 @@ const Footer = () => {
           >
             <div className="mb-6">
               <Link to="/2/home" className="flex items-center mb-4">
-                <div className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white px-5 py-2 rounded-md font-bold text-xl">
-                  OilExpress
-                </div>
+                {logoConfig.useImage && logoConfig.imageUrl ? (
+                  <img 
+                    src={logoConfig.imageUrl} 
+                    alt={logoConfig.name} 
+                    className={logoConfig.className}
+                  />
+                ) : (
+                  <div className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white px-5 py-2 rounded-md font-bold text-xl">
+                    {logoConfig.textContent}
+                  </div>
+                )}
               </Link>
               <p className="text-slate-300 text-sm leading-relaxed max-w-md">
                 Seit 1998 Ihr vertrauensvoller Partner für Premium-Heizöl in ganz Deutschland. 

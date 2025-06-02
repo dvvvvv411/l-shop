@@ -17,8 +17,10 @@ export const logoConfigs: Record<string, LogoConfig> = {
   },
   '/2/home': {
     name: 'OilExpress',
-    className: 'bg-gradient-to-r from-blue-500 to-emerald-500 text-white px-5 py-2 rounded-md font-bold text-xl',
-    textContent: 'OilExpress'
+    className: 'h-12 w-auto',
+    textContent: 'OilExpress',
+    imageUrl: 'https://i.imgur.com/qwFr7Og.png',
+    useImage: true
   }
 };
 

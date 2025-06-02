@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, ShoppingCart, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { getLogoConfig } from '../../config/logoConfig';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const logoConfig = getLogoConfig('/2/home');
 
   return (
     <header className="bg-white border-b border-gray-100 relative z-50">
@@ -52,9 +54,17 @@ const Header = () => {
             className="flex items-center"
           >
             <Link to="/2/home" className="flex items-center">
-              <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-5 py-2 rounded-md font-bold text-xl">
-                OilExpress
-              </div>
+              {logoConfig.useImage && logoConfig.imageUrl ? (
+                <img 
+                  src={logoConfig.imageUrl} 
+                  alt={logoConfig.name} 
+                  className={logoConfig.className}
+                />
+              ) : (
+                <div className="bg-gradient-to-r from-blue-600 to-emerald-600 text-white px-5 py-2 rounded-md font-bold text-xl">
+                  {logoConfig.textContent}
+                </div>
+              )}
               <div className="ml-3 hidden md:block">
                 <div className="text-xs text-gray-500 font-medium">Premium Energielösungen</div>
                 <div className="text-sm font-semibold text-gray-800">Seit 1998</div>
