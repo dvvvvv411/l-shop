@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -34,6 +35,9 @@ serve(async (req) => {
       console.error('Order fetch error:', orderError);
       throw new Error('Order not found')
     }
+
+    // Store the old status for history logging
+    const oldStatus = order.status;
 
     // Fetch shop details if provided
     let shop = null
@@ -243,10 +247,11 @@ serve(async (req) => {
 
       // 4. Update order status and invoice information
       console.log('Updating order status...');
+      const newStatus = 'invoice_created';
       const { error: statusUpdateError } = await supabaseClient
         .from('orders')
         .update({ 
-          status: 'invoice_created',
+          status: newStatus,
           invoice_number: invoiceNumber,
           invoice_date: currentDate,
           invoice_file_url: fileUrl,
@@ -260,6 +265,26 @@ serve(async (req) => {
       }
 
       console.log('Order status updated successfully');
+
+      // 5. Log the status change in order_status_history
+      console.log('Logging status change in history...');
+      const { error: statusHistoryError } = await supabaseClient
+        .from('order_status_history')
+        .insert({
+          order_id: orderId,
+          old_status: oldStatus,
+          new_status: newStatus,
+          changed_by: 'System',
+          notes: `Rechnung ${invoiceNumber} automatisch generiert`
+        });
+
+      if (statusHistoryError) {
+        console.error('Error logging status change:', statusHistoryError);
+        // Don't throw here as this is not critical for the invoice generation
+        console.warn('Status change logging failed, but continuing with invoice generation');
+      } else {
+        console.log('Status change logged successfully');
+      }
 
     } catch (dbError) {
       console.error('Database operation failed:', dbError);

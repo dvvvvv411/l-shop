@@ -37,7 +37,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
-  const { addStatusChange } = useOrderStatusHistory(order.id);
+  const { addStatusChange, refetch: refetchHistory } = useOrderStatusHistory(order.id);
 
   const handleGenerateInvoice = async () => {
     try {
@@ -45,6 +45,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({
       if (result && result.updatedOrder && onOrderUpdate) {
         onOrderUpdate(result.updatedOrder);
       }
+      // Refresh the status history after invoice generation
+      setTimeout(() => {
+        refetchHistory();
+      }, 1000);
     } catch (error) {
       console.error('Failed to generate invoice:', error);
     }
@@ -76,10 +80,14 @@ const OrderActions: React.FC<OrderActionsProps> = ({
     setIsInvoiceViewerOpen(false);
   };
 
-  const handleOrderUpdateFromDialog = (orderId: string, updatedData: Partial<Order>) => {
+  const handleOrderUpdateFromDialog = async (orderId: string, updatedData: Partial<Order>) => {
     if (onOrderUpdate) {
       onOrderUpdate(updatedData);
     }
+    // Refresh the status history after order update from dialog
+    setTimeout(() => {
+      refetchHistory();
+    }, 1000);
   };
 
   return (
