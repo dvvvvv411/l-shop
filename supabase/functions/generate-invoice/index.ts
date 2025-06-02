@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import jsPDF from 'https://esm.sh/jspdf@2.5.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -80,11 +81,8 @@ serve(async (req) => {
       invoiceNumber = invoiceGen
     }
 
-    // Generate HTML content for the invoice
-    const htmlContent = generateInvoiceHTML(order, shop, bankAccount, invoiceNumber)
-
-    // Convert HTML to PDF using Puppeteer
-    const pdfBuffer = await generatePDF(htmlContent)
+    // Generate PDF using jsPDF
+    const pdfBuffer = generateInvoicePDF(order, shop, bankAccount, invoiceNumber)
 
     // Store PDF in Supabase Storage - sanitize filename
     const sanitizedOrderNumber = order.order_number.replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -212,7 +210,6 @@ serve(async (req) => {
         success: true,
         invoiceNumber,
         invoiceAmount: order.total_amount,
-        htmlContent,
         fileUrl,
         fileName,
         // Return updated order data for frontend
@@ -243,11 +240,13 @@ serve(async (req) => {
   }
 })
 
-function generateInvoiceHTML(order: any, shop: any, bankAccount: any, invoiceNumber: string): string {
-  const invoiceDate = new Date().toLocaleDateString('de-DE')
-  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'TBD'
+function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string): Uint8Array {
+  const doc = new jsPDF()
   
-  // Use shop data if available, otherwise fallback to default
+  // Set font
+  doc.setFont('helvetica')
+  
+  // Company header
   const companyName = shop?.company_name || 'Heizöl-Express GmbH'
   const companyAddress = shop?.company_address || 'Musterstraße 123'
   const companyPostcode = shop?.company_postcode || '12345'
@@ -255,149 +254,141 @@ function generateInvoiceHTML(order: any, shop: any, bankAccount: any, invoiceNum
   const companyPhone = shop?.company_phone || '+49 30 12345678'
   const companyEmail = shop?.company_email || 'info@heizoel-express.de'
   const vatNumber = shop?.vat_number || 'DE123456789'
-
-  return `
-    <!DOCTYPE html>
-    <html lang="de">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Rechnung ${invoiceNumber}</title>
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; margin: 0; padding: 20px; }
-            .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-            .company-info { text-align: left; }
-            .invoice-info { text-align: right; }
-            .customer-address { margin: 20px 0; }
-            .invoice-details { margin: 30px 0; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-            th { background-color: #f5f5f5; font-weight: bold; }
-            .total-row { font-weight: bold; background-color: #f9f9f9; }
-            .footer { margin-top: 40px; font-size: 10px; color: #666; }
-            .bank-details { margin-top: 20px; }
-            @media print { body { margin: 0; padding: 15px; } }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div class="company-info">
-                <h2>${companyName}</h2>
-                <p>${companyAddress}<br>
-                ${companyPostcode} ${companyCity}<br>
-                Tel: ${companyPhone}<br>
-                E-Mail: ${companyEmail}<br>
-                USt-IdNr: ${vatNumber}</p>
-            </div>
-            <div class="invoice-info">
-                <h1>RECHNUNG</h1>
-                <p><strong>Rechnungsnummer:</strong> ${invoiceNumber}<br>
-                <strong>Rechnungsdatum:</strong> ${invoiceDate}<br>
-                <strong>Bestellnummer:</strong> ${order.order_number}</p>
-            </div>
-        </div>
-
-        <div class="customer-address">
-            <h3>Rechnungsanschrift:</h3>
-            <p>${order.customer_name}<br>
-            ${order.delivery_street}<br>
-            ${order.delivery_postcode} ${order.delivery_city}</p>
-        </div>
-
-        <div class="invoice-details">
-            <h3>Lieferdetails:</h3>
-            <p><strong>Lieferadresse:</strong> ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}<br>
-            <strong>Gewünschter Liefertermin:</strong> ${deliveryDate}<br>
-            <strong>Zahlungsart:</strong> ${order.payment_method}</p>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Pos.</th>
-                    <th>Beschreibung</th>
-                    <th>Menge</th>
-                    <th>Einheit</th>
-                    <th>Einzelpreis</th>
-                    <th>Gesamtpreis</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>${order.product || 'Heizöl Standard'}</td>
-                    <td>${order.liters.toLocaleString()}</td>
-                    <td>Liter</td>
-                    <td>€${Number(order.price_per_liter).toFixed(2)}</td>
-                    <td>€${(order.liters * Number(order.price_per_liter)).toFixed(2)}</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Lieferkosten</td>
-                    <td>1</td>
-                    <td>Stück</td>
-                    <td>€${Number(order.delivery_fee).toFixed(2)}</td>
-                    <td>€${Number(order.delivery_fee).toFixed(2)}</td>
-                </tr>
-                ${Number(order.discount) > 0 ? `
-                <tr>
-                    <td>3</td>
-                    <td>Rabatt</td>
-                    <td>1</td>
-                    <td>Stück</td>
-                    <td>-€${Number(order.discount).toFixed(2)}</td>
-                    <td>-€${Number(order.discount).toFixed(2)}</td>
-                </tr>
-                ` : ''}
-            </tbody>
-        </table>
-
-        <table style="margin-top: 20px;">
-            <tr>
-                <td style="text-align: right; padding-right: 20px;"><strong>Zwischensumme:</strong></td>
-                <td style="text-align: right;"><strong>€${(order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)).toFixed(2)}</strong></td>
-            </tr>
-            <tr>
-                <td style="text-align: right; padding-right: 20px;">MwSt. (19%):</td>
-                <td style="text-align: right;">€${((order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)) * 0.19).toFixed(2)}</td>
-            </tr>
-            <tr class="total-row">
-                <td style="text-align: right; padding-right: 20px;"><strong>Gesamtbetrag:</strong></td>
-                <td style="text-align: right;"><strong>€${Number(order.total_amount).toFixed(2)}</strong></td>
-            </tr>
-        </table>
-
-        ${bankAccount ? `
-        <div class="bank-details">
-            <h3>Bankverbindung:</h3>
-            <p><strong>Bank:</strong> ${bankAccount.bank_name}<br>
-            <strong>Kontoinhaber:</strong> ${bankAccount.account_holder}<br>
-            <strong>IBAN:</strong> ${bankAccount.iban}<br>
-            ${bankAccount.bic ? `<strong>BIC:</strong> ${bankAccount.bic}<br>` : ''}
-            <strong>Verwendungszweck:</strong> ${invoiceNumber}</p>
-        </div>
-        ` : ''}
-
-        ${order.notes ? `
-        <div style="margin-top: 20px;">
-            <h3>Bemerkungen:</h3>
-            <p>${order.notes}</p>
-        </div>
-        ` : ''}
-
-        <div class="footer">
-            <p>Vielen Dank für Ihren Auftrag!<br>
-            ${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}<br>
-            Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}</p>
-        </div>
-    </body>
-    </html>
-  `
-}
-
-async function generatePDF(htmlContent: string): Promise<Uint8Array> {
-  // For now, we'll return the HTML as bytes since Puppeteer is complex to set up in Deno
-  // In a production environment, you would use a PDF generation service
-  const encoder = new TextEncoder()
-  return encoder.encode(htmlContent)
+  
+  // Header
+  doc.setFontSize(18)
+  doc.setTextColor(0, 0, 0)
+  doc.text(companyName, 20, 20)
+  
+  doc.setFontSize(10)
+  doc.text(`${companyAddress}`, 20, 30)
+  doc.text(`${companyPostcode} ${companyCity}`, 20, 35)
+  doc.text(`Tel: ${companyPhone}`, 20, 40)
+  doc.text(`E-Mail: ${companyEmail}`, 20, 45)
+  doc.text(`USt-IdNr: ${vatNumber}`, 20, 50)
+  
+  // Invoice title and info
+  doc.setFontSize(16)
+  doc.text('RECHNUNG', 140, 20)
+  
+  doc.setFontSize(10)
+  const invoiceDate = new Date().toLocaleDateString('de-DE')
+  doc.text(`Rechnungsnummer: ${invoiceNumber}`, 140, 30)
+  doc.text(`Rechnungsdatum: ${invoiceDate}`, 140, 35)
+  doc.text(`Bestellnummer: ${order.order_number}`, 140, 40)
+  
+  // Customer address
+  doc.setFontSize(12)
+  doc.text('Rechnungsanschrift:', 20, 70)
+  doc.setFontSize(10)
+  doc.text(order.customer_name, 20, 80)
+  doc.text(order.delivery_street || order.customer_address, 20, 85)
+  doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 20, 90)
+  
+  // Delivery details
+  doc.setFontSize(12)
+  doc.text('Lieferdetails:', 20, 110)
+  doc.setFontSize(10)
+  const deliveryDate = order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('de-DE') : 'TBD'
+  doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 20, 120)
+  doc.text(`Gewünschter Liefertermin: ${deliveryDate}`, 20, 125)
+  doc.text(`Zahlungsart: ${order.payment_method}`, 20, 130)
+  
+  // Table header
+  let yPos = 150
+  doc.setFontSize(10)
+  doc.setFillColor(245, 245, 245)
+  doc.rect(20, yPos, 170, 8, 'F')
+  doc.text('Pos.', 25, yPos + 5)
+  doc.text('Beschreibung', 40, yPos + 5)
+  doc.text('Menge', 100, yPos + 5)
+  doc.text('Einheit', 120, yPos + 5)
+  doc.text('Einzelpreis', 140, yPos + 5)
+  doc.text('Gesamtpreis', 160, yPos + 5)
+  
+  // Table rows
+  yPos += 10
+  doc.text('1', 25, yPos + 5)
+  doc.text(order.product || 'Heizöl Standard', 40, yPos + 5)
+  doc.text(order.liters.toLocaleString(), 100, yPos + 5)
+  doc.text('Liter', 120, yPos + 5)
+  doc.text(`€${Number(order.price_per_liter).toFixed(2)}`, 140, yPos + 5)
+  doc.text(`€${(order.liters * Number(order.price_per_liter)).toFixed(2)}`, 160, yPos + 5)
+  
+  yPos += 8
+  doc.text('2', 25, yPos + 5)
+  doc.text('Lieferkosten', 40, yPos + 5)
+  doc.text('1', 100, yPos + 5)
+  doc.text('Stück', 120, yPos + 5)
+  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 140, yPos + 5)
+  doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 160, yPos + 5)
+  
+  if (Number(order.discount) > 0) {
+    yPos += 8
+    doc.text('3', 25, yPos + 5)
+    doc.text('Rabatt', 40, yPos + 5)
+    doc.text('1', 100, yPos + 5)
+    doc.text('Stück', 120, yPos + 5)
+    doc.text(`-€${Number(order.discount).toFixed(2)}`, 140, yPos + 5)
+    doc.text(`-€${Number(order.discount).toFixed(2)}`, 160, yPos + 5)
+  }
+  
+  // Totals
+  yPos += 20
+  const subtotal = order.liters * Number(order.price_per_liter) + Number(order.delivery_fee) - Number(order.discount)
+  const vat = subtotal * 0.19
+  
+  doc.text('Zwischensumme:', 130, yPos)
+  doc.text(`€${subtotal.toFixed(2)}`, 160, yPos)
+  
+  yPos += 6
+  doc.text('MwSt. (19%):', 130, yPos)
+  doc.text(`€${vat.toFixed(2)}`, 160, yPos)
+  
+  yPos += 6
+  doc.setFont('helvetica', 'bold')
+  doc.text('Gesamtbetrag:', 130, yPos)
+  doc.text(`€${Number(order.total_amount).toFixed(2)}`, 160, yPos)
+  doc.setFont('helvetica', 'normal')
+  
+  // Bank details if available
+  if (bankAccount) {
+    yPos += 20
+    doc.setFontSize(12)
+    doc.text('Bankverbindung:', 20, yPos)
+    doc.setFontSize(10)
+    yPos += 8
+    doc.text(`Bank: ${bankAccount.bank_name}`, 20, yPos)
+    yPos += 5
+    doc.text(`Kontoinhaber: ${bankAccount.account_holder}`, 20, yPos)
+    yPos += 5
+    doc.text(`IBAN: ${bankAccount.iban}`, 20, yPos)
+    if (bankAccount.bic) {
+      yPos += 5
+      doc.text(`BIC: ${bankAccount.bic}`, 20, yPos)
+    }
+    yPos += 5
+    doc.text(`Verwendungszweck: ${invoiceNumber}`, 20, yPos)
+  }
+  
+  // Notes if available
+  if (order.notes) {
+    yPos += 15
+    doc.setFontSize(12)
+    doc.text('Bemerkungen:', 20, yPos)
+    doc.setFontSize(10)
+    yPos += 8
+    doc.text(order.notes, 20, yPos)
+  }
+  
+  // Footer
+  doc.setFontSize(8)
+  doc.setTextColor(102, 102, 102)
+  doc.text('Vielen Dank für Ihren Auftrag!', 20, 280)
+  doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 20, 285)
+  doc.text(`Geschäftsführung: Max Mustermann • Handelsregister: HRB 12345 Berlin • USt-IdNr: ${vatNumber}`, 20, 290)
+  
+  // Convert to Uint8Array
+  const pdfOutput = doc.output('arraybuffer')
+  return new Uint8Array(pdfOutput)
 }

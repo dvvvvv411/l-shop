@@ -1,9 +1,10 @@
 
-import React from 'react';
-import { FileText, Download, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Download, ExternalLink, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 import type { Order } from '@/hooks/useOrders';
 
 interface InvoiceViewerDialogProps {
@@ -17,19 +18,54 @@ const InvoiceViewerDialog: React.FC<InvoiceViewerDialogProps> = ({
   isOpen,
   onClose
 }) => {
+  const [pdfError, setPdfError] = useState(false);
+  const { toast } = useToast();
+
   if (!order) return null;
 
   const hasInvoice = order.invoice_file_url && order.invoice_number;
 
-  const handleDownload = () => {
-    if (order.invoice_file_url) {
-      // Create a temporary link to download the file
+  const handleDownload = async () => {
+    if (!order.invoice_file_url) return;
+    
+    try {
+      const response = await fetch(order.invoice_file_url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDF');
+      }
+      
+      const blob = await response.blob();
+      
+      // Check if the blob is actually a PDF
+      if (blob.type !== 'application/pdf' && !blob.type.includes('pdf')) {
+        console.warn('Downloaded file may not be a valid PDF:', blob.type);
+        toast({
+          title: 'Warnung',
+          description: 'Die heruntergeladene Datei könnte beschädigt sein.',
+          variant: 'destructive',
+        });
+      }
+      
       const link = document.createElement('a');
-      link.href = order.invoice_file_url;
+      link.href = URL.createObjectURL(blob);
       link.download = `Rechnung_${order.order_number}_${order.invoice_number}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+      toast({
+        title: 'Erfolg',
+        description: 'PDF wurde heruntergeladen.',
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast({
+        title: 'Fehler',
+        description: 'PDF konnte nicht heruntergeladen werden.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -37,6 +73,11 @@ const InvoiceViewerDialog: React.FC<InvoiceViewerDialogProps> = ({
     if (order.invoice_file_url) {
       window.open(order.invoice_file_url, '_blank');
     }
+  };
+
+  const handleIframeError = () => {
+    console.error('PDF could not be loaded in iframe');
+    setPdfError(true);
   };
 
   return (
@@ -99,14 +140,25 @@ const InvoiceViewerDialog: React.FC<InvoiceViewerDialogProps> = ({
             </Alert>
           )}
 
+          {pdfError && hasInvoice && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Die PDF-Datei konnte nicht geladen werden. Versuchen Sie, die Datei herunterzuladen oder in einem neuen Tab zu öffnen.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* PDF Viewer */}
-          {hasInvoice && (
+          {hasInvoice && !pdfError && (
             <div className="border rounded-lg overflow-hidden bg-white" style={{ height: '600px' }}>
               <iframe
-                src={order.invoice_file_url}
+                src={`${order.invoice_file_url}#toolbar=1&navpanes=1&scrollbar=1`}
                 className="w-full h-full"
                 title={`Rechnung ${order.invoice_number}`}
                 style={{ minHeight: '600px' }}
+                onError={handleIframeError}
+                onLoad={() => setPdfError(false)}
               />
             </div>
           )}
