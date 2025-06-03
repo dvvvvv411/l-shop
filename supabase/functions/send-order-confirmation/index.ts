@@ -272,6 +272,12 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             margin: 24px 0;
             text-align: center;
         }
+        .total-section .total-label {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
         .total-section .total-amount {
             font-size: 28px;
             font-weight: 700;
@@ -281,31 +287,50 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
         .callback-notice {
             background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
             color: #1f2937;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-            border: 2px solid #f59e0b;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+            border: 3px solid #f59e0b;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+            position: relative;
+        }
+        .callback-notice::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            border-radius: 16px;
+            z-index: -1;
         }
         .callback-notice h3 {
             color: #1f2937;
-            margin: 0 0 12px 0;
-            font-size: 18px;
+            margin: 0 0 16px 0;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .callback-notice p {
-            margin: 8px 0;
-            font-weight: 500;
+            margin: 12px 0;
+            font-weight: 600;
             color: #1f2937;
+            font-size: 16px;
+            line-height: 1.6;
         }
         .callback-notice .phone-highlight {
-            background-color: rgba(255, 255, 255, 0.4);
-            padding: 4px 8px;
-            border-radius: 6px;
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
             font-weight: 700;
             color: #1f2937;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin: 4px 0;
         }
         .contact-grid {
             display: grid;
@@ -391,6 +416,13 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             .total-section .total-amount {
                 font-size: 24px;
             }
+            .callback-notice {
+                padding: 24px;
+                margin: 24px 0;
+            }
+            .callback-notice h3 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -441,7 +473,7 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             </div>
 
             <div class="total-section">
-                <div>Gesamtbetrag</div>
+                <div class="total-label">Gesamtbetrag</div>
                 <div class="total-amount">€${Number(order.total_amount).toFixed(2)}</div>
             </div>
             
@@ -457,7 +489,8 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             <div class="callback-notice">
                 <h3>📞 Wichtiger Hinweis zur Lieferung</h3>
                 <p><strong>Wir werden Sie innerhalb der nächsten 24 Stunden telefonisch kontaktieren</strong>, um die Details Ihrer Lieferung zu besprechen und einen Liefertermin zu vereinbaren.</p>
-                <p>Bitte halten Sie Ihre Telefonnummer <span class="phone-highlight">${order.delivery_phone}</span> bereit.</p>
+                <p>Bitte halten Sie Ihre Telefonnummer bereit:</p>
+                <div class="phone-highlight">${order.delivery_phone}</div>
             </div>
             
             <div class="info-section">
