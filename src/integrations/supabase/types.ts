@@ -428,30 +428,36 @@ export type Database = {
       }
       nexi_payment_configs: {
         Row: {
+          alias: string | null
           created_at: string
           id: string
           is_active: boolean
           is_sandbox: boolean
+          mac_key: string | null
           merchant_id: string
           shop_id: string | null
           terminal_id: string
           updated_at: string
         }
         Insert: {
+          alias?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
           is_sandbox?: boolean
+          mac_key?: string | null
           merchant_id: string
           shop_id?: string | null
           terminal_id: string
           updated_at?: string
         }
         Update: {
+          alias?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
           is_sandbox?: boolean
+          mac_key?: string | null
           merchant_id?: string
           shop_id?: string | null
           terminal_id?: string

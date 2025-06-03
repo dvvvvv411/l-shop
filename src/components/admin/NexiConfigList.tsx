@@ -29,6 +29,8 @@ interface NexiConfig {
   id: string;
   merchant_id: string;
   terminal_id: string;
+  alias?: string;
+  mac_key?: string;
   is_sandbox: boolean;
   is_active: boolean;
   shop_id?: string;
@@ -147,6 +149,8 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
           <TableRow>
             <TableHead>Merchant ID</TableHead>
             <TableHead>Terminal ID</TableHead>
+            <TableHead>ALIAS</TableHead>
+            <TableHead>MAC Key</TableHead>
             <TableHead>Umgebung</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Erstellt</TableHead>
@@ -160,6 +164,20 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
                 {config.merchant_id}
               </TableCell>
               <TableCell>{config.terminal_id}</TableCell>
+              <TableCell>
+                {config.alias ? (
+                  <span className="text-sm text-gray-600">{config.alias}</span>
+                ) : (
+                  <span className="text-sm text-gray-400">Nicht gesetzt</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {config.mac_key ? (
+                  <span className="text-sm text-gray-600">••••••••</span>
+                ) : (
+                  <span className="text-sm text-gray-400">Nicht gesetzt</span>
+                )}
+              </TableCell>
               <TableCell>
                 <Badge variant={config.is_sandbox ? 'secondary' : 'default'}>
                   {config.is_sandbox ? 'Sandbox' : 'Live'}

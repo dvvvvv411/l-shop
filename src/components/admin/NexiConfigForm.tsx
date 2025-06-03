@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 const nexiConfigSchema = z.object({
   merchant_id: z.string().min(1, 'Merchant ID ist erforderlich'),
   terminal_id: z.string().min(1, 'Terminal ID ist erforderlich'),
+  alias: z.string().optional(),
+  mac_key: z.string().optional(),
   is_sandbox: z.boolean(),
   is_active: z.boolean(),
 });
@@ -38,6 +40,8 @@ interface NexiConfig {
   id?: string;
   merchant_id: string;
   terminal_id: string;
+  alias?: string;
+  mac_key?: string;
   is_sandbox: boolean;
   is_active: boolean;
   shop_id?: string;
@@ -58,6 +62,8 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
     defaultValues: {
       merchant_id: config?.merchant_id || '',
       terminal_id: config?.terminal_id || '',
+      alias: config?.alias || '',
+      mac_key: config?.mac_key || '',
       is_sandbox: config?.is_sandbox ?? true,
       is_active: config?.is_active ?? false,
     },
@@ -70,6 +76,8 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
       const updateData = {
         merchant_id: data.merchant_id,
         terminal_id: data.terminal_id,
+        alias: data.alias || null,
+        mac_key: data.mac_key || null,
         is_sandbox: data.is_sandbox,
         is_active: data.is_active,
       };
@@ -150,6 +158,44 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
                   </FormControl>
                   <FormDescription>
                     Die von Nexi bereitgestellte Terminal-Identifikationsnummer
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="alias"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ALIAS</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ihr Nexi ALIAS (optional)" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Der von Nexi bereitgestellte ALIAS für die Zahlungsabwicklung
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mac_key"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>MAC Key</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="password"
+                      placeholder="Ihr Nexi MAC Key (optional)" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Der von Nexi bereitgestellte MAC Key für sichere Transaktionssignierung
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

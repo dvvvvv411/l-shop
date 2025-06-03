@@ -72,10 +72,12 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   // Generate unique payment ID
   const paymentId = `nexi_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
   
-  // Build Nexi API request
+  // Build Nexi API request with new fields
   const nexiRequest = {
     merchant_id: config.merchant_id,
     terminal_id: config.terminal_id,
+    alias: config.alias,
+    mac_key: config.mac_key ? '***HIDDEN***' : undefined, // Don't log the actual MAC key
     amount: request.amount,
     currency: request.currency || 'EUR',
     order_id: request.orderId,
@@ -87,14 +89,21 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     language: 'de'
   };
 
-  console.log('Nexi API request:', nexiRequest);
+  console.log('Nexi API request (sanitized):', nexiRequest);
 
   // For sandbox/testing, create a mock redirect URL
+  // In a real implementation, you would make an API call to Nexi here
   const baseUrl = config.is_sandbox 
     ? 'https://test.nexi.it/ecomm/api/hostedfields'
     : 'https://ecomm.nexi.it/ecomm/api/hostedfields';
     
   const redirectUrl = `${baseUrl}/payment?payment_id=${paymentId}&order_id=${request.orderId}`;
+
+  // If we have ALIAS and MAC Key, we could implement proper MAC signature generation here
+  if (config.alias && config.mac_key) {
+    console.log('Configuration has ALIAS and MAC Key - ready for production integration');
+    // TODO: Implement proper MAC signature generation when integrating with real Nexi API
+  }
 
   // Update order with Nexi payment information
   const { error: updateError } = await supabaseClient
@@ -112,7 +121,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     throw new Error('Failed to update order');
   }
 
-  // Log the payment initiation
+  // Log the payment initiation (without sensitive data)
   await supabaseClient
     .from('nexi_payment_logs')
     .insert({
@@ -122,7 +131,10 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       status: 'initiated',
       amount: request.amount,
       currency: request.currency || 'EUR',
-      request_data: nexiRequest
+      request_data: {
+        ...nexiRequest,
+        mac_key: config.mac_key ? '[REDACTED]' : undefined
+      }
     });
 
   console.log('Nexi payment initiated successfully:', { paymentId, redirectUrl });
