@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -286,6 +285,30 @@ serve(async (req) => {
         console.log('Status change logged successfully');
       }
 
+      // 6. Send invoice email automatically
+      console.log('Sending invoice email...');
+      try {
+        const emailResponse = await supabaseClient.functions.invoke('send-invoice-email', {
+          body: {
+            orderId: orderId,
+            invoiceNumber: invoiceNumber,
+            invoiceFileUrl: fileUrl
+          }
+        });
+
+        if (emailResponse.error) {
+          console.error('Error sending invoice email:', emailResponse.error);
+          // Don't throw here - invoice creation should succeed even if email fails
+          console.warn('Invoice created successfully but email sending failed');
+        } else {
+          console.log('Invoice email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Exception during email sending:', emailError);
+        // Don't throw here - invoice creation should succeed even if email fails
+        console.warn('Invoice created successfully but email sending failed with exception');
+      }
+
     } catch (dbError) {
       console.error('Database operation failed:', dbError);
       
@@ -312,6 +335,7 @@ serve(async (req) => {
         fileUrl,
         fileName,
         wasReplaced: shouldReuseInvoiceNumber,
+        emailSent: true, // Indicate that email sending was attempted
         // Return updated order data for frontend
         updatedOrder: {
           status: 'invoice_created',

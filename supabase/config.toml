@@ -10,39 +10,50 @@ max_rows = 1000
 
 [auth]
 enabled = true
-port = 54324
+port = 54322
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://lovable.dev", "https://gptengineer.app"]
+additional_redirect_urls = ["https://lovable.dev"]
 jwt_expiry = 3600
-refresh_token_rotation_enabled = true
-secure_password_change_enabled = true
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
 enable_manual_linking = false
 
-[auth.external.github]
-enabled = false
-client_id = ""
-secret = ""
-
-[auth.external.google]
-enabled = false
-client_id = ""
-secret = ""
-
-[db]
-port = 54322
-shadow_port = 54320
-major_version = 15
-
-[functions.generate-invoice]
-verify_jwt = false
-
-[functions.scrape-northdata]
-verify_jwt = false
-
-[functions.send-order-confirmation]
-verify_jwt = false
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
 
 [storage]
 enabled = true
 port = 54323
 file_size_limit = "50MiB"
+buckets = [
+  { name = "invoices", public = true }
+]
+
+[functions.generate-invoice]
+verify_jwt = false
+
+[functions.send-invoice-email]
+verify_jwt = false
+
+[functions.send-order-confirmation]
+verify_jwt = false
+
+[functions.scrape-northdata]
+verify_jwt = false
+
+[db]
+enabled = true
+port = 54322
+shadow_port = 54324
+major_version = 15
+
+[realtime]
+enabled = true
+port = 54325
+tenant_id = "realtime-dev"
+
+[studio]
+enabled = true
+port = 54323
