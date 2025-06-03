@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { CreditCard, Truck, Clock, Shield, TestTube, FileText } from 'lucide-react';
+import { CreditCard, Truck, Clock, Shield, TestTube, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,12 +21,16 @@ const testData = {
   lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
   streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
   cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109']
+  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
+  emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
 };
+
 const generateRandomTestData = () => {
   const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
   const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
   return {
+    customerEmail: getRandomItem(testData.emails),
     deliveryFirstName: getRandomItem(testData.firstNames),
     deliveryLastName: getRandomItem(testData.lastNames),
     deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
@@ -34,7 +38,6 @@ const generateRandomTestData = () => {
     deliveryCity: getRandomItem(testData.cities),
     deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
     useSameAddress: Math.random() > 0.3,
-    // 70% chance for same address
     billingFirstName: getRandomItem(testData.firstNames),
     billingLastName: getRandomItem(testData.lastNames),
     billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
@@ -43,7 +46,10 @@ const generateRandomTestData = () => {
     paymentMethod: 'vorkasse' as const
   };
 };
+
 const orderSchema = z.object({
+  // Customer Email
+  customerEmail: z.string().email('Gültige E-Mail-Adresse erforderlich'),
   // Delivery Address
   deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
   deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
@@ -61,7 +67,9 @@ const orderSchema = z.object({
   // Payment
   paymentMethod: z.enum(['vorkasse', 'rechnung'])
 });
+
 type OrderFormData = z.infer<typeof orderSchema>;
+
 interface PriceCalculatorData {
   product: {
     id: string;
@@ -76,19 +84,14 @@ interface PriceCalculatorData {
   totalPrice: number;
   savings: number;
 }
+
 const OrderForm = () => {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
-  const {
-    setOrderData: setContextOrderData
-  } = useOrder();
-  const {
-    createOrder
-  } = useOrders();
-  const {
-    toast
-  } = useToast();
+  const { setOrderData: setContextOrderData } = useOrder();
+  const { createOrder } = useOrders();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   // Load order data from localStorage on component mount
@@ -131,6 +134,7 @@ const OrderForm = () => {
       navigate('/');
     }
   }, [navigate, toast]);
+
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
@@ -138,35 +142,39 @@ const OrderForm = () => {
       paymentMethod: 'vorkasse'
     }
   });
+
   const handleGenerateTestData = () => {
-    const testData = generateRandomTestData();
+    const testDataValues = generateRandomTestData();
 
     // Set form values
-    form.setValue('deliveryFirstName', testData.deliveryFirstName);
-    form.setValue('deliveryLastName', testData.deliveryLastName);
-    form.setValue('deliveryStreet', testData.deliveryStreet);
-    form.setValue('deliveryPostcode', testData.deliveryPostcode);
-    form.setValue('deliveryCity', testData.deliveryCity);
-    form.setValue('deliveryPhone', testData.deliveryPhone);
-    form.setValue('useSameAddress', testData.useSameAddress);
-    form.setValue('paymentMethod', testData.paymentMethod);
+    form.setValue('customerEmail', testDataValues.customerEmail);
+    form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
+    form.setValue('deliveryLastName', testDataValues.deliveryLastName);
+    form.setValue('deliveryStreet', testDataValues.deliveryStreet);
+    form.setValue('deliveryPostcode', testDataValues.deliveryPostcode);
+    form.setValue('deliveryCity', testDataValues.deliveryCity);
+    form.setValue('deliveryPhone', testDataValues.deliveryPhone);
+    form.setValue('useSameAddress', testDataValues.useSameAddress);
+    form.setValue('paymentMethod', testDataValues.paymentMethod);
 
     // Update local state
-    setUseSameAddress(testData.useSameAddress);
+    setUseSameAddress(testDataValues.useSameAddress);
 
     // Set billing address if different
-    if (!testData.useSameAddress) {
-      form.setValue('billingFirstName', testData.billingFirstName);
-      form.setValue('billingLastName', testData.billingLastName);
-      form.setValue('billingStreet', testData.billingStreet);
-      form.setValue('billingPostcode', testData.billingPostcode);
-      form.setValue('billingCity', testData.billingCity);
+    if (!testDataValues.useSameAddress) {
+      form.setValue('billingFirstName', testDataValues.billingFirstName);
+      form.setValue('billingLastName', testDataValues.billingLastName);
+      form.setValue('billingStreet', testDataValues.billingStreet);
+      form.setValue('billingPostcode', testDataValues.billingPostcode);
+      form.setValue('billingCity', testDataValues.billingCity);
     }
+    
     toast({
       title: 'Testdaten generiert',
       description: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.'
     });
   };
+
   const onSubmit = async (data: OrderFormData) => {
     if (!orderData) {
       toast({
@@ -183,15 +191,13 @@ const OrderForm = () => {
     try {
       // Calculate final price
       const finalPrice = orderData.totalPrice;
-
-      // Capture the origin domain
       const originDomain = window.location.hostname;
 
       // Create order data for database using the calculator data
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de',
-        // Would come from user session in real app
+        customer_email: 'kunde@email.de', // Keep legacy field for compatibility
+        customer_email_actual: data.customerEmail, // New actual email field
         customer_phone: data.deliveryPhone,
         customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
         delivery_first_name: data.deliveryFirstName,
@@ -232,7 +238,7 @@ const OrderForm = () => {
       }
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Set order data for context (for summary page) - now includes pricePerLiter
+      // Set order data for context (for summary page) - now includes customerEmail
       const contextOrderData = {
         deliveryFirstName: data.deliveryFirstName,
         deliveryLastName: data.deliveryLastName,
@@ -240,6 +246,7 @@ const OrderForm = () => {
         deliveryPostcode: data.deliveryPostcode,
         deliveryCity: data.deliveryCity,
         deliveryPhone: data.deliveryPhone,
+        customerEmail: data.customerEmail,
         useSameAddress: data.useSameAddress,
         billingFirstName: data.billingFirstName,
         billingLastName: data.billingLastName,
@@ -250,7 +257,6 @@ const OrderForm = () => {
         product: orderData.product.name,
         amount: orderData.amount,
         pricePerLiter: orderData.product.price,
-        // This was missing!
         basePrice: orderData.basePrice,
         deliveryFee: orderData.deliveryFee,
         discount: 0,
@@ -269,23 +275,24 @@ const OrderForm = () => {
 
   // Show loading state while order data is being loaded
   if (!orderData) {
-    return <div className="flex justify-center items-center min-h-96">
+    return (
+      <div className="flex justify-center items-center min-h-96">
         <div className="text-lg text-gray-600">Bestelldaten werden geladen...</div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Form */}
       <div className="lg:col-span-2">
         {/* Test Data Generator Button */}
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} transition={{
-        duration: 0.6
-      }} className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-amber-100 p-2 rounded-lg">
@@ -296,7 +303,12 @@ const OrderForm = () => {
                 <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
               </div>
             </div>
-            <Button type="button" onClick={handleGenerateTestData} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-100">
+            <Button
+              type="button"
+              onClick={handleGenerateTestData}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
               Testdaten generieren
             </Button>
           </div>
@@ -304,17 +316,45 @@ const OrderForm = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Customer Email */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.05 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <div className="flex items-center mb-6">
+                <div className="bg-purple-100 p-3 rounded-full mr-4">
+                  <Mail className="text-purple-600" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">E-Mail-Adresse</h3>
+                  <p className="text-gray-600">Für Bestellbestätigung und Kommunikation</p>
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="customerEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-Mail-Adresse *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="max.mustermann@email.de" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </motion.div>
+
             {/* Delivery Address */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.1
-          }} className="bg-white rounded-xl p-6 shadow-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
               <div className="flex items-center mb-6">
                 <div className="bg-red-100 p-3 rounded-full mr-4">
                   <Truck className="text-red-600" size={24} />
@@ -389,16 +429,12 @@ const OrderForm = () => {
             </motion.div>
 
             {/* Billing Address */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.2
-          }} className="bg-white rounded-xl p-6 shadow-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
               <div className="flex items-center mb-6">
                 <div className="bg-blue-100 p-3 rounded-full mr-4">
                   <CreditCard className="text-blue-600" size={24} />
@@ -475,16 +511,12 @@ const OrderForm = () => {
             </motion.div>
 
             {/* Payment Method */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.3
-          }} className="bg-white rounded-xl p-6 shadow-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
               <div className="flex items-center mb-6">
                 <div className="bg-green-100 p-3 rounded-full mr-4">
                   <Shield className="text-green-600" size={24} />
@@ -558,17 +590,17 @@ const OrderForm = () => {
             </motion.div>
 
             {/* Submit Button */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.4
-          }} className="bg-white rounded-xl p-6 shadow-lg">
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="bg-white rounded-xl p-6 shadow-lg"
+            >
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
+              >
                 {isSubmitting ? 'Bestellung wird erstellt...' : 'Weiter zur Zusammenfassung'}
               </Button>
             </motion.div>
@@ -580,6 +612,8 @@ const OrderForm = () => {
       <div className="lg:col-span-1">
         <OrderSummary orderData={orderData} />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default OrderForm;

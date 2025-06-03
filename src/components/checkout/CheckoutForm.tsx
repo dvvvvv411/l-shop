@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, TestTube, FileText } from 'lucide-react';
+import { Truck, CreditCard, Shield, TestTube, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,8 @@ const testData = {
   lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
   streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
   cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109']
+  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
+  emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
 };
 
 const generateRandomTestData = () => {
@@ -34,6 +35,7 @@ const generateRandomTestData = () => {
     deliveryPostcode: getRandomItem(testData.postcodes),
     deliveryCity: getRandomItem(testData.cities),
     deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
+    customerEmail: getRandomItem(testData.emails),
     useSameAddress: Math.random() > 0.3,
     billingFirstName: getRandomItem(testData.firstNames),
     billingLastName: getRandomItem(testData.lastNames),
@@ -45,6 +47,7 @@ const generateRandomTestData = () => {
 };
 
 const orderSchema = z.object({
+  customerEmail: z.string().email('Gültige E-Mail-Adresse erforderlich'),
   deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
   deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
   deliveryStreet: z.string().min(5, 'Straße ist erforderlich'),
@@ -102,6 +105,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const handleGenerateTestData = () => {
     const testDataValues = generateRandomTestData();
 
+    form.setValue('customerEmail', testDataValues.customerEmail);
     form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
     form.setValue('deliveryLastName', testDataValues.deliveryLastName);
     form.setValue('deliveryStreet', testDataValues.deliveryStreet);
@@ -135,14 +139,13 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     
     try {
       const finalPrice = orderData.totalPrice;
-
-      // Capture the origin domain
       const originDomain = window.location.hostname;
 
       // Create order data for database
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de',
+        customer_email: 'kunde@email.de', // Keep legacy field for compatibility
+        customer_email_actual: data.customerEmail, // New actual email field
         customer_phone: data.deliveryPhone,
         customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
         delivery_first_name: data.deliveryFirstName,
@@ -195,6 +198,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
         deliveryPostcode: data.deliveryPostcode,
         deliveryCity: data.deliveryCity,
         deliveryPhone: data.deliveryPhone,
+        customerEmail: data.customerEmail,
         useSameAddress: data.useSameAddress,
         billingFirstName: data.billingFirstName,
         billingLastName: data.billingLastName,
@@ -265,6 +269,38 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Customer Email */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="bg-white rounded-xl p-6 shadow-sm border"
+          >
+            <div className="flex items-center mb-6">
+              <div className="bg-purple-100 p-3 rounded-lg mr-4">
+                <Mail className="text-purple-600" size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">E-Mail-Adresse</h3>
+                <p className="text-sm text-gray-600">Für Bestellbestätigung und Kommunikation</p>
+              </div>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="customerEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-Mail-Adresse *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="max.mustermann@email.de" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
           {/* Delivery Address */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

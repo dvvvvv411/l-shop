@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -88,6 +89,19 @@ const Confirmation = () => {
                     <div className="text-sm text-red-600 font-medium">Ihre Bestellnummer</div>
                     <div className="text-2xl font-bold text-red-700">{orderNumber}</div>
                   </div>
+
+                  {/* Email confirmation notice */}
+                  {orderData.customerEmail && (
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center justify-center space-x-2 text-blue-700">
+                        <Mail size={20} />
+                        <span className="font-medium">Bestätigung per E-Mail</span>
+                      </div>
+                      <p className="text-blue-600 text-sm mt-2">
+                        Eine Bestellbestätigung wurde an <strong>{orderData.customerEmail}</strong> gesendet.
+                      </p>
+                    </div>
+                  )}
                 </motion.div>
 
                 {/* Supplier Information */}

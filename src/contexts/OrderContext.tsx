@@ -10,6 +10,9 @@ interface OrderData {
   deliveryCity: string;
   deliveryPhone: string;
 
+  // Customer Email
+  customerEmail: string;
+
   // Billing Address
   useSameAddress: boolean;
   billingFirstName?: string;

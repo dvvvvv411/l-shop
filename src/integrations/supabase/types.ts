@@ -266,6 +266,57 @@ export type Database = {
           },
         ]
       }
+      email_sending_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          order_id: string | null
+          recipient_email: string
+          sent_at: string | null
+          smtp_config_id: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          order_id?: string | null
+          recipient_email: string
+          sent_at?: string | null
+          smtp_config_id?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          order_id?: string | null
+          recipient_email?: string
+          sent_at?: string | null
+          smtp_config_id?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sending_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sending_logs_smtp_config_id_fkey"
+            columns: ["smtp_config_id"]
+            isOneToOne: false
+            referencedRelation: "smtp_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           created_at: string
@@ -505,6 +556,7 @@ export type Database = {
           created_at: string
           customer_address: string
           customer_email: string
+          customer_email_actual: string | null
           customer_name: string
           customer_phone: string | null
           delivery_city: string | null
@@ -549,6 +601,7 @@ export type Database = {
           created_at?: string
           customer_address: string
           customer_email: string
+          customer_email_actual?: string | null
           customer_name: string
           customer_phone?: string | null
           delivery_city?: string | null
@@ -593,6 +646,7 @@ export type Database = {
           created_at?: string
           customer_address?: string
           customer_email?: string
+          customer_email_actual?: string | null
           customer_name?: string
           customer_phone?: string | null
           delivery_city?: string | null
