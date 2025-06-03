@@ -2,6 +2,15 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface OrderData {
+  // Customer Details
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  street?: string;
+  city?: string;
+  postcode?: string;
+
   // Delivery Address
   deliveryFirstName: string;
   deliveryLastName: string;
@@ -17,6 +26,11 @@ interface OrderData {
   billingStreet?: string;
   billingPostcode?: string;
   billingCity?: string;
+
+  // Additional form fields
+  notes?: string;
+  differentDeliveryAddress?: boolean;
+  agbAccepted?: boolean;
 
   // Payment
   paymentMethod: string;
