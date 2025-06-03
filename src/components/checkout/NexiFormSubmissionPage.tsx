@@ -18,52 +18,105 @@ const NexiFormSubmissionPage = ({
 }: NexiFormSubmissionPageProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showManualSubmit, setShowManualSubmit] = useState(false);
+  const [formData, setFormData] = useState<{action: string, fields: Record<string, string>} | null>(null);
 
   useEffect(() => {
-    // Show manual submit button after 5 seconds if auto-submit hasn't worked
-    const timer = setTimeout(() => {
-      setShowManualSubmit(true);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleManualSubmit = () => {
-    setIsSubmitting(true);
-    // Create a temporary iframe to load and submit the form
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+    // Parse the form HTML to extract action URL and form fields for debugging
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(formHtml, 'text/html');
+    const form = doc.getElementById('nexiForm') as HTMLFormElement;
     
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (iframeDoc) {
-      iframeDoc.open();
-      iframeDoc.write(formHtml);
-      iframeDoc.close();
+    if (form) {
+      const action = form.action;
+      const inputs = form.querySelectorAll('input[type="hidden"]');
+      const fields: Record<string, string> = {};
       
-      // Find and submit the form in the iframe
-      const form = iframeDoc.getElementById('nexiForm') as HTMLFormElement;
-      if (form) {
-        // Redirect the parent window to the form's action URL with the form data
-        window.location.href = createFormSubmissionUrl(form);
-      }
+      inputs.forEach((input) => {
+        const inputElement = input as HTMLInputElement;
+        if (inputElement.name && inputElement.value) {
+          fields[inputElement.name] = inputElement.value;
+        }
+      });
+      
+      setFormData({ action, fields });
+      console.log('Parsed Nexi form data:', { action, fieldCount: Object.keys(fields).length });
     }
+
+    // Auto-submit the form after a short delay
+    const autoSubmitTimer = setTimeout(() => {
+      console.log('Auto-submitting Nexi form...');
+      submitNexiForm();
+    }, 2000);
+
+    // Show manual submit button after 8 seconds if auto-submit hasn't worked
+    const manualTimer = setTimeout(() => {
+      console.log('Auto-submit timeout - showing manual submit button');
+      setShowManualSubmit(true);
+    }, 8000);
+
+    return () => {
+      clearTimeout(autoSubmitTimer);
+      clearTimeout(manualTimer);
+    };
+  }, [formHtml]);
+
+  const submitNexiForm = () => {
+    console.log('Submitting Nexi form via direct POST...');
+    setIsSubmitting(true);
     
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 1000);
+    try {
+      // Create a temporary iframe to load and submit the form
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.name = 'nexiSubmissionFrame';
+      document.body.appendChild(iframe);
+      
+      // Create the form HTML and inject it into the iframe
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc) {
+        iframeDoc.open();
+        iframeDoc.write(formHtml);
+        iframeDoc.close();
+        
+        // Find and submit the form in the iframe
+        const form = iframeDoc.getElementById('nexiForm') as HTMLFormElement;
+        if (form) {
+          console.log('Form found, submitting to:', form.action);
+          console.log('Form method:', form.method);
+          
+          // Set the parent window as the target for the form submission
+          form.target = '_top';
+          
+          // Submit the form - this will redirect the parent window
+          form.submit();
+          
+          console.log('Form submitted successfully');
+        } else {
+          console.error('Nexi form not found in iframe');
+          throw new Error('Nexi form not found');
+        }
+      } else {
+        console.error('Could not access iframe document');
+        throw new Error('Could not access iframe document');
+      }
+      
+      // Clean up the iframe after a delay
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error submitting Nexi form:', error);
+      setIsSubmitting(false);
+      setShowManualSubmit(true);
+    }
   };
 
-  const createFormSubmissionUrl = (form: HTMLFormElement): string => {
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
-    
-    for (const [key, value] of formData.entries()) {
-      params.append(key, value.toString());
-    }
-    
-    return `${form.action}?${params.toString()}`;
+  const handleManualSubmit = () => {
+    console.log('Manual submit triggered');
+    submitNexiForm();
   };
 
   return (
@@ -114,7 +167,7 @@ const NexiFormSubmissionPage = ({
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
               <p className="text-sm text-gray-500">
-                Automatische Weiterleitung wird vorbereitet...
+                {isSubmitting ? 'Weiterleitung läuft...' : 'Automatische Weiterleitung wird vorbereitet...'}
               </p>
             </div>
           ) : (
@@ -157,6 +210,17 @@ const NexiFormSubmissionPage = ({
               Ihre Zahlungsdaten werden sicher übertragen
             </p>
           </div>
+
+          {/* Debug Info */}
+          {formData && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border text-left">
+              <div className="text-xs text-gray-600 space-y-1">
+                <div><strong>Ziel-URL:</strong> {formData.action}</div>
+                <div><strong>Felder:</strong> {Object.keys(formData.fields).length}</div>
+                <div><strong>Umgebung:</strong> {environment || 'production'}</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
