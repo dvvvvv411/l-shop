@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
 import Footer from '@/components/Footer';
 import { Phone, Mail, MapPin, Clock, MessageSquare } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Kontakt = () => {
+  usePageMeta('kontakt');
+
   const contactInfo = [
     {
       icon: Phone,

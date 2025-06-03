@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import { Shield, Award, Truck, Clock } from 'lucide-react';
 import Header from '@/components/v1/Header';
 import Footer from '@/components/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Service = () => {
+  usePageMeta('service');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

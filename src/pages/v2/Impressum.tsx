@@ -3,8 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v2/Header';
 import Footer from '@/components/v2/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Impressum = () => {
+  usePageMeta('impressum');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50">
       <Header />

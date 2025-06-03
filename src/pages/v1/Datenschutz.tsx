@@ -1,8 +1,12 @@
+
 import React from 'react';
 import Header from '@/components/v1/Header';
 import Footer from '@/components/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Datenschutz = () => {
+  usePageMeta('datenschutz');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

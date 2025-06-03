@@ -1,11 +1,13 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, CheckCircle, AlertCircle, CreditCard } from 'lucide-react';
 import Header from '@/components/v2/Header';
 import Footer from '@/components/v2/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const AGB = () => {
+  usePageMeta('agb');
+
   const sections = [
     {
       icon: FileText,

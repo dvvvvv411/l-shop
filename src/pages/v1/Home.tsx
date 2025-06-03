@@ -11,8 +11,11 @@ import HowItWorks from '../../components/HowItWorks';
 import FAQ from '../../components/FAQ';
 import Footer from '../../components/Footer';
 import { Flame, Star } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Home = () => {
+  usePageMeta('home');
+
   return (
     <div className="min-h-screen bg-white">
       <Header />

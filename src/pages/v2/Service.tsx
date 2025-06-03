@@ -6,8 +6,11 @@ import Header from '../../components/v2/Header';
 import Footer from '../../components/v2/Footer';
 import CustomerSupport from '../../components/v2/CustomerSupport';
 import DigitalServices from '../../components/v2/DigitalServices';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Service = () => {
+  usePageMeta('service');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

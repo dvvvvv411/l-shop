@@ -1,11 +1,13 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Users } from 'lucide-react';
 import Header from '../../components/v2/Header';
 import Footer from '../../components/v2/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Kontakt = () => {
+  usePageMeta('kontakt');
+
   const contactMethods = [
     {
       icon: Phone,

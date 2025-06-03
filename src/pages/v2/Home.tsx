@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v2/Header';
@@ -8,7 +9,11 @@ import SavingsTips from '../../components/v2/SavingsTips';
 import CustomerReviews from '../../components/v2/CustomerReviews';
 import Footer from '../../components/v2/Footer';
 import { Zap, Award } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
+
 const Home = () => {
+  usePageMeta('home');
+
   return <div className="min-h-screen bg-gray-50">
       <Header />
       

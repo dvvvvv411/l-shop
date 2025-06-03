@@ -1,12 +1,14 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
 import Footer from '../../components/Footer';
 import ProductComparison from '../../components/ProductComparison';
 import { Flame, Shield, Award, Droplets, Thermometer, Factory } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Produkte = () => {
+  usePageMeta('produkte');
+
   const productFeatures = [
     {
       icon: Shield,

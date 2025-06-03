@@ -1,11 +1,13 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, UserCheck } from 'lucide-react';
 import Header from '@/components/v2/Header';
 import Footer from '@/components/v2/Footer';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Datenschutz = () => {
+  usePageMeta('datenschutz');
+
   const sections = [
     {
       icon: Shield,

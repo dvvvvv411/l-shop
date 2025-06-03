@@ -375,81 +375,27 @@ const Index = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-red-600">
-                Kostenlos beraten lassen
+                Partner werden
               </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-8 justify-center items-center text-sm opacity-90">
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4" />
-                <span>{shopConfig.phone} (kostenlos)</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-1">2h</div>
+                <div className="text-sm opacity-90">Durchschnittliche Antwortzeit</div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4" />
-                <span>{shopConfig.email}</span>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-1">500+</div>
+                <div className="text-sm opacity-90">Partner deutschlandweit</div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4" />
-                <span>Mo-Fr: 8-20 Uhr, Sa: 9-16 Uhr</span>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-1">25+</div>
+                <div className="text-sm opacity-90">Jahre Markterfahrung</div>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-lg font-bold">{shopConfig.brand}</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Deutschlands führendes Heizöl-Netzwerk für zuverlässige 
-                und günstige Heizöl-Lieferung.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Service</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Heizöl bestellen</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Preisrechner</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Liefergebiete</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Express-Service</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Unternehmen</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Über uns</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Partner werden</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Karriere</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Presse</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Rechtliches</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Impressum</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Datenschutz</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">AGB</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Widerrufsrecht</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 {shopConfig.name} GmbH. Alle Rechte vorbehalten.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
