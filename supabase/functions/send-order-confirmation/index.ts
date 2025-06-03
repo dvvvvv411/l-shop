@@ -184,7 +184,7 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
         }
         .header {
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: #ffffff;
+            color: #000000;
             padding: 40px 30px;
             text-align: center;
         }
@@ -193,14 +193,14 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             font-size: 32px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            color: #ffffff;
+            color: #000000 !important;
         }
         .header p {
             margin: 0;
             font-size: 18px;
             opacity: 0.95;
             font-weight: 400;
-            color: #ffffff;
+            color: #000000 !important;
         }
         .content {
             padding: 40px 30px;
@@ -266,14 +266,14 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
         }
         .total-section {
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: #ffffff;
+            color: #000000;
             padding: 20px;
             border-radius: 12px;
             margin: 24px 0;
             text-align: center;
         }
         .total-section .total-label {
-            color: #ffffff;
+            color: #000000 !important;
             font-size: 16px;
             font-weight: 500;
             margin-bottom: 8px;
@@ -282,7 +282,7 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             font-size: 28px;
             font-weight: 700;
             margin: 8px 0;
-            color: #ffffff;
+            color: #000000 !important;
         }
         .callback-notice {
             background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
