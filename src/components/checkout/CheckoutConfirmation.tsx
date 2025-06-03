@@ -116,6 +116,52 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
+        {/* Delivery Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white rounded-xl p-6 shadow-lg"
+        >
+          <div className="flex items-center mb-6">
+            <div className="bg-orange-100 p-3 rounded-full mr-4">
+              <Truck className="text-orange-600" size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Lieferinformationen</h3>
+              <p className="text-gray-600">Wichtige Details zu Ihrer Lieferung</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-orange-50 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Calendar className="text-orange-600 mr-2" size={18} />
+                <span className="font-semibold text-orange-900">Liefertermin</span>
+              </div>
+              <div className="text-orange-800 font-bold">{contextOrderData.deliveryDate}</div>
+              <div className="text-orange-700 text-sm">Nach Zahlungseingang</div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="font-semibold text-gray-900 mb-2">Lieferadresse</div>
+              <div className="text-gray-700 text-sm space-y-1">
+                <div>{contextOrderData.deliveryFirstName} {contextOrderData.deliveryLastName}</div>
+                <div>{contextOrderData.deliveryStreet}</div>
+                <div>{contextOrderData.deliveryPostcode} {contextOrderData.deliveryCity}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h4 className="font-semibold text-yellow-800 mb-2">📞 Wichtiger Hinweis zur Lieferung</h4>
+            <p className="text-yellow-700 text-sm">
+              Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. 
+              Bitte stellen Sie sicher, dass Sie unter {contextOrderData.deliveryPhone} erreichbar sind.
+            </p>
+          </div>
+        </motion.div>
+
         {/* Contact Support */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
