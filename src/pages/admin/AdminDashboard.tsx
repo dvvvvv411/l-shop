@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar } from 'lucide-react';
+import { Calendar, Sparkles } from 'lucide-react';
 import DashboardKPICards from '@/components/admin/dashboard/DashboardKPICards';
 import DashboardCharts from '@/components/admin/dashboard/DashboardCharts';
 import RecentOrdersTable from '@/components/admin/dashboard/RecentOrdersTable';
@@ -59,38 +59,77 @@ const AdminDashboard = () => {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Übersicht über Ihre Heizöl-Verkäufe</p>
+    <div className="space-y-8">
+      {/* Modern Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-8 shadow-2xl"
+      >
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+            </div>
+            <p className="text-blue-100 text-lg">Willkommen zurück! Hier ist Ihre Heizöl-Verkaufsübersicht</p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+            <Calendar className="h-4 w-4 text-blue-200" />
+            <span className="text-sm text-blue-100 font-medium">
+              {new Date().toLocaleDateString('de-DE', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <Calendar className="h-4 w-4" />
-          <span>Letztes Update: {new Date().toLocaleDateString('de-DE')}</span>
-        </div>
-      </div>
+      </motion.div>
 
-      {/* KPI Cards */}
-      <DashboardKPICards 
-        dashboardStats={dashboardStats} 
-        isLoading={statsLoading} 
-      />
+      {/* KPI Cards with enhanced spacing */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        <DashboardKPICards 
+          dashboardStats={dashboardStats} 
+          isLoading={statsLoading} 
+        />
+      </motion.div>
 
-      {/* Charts Section - Full Width */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* Charts Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <DashboardCharts 
           chartData={chartData} 
           isLoading={chartLoading} 
         />
-      </div>
+      </motion.div>
 
       {/* Recent Orders */}
-      <RecentOrdersTable 
-        recentOrders={recentOrders} 
-        isLoading={ordersLoading} 
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <RecentOrdersTable 
+          recentOrders={recentOrders} 
+          isLoading={ordersLoading} 
+        />
+      </motion.div>
     </div>
   );
 };

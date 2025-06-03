@@ -1,58 +1,91 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Clock, FileText, RefreshCw, XCircle } from 'lucide-react';
 
 interface StatusBadgeProps {
   status: string;
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const getStatusStyles = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200';
+        return {
+          label: 'Neu',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300',
+          icon: Clock
+        };
       case 'confirmed':
-        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+        return {
+          label: 'Bezahlt',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300',
+          icon: CheckCircle
+        };
       case 'invoice_created':
-        return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
+        return {
+          label: 'Rechnung erstellt',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300',
+          icon: FileText
+        };
       case 'exchanged':
-        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+        return {
+          label: 'Exchanged',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-teal-500 to-teal-600 text-white border-0 shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all duration-300',
+          icon: RefreshCw
+        };
       case 'down':
-        return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200';
+        return {
+          label: 'Down',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-red-500 to-red-600 text-white border-0 shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300',
+          icon: XCircle
+        };
       case 'Neu':
-        return 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200';
+        return {
+          label: 'Neu',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300',
+          icon: Clock
+        };
       case 'Bezahlt':
-        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+        return {
+          label: 'Bezahlt',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300',
+          icon: CheckCircle
+        };
       case 'Rechnung erstellt':
-        return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
+        return {
+          label: 'Rechnung erstellt',
+          variant: 'default',
+          className: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300',
+          icon: FileText
+        };
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200';
+        return {
+          label: status,
+          variant: 'outline',
+          className: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-gray-300 hover:from-gray-200 hover:to-gray-300 transition-all duration-300',
+          icon: Clock
+        };
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Neu';
-      case 'confirmed':
-        return 'Bezahlt';
-      case 'invoice_created':
-        return 'Rechnung erstellt';
-      case 'exchanged':
-        return 'Exchanged';
-      case 'down':
-        return 'Down';
-      default:
-        return status;
-    }
-  };
+  const config = getStatusConfig(status);
+  const IconComponent = config.icon;
 
   return (
     <Badge 
       variant="outline" 
-      className={`px-2 py-1 text-xs font-medium border ${getStatusStyles(status)}`}
+      className={`px-3 py-1 text-xs font-semibold inline-flex items-center gap-1.5 ${config.className}`}
     >
-      {getStatusLabel(status)}
+      <IconComponent className="h-3 w-3" />
+      {config.label}
     </Badge>
   );
 };
