@@ -65,7 +65,7 @@ const AdminDashboard = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 p-8 shadow-xl"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 p-8 shadow-xl"
       >
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-orange-100 font-medium mt-1"
+                className="text-blue-100 font-medium mt-1"
               >
                 Ihr Reich der Heizöl-Verwaltung
               </motion.p>
@@ -141,8 +141,8 @@ const AdminDashboard = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20"
           >
-            <Calendar className="h-4 w-4 text-orange-200" />
-            <span className="text-sm text-orange-100 font-medium">
+            <Calendar className="h-4 w-4 text-blue-200" />
+            <span className="text-sm text-blue-100 font-medium">
               {new Date().toLocaleDateString('de-DE', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -168,7 +168,7 @@ const AdminDashboard = () => {
                 delay: Math.random() * 2,
                 ease: "easeOut"
               }}
-              className="absolute w-1.5 h-1.5 bg-yellow-200 rounded-full"
+              className="absolute w-1.5 h-1.5 bg-purple-200 rounded-full"
               style={{
                 left: `${30 + Math.random() * 40}%`,
                 bottom: '30%'
