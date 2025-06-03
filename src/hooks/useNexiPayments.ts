@@ -17,6 +17,8 @@ export interface NexiPaymentResponse {
   paymentId: string;
   redirectUrl: string;
   status: string;
+  environment?: string;
+  nexiBaseUrl?: string;
 }
 
 export const useNexiPayments = () => {
