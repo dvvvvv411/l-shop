@@ -20,6 +20,12 @@ interface InvoiceCreationDialogProps {
   onOrderUpdate?: (orderId: string, updatedData: Partial<Order>) => void;
 }
 
+interface BankAccountUsage {
+  accountId: string;
+  usage: number;
+  limit: number;
+}
+
 const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   order,
   isOpen,
@@ -35,6 +41,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('');
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [limitExceeded, setLimitExceeded] = useState<boolean>(false);
+  const [bankAccountUsages, setBankAccountUsages] = useState<BankAccountUsage[]>([]);
 
   // Get all shops (since is_active field no longer exists)
   const availableShops = shops;
@@ -55,23 +62,48 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     }
   }, [isOpen, defaultBankAccount]);
 
-  // Check daily usage and limit when bank account or order changes
+  // Fetch daily usage for all bank accounts when dialog opens
   useEffect(() => {
-    const checkUsageAndLimit = async () => {
-      if (selectedBankAccountId && order) {
+    const fetchAllBankAccountUsages = async () => {
+      if (isOpen && bankAccounts.length > 0) {
         const today = new Date().toISOString().split('T')[0];
-        const usage = await getDailyUsage(selectedBankAccountId, today);
-        setDailyUsage(usage);
-        
-        const canProcess = await checkDailyLimit(selectedBankAccountId, order.total_amount, today);
-        setLimitExceeded(!canProcess);
+        const usages = await Promise.all(
+          bankAccounts.map(async (account) => {
+            const usage = await getDailyUsage(account.id, today);
+            return {
+              accountId: account.id,
+              usage,
+              limit: account.daily_limit || 0
+            };
+          })
+        );
+        setBankAccountUsages(usages);
       }
     };
 
     if (isOpen) {
+      fetchAllBankAccountUsages();
+    }
+  }, [isOpen, bankAccounts, getDailyUsage]);
+
+  // Check daily usage and limit when bank account or order changes
+  useEffect(() => {
+    const checkUsageAndLimit = async () => {
+      if (selectedBankAccountId && order) {
+        const usage = bankAccountUsages.find(u => u.accountId === selectedBankAccountId);
+        if (usage) {
+          setDailyUsage(usage.usage);
+          
+          const canProcess = await checkDailyLimit(selectedBankAccountId, order.total_amount, new Date().toISOString().split('T')[0]);
+          setLimitExceeded(!canProcess);
+        }
+      }
+    };
+
+    if (isOpen && bankAccountUsages.length > 0) {
       checkUsageAndLimit();
     }
-  }, [selectedBankAccountId, order, getDailyUsage, checkDailyLimit, isOpen]);
+  }, [selectedBankAccountId, order, checkDailyLimit, isOpen, bankAccountUsages]);
 
   const handleCreateInvoice = async () => {
     if (!order || !selectedShopId) return;
@@ -89,6 +121,17 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     } catch (error) {
       console.error('Error creating invoice:', error);
     }
+  };
+
+  // Helper function to get bank account display text
+  const getBankAccountDisplayText = (account: any) => {
+    const usage = bankAccountUsages.find(u => u.accountId === account.id);
+    if (usage && usage.limit > 0) {
+      const formattedUsage = usage.usage.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      const formattedLimit = usage.limit.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      return `${account.system_name} (${formattedUsage}/${formattedLimit}€)`;
+    }
+    return account.system_name;
   };
 
   if (!order) return null;
@@ -180,8 +223,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                       <SelectItem key={account.id} value={account.id}>
                         <div className="flex items-center gap-2">
                           {account.is_default && <span className="text-yellow-600">⭐</span>}
-                          <span>{account.bank_name}</span>
-                          <span className="text-gray-500">({account.iban.slice(-4)})</span>
+                          <span>{getBankAccountDisplayText(account)}</span>
                         </div>
                       </SelectItem>
                     ))}
