@@ -72,32 +72,51 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
   const onSubmit = async (data: NexiConfigFormData) => {
     setIsSubmitting(true);
     try {
+      console.log('Submitting Nexi config:', { ...data, mac_key: data.mac_key ? '[REDACTED]' : undefined });
+
       // Ensure the data has the correct types for the database
       const updateData = {
-        merchant_id: data.merchant_id,
-        terminal_id: data.terminal_id,
-        alias: data.alias || null,
-        mac_key: data.mac_key || null,
+        merchant_id: data.merchant_id.trim(),
+        terminal_id: data.terminal_id.trim(),
+        alias: data.alias?.trim() || null,
+        mac_key: data.mac_key?.trim() || null,
         is_sandbox: data.is_sandbox,
         is_active: data.is_active,
       };
 
+      console.log('Processed data for database:', { ...updateData, mac_key: updateData.mac_key ? '[REDACTED]' : null });
+
       if (config?.id) {
         // Update existing config
+        console.log('Updating existing config with ID:', config.id);
         const { error } = await supabase
           .from('nexi_payment_configs')
           .update(updateData)
           .eq('id', config.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating config:', error);
+          throw error;
+        }
+        console.log('Config updated successfully');
       } else {
         // Create new config
+        console.log('Creating new config');
         const { error } = await supabase
           .from('nexi_payment_configs')
           .insert([updateData]);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error creating config:', error);
+          throw error;
+        }
+        console.log('Config created successfully');
       }
+
+      toast({
+        title: 'Erfolg',
+        description: config?.id ? 'Konfiguration wurde aktualisiert.' : 'Konfiguration wurde erstellt.',
+      });
 
       onSuccess();
     } catch (error) {

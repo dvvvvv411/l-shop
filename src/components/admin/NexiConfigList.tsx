@@ -41,21 +41,28 @@ interface NexiConfig {
 interface NexiConfigListProps {
   onEdit: (config: NexiConfig) => void;
   onRefresh: () => void;
+  refreshTrigger?: number;
 }
 
-const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
+const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListProps) => {
   const [configs, setConfigs] = useState<NexiConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const fetchConfigs = async () => {
     try {
+      console.log('Fetching Nexi configurations...');
       const { data, error } = await supabase
         .from('nexi_payment_configs')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched configs:', data);
       setConfigs(data || []);
     } catch (error) {
       console.error('Error fetching Nexi configs:', error);
@@ -71,10 +78,11 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
 
   useEffect(() => {
     fetchConfigs();
-  }, []);
+  }, [refreshTrigger]);
 
   const handleDelete = async (configId: string) => {
     try {
+      console.log('Deleting config:', configId);
       const { error } = await supabase
         .from('nexi_payment_configs')
         .delete()
@@ -87,6 +95,7 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
         title: 'Erfolg',
         description: 'Nexi-Konfiguration wurde gelöscht.',
       });
+      onRefresh();
     } catch (error) {
       console.error('Error deleting Nexi config:', error);
       toast({
@@ -99,6 +108,7 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
 
   const toggleActive = async (config: NexiConfig) => {
     try {
+      console.log('Toggling active status for config:', config.id);
       const { error } = await supabase
         .from('nexi_payment_configs')
         .update({ is_active: !config.is_active })
@@ -114,6 +124,7 @@ const NexiConfigList = ({ onEdit, onRefresh }: NexiConfigListProps) => {
         title: 'Erfolg',
         description: `Konfiguration wurde ${!config.is_active ? 'aktiviert' : 'deaktiviert'}.`,
       });
+      onRefresh();
     } catch (error) {
       console.error('Error updating Nexi config:', error);
       toast({

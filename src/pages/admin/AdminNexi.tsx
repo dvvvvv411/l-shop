@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 const AdminNexi = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingConfig, setEditingConfig] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
 
   const breadcrumbItems = [
@@ -20,27 +21,37 @@ const AdminNexi = () => {
   ];
 
   const handleAddConfig = () => {
+    console.log('Adding new config');
     setEditingConfig(null);
     setIsFormOpen(true);
   };
 
   const handleEditConfig = (config) => {
+    console.log('Editing config:', config.id);
     setEditingConfig(config);
     setIsFormOpen(true);
   };
 
   const handleFormClose = () => {
+    console.log('Closing form');
     setIsFormOpen(false);
     setEditingConfig(null);
   };
 
   const handleFormSuccess = () => {
+    console.log('Form submitted successfully');
     setIsFormOpen(false);
     setEditingConfig(null);
+    setRefreshTrigger(prev => prev + 1);
     toast({
       title: "Erfolg",
       description: "Nexi-Konfiguration wurde erfolgreich gespeichert.",
     });
+  };
+
+  const handleRefresh = () => {
+    console.log('Refreshing list');
+    setRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -81,7 +92,8 @@ const AdminNexi = () => {
           <CardContent>
             <NexiConfigList 
               onEdit={handleEditConfig}
-              onRefresh={() => {}}
+              onRefresh={handleRefresh}
+              refreshTrigger={refreshTrigger}
             />
           </CardContent>
         </Card>
