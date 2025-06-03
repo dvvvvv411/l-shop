@@ -20,8 +20,11 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Index = () => {
+  const { shopConfig } = usePageMeta('home');
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -33,14 +36,14 @@ const Index = () => {
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">HeizölNetz Deutschland</h1>
+                <h1 className="text-xl font-bold text-gray-900">{shopConfig.name}</h1>
                 <p className="text-sm text-gray-600">Bundesweites Partnernetzwerk</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Phone className="h-4 w-4" />
-                <span>0800 123 456 789</span>
+                <span>{shopConfig.phone}</span>
               </div>
               <Button className="bg-red-600 hover:bg-red-700">
                 Jetzt bestellen
@@ -379,11 +382,11 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center text-sm opacity-90">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>0800 123 456 789 (kostenlos)</span>
+                <span>{shopConfig.phone} (kostenlos)</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>info@heizoel-netz.de</span>
+                <span>{shopConfig.email}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
@@ -403,7 +406,7 @@ const Index = () => {
                 <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                   <Zap className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-bold">HeizölNetz</span>
+                <span className="text-lg font-bold">{shopConfig.brand}</span>
               </div>
               <p className="text-gray-400 text-sm">
                 Deutschlands führendes Heizöl-Netzwerk für zuverlässige 
@@ -443,7 +446,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 HeizölNetz Deutschland GmbH. Alle Rechte vorbehalten.</p>
+            <p>&copy; 2024 {shopConfig.name} GmbH. Alle Rechte vorbehalten.</p>
           </div>
         </div>
       </footer>
