@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Shield, AlertCircle, Bug, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { parseNexiForm } from './FormParser';
+import { createAndSubmitForm } from './FormSubmitter';
 
 interface NexiFormSubmissionPageProps {
   formHtml: string;
@@ -20,71 +22,53 @@ const NexiFormSubmissionPage = ({
   const [showManualSubmit, setShowManualSubmit] = useState(false);
   const [autoSubmitAttempted, setAutoSubmitAttempted] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [formParsed, setFormParsed] = useState(false);
-  const formContainerRef = useRef<HTMLDivElement>(null);
+  const [parsedForm, setParsedForm] = useState<any>(null);
   const autoSubmitTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Parse and validate the form HTML
   useEffect(() => {
-    try {
-      console.log('=== NEXI FORM SUBMISSION DEBUG ===');
-      console.log('Form HTML length:', formHtml.length);
-      console.log('Environment:', environment);
-      
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(formHtml, 'text/html');
-      const form = doc.getElementById('nexiForm') as HTMLFormElement;
-      
-      if (!form) {
-        console.error('Nexi form not found in HTML');
-        setDebugInfo({
-          error: 'Form not found in HTML',
-          htmlPreview: formHtml.substring(0, 500) + '...',
-          timestamp: new Date().toISOString()
-        });
-        return;
-      }
+    console.log('=== NEXI FORM SUBMISSION DEBUG ===');
+    console.log('Form HTML length:', formHtml.length);
+    console.log('Environment:', environment);
+    
+    const formData = parseNexiForm(formHtml);
+    
+    console.log('Parsed form data:', {
+      isValid: formData.isValid,
+      action: formData.action,
+      method: formData.method,
+      inputCount: Object.keys(formData.inputs).length,
+      error: formData.error
+    });
 
-      const inputs = form.querySelectorAll('input[type="hidden"]');
-      const formData: Record<string, string> = {};
-      
-      inputs.forEach((input) => {
-        const hiddenInput = input as HTMLInputElement;
-        formData[hiddenInput.name] = hiddenInput.value;
-      });
-
-      console.log('Form action:', form.action);
-      console.log('Form method:', form.method);
-      console.log('Hidden inputs found:', inputs.length);
-      console.log('Form data:', formData);
-
+    if (!formData.isValid) {
+      console.error('Form parsing failed:', formData.error);
       setDebugInfo({
-        formAction: form.action,
-        formMethod: form.method,
-        inputCount: inputs.length,
-        formData: formData,
-        environment: environment,
-        timestamp: new Date().toISOString()
-      });
-
-      setFormParsed(true);
-
-      // Auto-submit after 3 seconds if not already attempted
-      if (!autoSubmitAttempted) {
-        console.log('Setting up auto-submit timer (3 seconds)...');
-        autoSubmitTimeoutRef.current = setTimeout(() => {
-          console.log('Auto-submit timer triggered');
-          handleAutoSubmit();
-        }, 3000);
-      }
-
-    } catch (error) {
-      console.error('Error parsing form HTML:', error);
-      setDebugInfo({
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: formData.error,
         htmlPreview: formHtml.substring(0, 500) + '...',
         timestamp: new Date().toISOString()
       });
+      setShowManualSubmit(true);
+      return;
+    }
+
+    setParsedForm(formData);
+    setDebugInfo({
+      formAction: formData.action,
+      formMethod: formData.method,
+      inputCount: Object.keys(formData.inputs).length,
+      formData: formData.inputs,
+      environment: environment,
+      timestamp: new Date().toISOString()
+    });
+
+    // Auto-submit after 3 seconds if not already attempted
+    if (!autoSubmitAttempted) {
+      console.log('Setting up auto-submit timer (3 seconds)...');
+      autoSubmitTimeoutRef.current = setTimeout(() => {
+        console.log('Auto-submit timer triggered');
+        handleAutoSubmit();
+      }, 3000);
     }
 
     return () => {
@@ -106,134 +90,48 @@ const NexiFormSubmissionPage = ({
     return () => clearTimeout(timer);
   }, [isSubmitting]);
 
-  const submitFormSafely = (form: HTMLFormElement) => {
-    try {
-      console.log('Attempting to submit form to:', form.action);
-      
-      // Validate form action URL
-      if (!form.action || form.action.includes('[object') || form.action === window.location.href) {
-        console.error('Invalid form action detected:', form.action);
-        throw new Error('Invalid form action URL detected');
-      }
-      
-      // Submit the form
-      form.submit();
-    } catch (error) {
-      console.error('Form submission failed:', error);
-      throw error;
-    }
-  };
-
   const handleAutoSubmit = () => {
-    if (autoSubmitAttempted || isSubmitting) {
-      console.log('Auto-submit already attempted or currently submitting');
+    if (autoSubmitAttempted || isSubmitting || !parsedForm) {
+      console.log('Auto-submit conditions not met');
       return;
     }
 
     console.log('Attempting auto-submit...');
     setAutoSubmitAttempted(true);
-    setIsSubmitting(true);
 
-    try {
-      // Try to submit the rendered form first
-      if (formContainerRef.current) {
-        formContainerRef.current.innerHTML = formHtml;
-        const form = formContainerRef.current.querySelector('#nexiForm') as HTMLFormElement;
-        
-        if (form) {
-          submitFormSafely(form);
-          return;
-        }
+    createAndSubmitForm({
+      action: parsedForm.action,
+      method: parsedForm.method,
+      inputs: parsedForm.inputs,
+      onSubmissionStart: () => setIsSubmitting(true),
+      onSubmissionError: (error) => {
+        console.error('Auto-submit failed:', error);
+        setIsSubmitting(false);
+        setShowManualSubmit(true);
+        setDebugInfo(prev => ({ ...prev, autoSubmitError: error }));
       }
-
-      // Fallback: create form programmatically
-      submitFormProgrammatically();
-
-    } catch (error) {
-      console.error('Auto-submit failed:', error);
-      setIsSubmitting(false);
-      setShowManualSubmit(true);
-    }
+    });
   };
 
   const handleManualSubmit = () => {
+    if (!parsedForm) {
+      console.error('No parsed form data available for manual submit');
+      return;
+    }
+
     console.log('Manual submit triggered by user');
-    setIsSubmitting(true);
     
-    try {
-      // First try to submit the rendered form
-      if (formContainerRef.current) {
-        const form = formContainerRef.current.querySelector('#nexiForm') as HTMLFormElement;
-        if (form) {
-          console.log('Manual submit: submitting rendered form');
-          submitFormSafely(form);
-          return;
-        }
+    createAndSubmitForm({
+      action: parsedForm.action,
+      method: parsedForm.method,
+      inputs: parsedForm.inputs,
+      onSubmissionStart: () => setIsSubmitting(true),
+      onSubmissionError: (error) => {
+        console.error('Manual submit failed:', error);
+        setIsSubmitting(false);
+        setDebugInfo(prev => ({ ...prev, manualSubmitError: error }));
       }
-
-      // Fallback: create form programmatically
-      submitFormProgrammatically();
-
-    } catch (error) {
-      console.error('Manual submit failed:', error);
-      setIsSubmitting(false);
-    }
-  };
-
-  const submitFormProgrammatically = () => {
-    console.log('Creating form programmatically...');
-    
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(formHtml, 'text/html');
-    const originalForm = doc.getElementById('nexiForm') as HTMLFormElement;
-    
-    if (!originalForm) {
-      console.error('Could not parse form from HTML');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Validate form action before proceeding
-    if (!originalForm.action || originalForm.action.includes('[object')) {
-      console.error('Invalid form action in parsed HTML:', originalForm.action);
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Create new form element
-    const newForm = document.createElement('form');
-    newForm.method = originalForm.method || 'POST';
-    newForm.action = originalForm.action;
-    newForm.style.display = 'none';
-    newForm.target = '_self';
-
-    // Copy all hidden inputs
-    const inputs = originalForm.querySelectorAll('input[type="hidden"]');
-    console.log('Copying', inputs.length, 'hidden inputs');
-    
-    inputs.forEach((input) => {
-      const hiddenInput = input as HTMLInputElement;
-      const newInput = document.createElement('input');
-      newInput.type = 'hidden';
-      newInput.name = hiddenInput.name;
-      newInput.value = hiddenInput.value;
-      newForm.appendChild(newInput);
-      console.log(`Copied input: ${newInput.name} = ${newInput.value}`);
     });
-
-    // Add form to document and submit
-    document.body.appendChild(newForm);
-    
-    try {
-      submitFormSafely(newForm);
-    } finally {
-      // Clean up after delay
-      setTimeout(() => {
-        if (document.body.contains(newForm)) {
-          document.body.removeChild(newForm);
-        }
-      }, 2000);
-    }
   };
 
   const handleRetry = () => {
@@ -241,11 +139,6 @@ const NexiFormSubmissionPage = ({
     setIsSubmitting(false);
     setAutoSubmitAttempted(false);
     setShowManualSubmit(false);
-    
-    // Clear and re-render form
-    if (formContainerRef.current) {
-      formContainerRef.current.innerHTML = '';
-    }
     
     // Trigger auto-submit again
     setTimeout(() => {
@@ -332,7 +225,7 @@ const NexiFormSubmissionPage = ({
               <div className="space-y-3">
                 <Button
                   onClick={handleManualSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !parsedForm}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                 >
                   Zur Nexi-Zahlung
@@ -377,6 +270,16 @@ const NexiFormSubmissionPage = ({
                     <strong>Fehler:</strong> {debugInfo.error}
                   </div>
                 )}
+                {debugInfo.autoSubmitError && (
+                  <div className="text-red-600">
+                    <strong>Auto-Submit Fehler:</strong> {debugInfo.autoSubmitError}
+                  </div>
+                )}
+                {debugInfo.manualSubmitError && (
+                  <div className="text-red-600">
+                    <strong>Manueller Submit Fehler:</strong> {debugInfo.manualSubmitError}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -393,20 +296,6 @@ const NexiFormSubmissionPage = ({
           </div>
         </div>
       </div>
-
-      {/* Hidden form container for direct rendering */}
-      <div
-        ref={formContainerRef}
-        style={{ display: 'none' }}
-        aria-hidden="true"
-      />
-      
-      {/* Fallback: hidden iframe with form */}
-      {formParsed && (
-        <div style={{ display: 'none' }} aria-hidden="true">
-          <div dangerouslySetInnerHTML={{ __html: formHtml }} />
-        </div>
-      )}
     </div>
   );
 };
