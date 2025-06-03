@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -206,7 +205,6 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   const paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
   
   console.log('Payment form will POST to:', paymentUrl);
-  console.log('Form will include', Object.keys(nexiParams).length, 'parameters');
 
   // Generate HTML form that will auto-submit to Nexi
   const formHtml = generateNexiForm(paymentUrl, nexiParams);
@@ -257,9 +255,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         integration_type: 'italian_nexi_form_post',
         order_id: request.orderId,
         amount: request.amount,
-        currency: request.currency || 'EUR',
-        payment_url: paymentUrl,
-        form_parameters: Object.keys(nexiParams)
+        currency: request.currency || 'EUR'
       }
     };
 
@@ -286,9 +282,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       amount: request.amount,
       currency: request.currency || 'EUR',
       has_mac_key: !!config.mac_key,
-      form_fields_count: Object.keys(nexiParams).length,
-      payment_url: paymentUrl,
-      target_environment: config.is_sandbox ? 'sandbox' : 'production'
+      form_fields_count: Object.keys(nexiParams).length
     }
   };
 
@@ -308,14 +302,11 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
 function generateNexiForm(actionUrl: string, params: Record<string, any>): string {
   console.log('Generating Nexi form HTML with', Object.keys(params).length, 'parameters');
-  console.log('Form action URL:', actionUrl);
   
   const formFields = Object.entries(params)
     .filter(([key, value]) => value !== undefined && value !== null && value !== '')
     .map(([key, value]) => `<input type="hidden" name="${key}" value="${value}">`)
     .join('\n    ');
-
-  console.log('Generated form fields:', Object.keys(params).filter(key => params[key] !== undefined && params[key] !== null && params[key] !== ''));
 
   const formHtml = `<!DOCTYPE html>
 <html lang="de">
@@ -362,19 +353,6 @@ function generateNexiForm(actionUrl: string, params: Record<string, any>): strin
             color: #888;
             margin-top: 1rem;
         }
-        .submit-btn {
-            background-color: #007cba;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 1rem;
-        }
-        .submit-btn:hover {
-            background-color: #005a87;
-        }
     </style>
 </head>
 <body>
@@ -387,27 +365,30 @@ function generateNexiForm(actionUrl: string, params: Record<string, any>): strin
         </div>
         <form id="nexiForm" method="POST" action="${actionUrl}">
             ${formFields}
-            <button type="submit" class="submit-btn">Zur Zahlung</button>
+            <button type="submit" style="
+                background-color: #007cba;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 1rem;
+            ">Zur Zahlung</button>
         </form>
         <div class="security-info">
             🔒 Sichere Verbindung zu Nexi - Ihre Daten sind geschützt
         </div>
     </div>
     <script>
-        console.log('Nexi form page loaded');
-        console.log('Form action:', '${actionUrl}');
-        console.log('Form method: POST');
-        
         // Auto-submit the form after a short delay
         setTimeout(function() {
-            console.log('Auto-submitting form to Nexi...');
             document.getElementById('nexiForm').submit();
         }, 2000);
     </script>
 </body>
 </html>`;
 
-  console.log('✅ Nexi form HTML generated successfully');
   return formHtml;
 }
 
