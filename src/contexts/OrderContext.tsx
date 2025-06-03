@@ -2,15 +2,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface OrderData {
-  // Customer Details
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  street?: string;
-  city?: string;
-  postcode?: string;
-
   // Delivery Address
   deliveryFirstName: string;
   deliveryLastName: string;
@@ -27,22 +18,17 @@ interface OrderData {
   billingPostcode?: string;
   billingCity?: string;
 
-  // Additional form fields
-  notes?: string;
-  differentDeliveryAddress?: boolean;
-  agbAccepted?: boolean;
-
   // Payment
   paymentMethod: string;
   
   // Order Details
   product: string;
-  amount: number; // This is the liters
+  amount: number;
   pricePerLiter: number;
   basePrice: number;
   deliveryFee: number;
   discount: number;
-  total: number; // This is the total amount
+  total: number;
   deliveryDate: string;
   
   // Order Tracking
@@ -52,7 +38,6 @@ interface OrderData {
 interface OrderContextType {
   orderData: OrderData | null;
   setOrderData: (data: OrderData) => void;
-  updateOrderData: (data: Partial<OrderData>) => void;
   clearOrderData: () => void;
 }
 
@@ -61,16 +46,12 @@ const OrderContext = createContext<OrderContextType | undefined>(undefined);
 export const OrderProvider = ({ children }: { children: ReactNode }) => {
   const [orderData, setOrderData] = useState<OrderData | null>(null);
 
-  const updateOrderData = (data: Partial<OrderData>) => {
-    setOrderData(prev => prev ? { ...prev, ...data } : null);
-  };
-
   const clearOrderData = () => {
     setOrderData(null);
   };
 
   return (
-    <OrderContext.Provider value={{ orderData, setOrderData, updateOrderData, clearOrderData }}>
+    <OrderContext.Provider value={{ orderData, setOrderData, clearOrderData }}>
       {children}
     </OrderContext.Provider>
   );
