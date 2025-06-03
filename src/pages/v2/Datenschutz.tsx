@@ -87,7 +87,7 @@ const Datenschutz = () => {
                   <p>90482 Nürnberg</p>
                   <p>Deutschland</p>
                   <p className="mt-2">E-Mail: info@greenoil-lieferung.de</p>
-                  <p>Telefon: 0800 987 654 3</p>
+                  <p>Telefon: 0911 96643306</p>
                 </div>
               </section>
 

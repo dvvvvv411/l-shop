@@ -10,7 +10,7 @@ const Kontakt = () => {
     {
       icon: Phone,
       title: "Telefon-Support",
-      info: "0800 987 654 3",
+      info: "0911 96643306",
       description: "Kostenlose Beratung täglich 7-20 Uhr",
       action: "Jetzt anrufen"
     },

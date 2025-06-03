@@ -35,7 +35,7 @@ const CustomerSupport = () => {
     {
       icon: Phone,
       method: "Telefon",
-      contact: "0800 987 654 3",
+      contact: "0911 96643306",
       availability: "24/7 verfügbar",
       color: "blue"
     },

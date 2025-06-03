@@ -18,7 +18,7 @@ const Footer = () => {
     {
       icon: Phone,
       title: "Telefon",
-      content: ["0800 987 654 3", "(kostenlos)"]
+      content: ["0911 96643306", "(kostenlos)"]
     },
     {
       icon: Mail,

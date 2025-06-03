@@ -172,7 +172,7 @@ const Liefergebiet = () => {
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8 text-sm opacity-90">
               <div className="flex items-center space-x-2">
                 <Phone size={16} />
-                <span>Persönliche Beratung: 0800 987 654 3</span>
+                <span>Persönliche Beratung: 0911 96643306</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={16} />
