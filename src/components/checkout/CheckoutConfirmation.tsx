@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Calendar, Truck, Phone, Mail, Package } from 'lucide-react';
+import { CreditCard, Calendar, Truck, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOrder } from '@/contexts/OrderContext';
 
