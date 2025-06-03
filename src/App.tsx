@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -69,6 +70,7 @@ function App() {
                 {/* Default/Legacy Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/kasse" element={<Checkout />} />
                 <Route path="/confirmation" element={<Confirmation />} />
                 <Route path="/order" element={<Order />} />
                 <Route path="/summary" element={<Summary />} />
