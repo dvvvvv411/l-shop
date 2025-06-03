@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown, Mail } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
@@ -298,7 +298,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   </CardContent>
                 </Card>
 
-                {/* Customer Information */}
+                {/* Customer Information with Email */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Kundendaten</CardTitle>
@@ -309,13 +309,30 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       <span className="ml-2">{order.customer_name}</span>
                     </div>
                     <div>
-                      <span className="font-medium">E-Mail:</span>
-                      <span className="ml-2">{order.customer_email}</span>
+                      <span className="font-medium flex items-center gap-1">
+                        <Mail className="h-4 w-4 text-blue-500" />
+                        E-Mail:
+                      </span>
+                      <span className="ml-2">
+                        <a 
+                          href={`mailto:${order.customer_email}`}
+                          className="text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {order.customer_email}
+                        </a>
+                      </span>
                     </div>
                     {order.customer_phone && (
                       <div>
                         <span className="font-medium">Telefon:</span>
-                        <span className="ml-2">{order.customer_phone}</span>
+                        <span className="ml-2">
+                          <a 
+                            href={`tel:${order.customer_phone}`}
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {order.customer_phone}
+                          </a>
+                        </span>
                       </div>
                     )}
                     <div>
@@ -353,7 +370,14 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       {order.delivery_phone && (
                         <div>
                           <span className="font-medium">Telefon:</span>
-                          <span className="ml-2">{order.delivery_phone}</span>
+                          <span className="ml-2">
+                            <a 
+                              href={`tel:${order.delivery_phone}`}
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {order.delivery_phone}
+                            </a>
+                          </span>
                         </div>
                       )}
                     </CardContent>

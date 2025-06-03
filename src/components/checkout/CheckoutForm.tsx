@@ -1,615 +1,466 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Truck, CreditCard, Shield, TestTube, FileText } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { ArrowLeft, ArrowRight, MapPin, CreditCard, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useOrder } from '@/contexts/OrderContext';
-import { useOrders } from '@/hooks/useOrders';
-import { useToast } from '@/hooks/use-toast';
+import { useOrderCreation } from '@/hooks/useOrderCreation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Test data arrays for random generation
-const testData = {
-  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
-  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
-  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
-  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109']
-};
+const CheckoutForm = () => {
+  const navigate = useNavigate();
+  const { orderData, setOrderData } = useOrder();
+  const { createOrderWithEmail, isCreating } = useOrderCreation();
 
-const generateRandomTestData = () => {
-  const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
-  const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  // Form state
+  const [email, setEmail] = useState('');
+  const [deliveryFirstName, setDeliveryFirstName] = useState('');
+  const [deliveryLastName, setDeliveryLastName] = useState('');
+  const [deliveryStreet, setDeliveryStreet] = useState('');
+  const [deliveryPostcode, setDeliveryPostcode] = useState('');
+  const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryPhone, setDeliveryPhone] = useState('');
   
-  return {
-    deliveryFirstName: getRandomItem(testData.firstNames),
-    deliveryLastName: getRandomItem(testData.lastNames),
-    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    deliveryPostcode: getRandomItem(testData.postcodes),
-    deliveryCity: getRandomItem(testData.cities),
-    deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
-    useSameAddress: Math.random() > 0.3,
-    billingFirstName: getRandomItem(testData.firstNames),
-    billingLastName: getRandomItem(testData.lastNames),
-    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    billingPostcode: getRandomItem(testData.postcodes),
-    billingCity: getRandomItem(testData.cities),
-    paymentMethod: 'vorkasse' as const
-  };
-};
-
-const orderSchema = z.object({
-  deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
-  deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
-  deliveryStreet: z.string().min(5, 'Straße ist erforderlich'),
-  deliveryPostcode: z.string().regex(/^\d{5}$/, 'PLZ muss 5-stellig sein'),
-  deliveryCity: z.string().min(2, 'Stadt ist erforderlich'),
-  deliveryPhone: z.string().min(10, 'Telefonnummer ist erforderlich'),
-  useSameAddress: z.boolean(),
-  billingFirstName: z.string().optional(),
-  billingLastName: z.string().optional(),
-  billingStreet: z.string().optional(),
-  billingPostcode: z.string().optional(),
-  billingCity: z.string().optional(),
-  paymentMethod: z.enum(['vorkasse', 'rechnung']),
-  acceptTerms: z.boolean().refine(val => val === true, 'Sie müssen die AGB akzeptieren')
-});
-
-type OrderFormData = z.infer<typeof orderSchema>;
-
-interface PriceCalculatorData {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    description: string;
-  };
-  amount: number;
-  postcode: string;
-  basePrice: number;
-  deliveryFee: number;
-  totalPrice: number;
-  savings: number;
-}
-
-interface CheckoutFormProps {
-  orderData: PriceCalculatorData;
-  onOrderSuccess: (orderNumber: string) => void;
-}
-
-const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setOrderData: setContextOrderData } = useOrder();
-  const { createOrder } = useOrders();
-  const { toast } = useToast();
+  const [billingFirstName, setBillingFirstName] = useState('');
+  const [billingLastName, setBillingLastName] = useState('');
+  const [billingStreet, setBillingStreet] = useState('');
+  const [billingPostcode, setBillingPostcode] = useState('');
+  const [billingCity, setBillingCity] = useState('');
+  
+  const [paymentMethod, setPaymentMethod] = useState('vorkasse');
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const form = useForm<OrderFormData>({
-    resolver: zodResolver(orderSchema),
-    defaultValues: {
-      useSameAddress: true,
-      paymentMethod: 'vorkasse',
-      acceptTerms: false
+  // Load existing order data if available
+  useEffect(() => {
+    if (orderData) {
+      setEmail(orderData.deliveryFirstName ? `${orderData.deliveryFirstName.toLowerCase()}@email.de` : '');
+      setDeliveryFirstName(orderData.deliveryFirstName || '');
+      setDeliveryLastName(orderData.deliveryLastName || '');
+      setDeliveryStreet(orderData.deliveryStreet || '');
+      setDeliveryPostcode(orderData.deliveryPostcode || '');
+      setDeliveryCity(orderData.deliveryCity || '');
+      setDeliveryPhone(orderData.deliveryPhone || '');
+      setUseSameAddress(orderData.useSameAddress);
+      setBillingFirstName(orderData.billingFirstName || '');
+      setBillingLastName(orderData.billingLastName || '');
+      setBillingStreet(orderData.billingStreet || '');
+      setBillingPostcode(orderData.billingPostcode || '');
+      setBillingCity(orderData.billingCity || '');
+      setPaymentMethod(orderData.paymentMethod || 'vorkasse');
     }
-  });
+  }, [orderData]);
 
-  const handleGenerateTestData = () => {
-    const testDataValues = generateRandomTestData();
-
-    form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
-    form.setValue('deliveryLastName', testDataValues.deliveryLastName);
-    form.setValue('deliveryStreet', testDataValues.deliveryStreet);
-    form.setValue('deliveryPostcode', testDataValues.deliveryPostcode);
-    form.setValue('deliveryCity', testDataValues.deliveryCity);
-    form.setValue('deliveryPhone', testDataValues.deliveryPhone);
-    form.setValue('useSameAddress', testDataValues.useSameAddress);
-    form.setValue('paymentMethod', testDataValues.paymentMethod);
-
-    setUseSameAddress(testDataValues.useSameAddress);
-
-    if (!testDataValues.useSameAddress) {
-      form.setValue('billingFirstName', testDataValues.billingFirstName);
-      form.setValue('billingLastName', testDataValues.billingLastName);
-      form.setValue('billingStreet', testDataValues.billingStreet);
-      form.setValue('billingPostcode', testDataValues.billingPostcode);
-      form.setValue('billingCity', testDataValues.billingCity);
+  const validateForm = () => {
+    if (!email || !email.includes('@')) {
+      alert('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+      return false;
+    }
+    
+    if (!deliveryFirstName || !deliveryLastName || !deliveryStreet || !deliveryPostcode || !deliveryCity || !deliveryPhone) {
+      alert('Bitte füllen Sie alle Felder der Lieferadresse aus.');
+      return false;
     }
 
-    toast({
-      title: 'Testdaten generiert',
-      description: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.'
-    });
+    if (!useSameAddress && (!billingFirstName || !billingLastName || !billingStreet || !billingPostcode || !billingCity)) {
+      alert('Bitte füllen Sie alle Felder der Rechnungsadresse aus.');
+      return false;
+    }
+
+    if (!acceptTerms) {
+      alert('Bitte akzeptieren Sie die AGB und Widerrufsbelehrung.');
+      return false;
+    }
+
+    return true;
   };
 
-  const onSubmit = async (data: OrderFormData) => {
-    console.log('Checkout form submitted:', data);
-    console.log('Using order data:', orderData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    setIsSubmitting(true);
-    
+    if (!validateForm() || !orderData) return;
+
     try {
-      const finalPrice = orderData.totalPrice;
-
-      // Capture the origin domain
-      const originDomain = window.location.hostname;
-
-      // Create order data for database
-      const dbOrderData = {
-        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de',
-        customer_phone: data.deliveryPhone,
-        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
-        delivery_first_name: data.deliveryFirstName,
-        delivery_last_name: data.deliveryLastName,
-        delivery_street: data.deliveryStreet,
-        delivery_postcode: data.deliveryPostcode,
-        delivery_city: data.deliveryCity,
-        delivery_phone: data.deliveryPhone,
-        use_same_address: data.useSameAddress,
-        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
-        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
-        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
-        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
-        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
-        payment_method: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
+      // Generate order number for tracking
+      const orderNumber = 'H' + Math.floor(100000 + Math.random() * 900000);
+      
+      // Prepare order data for database
+      const orderForDB = {
+        customer_name: `${deliveryFirstName} ${deliveryLastName}`,
+        customer_email: email,
+        customer_phone: deliveryPhone,
+        customer_address: `${deliveryStreet}, ${deliveryPostcode} ${deliveryCity}`,
+        
+        // Delivery details
+        delivery_first_name: deliveryFirstName,
+        delivery_last_name: deliveryLastName,
+        delivery_street: deliveryStreet,
+        delivery_postcode: deliveryPostcode,
+        delivery_city: deliveryCity,
+        delivery_phone: deliveryPhone,
+        
+        // Billing details
+        use_same_address: useSameAddress,
+        billing_first_name: useSameAddress ? deliveryFirstName : billingFirstName,
+        billing_last_name: useSameAddress ? deliveryLastName : billingLastName,
+        billing_street: useSameAddress ? deliveryStreet : billingStreet,
+        billing_postcode: useSameAddress ? deliveryPostcode : billingPostcode,
+        billing_city: useSameAddress ? deliveryCity : billingCity,
+        
+        // Order details
+        product: orderData.product,
         liters: orderData.amount,
-        price_per_liter: orderData.product.price,
+        price_per_liter: orderData.pricePerLiter,
         base_price: orderData.basePrice,
         delivery_fee: orderData.deliveryFee,
-        discount: 0,
-        total_amount: finalPrice,
-        delivery_date_display: '4-7 Werktage',
-        status: 'pending',
-        origin_domain: originDomain
+        discount: orderData.discount,
+        total_amount: orderData.total,
+        payment_method: paymentMethod,
+        delivery_date_display: orderData.deliveryDate,
+        origin_domain: window.location.host,
+        status: 'pending'
       };
 
-      console.log('Sending order data to database:', dbOrderData);
+      console.log('Creating order with data:', orderForDB);
+      
+      // Create order with email sending
+      const createdOrder = await createOrderWithEmail(orderForDB);
+      
+      if (createdOrder) {
+        // Update context with complete order data including the generated order number
+        const updatedOrderData = {
+          ...orderData,
+          deliveryFirstName,
+          deliveryLastName,
+          deliveryStreet,
+          deliveryPostcode,
+          deliveryCity,
+          deliveryPhone,
+          useSameAddress,
+          billingFirstName: useSameAddress ? deliveryFirstName : billingFirstName,
+          billingLastName: useSameAddress ? deliveryLastName : billingLastName,
+          billingStreet: useSameAddress ? deliveryStreet : billingStreet,
+          billingPostcode: useSameAddress ? deliveryPostcode : billingPostcode,
+          billingCity: useSameAddress ? deliveryCity : billingCity,
+          paymentMethod,
+          orderNumber: createdOrder.order_number,
+        };
 
-      // Create order in database
-      const createdOrder = await createOrder(dbOrderData);
-
-      if (!createdOrder) {
-        console.log('Order was already processed');
-        toast({
-          title: 'Information',
-          description: 'Diese Bestellung wurde bereits verarbeitet.',
+        setOrderData(updatedOrderData);
+        
+        // Navigate to confirmation with the order number from database
+        navigate('/confirmation', {
+          state: {
+            orderNumber: createdOrder.order_number,
+            email: email
+          }
         });
-        return;
       }
-
-      console.log('Order created with order number:', createdOrder.order_number);
-
-      // Set order data for context
-      const contextOrderData = {
-        deliveryFirstName: data.deliveryFirstName,
-        deliveryLastName: data.deliveryLastName,
-        deliveryStreet: data.deliveryStreet,
-        deliveryPostcode: data.deliveryPostcode,
-        deliveryCity: data.deliveryCity,
-        deliveryPhone: data.deliveryPhone,
-        useSameAddress: data.useSameAddress,
-        billingFirstName: data.billingFirstName,
-        billingLastName: data.billingLastName,
-        billingStreet: data.billingStreet,
-        billingPostcode: data.billingPostcode,
-        billingCity: data.billingCity,
-        paymentMethod: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        pricePerLiter: orderData.product.price,
-        basePrice: orderData.basePrice,
-        deliveryFee: orderData.deliveryFee,
-        discount: 0,
-        total: finalPrice,
-        deliveryDate: '4-7 Werktage',
-        orderNumber: createdOrder.order_number
-      };
-
-      setContextOrderData(contextOrderData);
-
-      // Call the success callback to move to confirmation step
-      onOrderSuccess(createdOrder.order_number);
-
-      // Clear localStorage
-      localStorage.removeItem('orderData');
-
     } catch (error) {
-      console.error('Error creating order:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error submitting order:', error);
     }
   };
 
+  const handleBack = () => {
+    navigate('/order');
+  };
+
+  if (!orderData) {
+    navigate('/order');
+    return null;
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Test Data Generator */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-amber-100 p-2 rounded-lg">
-              <TestTube className="text-amber-600" size={20} />
-            </div>
-            <div>
-              <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
-              <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            onClick={handleGenerateTestData}
-            variant="outline"
-            className="border-amber-300 text-amber-700 hover:bg-amber-100"
-          >
-            Testdaten generieren
-          </Button>
-        </div>
-      </motion.div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Delivery Address */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                <Truck className="text-blue-600" size={20} />
-              </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="max-w-2xl mx-auto"
+    >
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Contact Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-red-600" />
+              Kontaktdaten
+            </CardTitle>
+            <CardDescription>
+              Ihre E-Mail-Adresse für die Bestellbestätigung
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Lieferadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll das Heizöl geliefert werden?</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="deliveryFirstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vorname *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Max" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryLastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nachname *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Mustermann" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryStreet"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Straße und Hausnummer *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Musterstraße 123" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryPostcode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Postleitzahl *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="12345" {...field} defaultValue={orderData.postcode || ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryCity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stadt *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Musterstadt" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryPhone"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Telefonnummer *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+49 123 456789" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </motion.div>
-
-          {/* Billing Address */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-green-100 p-3 rounded-lg mr-4">
-                <FileText className="text-green-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Rechnungsadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll die Rechnung gesendet werden?</p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={useSameAddress}
-                  onChange={(e) => {
-                    setUseSameAddress(e.target.checked);
-                    form.setValue('useSameAddress', e.target.checked);
-                  }}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  E-Mail-Adresse *
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ihre@email.de"
+                  required
+                  className="w-full"
                 />
-                <span className="text-gray-700 font-medium">
-                  Rechnungsadresse ist identisch mit Lieferadresse
-                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Delivery Address */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-red-600" />
+              Lieferadresse
+            </CardTitle>
+            <CardDescription>
+              Wohin soll Ihr Heizöl geliefert werden?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="deliveryFirstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Vorname *
+                </label>
+                <Input
+                  id="deliveryFirstName"
+                  value={deliveryFirstName}
+                  onChange={(e) => setDeliveryFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="deliveryLastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Nachname *
+                </label>
+                <Input
+                  id="deliveryLastName"
+                  value={deliveryLastName}
+                  onChange={(e) => setDeliveryLastName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="deliveryStreet" className="block text-sm font-medium text-gray-700 mb-1">
+                  Straße und Hausnummer *
+                </label>
+                <Input
+                  id="deliveryStreet"
+                  value={deliveryStreet}
+                  onChange={(e) => setDeliveryStreet(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="deliveryPostcode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Postleitzahl *
+                </label>
+                <Input
+                  id="deliveryPostcode"
+                  value={deliveryPostcode}
+                  onChange={(e) => setDeliveryPostcode(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="deliveryCity" className="block text-sm font-medium text-gray-700 mb-1">
+                  Ort *
+                </label>
+                <Input
+                  id="deliveryCity"
+                  value={deliveryCity}
+                  onChange={(e) => setDeliveryCity(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="deliveryPhone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Telefonnummer *
+                </label>
+                <Input
+                  id="deliveryPhone"
+                  value={deliveryPhone}
+                  onChange={(e) => setDeliveryPhone(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Billing Address */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-red-600" />
+              Rechnungsadresse
+            </CardTitle>
+            <CardDescription>
+              Wohin soll die Rechnung geschickt werden?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="useSameAddress"
+                  checked={useSameAddress}
+                  onCheckedChange={(checked) => setUseSameAddress(checked as boolean)}
+                />
+                <label
+                  htmlFor="useSameAddress"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Rechnungsadresse entspricht der Lieferadresse
+                </label>
+              </div>
+
+              {!useSameAddress && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                  <div>
+                    <label htmlFor="billingFirstName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Vorname *
+                    </label>
+                    <Input
+                      id="billingFirstName"
+                      value={billingFirstName}
+                      onChange={(e) => setBillingFirstName(e.target.value)}
+                      required={!useSameAddress}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="billingLastName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Nachname *
+                    </label>
+                    <Input
+                      id="billingLastName"
+                      value={billingLastName}
+                      onChange={(e) => setBillingLastName(e.target.value)}
+                      required={!useSameAddress}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label htmlFor="billingStreet" className="block text-sm font-medium text-gray-700 mb-1">
+                      Straße und Hausnummer *
+                    </label>
+                    <Input
+                      id="billingStreet"
+                      value={billingStreet}
+                      onChange={(e) => setBillingStreet(e.target.value)}
+                      required={!useSameAddress}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="billingPostcode" className="block text-sm font-medium text-gray-700 mb-1">
+                      Postleitzahl *
+                    </label>
+                    <Input
+                      id="billingPostcode"
+                      value={billingPostcode}
+                      onChange={(e) => setBillingPostcode(e.target.value)}
+                      required={!useSameAddress}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="billingCity" className="block text-sm font-medium text-gray-700 mb-1">
+                      Ort *
+                    </label>
+                    <Input
+                      id="billingCity"
+                      value={billingCity}
+                      onChange={(e) => setBillingCity(e.target.value)}
+                      required={!useSameAddress}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment Method */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-red-600" />
+              Zahlungsart
+            </CardTitle>
+            <CardDescription>
+              Wählen Sie Ihre bevorzugte Zahlungsmethode
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="vorkasse">Vorkasse (Überweisung)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-gray-600 mt-2">
+              Bei Vorkasse erhalten Sie die Bankverbindung per E-Mail. Die Lieferung erfolgt nach Zahlungseingang.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Terms and Conditions */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="acceptTerms"
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <label htmlFor="acceptTerms" className="text-sm text-gray-700">
+                Ich akzeptiere die{' '}
+                <a href="/agb" className="text-red-600 hover:underline" target="_blank">
+                  Allgemeinen Geschäftsbedingungen
+                </a>{' '}
+                und die{' '}
+                <a href="/widerrufsrecht" className="text-red-600 hover:underline" target="_blank">
+                  Widerrufsbelehrung
+                </a>
+                . Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
+                sobald die Lieferung begonnen hat. *
               </label>
             </div>
+          </CardContent>
+        </Card>
 
-            {!useSameAddress && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="billingFirstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Vorname *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Max" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="billingLastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nachname *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Mustermann" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="billingStreet"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Straße und Hausnummer *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Musterstraße 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="billingPostcode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postleitzahl *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="12345" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="billingCity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Stadt *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Musterstadt" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-          </motion.div>
-
-          {/* Payment Method */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+        {/* Navigation Buttons */}
+        <div className="flex justify-between pt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            className="flex items-center gap-2"
           >
-            <div className="flex items-center mb-6">
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <CreditCard className="text-purple-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Zahlungsart</h3>
-                <p className="text-sm text-gray-600">Sichere und bequeme Zahlung</p>
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <RadioGroup value={field.value} onValueChange={field.onChange}>
-                      <div className="space-y-3">
-                        <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="vorkasse" id="vorkasse" />
-                            <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-900">Vorkasse</div>
-                                  <div className="text-sm text-gray-600">
-                                    Überweisung vor Lieferung
-                                  </div>
-                                </div>
-                                <div className="text-sm text-green-600 font-semibold">
-                                  Empfohlen
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        </div>
-
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                            <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-600">Rechnung</div>
-                                  <div className="text-sm text-gray-500">
-                                    Zahlung nach Lieferung (derzeit nicht verfügbar)
-                                  </div>
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  Nur für Bestandskunden
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-
-          {/* Terms and Submit */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            <ArrowLeft className="h-4 w-4" />
+            Zurück
+          </Button>
+          
+          <Button
+            type="submit"
+            disabled={!acceptTerms || isCreating}
+            className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
           >
-            <div className="flex items-center mb-6">
-              <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                <Shield className="text-orange-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">AGB und Widerrufsbelehrung</h3>
-                <p className="text-sm text-gray-600">Bitte bestätigen Sie die Geschäftsbedingungen</p>
-              </div>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-yellow-800 mb-2">Widerrufsbelehrung</h4>
-              <p className="text-yellow-700 text-sm">
-                Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
-                Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <div className="flex items-start space-x-3">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
-                      />
-                    </FormControl>
-                    <FormLabel className="text-sm text-gray-700 cursor-pointer">
-                      Ich akzeptiere die Allgemeinen Geschäftsbedingungen und die Widerrufsbelehrung. 
-                      Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
-                      sobald die Lieferung begonnen hat. *
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
-            >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
-            </Button>
-          </motion.div>
-        </form>
-      </Form>
-    </div>
+            {isCreating ? 'Wird bearbeitet...' : 'Bestellung abschließen'}
+            {!isCreating && <ArrowRight className="h-4 w-4" />}
+          </Button>
+        </div>
+      </form>
+    </motion.div>
   );
 };
 
