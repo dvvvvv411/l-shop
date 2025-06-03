@@ -2,9 +2,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface OrderData {
-  // Contact Information
-  email?: string;
-  
   // Delivery Address
   deliveryFirstName: string;
   deliveryLastName: string;
