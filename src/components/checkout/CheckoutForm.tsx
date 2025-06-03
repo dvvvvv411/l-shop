@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -176,8 +177,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       // Create order data for database
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de', // Keep legacy field for compatibility
-        customer_email_actual: data.customerEmail, // New actual email field
+        customer_email: data.customerEmail, // Use actual customer email instead of hardcoded value
+        customer_email_actual: data.customerEmail, // Keep for legacy compatibility
         customer_phone: data.deliveryPhone,
         customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
         delivery_first_name: data.deliveryFirstName,
