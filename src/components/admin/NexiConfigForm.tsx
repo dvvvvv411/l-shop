@@ -66,11 +66,19 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
   const onSubmit = async (data: NexiConfigFormData) => {
     setIsSubmitting(true);
     try {
+      // Ensure the data has the correct types for the database
+      const updateData = {
+        merchant_id: data.merchant_id,
+        terminal_id: data.terminal_id,
+        is_sandbox: data.is_sandbox,
+        is_active: data.is_active,
+      };
+
       if (config?.id) {
         // Update existing config
         const { error } = await supabase
           .from('nexi_payment_configs')
-          .update(data)
+          .update(updateData)
           .eq('id', config.id);
 
         if (error) throw error;
@@ -78,7 +86,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
         // Create new config
         const { error } = await supabase
           .from('nexi_payment_configs')
-          .insert([data]);
+          .insert([updateData]);
 
         if (error) throw error;
       }
