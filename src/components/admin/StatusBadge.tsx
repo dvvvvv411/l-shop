@@ -33,7 +33,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'Neue Bestellung';
+        return 'Neu';
       case 'confirmed':
         return 'Bezahlt';
       case 'invoice_created':
