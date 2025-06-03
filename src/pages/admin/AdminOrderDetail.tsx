@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -29,6 +30,7 @@ const AdminOrderDetail = () => {
       updated_at: '2024-01-15T09:30:00Z',
       customer_name: 'Max Mustermann',
       customer_email: 'max.mustermann@email.de',
+      customer_email_actual: 'max.mustermann@email.de',
       customer_phone: '+49 30 12345678',
       customer_address: 'Musterstraße 123',
       delivery_first_name: 'Max',
@@ -73,6 +75,7 @@ const AdminOrderDetail = () => {
       updated_at: '2024-01-15T10:15:00Z',
       customer_name: 'Anna Schmidt',
       customer_email: 'anna.schmidt@email.de',
+      customer_email_actual: 'anna.schmidt@email.de',
       customer_phone: '+49 40 87654321',
       customer_address: 'Hauptstraße 45',
       delivery_first_name: 'Anna',
