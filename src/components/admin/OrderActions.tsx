@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -162,14 +161,17 @@ const OrderActions: React.FC<OrderActionsProps> = ({
           <CardTitle>Schnellaktionen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => setIsInvoiceDialogOpen(true)}
-          >
-            <Receipt className="h-4 w-4 mr-2" />
-            Rechnung erstellen
-          </Button>
+          {/* Generate Invoice - Only when status is pending */}
+          {currentStatus === 'pending' && (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setIsInvoiceDialogOpen(true)}
+            >
+              <Receipt className="h-4 w-4 mr-2" />
+              Rechnung erstellen
+            </Button>
+          )}
           {currentStatus === 'invoice_created' && (
             <Button
               variant="outline"

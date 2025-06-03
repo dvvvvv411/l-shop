@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -182,14 +181,17 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   
                   {/* Action Buttons */}
                   <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => setIsInvoiceDialogOpen(true)}
-                    >
-                      <Receipt className="h-4 w-4 mr-2" />
-                      Rechnung erstellen
-                    </Button>
+                    {/* Generate Invoice - Only when status is pending */}
+                    {order.status === 'pending' && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setIsInvoiceDialogOpen(true)}
+                      >
+                        <Receipt className="h-4 w-4 mr-2" />
+                        Rechnung erstellen
+                      </Button>
+                    )}
                     {order.status === 'invoice_created' && (
                       <Button
                         variant="outline"

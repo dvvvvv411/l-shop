@@ -54,16 +54,18 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
         <Eye className="h-3 w-3" />
       </Button>
 
-      {/* Generate Invoice - Always available */}
-      <Button 
-        variant="ghost" 
-        size="sm"
-        onClick={() => onGenerateInvoice(order)}
-        title="Rechnung erstellen"
-        className="h-7 w-7 p-0 flex-shrink-0"
-      >
-        <Receipt className="h-3 w-3" />
-      </Button>
+      {/* Generate Invoice - Only when status is pending */}
+      {order.status === 'pending' && (
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => onGenerateInvoice(order)}
+          title="Rechnung erstellen"
+          className="h-7 w-7 p-0 flex-shrink-0"
+        >
+          <Receipt className="h-3 w-3" />
+        </Button>
+      )}
 
       {/* Mark as Paid - Only when invoice is created */}
       {order.status === 'invoice_created' && (
