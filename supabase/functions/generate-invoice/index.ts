@@ -161,10 +161,9 @@ serve(async (req) => {
     // Generate PDF using jsPDF
     const pdfBuffer = generateInvoicePDF(order, shop, bankAccount, invoiceNumber)
 
-    // Store PDF in Supabase Storage - sanitize filename
+    // Store PDF in Supabase Storage - updated filename generation
     const sanitizedOrderNumber = order.order_number.replace(/[^a-zA-Z0-9_-]/g, '_')
-    const sanitizedInvoiceNumber = invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, '_')
-    const fileName = `${sanitizedOrderNumber}_${sanitizedInvoiceNumber}.pdf`
+    const fileName = `${sanitizedOrderNumber}.pdf`
     
     console.log('Uploading PDF with filename:', fileName);
     
