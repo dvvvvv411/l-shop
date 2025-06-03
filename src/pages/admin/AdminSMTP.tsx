@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Mail, Settings, AlertCircle } from 'lucide-react';
+import { Plus, Mail, Settings, AlertCircle, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,17 +22,8 @@ const AdminSMTP = () => {
     try {
       await createConfiguration(configData);
       setShowForm(false);
-      toast({
-        title: 'Erfolg',
-        description: 'SMTP-Konfiguration wurde erstellt.',
-      });
     } catch (error) {
       console.error('Error creating SMTP config:', error);
-      toast({
-        title: 'Fehler',
-        description: 'SMTP-Konfiguration konnte nicht erstellt werden.',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -40,17 +31,8 @@ const AdminSMTP = () => {
     try {
       await updateConfiguration(editingConfig.id, configData);
       setEditingConfig(null);
-      toast({
-        title: 'Erfolg',
-        description: 'SMTP-Konfiguration wurde aktualisiert.',
-      });
     } catch (error) {
       console.error('Error updating SMTP config:', error);
-      toast({
-        title: 'Fehler',
-        description: 'SMTP-Konfiguration konnte nicht aktualisiert werden.',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -60,18 +42,19 @@ const AdminSMTP = () => {
     try {
       await deleteConfiguration(deletingConfig.id);
       setDeletingConfig(null);
-      toast({
-        title: 'Erfolg',
-        description: 'SMTP-Konfiguration wurde gelöscht.',
-      });
     } catch (error) {
       console.error('Error deleting SMTP config:', error);
-      toast({
-        title: 'Fehler',
-        description: 'SMTP-Konfiguration konnte nicht gelöscht werden.',
-        variant: 'destructive',
-      });
     }
+  };
+
+  const getPrimaryDomain = (config: any) => {
+    const primaryDomain = config.smtp_domains?.find((d: any) => d.is_primary);
+    return primaryDomain?.domain || config.smtp_domains?.[0]?.domain || 'Keine Domain';
+  };
+
+  const getDisplayName = (config: any) => {
+    const primaryDomain = getPrimaryDomain(config);
+    return primaryDomain !== 'Keine Domain' ? primaryDomain : `Config ${config.id.substring(0, 8)}`;
   };
 
   if (isLoading) {
@@ -118,7 +101,7 @@ const AdminSMTP = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Mail className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-lg">{config.shop_url}</CardTitle>
+                    <CardTitle className="text-lg">{getDisplayName(config)}</CardTitle>
                   </div>
                   <Badge variant={config.is_active ? "default" : "secondary"}>
                     {config.is_active ? 'Aktiv' : 'Inaktiv'}
@@ -135,6 +118,27 @@ const AdminSMTP = () => {
                     <p><strong>Shop:</strong> {config.shops.name}</p>
                   )}
                 </div>
+
+                {config.smtp_domains && config.smtp_domains.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1 text-sm font-medium">
+                      <Globe className="h-4 w-4" />
+                      Domains:
+                    </div>
+                    <div className="space-y-1">
+                      {config.smtp_domains.map((domain: any) => (
+                        <div key={domain.id} className="flex items-center gap-2">
+                          <Badge variant={domain.is_primary ? "default" : "outline"} className="text-xs">
+                            {domain.domain}
+                          </Badge>
+                          {domain.is_primary && (
+                            <span className="text-xs text-blue-600">Primär</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex gap-2">
                   <Button 
@@ -196,7 +200,7 @@ const AdminSMTP = () => {
           isOpen={!!deletingConfig}
           onClose={() => setDeletingConfig(null)}
           onConfirm={handleDeleteConfig}
-          configName={deletingConfig.shop_url}
+          configName={getDisplayName(deletingConfig)}
         />
       )}
     </div>

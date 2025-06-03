@@ -796,7 +796,6 @@ export type Database = {
           sender_email: string
           sender_name: string
           shop_id: string | null
-          shop_url: string
           updated_at: string
         }
         Insert: {
@@ -807,7 +806,6 @@ export type Database = {
           sender_email: string
           sender_name?: string
           shop_id?: string | null
-          shop_url: string
           updated_at?: string
         }
         Update: {
@@ -818,7 +816,6 @@ export type Database = {
           sender_email?: string
           sender_name?: string
           shop_id?: string | null
-          shop_url?: string
           updated_at?: string
         }
         Relationships: [
@@ -827,6 +824,41 @@ export type Database = {
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smtp_domains: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_primary: boolean
+          smtp_config_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_primary?: boolean
+          smtp_config_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_primary?: boolean
+          smtp_config_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smtp_domains_smtp_config_id_fkey"
+            columns: ["smtp_config_id"]
+            isOneToOne: false
+            referencedRelation: "smtp_configurations"
             referencedColumns: ["id"]
           },
         ]

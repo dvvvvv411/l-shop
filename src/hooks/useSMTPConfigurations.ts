@@ -10,10 +10,20 @@ export type SMTPConfiguration = Tables<'smtp_configurations'> & {
     name: string;
     company_name: string;
   };
+  smtp_domains?: {
+    id: string;
+    domain: string;
+    is_primary: boolean;
+  }[];
 };
 
 export type SMTPConfigurationInsert = TablesInsert<'smtp_configurations'>;
 export type SMTPConfigurationUpdate = TablesUpdate<'smtp_configurations'>;
+
+export interface SMTPConfigurationWithDomains {
+  smtp_config: Omit<SMTPConfigurationInsert, 'id' | 'created_at' | 'updated_at'>;
+  domains: { domain: string; is_primary: boolean }[];
+}
 
 export const useSMTPConfigurations = () => {
   const [configurations, setConfigurations] = useState<SMTPConfiguration[]>([]);
@@ -30,6 +40,11 @@ export const useSMTPConfigurations = () => {
             id,
             name,
             company_name
+          ),
+          smtp_domains (
+            id,
+            domain,
+            is_primary
           )
         `)
         .order('created_at', { ascending: false });
@@ -48,22 +63,39 @@ export const useSMTPConfigurations = () => {
     }
   };
 
-  const createConfiguration = async (configData: Omit<SMTPConfigurationInsert, 'id' | 'created_at' | 'updated_at'>) => {
+  const createConfiguration = async (configData: SMTPConfigurationWithDomains) => {
     try {
-      const { data, error } = await supabase
+      // Create the SMTP configuration first
+      const { data: smtpConfig, error: smtpError } = await supabase
         .from('smtp_configurations')
-        .insert(configData)
+        .insert(configData.smtp_config)
         .select()
         .single();
 
-      if (error) throw error;
+      if (smtpError) throw smtpError;
+
+      // Create the domains
+      if (configData.domains.length > 0) {
+        const domainInserts = configData.domains.map(domain => ({
+          smtp_config_id: smtpConfig.id,
+          domain: domain.domain,
+          is_primary: domain.is_primary,
+        }));
+
+        const { error: domainsError } = await supabase
+          .from('smtp_domains')
+          .insert(domainInserts);
+
+        if (domainsError) throw domainsError;
+      }
 
       toast({
         title: 'Erfolg',
         description: 'SMTP-Konfiguration wurde erstellt.',
       });
 
-      return data;
+      await fetchConfigurations();
+      return smtpConfig;
     } catch (error) {
       console.error('Error creating SMTP configuration:', error);
       toast({
@@ -75,22 +107,44 @@ export const useSMTPConfigurations = () => {
     }
   };
 
-  const updateConfiguration = async (id: string, configData: SMTPConfigurationUpdate) => {
+  const updateConfiguration = async (id: string, configData: SMTPConfigurationWithDomains) => {
     try {
+      // Update the SMTP configuration
       const { data, error } = await supabase
         .from('smtp_configurations')
-        .update({ ...configData, updated_at: new Date().toISOString() })
+        .update({ ...configData.smtp_config, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
 
+      // Delete existing domains and recreate them
+      await supabase
+        .from('smtp_domains')
+        .delete()
+        .eq('smtp_config_id', id);
+
+      if (configData.domains.length > 0) {
+        const domainInserts = configData.domains.map(domain => ({
+          smtp_config_id: id,
+          domain: domain.domain,
+          is_primary: domain.is_primary,
+        }));
+
+        const { error: domainsError } = await supabase
+          .from('smtp_domains')
+          .insert(domainInserts);
+
+        if (domainsError) throw domainsError;
+      }
+
       toast({
         title: 'Erfolg',
         description: 'SMTP-Konfiguration wurde aktualisiert.',
       });
 
+      await fetchConfigurations();
       return data;
     } catch (error) {
       console.error('Error updating SMTP configuration:', error);
@@ -105,6 +159,13 @@ export const useSMTPConfigurations = () => {
 
   const deleteConfiguration = async (id: string) => {
     try {
+      // Delete domains first (cascade should handle this, but being explicit)
+      await supabase
+        .from('smtp_domains')
+        .delete()
+        .eq('smtp_config_id', id);
+
+      // Delete the SMTP configuration
       const { error } = await supabase
         .from('smtp_configurations')
         .delete()
@@ -116,6 +177,8 @@ export const useSMTPConfigurations = () => {
         title: 'Erfolg',
         description: 'SMTP-Konfiguration wurde gelöscht.',
       });
+
+      await fetchConfigurations();
     } catch (error) {
       console.error('Error deleting SMTP configuration:', error);
       toast({
@@ -130,14 +193,23 @@ export const useSMTPConfigurations = () => {
   const getConfigByDomain = async (domain: string): Promise<SMTPConfiguration | null> => {
     try {
       const { data, error } = await supabase
-        .from('smtp_configurations')
-        .select('*')
-        .eq('shop_url', domain)
-        .eq('is_active', true)
+        .from('smtp_domains')
+        .select(`
+          smtp_configurations (
+            *,
+            shops (
+              id,
+              name,
+              company_name
+            )
+          )
+        `)
+        .eq('domain', domain)
+        .eq('smtp_configurations.is_active', true)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      return data || null;
+      return data?.smtp_configurations || null;
     } catch (error) {
       console.error('Error fetching SMTP config by domain:', error);
       return null;
@@ -159,7 +231,19 @@ export const useSMTPConfigurations = () => {
         },
         (payload) => {
           console.log('Real-time SMTP config update:', payload);
-          fetchConfigurations(); // Refetch data on any change
+          fetchConfigurations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'smtp_domains',
+        },
+        (payload) => {
+          console.log('Real-time SMTP domains update:', payload);
+          fetchConfigurations();
         }
       )
       .subscribe();
