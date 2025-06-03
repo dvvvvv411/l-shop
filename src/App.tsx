@@ -9,6 +9,7 @@ import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 
 import Index from "./pages/Index";
 import Checkout from "./pages/Checkout";
+import Payment from "./pages/Payment";
 import Confirmation from "./pages/Confirmation";
 import Order from "./pages/Order";
 import Summary from "./pages/Summary";
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/kasse" element={<Checkout />} />
+                <Route path="/payment/:orderNumber" element={<Payment />} />
                 <Route path="/confirmation" element={<Confirmation />} />
                 <Route path="/order" element={<Order />} />
                 <Route path="/summary" element={<Summary />} />
