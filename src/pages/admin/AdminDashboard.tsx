@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Sparkles, Crown } from 'lucide-react';
+import { Calendar, Crown } from 'lucide-react';
 import DashboardKPICards from '@/components/admin/dashboard/DashboardKPICards';
 import DashboardCharts from '@/components/admin/dashboard/DashboardCharts';
 import RecentOrdersTable from '@/components/admin/dashboard/RecentOrdersTable';
@@ -174,30 +175,6 @@ const AdminDashboard = () => {
               }}
             />
           ))}
-        </div>
-      </motion.div>
-
-      {/* Modern Dashboard Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-6 shadow-xl"
-      >
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl" />
-        
-        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-            </div>
-            <p className="text-blue-100">Willkommen zurück! Hier ist Ihre Heizöl-Verkaufsübersicht</p>
-          </div>
         </div>
       </motion.div>
 
