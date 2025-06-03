@@ -136,6 +136,22 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
     }
   };
 
+  const getConfigurationStatus = (config: NexiConfig) => {
+    const issues = [];
+    
+    if (!config.password) issues.push('Password fehlt');
+    if (!config.mac_key && !config.is_sandbox) issues.push('MAC Key empfohlen für Produktion');
+    if (!config.alias) issues.push('ALIAS nicht gesetzt');
+    
+    if (issues.length === 0) {
+      return { status: 'complete', message: 'Vollständig konfiguriert', color: 'text-green-600' };
+    } else if (issues.length === 1 && issues[0].includes('empfohlen')) {
+      return { status: 'warning', message: 'Funktionsfähig', color: 'text-yellow-600' };
+    } else {
+      return { status: 'incomplete', message: `${issues.length} Problem(e)`, color: 'text-red-600' };
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-4">Lade Konfigurationen...</div>;
   }
@@ -161,9 +177,7 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
           <TableRow>
             <TableHead>Merchant ID</TableHead>
             <TableHead>Terminal ID</TableHead>
-            <TableHead>Password</TableHead>
-            <TableHead>ALIAS</TableHead>
-            <TableHead>MAC Key</TableHead>
+            <TableHead>Konfiguration</TableHead>
             <TableHead>Umgebung</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Erstellt</TableHead>
@@ -171,95 +185,96 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
           </TableRow>
         </TableHeader>
         <TableBody>
-          {configs.map((config) => (
-            <TableRow key={config.id}>
-              <TableCell className="font-medium">
-                {config.merchant_id}
-              </TableCell>
-              <TableCell>{config.terminal_id}</TableCell>
-              <TableCell>
-                {config.password ? (
-                  <span className="text-sm text-gray-600">••••••••</span>
-                ) : (
-                  <span className="text-sm text-red-400">Fehlt</span>
-                )}
-              </TableCell>
-              <TableCell>
-                {config.alias ? (
-                  <span className="text-sm text-gray-600">{config.alias}</span>
-                ) : (
-                  <span className="text-sm text-gray-400">Nicht gesetzt</span>
-                )}
-              </TableCell>
-              <TableCell>
-                {config.mac_key ? (
-                  <span className="text-sm text-gray-600">••••••••</span>
-                ) : (
-                  <span className="text-sm text-orange-400">Empfohlen</span>
-                )}
-              </TableCell>
-              <TableCell>
-                <Badge variant={config.is_sandbox ? 'secondary' : 'default'}>
-                  {config.is_sandbox ? 'Sandbox' : 'Live'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant={config.is_active ? 'default' : 'secondary'}>
-                  {config.is_active ? 'Aktiv' : 'Inaktiv'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                {new Date(config.created_at).toLocaleDateString('de-DE')}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleActive(config)}
-                  >
-                    {config.is_active ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(config)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Konfiguration löschen</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Sind Sie sicher, dass Sie diese Nexi-Konfiguration löschen möchten? 
-                          Diese Aktion kann nicht rückgängig gemacht werden.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(config.id)}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Löschen
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {configs.map((config) => {
+            const configStatus = getConfigurationStatus(config);
+            
+            return (
+              <TableRow key={config.id}>
+                <TableCell className="font-medium">
+                  {config.merchant_id}
+                </TableCell>
+                <TableCell>{config.terminal_id}</TableCell>
+                <TableCell>
+                  <div className="space-y-1">
+                    <div className={`text-sm font-medium ${configStatus.color}`}>
+                      {configStatus.message}
+                    </div>
+                    <div className="text-xs text-gray-500 space-x-2">
+                      <span className={config.password ? 'text-green-600' : 'text-red-500'}>
+                        Password: {config.password ? '✓' : '✗'}
+                      </span>
+                      <span className={config.alias ? 'text-green-600' : 'text-gray-400'}>
+                        ALIAS: {config.alias ? '✓' : '○'}
+                      </span>
+                      <span className={config.mac_key ? 'text-green-600' : config.is_sandbox ? 'text-gray-400' : 'text-yellow-500'}>
+                        MAC: {config.mac_key ? '✓' : config.is_sandbox ? '○' : '!'}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={config.is_sandbox ? 'secondary' : 'default'}>
+                    {config.is_sandbox ? 'Sandbox' : 'Live'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={config.is_active ? 'default' : 'secondary'}>
+                    {config.is_active ? 'Aktiv' : 'Inaktiv'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {new Date(config.created_at).toLocaleDateString('de-DE')}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleActive(config)}
+                    >
+                      {config.is_active ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit(config)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Konfiguration löschen</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Sind Sie sicher, dass Sie diese Nexi-Konfiguration löschen möchten? 
+                            Diese Aktion kann nicht rückgängig gemacht werden.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(config.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Löschen
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

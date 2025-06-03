@@ -24,9 +24,10 @@ serve(async (req) => {
   }
 
   try {
+    // Use service role client for database operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
     const { action, ...body } = await req.json();
@@ -53,7 +54,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Check edge function logs for more information'
+        details: 'Check edge function logs for more information',
+        timestamp: new Date().toISOString()
       }),
       {
         status: 400,
@@ -70,7 +72,7 @@ async function generateMacSignature(params: Record<string, any>, macKey: string)
   // The order is critical for Italian Nexi MAC verification
   const signatureParams = [
     'id',
-    'password',
+    'password', 
     'action',
     'amt',
     'currencycode',
@@ -78,7 +80,7 @@ async function generateMacSignature(params: Record<string, any>, macKey: string)
   ];
   
   const signatureString = signatureParams
-    .filter(key => params[key] !== undefined && params[key] !== '')
+    .filter(key => params[key] !== undefined && params[key] !== null && params[key] !== '')
     .map(key => `${key}=${params[key]}`)
     .join('&');
   
@@ -160,7 +162,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   // Prepare Italian Nexi API request parameters
   const nexiParams = {
     id: config.merchant_id,
-    password: config.password, // Use dedicated password field
+    password: config.password,
     action: 'payment',
     amt: request.amount.toString(),
     currencycode: request.currency === 'EUR' ? '978' : '840', // ISO currency codes
@@ -204,7 +206,13 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       console.log('Making authenticated request to Italian Nexi API:', paymentUrl);
       
       // Create the payment URL with parameters for Italian Nexi
-      const urlParams = new URLSearchParams(authenticatedParams);
+      const urlParams = new URLSearchParams();
+      Object.entries(authenticatedParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          urlParams.append(key, value.toString());
+        }
+      });
+      
       redirectUrl = `${paymentUrl}?${urlParams.toString()}`;
       
       console.log('Generated authenticated payment URL for Italian Nexi');
@@ -218,7 +226,12 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     
     // Basic integration without MAC authentication
     paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
-    const urlParams = new URLSearchParams(nexiParams);
+    const urlParams = new URLSearchParams();
+    Object.entries(nexiParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        urlParams.append(key, value.toString());
+      }
+    });
     redirectUrl = `${paymentUrl}?${urlParams.toString()}`;
   }
 
@@ -253,27 +266,44 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
   if (!orderError && orderData) {
     console.log('Creating payment log entry...');
+    const logData = {
+      order_id: orderData.id,
+      payment_id: paymentId,
+      transaction_type: 'payment',
+      status: 'initiated',
+      amount: request.amount,
+      currency: request.currency || 'EUR',
+      request_data: {
+        merchant_id: config.merchant_id,
+        terminal_id: config.terminal_id,
+        has_password: !!config.password,
+        has_alias: !!config.alias,
+        has_mac_key: !!config.mac_key,
+        base_url: nexiBaseUrl,
+        integration_type: 'italian_nexi',
+        order_id: request.orderId,
+        amount: request.amount,
+        currency: request.currency || 'EUR'
+      }
+    };
+
+    console.log('Attempting to insert payment log with data:', {
+      ...logData,
+      request_data: {
+        ...logData.request_data,
+        has_password: '[REDACTED]',
+        has_mac_key: '[REDACTED]'
+      }
+    });
+
     const { error: logError } = await supabaseClient
       .from('nexi_payment_logs')
-      .insert({
-        order_id: orderData.id,
-        payment_id: paymentId,
-        transaction_type: 'payment',
-        status: 'initiated',
-        amount: request.amount,
-        currency: request.currency || 'EUR',
-        request_data: {
-          ...nexiParams,
-          password: '[REDACTED]',
-          mac_key: config.mac_key ? '[REDACTED]' : undefined,
-          base_url: nexiBaseUrl,
-          integration_type: 'italian_nexi'
-        }
-      });
+      .insert(logData);
 
     if (logError) {
       console.error('Failed to create payment log:', logError);
-      // Continue anyway, logging is not critical
+      console.error('Log error details:', JSON.stringify(logError, null, 2));
+      // Continue anyway, logging is not critical for payment flow
     } else {
       console.log('✅ Payment log created successfully');
     }
@@ -287,7 +317,14 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     status: 'initiated',
     environment: config.is_sandbox ? 'sandbox' : 'production',
     nexiBaseUrl,
-    integration: 'italian_nexi'
+    integration: 'italian_nexi',
+    debug: {
+      order_id: request.orderId,
+      amount: request.amount,
+      currency: request.currency || 'EUR',
+      has_mac_key: !!config.mac_key,
+      url_length: redirectUrl.length
+    }
   };
 
   console.log('=== PAYMENT INITIATION SUCCESS ===');
