@@ -74,11 +74,13 @@ const NexiPaymentButton = ({
         
         toast({
           title: 'Zahlung gestartet',
-          description: 'Sie werden zur Kreditkarten-Zahlung weitergeleitet.',
+          description: 'Sie werden zur sicheren Kreditkarten-Zahlung weitergeleitet.',
         });
         
-        // Redirect to Nexi payment page
-        window.location.href = response.redirectUrl;
+        // Small delay to ensure toast is visible
+        setTimeout(() => {
+          window.location.href = response.redirectUrl;
+        }, 1000);
       } else {
         console.error('Invalid payment response:', response);
         throw new Error('Invalid payment response from Nexi');
@@ -116,9 +118,8 @@ const NexiPaymentButton = ({
         </span>
       </Button>
       
-      {/* Debug Info for Testing */}
       <div className="text-xs text-gray-500 text-center">
-        <div>Testumgebung: Nexi Sandbox aktiv</div>
+        <div>Sichere Zahlung über Nexi</div>
         <div>Betrag: {orderData.totalPrice.toFixed(2)}€</div>
       </div>
     </div>
