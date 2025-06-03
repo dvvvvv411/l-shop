@@ -85,7 +85,22 @@ const SMTPConfigForm: React.FC<SMTPConfigFormProps> = ({
 
   const handleSubmit = async (data: SMTPConfigFormData) => {
     try {
-      await onSubmit(data);
+      // Transform the form data to match SMTPConfigurationWithDomains type
+      const transformedData: SMTPConfigurationWithDomains = {
+        smtp_config: {
+          resend_api_key: data.smtp_config.resend_api_key,
+          sender_email: data.smtp_config.sender_email,
+          sender_name: data.smtp_config.sender_name,
+          shop_id: data.smtp_config.shop_id,
+          is_active: data.smtp_config.is_active,
+        },
+        domains: data.domains.map(domain => ({
+          domain: domain.domain,
+          is_primary: domain.is_primary,
+        })),
+      };
+
+      await onSubmit(transformedData);
       form.reset();
       onClose();
     } catch (error) {
