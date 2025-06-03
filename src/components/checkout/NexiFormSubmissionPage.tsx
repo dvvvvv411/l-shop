@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowLeft, Shield, AlertCircle, Bug, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Shield, AlertCircle, Bug, RefreshCw, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { parseNexiForm } from './FormParser';
-import { createAndSubmitForm } from './FormSubmitter';
+import { createAndSubmitForm, retryWithStrategy, getAvailableStrategies } from './FormSubmitter';
 
 interface NexiFormSubmissionPageProps {
   formHtml: string;
@@ -20,9 +20,11 @@ const NexiFormSubmissionPage = ({
 }: NexiFormSubmissionPageProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showManualSubmit, setShowManualSubmit] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [autoSubmitAttempted, setAutoSubmitAttempted] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [parsedForm, setParsedForm] = useState<any>(null);
+  const [submissionErrors, setSubmissionErrors] = useState<string[]>([]);
   const autoSubmitTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Parse and validate the form HTML
@@ -30,6 +32,7 @@ const NexiFormSubmissionPage = ({
     console.log('=== NEXI FORM SUBMISSION DEBUG ===');
     console.log('Form HTML length:', formHtml.length);
     console.log('Environment:', environment);
+    console.log('Order Number:', orderNumber);
     
     const formData = parseNexiForm(formHtml);
     
@@ -44,11 +47,13 @@ const NexiFormSubmissionPage = ({
     if (!formData.isValid) {
       console.error('Form parsing failed:', formData.error);
       setDebugInfo({
-        error: formData.error,
+        parseError: formData.error,
         htmlPreview: formHtml.substring(0, 500) + '...',
+        htmlLength: formHtml.length,
         timestamp: new Date().toISOString()
       });
       setShowManualSubmit(true);
+      setShowAdvancedOptions(true);
       return;
     }
 
@@ -62,13 +67,13 @@ const NexiFormSubmissionPage = ({
       timestamp: new Date().toISOString()
     });
 
-    // Auto-submit after 3 seconds if not already attempted
+    // Auto-submit after 2 seconds if not already attempted
     if (!autoSubmitAttempted) {
-      console.log('Setting up auto-submit timer (3 seconds)...');
+      console.log('Setting up auto-submit timer (2 seconds)...');
       autoSubmitTimeoutRef.current = setTimeout(() => {
         console.log('Auto-submit timer triggered');
         handleAutoSubmit();
-      }, 3000);
+      }, 2000);
     }
 
     return () => {
@@ -78,14 +83,14 @@ const NexiFormSubmissionPage = ({
     };
   }, [formHtml, environment, autoSubmitAttempted]);
 
-  // Show manual submit after 8 seconds if auto-submit hasn't worked
+  // Show manual submit after 10 seconds if auto-submit hasn't worked
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isSubmitting) {
         console.log('Showing manual submit button after timeout');
         setShowManualSubmit(true);
       }
-    }, 8000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [isSubmitting]);
@@ -103,11 +108,16 @@ const NexiFormSubmissionPage = ({
       action: parsedForm.action,
       method: parsedForm.method,
       inputs: parsedForm.inputs,
-      onSubmissionStart: () => setIsSubmitting(true),
+      onSubmissionStart: () => {
+        setIsSubmitting(true);
+        console.log('Auto-submit started');
+      },
       onSubmissionError: (error) => {
         console.error('Auto-submit failed:', error);
         setIsSubmitting(false);
         setShowManualSubmit(true);
+        setShowAdvancedOptions(true);
+        setSubmissionErrors(prev => [...prev, `Auto-submit: ${error}`]);
         setDebugInfo(prev => ({ ...prev, autoSubmitError: error }));
       }
     });
@@ -125,13 +135,47 @@ const NexiFormSubmissionPage = ({
       action: parsedForm.action,
       method: parsedForm.method,
       inputs: parsedForm.inputs,
-      onSubmissionStart: () => setIsSubmitting(true),
+      onSubmissionStart: () => {
+        setIsSubmitting(true);
+        console.log('Manual submit started');
+      },
       onSubmissionError: (error) => {
         console.error('Manual submit failed:', error);
         setIsSubmitting(false);
+        setShowAdvancedOptions(true);
+        setSubmissionErrors(prev => [...prev, `Manual submit: ${error}`]);
         setDebugInfo(prev => ({ ...prev, manualSubmitError: error }));
       }
     });
+  };
+
+  const handleStrategyRetry = async (strategyName: string) => {
+    if (!parsedForm) {
+      console.error('No parsed form data available for strategy retry');
+      return;
+    }
+
+    console.log(`Retrying with strategy: ${strategyName}`);
+    setIsSubmitting(true);
+    
+    try {
+      await retryWithStrategy(strategyName, {
+        action: parsedForm.action,
+        method: parsedForm.method,
+        inputs: parsedForm.inputs,
+        onSubmissionStart: () => console.log(`${strategyName} started`),
+        onSubmissionError: (error) => {
+          console.error(`${strategyName} failed:`, error);
+          setSubmissionErrors(prev => [...prev, `${strategyName}: ${error}`]);
+          setDebugInfo(prev => ({ ...prev, [`${strategyName}Error`]: error }));
+        }
+      });
+    } catch (error) {
+      console.error(`Strategy ${strategyName} failed:`, error);
+      setSubmissionErrors(prev => [...prev, `${strategyName}: ${error instanceof Error ? error.message : 'Unknown error'}`]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRetry = () => {
@@ -139,6 +183,8 @@ const NexiFormSubmissionPage = ({
     setIsSubmitting(false);
     setAutoSubmitAttempted(false);
     setShowManualSubmit(false);
+    setShowAdvancedOptions(false);
+    setSubmissionErrors([]);
     
     // Trigger auto-submit again
     setTimeout(() => {
@@ -240,7 +286,50 @@ const NexiFormSubmissionPage = ({
                   <RefreshCw size={16} />
                   Erneut versuchen
                 </Button>
+
+                <Button
+                  onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Settings size={16} />
+                  Erweiterte Optionen
+                </Button>
               </div>
+
+              {/* Advanced Options */}
+              {showAdvancedOptions && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                  <h4 className="font-medium text-gray-700 mb-3">Alternative Methoden</h4>
+                  <div className="space-y-2">
+                    {getAvailableStrategies().map((strategy) => (
+                      <Button
+                        key={strategy}
+                        onClick={() => handleStrategyRetry(strategy)}
+                        disabled={isSubmitting || !parsedForm}
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                      >
+                        {strategy}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Error Log */}
+              {submissionErrors.length > 0 && (
+                <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                  <h4 className="font-medium text-red-700 mb-2">Fehlerverlauf</h4>
+                  <div className="text-xs text-red-600 space-y-1 max-h-24 overflow-y-auto">
+                    {submissionErrors.map((error, index) => (
+                      <div key={index}>• {error}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -265,9 +354,9 @@ const NexiFormSubmissionPage = ({
                 {debugInfo.environment && (
                   <div><strong>Umgebung:</strong> {debugInfo.environment}</div>
                 )}
-                {debugInfo.error && (
+                {debugInfo.parseError && (
                   <div className="text-red-600">
-                    <strong>Fehler:</strong> {debugInfo.error}
+                    <strong>Parse-Fehler:</strong> {debugInfo.parseError}
                   </div>
                 )}
                 {debugInfo.autoSubmitError && (
