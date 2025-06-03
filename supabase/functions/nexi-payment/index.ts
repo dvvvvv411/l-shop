@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -167,6 +168,10 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
   console.log('Using Italian Nexi base URL:', nexiBaseUrl);
   
+  // Prepare webhook URL for Nexi callback
+  const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/nexi-webhook`;
+  console.log('Webhook URL:', webhookUrl);
+  
   // Prepare Italian Nexi API request parameters
   const nexiParams = {
     id: config.merchant_id,
@@ -178,7 +183,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     udf1: request.description || `Order ${request.orderId}`,
     responseURL: request.returnUrl,
     errorURL: request.cancelUrl,
-    langid: 'DE'
+    langid: 'DE',
+    webhookURL: webhookUrl  // Add webhook URL for automatic notifications
   };
 
   // Add alias if available
@@ -199,8 +205,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       // Generate MAC signature using SHA1 (Italian Nexi standard)
       const macSignature = await generateMacSignature(nexiParams, config.mac_key);
       
-      // Add MAC to parameters as 'trandata' (Italian Nexi parameter name)
-      nexiParams.trandata = macSignature;
+      // Add MAC to parameters as 'hash' (corrected Italian Nexi parameter name)
+      nexiParams.hash = macSignature;
       
     } catch (error) {
       console.error('Error with MAC authentication:', error);
@@ -264,7 +270,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         integration_type: 'italian_nexi_form_post',
         order_id: request.orderId,
         amount: request.amount,
-        currency: request.currency || 'EUR'
+        currency: request.currency || 'EUR',
+        webhook_url: webhookUrl
       }
     };
 
@@ -292,7 +299,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       currency: request.currency || 'EUR',
       has_mac_key: !!config.mac_key,
       form_fields_count: Object.keys(nexiParams).length,
-      payment_url: paymentUrl
+      payment_url: paymentUrl,
+      webhook_url: webhookUrl
     }
   };
 
@@ -524,66 +532,18 @@ async function checkPaymentStatus(supabaseClient: any, paymentId: string) {
 }
 
 async function handleWebhook(supabaseClient: any, webhookData: any) {
-  console.log('=== HANDLING NEXI WEBHOOK ===');
+  console.log('=== HANDLING NEXI WEBHOOK (DEPRECATED) ===');
+  console.log('This webhook handler is deprecated. Use the dedicated nexi-webhook function instead.');
   console.log('Webhook data:', webhookData);
 
-  const { payment_id, status, order_id, result, tranid } = webhookData;
-
-  if (!payment_id && !tranid) {
-    throw new Error('Invalid webhook data: missing payment_id or tranid');
-  }
-
-  const actualPaymentId = payment_id || tranid;
-  const paymentStatus = status || (result === 'CAPTURED' ? 'completed' : 'failed');
-
-  // Update order status based on webhook
-  console.log('Updating order status from webhook...');
-  const { error: updateError } = await supabaseClient
-    .from('orders')
-    .update({
-      nexi_transaction_status: paymentStatus,
-      nexi_webhook_data: webhookData,
-      status: paymentStatus === 'completed' ? 'confirmed' : 'pending'
-    })
-    .eq('nexi_payment_id', actualPaymentId);
-
-  if (updateError) {
-    console.error('Failed to update order from webhook:', updateError);
-    throw new Error(`Failed to update order: ${updateError.message}`);
-  }
-
-  console.log('✅ Order updated from webhook');
-
-  // Log webhook
-  const { data: orderData, error: orderError } = await supabaseClient
-    .from('orders')
-    .select('id')
-    .eq('nexi_payment_id', actualPaymentId)
-    .single();
-
-  if (!orderError && orderData) {
-    const { error: logError } = await supabaseClient
-      .from('nexi_payment_logs')
-      .insert({
-        order_id: orderData.id,
-        payment_id: actualPaymentId,
-        transaction_type: 'webhook',
-        status: paymentStatus,
-        webhook_data: webhookData
-      });
-
-    if (logError) {
-      console.error('Failed to log webhook:', logError);
-    } else {
-      console.log('✅ Webhook logged successfully');
-    }
-  }
-
-  console.log('=== WEBHOOK PROCESSING COMPLETE ===');
-
+  // This is kept for backward compatibility but should redirect to the new webhook
   return new Response(
-    JSON.stringify({ success: true, status: paymentStatus }),
+    JSON.stringify({ 
+      message: 'Webhook handling moved to dedicated nexi-webhook function',
+      redirect_to: '/functions/v1/nexi-webhook'
+    }),
     {
+      status: 301,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
   );
