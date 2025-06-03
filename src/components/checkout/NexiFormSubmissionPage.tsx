@@ -46,7 +46,7 @@ const NexiFormSubmissionPage = ({
       }
 
       const inputs = form.querySelectorAll('input[type="hidden"]');
-      const formData = {};
+      const formData: Record<string, string> = {};
       
       inputs.forEach((input) => {
         const hiddenInput = input as HTMLInputElement;
@@ -81,7 +81,7 @@ const NexiFormSubmissionPage = ({
     } catch (error) {
       console.error('Error parsing form HTML:', error);
       setDebugInfo({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         htmlPreview: formHtml.substring(0, 500) + '...',
         timestamp: new Date().toISOString()
       });
@@ -106,6 +106,24 @@ const NexiFormSubmissionPage = ({
     return () => clearTimeout(timer);
   }, [isSubmitting]);
 
+  const submitFormSafely = (form: HTMLFormElement) => {
+    try {
+      console.log('Attempting to submit form to:', form.action);
+      
+      // Validate form action URL
+      if (!form.action || form.action.includes('[object') || form.action === window.location.href) {
+        console.error('Invalid form action detected:', form.action);
+        throw new Error('Invalid form action URL detected');
+      }
+      
+      // Submit the form
+      form.submit();
+    } catch (error) {
+      console.error('Form submission failed:', error);
+      throw error;
+    }
+  };
+
   const handleAutoSubmit = () => {
     if (autoSubmitAttempted || isSubmitting) {
       console.log('Auto-submit already attempted or currently submitting');
@@ -117,14 +135,13 @@ const NexiFormSubmissionPage = ({
     setIsSubmitting(true);
 
     try {
-      // Render form directly in a hidden container and submit
+      // Try to submit the rendered form first
       if (formContainerRef.current) {
         formContainerRef.current.innerHTML = formHtml;
         const form = formContainerRef.current.querySelector('#nexiForm') as HTMLFormElement;
         
         if (form) {
-          console.log('Auto-submitting form to:', form.action);
-          form.submit();
+          submitFormSafely(form);
           return;
         }
       }
@@ -149,7 +166,7 @@ const NexiFormSubmissionPage = ({
         const form = formContainerRef.current.querySelector('#nexiForm') as HTMLFormElement;
         if (form) {
           console.log('Manual submit: submitting rendered form');
-          form.submit();
+          submitFormSafely(form);
           return;
         }
       }
@@ -176,12 +193,19 @@ const NexiFormSubmissionPage = ({
       return;
     }
 
+    // Validate form action before proceeding
+    if (!originalForm.action || originalForm.action.includes('[object')) {
+      console.error('Invalid form action in parsed HTML:', originalForm.action);
+      setIsSubmitting(false);
+      return;
+    }
+
     // Create new form element
     const newForm = document.createElement('form');
     newForm.method = originalForm.method || 'POST';
     newForm.action = originalForm.action;
     newForm.style.display = 'none';
-    newForm.target = '_self'; // Ensure it submits in the same window
+    newForm.target = '_self';
 
     // Copy all hidden inputs
     const inputs = originalForm.querySelectorAll('input[type="hidden"]');
@@ -199,17 +223,17 @@ const NexiFormSubmissionPage = ({
 
     // Add form to document and submit
     document.body.appendChild(newForm);
-    console.log('Submitting programmatic form to:', newForm.action);
     
-    // Submit immediately
-    newForm.submit();
-    
-    // Clean up after delay
-    setTimeout(() => {
-      if (document.body.contains(newForm)) {
-        document.body.removeChild(newForm);
-      }
-    }, 2000);
+    try {
+      submitFormSafely(newForm);
+    } finally {
+      // Clean up after delay
+      setTimeout(() => {
+        if (document.body.contains(newForm)) {
+          document.body.removeChild(newForm);
+        }
+      }, 2000);
+    }
   };
 
   const handleRetry = () => {
