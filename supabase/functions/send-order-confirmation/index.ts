@@ -193,12 +193,14 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             font-size: 32px;
             font-weight: 700;
             letter-spacing: -0.5px;
+            color: #ffffff;
         }
         .header p {
             margin: 0;
             font-size: 18px;
             opacity: 0.95;
             font-weight: 400;
+            color: #ffffff;
         }
         .content {
             padding: 40px 30px;
@@ -229,14 +231,6 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             font-weight: 600;
             display: flex;
             align-items: center;
-        }
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            background-size: contain;
-            background-repeat: no-repeat;
         }
         .order-grid {
             display: grid;
@@ -282,30 +276,36 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             font-size: 28px;
             font-weight: 700;
             margin: 8px 0;
+            color: #ffffff;
         }
         .callback-notice {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: #92400e;
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: #1f2937;
             border-radius: 12px;
             padding: 24px;
             margin: 24px 0;
-            border: none;
+            border: 2px solid #f59e0b;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
         }
         .callback-notice h3 {
-            color: #92400e;
+            color: #1f2937;
             margin: 0 0 12px 0;
             font-size: 18px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
         }
         .callback-notice p {
             margin: 8px 0;
             font-weight: 500;
+            color: #1f2937;
         }
         .callback-notice .phone-highlight {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.4);
             padding: 4px 8px;
             border-radius: 6px;
             font-weight: 700;
+            color: #1f2937;
         }
         .contact-grid {
             display: grid;
@@ -318,6 +318,30 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
         }
         .contact-label {
             font-weight: 600;
+            color: #1f2937;
+        }
+        .address-text {
+            margin-top: 12px;
+            color: #1f2937;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .address-text strong {
+            color: #1f2937;
+        }
+        .closing-text {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #f3f4f6;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        .signature {
+            margin-top: 24px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        .signature strong {
             color: #1f2937;
         }
         .footer {
@@ -335,6 +359,7 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
         .footer .company-details {
             margin: 8px 0;
             font-size: 14px;
+            color: #d1d5db;
         }
         .footer a {
             color: #dc2626;
@@ -422,7 +447,7 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
             
             <div class="info-section">
                 <h3>🏠 Lieferadresse</h3>
-                <div style="margin-top: 12px; color: #1f2937; font-size: 16px; line-height: 1.6;">
+                <div class="address-text">
                     <strong>${order.delivery_first_name} ${order.delivery_last_name}</strong><br>
                     ${order.delivery_street}<br>
                     ${order.delivery_postcode} ${order.delivery_city}
@@ -449,11 +474,11 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
                 </div>
             </div>
             
-            <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #f3f4f6; color: #4b5563; line-height: 1.7;">
+            <div class="closing-text">
                 Bei Fragen können Sie uns jederzeit kontaktieren. Wir freuen uns darauf, Sie bald beliefern zu dürfen!
             </div>
             
-            <div style="margin-top: 24px; color: #1f2937; font-weight: 500;">
+            <div class="signature">
                 Mit freundlichen Grüßen<br>
                 <strong>Ihr ${companyName} Team</strong>
             </div>
