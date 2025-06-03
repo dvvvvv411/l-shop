@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Users } from 'lucide-react';
@@ -16,7 +17,7 @@ const Kontakt = () => {
     {
       icon: Mail,
       title: "E-Mail Support",
-      info: "kontakt@oilexpress.de",
+      info: "info@greenoil-lieferung.de",
       description: "Antwort binnen 2 Stunden während der Geschäftszeiten",
       action: "E-Mail senden"
     }

@@ -23,7 +23,7 @@ const Footer = () => {
     {
       icon: Mail,
       title: "E-Mail",
-      content: ["kontakt@oilexpress.de"]
+      content: ["info@greenoil-lieferung.de"]
     },
     {
       icon: Clock,

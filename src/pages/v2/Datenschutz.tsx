@@ -86,7 +86,7 @@ const Datenschutz = () => {
                   <p>Kühgassfelderweg 13</p>
                   <p>90482 Nürnberg</p>
                   <p>Deutschland</p>
-                  <p className="mt-2">E-Mail: kontakt@oilexpress.de</p>
+                  <p className="mt-2">E-Mail: info@greenoil-lieferung.de</p>
                   <p>Telefon: 0800 987 654 3</p>
                 </div>
               </section>

@@ -46,7 +46,7 @@ const Impressum = () => {
                 <h2 className="text-xl font-semibold text-emerald-900 mb-4">Kontakt</h2>
                 <div className="text-emerald-800 space-y-1">
                   <p>Telefon: 0800 987 654 3</p>
-                  <p>E-Mail: kontakt@oilexpress.de</p>
+                  <p>E-Mail: info@greenoil-lieferung.de</p>
                 </div>
               </motion.section>
 

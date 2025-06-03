@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -175,7 +176,7 @@ const Liefergebiet = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={16} />
-                <span>kontakt@oilexpress.de</span>
+                <span>info@greenoil-lieferung.de</span>
               </div>
             </div>
           </motion.div>

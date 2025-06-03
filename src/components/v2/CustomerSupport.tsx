@@ -42,7 +42,7 @@ const CustomerSupport = () => {
     {
       icon: Mail,
       method: "E-Mail",
-      contact: "support@oilexpress.de",
+      contact: "info@greenoil-lieferung.de",
       availability: "24h Antwortzeit",
       color: "emerald"
     }

@@ -25,7 +25,7 @@ const Header = () => {
             <span>Persönliche Beratung täglich 8-18 Uhr</span>
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            <span>0800 987 654 3 | kontakt@oilexpress.de</span>
+            <span>0800 987 654 3 | info@greenoil-lieferung.de</span>
           </div>
         </div>
       </div>
