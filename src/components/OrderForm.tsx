@@ -232,7 +232,7 @@ const OrderForm = () => {
       }
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Set order data for context (for summary page) - now includes pricePerLiter
+      // Set order data for context (for summary page)
       const contextOrderData = {
         deliveryFirstName: data.deliveryFirstName,
         deliveryLastName: data.deliveryLastName,
@@ -250,7 +250,6 @@ const OrderForm = () => {
         product: orderData.product.name,
         amount: orderData.amount,
         pricePerLiter: orderData.product.price,
-        // This was missing!
         basePrice: orderData.basePrice,
         deliveryFee: orderData.deliveryFee,
         discount: 0,
