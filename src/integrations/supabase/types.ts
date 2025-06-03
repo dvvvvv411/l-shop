@@ -426,6 +426,97 @@ export type Database = {
           },
         ]
       }
+      nexi_payment_configs: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          is_sandbox: boolean
+          merchant_id: string
+          shop_id: string | null
+          terminal_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_sandbox?: boolean
+          merchant_id: string
+          shop_id?: string | null
+          terminal_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_sandbox?: boolean
+          merchant_id?: string
+          shop_id?: string | null
+          terminal_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexi_payment_configs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nexi_payment_logs: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          order_id: string | null
+          payment_id: string
+          request_data: Json | null
+          response_data: Json | null
+          status: string
+          transaction_type: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          order_id?: string | null
+          payment_id: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status: string
+          transaction_type: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          order_id?: string | null
+          payment_id?: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status?: string
+          transaction_type?: string
+          webhook_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexi_payment_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_email_templates: {
         Row: {
           created_at: string
@@ -574,6 +665,10 @@ export type Database = {
           invoice_file_url: string | null
           invoice_number: string | null
           liters: number
+          nexi_payment_id: string | null
+          nexi_redirect_url: string | null
+          nexi_transaction_status: string | null
+          nexi_webhook_data: Json | null
           notes: string | null
           order_number: string
           origin_domain: string | null
@@ -619,6 +714,10 @@ export type Database = {
           invoice_file_url?: string | null
           invoice_number?: string | null
           liters: number
+          nexi_payment_id?: string | null
+          nexi_redirect_url?: string | null
+          nexi_transaction_status?: string | null
+          nexi_webhook_data?: Json | null
           notes?: string | null
           order_number: string
           origin_domain?: string | null
@@ -664,6 +763,10 @@ export type Database = {
           invoice_file_url?: string | null
           invoice_number?: string | null
           liters?: number
+          nexi_payment_id?: string | null
+          nexi_redirect_url?: string | null
+          nexi_transaction_status?: string | null
+          nexi_webhook_data?: Json | null
           notes?: string | null
           order_number?: string
           origin_domain?: string | null
