@@ -66,20 +66,32 @@ serve(async (req) => {
 async function generateMacSignature(params: Record<string, any>, macKey: string): Promise<string> {
   const encoder = new TextEncoder();
   
-  // Sort parameters alphabetically by key
-  const sortedKeys = Object.keys(params).sort();
-  const signatureString = sortedKeys.map(key => `${key}=${params[key]}`).join('&');
+  // Create signature string with specific order for Nexi Italy
+  // The order is critical for Italian Nexi MAC verification
+  const signatureParams = [
+    'id',
+    'password',
+    'action',
+    'amt',
+    'currencycode',
+    'trackid'
+  ];
   
-  console.log('MAC signature string:', signatureString);
+  const signatureString = signatureParams
+    .filter(key => params[key] !== undefined && params[key] !== '')
+    .map(key => `${key}=${params[key]}`)
+    .join('&');
   
-  // Create HMAC-SHA256 signature (Nexi typically uses SHA256, not SHA1)
+  console.log('MAC signature string (Italy format):', signatureString);
+  
+  // Create HMAC-SHA1 signature (Nexi Italy uses SHA1, not SHA256)
   const keyData = encoder.encode(macKey);
   const messageData = encoder.encode(signatureString);
   
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
     keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
+    { name: 'HMAC', hash: 'SHA-1' },
     false,
     ['sign']
   );
@@ -90,12 +102,12 @@ async function generateMacSignature(params: Record<string, any>, macKey: string)
   const hashArray = Array.from(new Uint8Array(signature));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   
-  console.log('Generated MAC signature:', hashHex);
+  console.log('Generated MAC signature (SHA1):', hashHex);
   return hashHex;
 }
 
 async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest) {
-  console.log('=== INITIATING NEXI PAYMENT ===');
+  console.log('=== INITIATING NEXI PAYMENT (ITALY) ===');
   console.log('Order ID:', request.orderId);
   console.log('Amount (cents):', request.amount);
   console.log('Currency:', request.currency);
@@ -122,26 +134,33 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     id: config.id,
     merchant_id: config.merchant_id,
     terminal_id: config.terminal_id,
+    has_password: !!config.password,
     is_sandbox: config.is_sandbox,
     has_alias: !!config.alias,
     has_mac_key: !!config.mac_key
   });
 
+  // Validate required fields for Italian Nexi
+  if (!config.password) {
+    console.error('Password is required for Italian Nexi');
+    throw new Error('Nexi password configuration is missing. Please contact support.');
+  }
+
   // Generate unique payment ID
   const paymentId = `nexi_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
   console.log('Generated payment ID:', paymentId);
 
-  // Determine the correct API base URL
+  // Determine the correct API base URL for Italian Nexi
   const nexiBaseUrl = config.is_sandbox 
-    ? 'https://int-ecommerce.nexi.it' // Correct sandbox URL
-    : 'https://ecommerce.nexi.it'; // Correct production URL
+    ? 'https://int-ecommerce.nexi.it' // Italian sandbox URL
+    : 'https://ecommerce.nexi.it'; // Italian production URL
 
-  console.log('Using Nexi base URL:', nexiBaseUrl);
+  console.log('Using Italian Nexi base URL:', nexiBaseUrl);
   
-  // Prepare Nexi API request parameters
+  // Prepare Italian Nexi API request parameters
   const nexiParams = {
     id: config.merchant_id,
-    password: config.terminal_id, // Terminal ID is often used as password
+    password: config.password, // Use dedicated password field
     action: 'payment',
     amt: request.amount.toString(),
     currencycode: request.currency === 'EUR' ? '978' : '840', // ISO currency codes
@@ -157,7 +176,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     nexiParams.alias = config.alias;
   }
 
-  console.log('Nexi API request parameters:', {
+  console.log('Italian Nexi API request parameters:', {
     ...nexiParams,
     password: '[REDACTED]'
   });
@@ -165,38 +184,37 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   let redirectUrl: string;
   let paymentUrl: string;
 
-  // Check if we have MAC key for authenticated requests
+  // Generate MAC signature if MAC key is available (recommended for production)
   if (config.mac_key) {
-    console.log('Using MAC key authentication for Nexi API');
+    console.log('Using MAC key authentication for Italian Nexi API');
     
     try {
-      // Generate MAC signature
+      // Generate MAC signature using SHA1 (Italian Nexi standard)
       const macSignature = await generateMacSignature(nexiParams, config.mac_key);
       
-      // Add MAC to parameters
+      // Add MAC to parameters as 'trandata' (Italian Nexi parameter name)
       const authenticatedParams = {
         ...nexiParams,
         trandata: macSignature
       };
 
-      // Use the correct Nexi payment gateway endpoint
+      // Use the Italian Nexi payment gateway endpoint
       paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
       
-      console.log('Making authenticated request to Nexi API:', paymentUrl);
+      console.log('Making authenticated request to Italian Nexi API:', paymentUrl);
       
-      // For Nexi, we typically need to create a form submission or redirect
-      // Let's construct the payment URL with parameters
+      // Create the payment URL with parameters for Italian Nexi
       const urlParams = new URLSearchParams(authenticatedParams);
       redirectUrl = `${paymentUrl}?${urlParams.toString()}`;
       
-      console.log('Generated authenticated payment URL');
+      console.log('Generated authenticated payment URL for Italian Nexi');
       
     } catch (error) {
       console.error('Error with MAC authentication:', error);
       throw new Error(`MAC authentication failed: ${error.message}`);
     }
   } else {
-    console.log('⚠️  No MAC key available - using basic integration');
+    console.log('⚠️  No MAC key available - using basic integration (not recommended for production)');
     
     // Basic integration without MAC authentication
     paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
@@ -248,7 +266,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
           ...nexiParams,
           password: '[REDACTED]',
           mac_key: config.mac_key ? '[REDACTED]' : undefined,
-          base_url: nexiBaseUrl
+          base_url: nexiBaseUrl,
+          integration_type: 'italian_nexi'
         }
       });
 
@@ -267,7 +286,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     redirectUrl,
     status: 'initiated',
     environment: config.is_sandbox ? 'sandbox' : 'production',
-    nexiBaseUrl
+    nexiBaseUrl,
+    integration: 'italian_nexi'
   };
 
   console.log('=== PAYMENT INITIATION SUCCESS ===');

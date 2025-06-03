@@ -435,6 +435,7 @@ export type Database = {
           is_sandbox: boolean
           mac_key: string | null
           merchant_id: string
+          password: string | null
           shop_id: string | null
           terminal_id: string
           updated_at: string
@@ -447,6 +448,7 @@ export type Database = {
           is_sandbox?: boolean
           mac_key?: string | null
           merchant_id: string
+          password?: string | null
           shop_id?: string | null
           terminal_id: string
           updated_at?: string
@@ -459,6 +461,7 @@ export type Database = {
           is_sandbox?: boolean
           mac_key?: string | null
           merchant_id?: string
+          password?: string | null
           shop_id?: string | null
           terminal_id?: string
           updated_at?: string

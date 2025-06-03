@@ -29,6 +29,7 @@ interface NexiConfig {
   id: string;
   merchant_id: string;
   terminal_id: string;
+  password?: string;
   alias?: string;
   mac_key?: string;
   is_sandbox: boolean;
@@ -151,7 +152,7 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
         </p>
       </div>
     );
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -160,6 +161,7 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
           <TableRow>
             <TableHead>Merchant ID</TableHead>
             <TableHead>Terminal ID</TableHead>
+            <TableHead>Password</TableHead>
             <TableHead>ALIAS</TableHead>
             <TableHead>MAC Key</TableHead>
             <TableHead>Umgebung</TableHead>
@@ -176,6 +178,13 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
               </TableCell>
               <TableCell>{config.terminal_id}</TableCell>
               <TableCell>
+                {config.password ? (
+                  <span className="text-sm text-gray-600">••••••••</span>
+                ) : (
+                  <span className="text-sm text-red-400">Fehlt</span>
+                )}
+              </TableCell>
+              <TableCell>
                 {config.alias ? (
                   <span className="text-sm text-gray-600">{config.alias}</span>
                 ) : (
@@ -186,7 +195,7 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
                 {config.mac_key ? (
                   <span className="text-sm text-gray-600">••••••••</span>
                 ) : (
-                  <span className="text-sm text-gray-400">Nicht gesetzt</span>
+                  <span className="text-sm text-orange-400">Empfohlen</span>
                 )}
               </TableCell>
               <TableCell>

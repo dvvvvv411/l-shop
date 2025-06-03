@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 const nexiConfigSchema = z.object({
   merchant_id: z.string().min(1, 'Merchant ID ist erforderlich'),
   terminal_id: z.string().min(1, 'Terminal ID ist erforderlich'),
+  password: z.string().min(1, 'Password ist erforderlich'),
   alias: z.string().optional(),
   mac_key: z.string().optional(),
   is_sandbox: z.boolean(),
@@ -40,6 +41,7 @@ interface NexiConfig {
   id?: string;
   merchant_id: string;
   terminal_id: string;
+  password?: string;
   alias?: string;
   mac_key?: string;
   is_sandbox: boolean;
@@ -62,6 +64,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
     defaultValues: {
       merchant_id: config?.merchant_id || '',
       terminal_id: config?.terminal_id || '',
+      password: config?.password || '',
       alias: config?.alias || '',
       mac_key: config?.mac_key || '',
       is_sandbox: config?.is_sandbox ?? true,
@@ -72,19 +75,28 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
   const onSubmit = async (data: NexiConfigFormData) => {
     setIsSubmitting(true);
     try {
-      console.log('Submitting Nexi config:', { ...data, mac_key: data.mac_key ? '[REDACTED]' : undefined });
+      console.log('Submitting Nexi config:', { 
+        ...data, 
+        password: data.password ? '[REDACTED]' : undefined,
+        mac_key: data.mac_key ? '[REDACTED]' : undefined 
+      });
 
       // Ensure the data has the correct types for the database
       const updateData = {
         merchant_id: data.merchant_id.trim(),
         terminal_id: data.terminal_id.trim(),
+        password: data.password.trim(),
         alias: data.alias?.trim() || null,
         mac_key: data.mac_key?.trim() || null,
         is_sandbox: data.is_sandbox,
         is_active: data.is_active,
       };
 
-      console.log('Processed data for database:', { ...updateData, mac_key: updateData.mac_key ? '[REDACTED]' : null });
+      console.log('Processed data for database:', { 
+        ...updateData, 
+        password: updateData.password ? '[REDACTED]' : null,
+        mac_key: updateData.mac_key ? '[REDACTED]' : null 
+      });
 
       if (config?.id) {
         // Update existing config
@@ -133,7 +145,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             {config ? 'Nexi-Konfiguration bearbeiten' : 'Neue Nexi-Konfiguration'}
@@ -185,6 +197,27 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
 
             <FormField
               control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="password"
+                      placeholder="Ihr Nexi Password" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Das von Nexi bereitgestellte Password für die API-Authentifizierung
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="alias"
               render={({ field }) => (
                 <FormItem>
@@ -209,12 +242,12 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
                   <FormControl>
                     <Input 
                       type="password"
-                      placeholder="Ihr Nexi MAC Key (optional)" 
+                      placeholder="Ihr Nexi MAC Key (optional aber empfohlen)" 
                       {...field} 
                     />
                   </FormControl>
                   <FormDescription>
-                    Der von Nexi bereitgestellte MAC Key für sichere Transaktionssignierung
+                    Der von Nexi bereitgestellte MAC Key für sichere Transaktionssignierung. Erforderlich für Produktionsumgebung.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
