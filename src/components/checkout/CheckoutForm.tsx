@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -15,66 +16,76 @@ import { useOrder } from '@/contexts/OrderContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useOrderEmail } from '@/hooks/useOrderEmail';
 
-const CheckoutForm = () => {
+interface CheckoutFormProps {
+  orderData: any;
+  onOrderSuccess: (orderNumber: string) => void;
+}
+
+const CheckoutForm = ({ orderData: propsOrderData, onOrderSuccess }: CheckoutFormProps) => {
   const navigate = useNavigate();
   const { orderData, updateOrderData } = useOrder();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [orderCreated, setOrderCreated] = useState<string | null>(null);
+  
+  // Initialize form data with default values
   const [formData, setFormData] = useState({
-    firstName: orderData.firstName || '',
-    lastName: orderData.lastName || '',
-    email: orderData.email || '',
-    phone: orderData.phone || '',
-    street: orderData.street || '',
-    city: orderData.city || '',
-    postcode: orderData.postcode || '',
-    deliveryFirstName: orderData.deliveryFirstName || '',
-    deliveryLastName: orderData.deliveryLastName || '',
-    deliveryStreet: orderData.deliveryStreet || '',
-    deliveryCity: orderData.deliveryCity || '',
-    deliveryPostcode: orderData.deliveryPostcode || '',
-    deliveryPhone: orderData.deliveryPhone || '',
-    billingFirstName: orderData.billingFirstName || '',
-    billingLastName: orderData.billingLastName || '',
-    billingStreet: orderData.billingStreet || '',
-    billingCity: orderData.billingCity || '',
-    billingPostcode: orderData.billingPostcode || '',
-    notes: orderData.notes || '',
-    differentDeliveryAddress: orderData.differentDeliveryAddress || false,
-    paymentMethod: orderData.paymentMethod || 'invoice',
-    agbAccepted: orderData.agbAccepted || false,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    street: '',
+    city: '',
+    postcode: '',
+    deliveryFirstName: '',
+    deliveryLastName: '',
+    deliveryStreet: '',
+    deliveryCity: '',
+    deliveryPostcode: '',
+    deliveryPhone: '',
+    billingFirstName: '',
+    billingLastName: '',
+    billingStreet: '',
+    billingCity: '',
+    billingPostcode: '',
+    notes: '',
+    differentDeliveryAddress: false,
+    paymentMethod: 'invoice',
+    agbAccepted: false,
   });
 
   // Use the email hook to automatically send emails
   const { isLoading: isEmailLoading, error: emailError, success: emailSuccess } = useOrderEmail(orderCreated);
 
   useEffect(() => {
-    // Update form data when orderData changes (e.g., after returning from confirmation page)
-    setFormData({
-      firstName: orderData.firstName || '',
-      lastName: orderData.lastName || '',
-      email: orderData.email || '',
-      phone: orderData.phone || '',
-      street: orderData.street || '',
-      city: orderData.city || '',
-      postcode: orderData.postcode || '',
-      deliveryFirstName: orderData.deliveryFirstName || '',
-      deliveryLastName: orderData.deliveryLastName || '',
-      deliveryStreet: orderData.deliveryStreet || '',
-      deliveryCity: orderData.deliveryCity || '',
-      deliveryPostcode: orderData.deliveryPostcode || '',
-      deliveryPhone: orderData.deliveryPhone || '',
-      billingFirstName: orderData.billingFirstName || '',
-      billingLastName: orderData.billingLastName || '',
-      billingStreet: orderData.billingStreet || '',
-      billingCity: orderData.billingCity || '',
-      billingPostcode: orderData.billingPostcode || '',
-      notes: orderData.notes || '',
-      differentDeliveryAddress: orderData.differentDeliveryAddress || false,
-      paymentMethod: orderData.paymentMethod || 'invoice',
-      agbAccepted: orderData.agbAccepted || false,
-    });
+    // Initialize form data from order context if available
+    if (orderData) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: orderData.firstName || '',
+        lastName: orderData.lastName || '',
+        email: orderData.email || '',
+        phone: orderData.phone || '',
+        street: orderData.street || '',
+        city: orderData.city || '',
+        postcode: orderData.postcode || '',
+        deliveryFirstName: orderData.deliveryFirstName || '',
+        deliveryLastName: orderData.deliveryLastName || '',
+        deliveryStreet: orderData.deliveryStreet || '',
+        deliveryCity: orderData.deliveryCity || '',
+        deliveryPostcode: orderData.deliveryPostcode || '',
+        deliveryPhone: orderData.deliveryPhone || '',
+        billingFirstName: orderData.billingFirstName || '',
+        billingLastName: orderData.billingLastName || '',
+        billingStreet: orderData.billingStreet || '',
+        billingCity: orderData.billingCity || '',
+        billingPostcode: orderData.billingPostcode || '',
+        notes: orderData.notes || '',
+        differentDeliveryAddress: orderData.differentDeliveryAddress || false,
+        paymentMethod: orderData.paymentMethod || 'invoice',
+        agbAccepted: orderData.agbAccepted || false,
+      }));
+    }
   }, [orderData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -82,8 +93,7 @@ const CheckoutForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
+  const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData(prev => ({ ...prev, [name]: checked }));
 
     // If "differentDeliveryAddress" is unchecked, clear delivery address fields
@@ -135,31 +145,32 @@ const CheckoutForm = () => {
   };
 
   const updateOrderContext = () => {
-    updateOrderData({
-      ...orderData,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      street: formData.street,
-      city: formData.city,
-      postcode: formData.postcode,
-      deliveryFirstName: formData.deliveryFirstName,
-      deliveryLastName: formData.deliveryLastName,
-      deliveryStreet: formData.deliveryStreet,
-      deliveryCity: formData.deliveryCity,
-      deliveryPostcode: formData.deliveryPostcode,
-      deliveryPhone: formData.deliveryPhone,
-      billingFirstName: formData.billingFirstName,
-      billingLastName: formData.billingLastName,
-      billingStreet: formData.billingStreet,
-      billingCity: formData.billingCity,
-      billingPostcode: formData.billingPostcode,
-      notes: formData.notes,
-      differentDeliveryAddress: formData.differentDeliveryAddress,
-      paymentMethod: formData.paymentMethod,
-      agbAccepted: formData.agbAccepted,
-    });
+    if (updateOrderData) {
+      updateOrderData({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        street: formData.street,
+        city: formData.city,
+        postcode: formData.postcode,
+        deliveryFirstName: formData.deliveryFirstName,
+        deliveryLastName: formData.deliveryLastName,
+        deliveryStreet: formData.deliveryStreet,
+        deliveryCity: formData.deliveryCity,
+        deliveryPostcode: formData.deliveryPostcode,
+        deliveryPhone: formData.deliveryPhone,
+        billingFirstName: formData.billingFirstName,
+        billingLastName: formData.billingLastName,
+        billingStreet: formData.billingStreet,
+        billingCity: formData.billingCity,
+        billingPostcode: formData.billingPostcode,
+        notes: formData.notes,
+        differentDeliveryAddress: formData.differentDeliveryAddress,
+        paymentMethod: formData.paymentMethod,
+        agbAccepted: formData.agbAccepted,
+      });
+    }
   };
 
   const handleSubmitOrder = async () => {
@@ -169,7 +180,7 @@ const CheckoutForm = () => {
       // Get current domain for tracking
       const currentDomain = window.location.origin + window.location.pathname;
       
-      // Create order in database
+      // Create order in database - use propsOrderData for order details and formData for customer info
       const orderPayload = {
         customer_name: `${formData.firstName} ${formData.lastName}`,
         customer_email: formData.email,
@@ -186,18 +197,19 @@ const CheckoutForm = () => {
         billing_street: formData.billingStreet || formData.street,
         billing_postcode: formData.billingPostcode || formData.postcode,
         billing_city: formData.billingCity || formData.city,
-        liters: orderData.liters,
-        price_per_liter: orderData.pricePerLiter,
-        total_amount: orderData.totalAmount,
-        product: orderData.product,
+        liters: propsOrderData.amount,
+        price_per_liter: propsOrderData.product.price,
+        total_amount: propsOrderData.totalPrice,
+        product: propsOrderData.product.name,
         notes: formData.notes,
         payment_method: formData.paymentMethod,
         status: 'pending',
-        base_price: orderData.basePrice,
-        delivery_fee: orderData.deliveryFee,
-        discount: orderData.discount,
-        delivery_date: orderData.deliveryDate,
+        base_price: propsOrderData.basePrice,
+        delivery_fee: propsOrderData.deliveryFee,
+        discount: propsOrderData.savings || 0,
+        delivery_date: null,
         origin_domain: currentDomain, // Add domain tracking for email routing
+        order_number: 'TEMP', // Will be set by database trigger
       };
 
       const { data: order, error } = await supabase
@@ -211,16 +223,8 @@ const CheckoutForm = () => {
       console.log('Order created successfully:', order);
       setOrderCreated(order.id); // This will trigger the email hook
       
-      // Navigate to confirmation page
-      setTimeout(() => {
-        navigate('/bestellung-bestaetigt', { 
-          state: { 
-            orderNumber: order.order_number,
-            customerEmail: formData.email,
-            totalAmount: orderData.totalAmount 
-          } 
-        });
-      }, 3000); // Give time for email to be sent
+      // Call the success callback with order number
+      onOrderSuccess(order.order_number);
 
     } catch (error) {
       console.error('Error creating order:', error);
@@ -323,12 +327,8 @@ const CheckoutForm = () => {
         <Label htmlFor="differentDeliveryAddress" className="flex items-center space-x-2">
           <Checkbox
             id="differentDeliveryAddress"
-            name="differentDeliveryAddress"
             checked={formData.differentDeliveryAddress}
-            onCheckedChange={(checked) => {
-              setFormData(prev => ({ ...prev, differentDeliveryAddress: checked }));
-              handleCheckboxChange({ target: { name: 'differentDeliveryAddress', checked } } as any);
-            }}
+            onCheckedChange={(checked) => handleCheckboxChange('differentDeliveryAddress', checked as boolean)}
           />
           <span>Abweichende Lieferadresse</span>
         </Label>
@@ -468,13 +468,13 @@ const CheckoutForm = () => {
         <div>
           <h3 className="text-lg font-semibold">Bestellung</h3>
           <p>
-            Produkt: {orderData.product}
+            Produkt: {propsOrderData.product.name}
             <br />
-            Menge: {orderData.liters} Liter
+            Menge: {propsOrderData.amount} Liter
             <br />
-            Preis pro Liter: €{orderData.pricePerLiter}
+            Preis pro Liter: €{propsOrderData.product.price}
             <br />
-            Gesamtpreis: €{orderData.totalAmount}
+            Gesamtpreis: €{propsOrderData.totalPrice}
           </p>
         </div>
 
@@ -494,9 +494,8 @@ const CheckoutForm = () => {
           <Label htmlFor="agbAccepted" className="flex items-center space-x-2">
             <Checkbox
               id="agbAccepted"
-              name="agbAccepted"
               checked={formData.agbAccepted}
-              onCheckedChange={handleCheckboxChange}
+              onCheckedChange={(checked) => handleCheckboxChange('agbAccepted', checked as boolean)}
             />
             <span>Ich akzeptiere die AGB *</span>
           </Label>
