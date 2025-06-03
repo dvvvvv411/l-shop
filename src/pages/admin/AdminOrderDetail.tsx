@@ -379,12 +379,6 @@ const AdminOrderDetail = () => {
                     <span className="text-gray-600">Status</span>
                     <StatusBadge status={currentStatus} />
                   </div>
-                  {order.invoice_number && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Rechnungsnummer</span>
-                      <span className="font-medium">{order.invoice_number}</span>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
