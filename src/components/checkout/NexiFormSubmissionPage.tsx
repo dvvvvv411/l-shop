@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowLeft, Shield, AlertCircle, Bug, RefreshCw, Settings } from 'lucide-react';
+import { ArrowLeft, Shield, AlertCircle, Bug, RefreshCw, Settings, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { parseNexiForm } from './FormParser';
 import { createAndSubmitForm, retryWithStrategy, getAvailableStrategies } from './FormSubmitter';
+import { validateFormData } from './FormValidator';
 
 interface NexiFormSubmissionPageProps {
   formHtml: string;
@@ -25,31 +26,51 @@ const NexiFormSubmissionPage = ({
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [parsedForm, setParsedForm] = useState<any>(null);
   const [submissionErrors, setSubmissionErrors] = useState<string[]>([]);
+  const [validationStatus, setValidationStatus] = useState<any>(null);
   const autoSubmitTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Parse and validate the form HTML
+  // Enhanced form parsing and validation
   useEffect(() => {
-    console.log('=== NEXI FORM SUBMISSION DEBUG ===');
+    console.log('=== ENHANCED NEXI FORM SUBMISSION DEBUG ===');
     console.log('Form HTML length:', formHtml.length);
     console.log('Environment:', environment);
     console.log('Order Number:', orderNumber);
     
     const formData = parseNexiForm(formHtml);
     
-    console.log('Parsed form data:', {
+    console.log('Enhanced parsed form data:', {
       isValid: formData.isValid,
       action: formData.action,
       method: formData.method,
       inputCount: Object.keys(formData.inputs).length,
-      error: formData.error
+      error: formData.error,
+      warnings: formData.warnings?.length || 0
     });
 
     if (!formData.isValid) {
       console.error('Form parsing failed:', formData.error);
       setDebugInfo({
         parseError: formData.error,
+        parseWarnings: formData.warnings,
         htmlPreview: formHtml.substring(0, 500) + '...',
         htmlLength: formHtml.length,
+        timestamp: new Date().toISOString()
+      });
+      setShowManualSubmit(true);
+      setShowAdvancedOptions(true);
+      return;
+    }
+
+    // Additional validation
+    const validation = validateFormData(formData.action, formData.method, formData.inputs);
+    setValidationStatus(validation);
+
+    if (!validation.isValid) {
+      console.error('Form validation failed:', validation.errors);
+      setDebugInfo({
+        validationErrors: validation.errors,
+        validationWarnings: validation.warnings,
+        formData: formData.inputs,
         timestamp: new Date().toISOString()
       });
       setShowManualSubmit(true);
@@ -64,16 +85,18 @@ const NexiFormSubmissionPage = ({
       inputCount: Object.keys(formData.inputs).length,
       formData: formData.inputs,
       environment: environment,
+      validationWarnings: validation.warnings,
+      parseWarnings: formData.warnings,
       timestamp: new Date().toISOString()
     });
 
-    // Auto-submit after 2 seconds if not already attempted
-    if (!autoSubmitAttempted) {
-      console.log('Setting up auto-submit timer (2 seconds)...');
+    // Auto-submit with shorter delay if validation passes
+    if (!autoSubmitAttempted && validation.isValid) {
+      console.log('Setting up auto-submit timer (1 second for valid forms)...');
       autoSubmitTimeoutRef.current = setTimeout(() => {
         console.log('Auto-submit timer triggered');
         handleAutoSubmit();
-      }, 2000);
+      }, 1000);
     }
 
     return () => {
@@ -83,14 +106,14 @@ const NexiFormSubmissionPage = ({
     };
   }, [formHtml, environment, autoSubmitAttempted]);
 
-  // Show manual submit after 10 seconds if auto-submit hasn't worked
+  // Show manual submit after 8 seconds for better UX
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isSubmitting) {
         console.log('Showing manual submit button after timeout');
         setShowManualSubmit(true);
       }
-    }, 10000);
+    }, 8000);
 
     return () => clearTimeout(timer);
   }, [isSubmitting]);
@@ -101,7 +124,7 @@ const NexiFormSubmissionPage = ({
       return;
     }
 
-    console.log('Attempting auto-submit...');
+    console.log('Attempting enhanced auto-submit...');
     setAutoSubmitAttempted(true);
 
     createAndSubmitForm({
@@ -110,10 +133,10 @@ const NexiFormSubmissionPage = ({
       inputs: parsedForm.inputs,
       onSubmissionStart: () => {
         setIsSubmitting(true);
-        console.log('Auto-submit started');
+        console.log('Enhanced auto-submit started');
       },
       onSubmissionError: (error) => {
-        console.error('Auto-submit failed:', error);
+        console.error('Enhanced auto-submit failed:', error);
         setIsSubmitting(false);
         setShowManualSubmit(true);
         setShowAdvancedOptions(true);
@@ -129,7 +152,7 @@ const NexiFormSubmissionPage = ({
       return;
     }
 
-    console.log('Manual submit triggered by user');
+    console.log('Enhanced manual submit triggered by user');
     
     createAndSubmitForm({
       action: parsedForm.action,
@@ -137,10 +160,10 @@ const NexiFormSubmissionPage = ({
       inputs: parsedForm.inputs,
       onSubmissionStart: () => {
         setIsSubmitting(true);
-        console.log('Manual submit started');
+        console.log('Enhanced manual submit started');
       },
       onSubmissionError: (error) => {
-        console.error('Manual submit failed:', error);
+        console.error('Enhanced manual submit failed:', error);
         setIsSubmitting(false);
         setShowAdvancedOptions(true);
         setSubmissionErrors(prev => [...prev, `Manual submit: ${error}`]);
@@ -155,7 +178,7 @@ const NexiFormSubmissionPage = ({
       return;
     }
 
-    console.log(`Retrying with strategy: ${strategyName}`);
+    console.log(`Retrying with enhanced strategy: ${strategyName}`);
     setIsSubmitting(true);
     
     try {
@@ -179,7 +202,7 @@ const NexiFormSubmissionPage = ({
   };
 
   const handleRetry = () => {
-    console.log('Retrying form submission...');
+    console.log('Retrying enhanced form submission...');
     setIsSubmitting(false);
     setAutoSubmitAttempted(false);
     setShowManualSubmit(false);
@@ -189,7 +212,7 @@ const NexiFormSubmissionPage = ({
     // Trigger auto-submit again
     setTimeout(() => {
       handleAutoSubmit();
-    }, 1000);
+    }, 500);
   };
 
   return (
@@ -232,6 +255,29 @@ const NexiFormSubmissionPage = ({
               Sie werden zur sicheren Nexi-Zahlung weitergeleitet
             </p>
           </div>
+
+          {/* Validation Status */}
+          {validationStatus && (
+            <div className={`mb-4 p-3 rounded-lg border ${
+              validationStatus.isValid 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <div className="flex items-center gap-2 text-sm">
+                {validationStatus.isValid ? (
+                  <>
+                    <CheckCircle className="text-green-600" size={16} />
+                    <span className="text-green-800 font-medium">Formular validiert</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="text-red-600" size={16} />
+                    <span className="text-red-800 font-medium">Validierungsfehler</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Loading State */}
           {!showManualSubmit && !autoSubmitAttempted ? (
@@ -333,12 +379,12 @@ const NexiFormSubmissionPage = ({
             </div>
           )}
 
-          {/* Debug Information */}
+          {/* Enhanced Debug Information */}
           {debugInfo && (
             <div className="mt-6 p-3 bg-gray-50 rounded-lg border text-left">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Bug size={16} />
-                Debug-Information
+                Enhanced Debug-Information
               </div>
               <div className="text-xs text-gray-600 space-y-1">
                 <div><strong>Zeitstempel:</strong> {debugInfo.timestamp}</div>
@@ -359,14 +405,14 @@ const NexiFormSubmissionPage = ({
                     <strong>Parse-Fehler:</strong> {debugInfo.parseError}
                   </div>
                 )}
-                {debugInfo.autoSubmitError && (
+                {debugInfo.validationErrors && debugInfo.validationErrors.length > 0 && (
                   <div className="text-red-600">
-                    <strong>Auto-Submit Fehler:</strong> {debugInfo.autoSubmitError}
+                    <strong>Validierungsfehler:</strong> {debugInfo.validationErrors.join(', ')}
                   </div>
                 )}
-                {debugInfo.manualSubmitError && (
-                  <div className="text-red-600">
-                    <strong>Manueller Submit Fehler:</strong> {debugInfo.manualSubmitError}
+                {debugInfo.validationWarnings && debugInfo.validationWarnings.length > 0 && (
+                  <div className="text-orange-600">
+                    <strong>Warnungen:</strong> {debugInfo.validationWarnings.join(', ')}
                   </div>
                 )}
               </div>
