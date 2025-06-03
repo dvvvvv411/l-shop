@@ -37,6 +37,18 @@ const rootShopConfig: ShopMetaConfig = {
       twitterTitle: "HeizölNetz Deutschland - Bundesweites Heizöl-Netzwerk",
       twitterDescription: "Deutschlands größtes Heizöl-Netzwerk mit 500+ Partnern"
     },
+    impressum: {
+      title: "Impressum - HeizölNetz Deutschland",
+      description: "Impressum und rechtliche Informationen von HeizölNetz Deutschland."
+    },
+    agb: {
+      title: "AGB - HeizölNetz Deutschland",
+      description: "Allgemeine Geschäftsbedingungen von HeizölNetz Deutschland."
+    },
+    widerrufsrecht: {
+      title: "Widerrufsrecht - HeizölNetz Deutschland", 
+      description: "Widerrufsrecht und Widerrufsbelehrung von HeizölNetz Deutschland."
+    },
     kontakt: {
       title: "Kontakt - HeizölNetz Deutschland | Persönliche Beratung",
       description: "Kontaktieren Sie HeizölNetz Deutschland für persönliche Beratung. Kostenlose Hotline, E-Mail-Support und kompetente Fachberatung.",
@@ -77,6 +89,18 @@ const stantonShopConfig: ShopMetaConfig = {
       twitterTitle: "STANTON Heizöl - Premium Heizöl-Lieferung",
       twitterDescription: "Premium Heizöl-Lieferung seit 1985"
     },
+    impressum: {
+      title: "Impressum - STANTON Heizöl",
+      description: "Impressum und rechtliche Informationen von STANTON Heizöl."
+    },
+    agb: {
+      title: "AGB - STANTON Heizöl",
+      description: "Allgemeine Geschäftsbedingungen von STANTON Heizöl."
+    },
+    widerrufsrecht: {
+      title: "Widerrufsrecht - STANTON Heizöl",
+      description: "Widerrufsrecht und Widerrufsbelehrung von STANTON Heizöl."
+    },
     kontakt: {
       title: "Kontakt - STANTON Heizöl | Persönliche Fachberatung",
       description: "Kontaktieren Sie STANTON Heizöl für persönliche Fachberatung. Erfahrene Experten beraten Sie gerne zu unseren Premium-Produkten.",
@@ -116,6 +140,18 @@ const greenOilShopConfig: ShopMetaConfig = {
       ogDescription: "Umweltfreundliche und CO2-reduzierte Heizlösungen",
       twitterTitle: "GreenOil Eco-Heizöl - Nachhaltige Heizlösungen",
       twitterDescription: "Nachhaltige und umweltfreundliche Heizlösungen"
+    },
+    impressum: {
+      title: "Impressum - GreenOil Eco-Heizöl",
+      description: "Impressum und rechtliche Informationen von GreenOil Eco-Heizöl."
+    },
+    agb: {
+      title: "AGB - GreenOil Eco-Heizöl", 
+      description: "Allgemeine Geschäftsbedingungen von GreenOil Eco-Heizöl."
+    },
+    widerrufsrecht: {
+      title: "Widerrufsrecht - GreenOil Eco-Heizöl",
+      description: "Widerrufsrecht und Widerrufsbelehrung von GreenOil Eco-Heizöl."
     },
     kontakt: {
       title: "Kontakt - GreenOil Eco-Heizöl | Umweltberatung",

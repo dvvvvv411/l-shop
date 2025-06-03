@@ -4,14 +4,157 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HeizölNetz Deutschland</title>
-    <meta name="description" content="Deutschlands größtes Heizöl-Netzwerk" />
-    <meta name="robots" content="index, follow" />
     
     <!-- Theme configuration -->
     <meta name="theme-color" content="#dc2626" />
     <meta name="msapplication-TileColor" content="#dc2626" />
-    <meta name="application-name" content="HeizölNetz Deutschland" />
+    
+    <!-- Early metadata initialization -->
+    <script>
+      // Early metadata detection and initialization
+      (function() {
+        const pathname = window.location.pathname;
+        
+        // Shop configurations
+        const shopConfigs = {
+          root: {
+            name: "HeizölNetz Deutschland",
+            brand: "HeizölNetz",
+            phone: "0800 123 456 789",
+            email: "info@heizoel-netz.de",
+            baseUrl: "https://heizoel-netz.de"
+          },
+          stanton: {
+            name: "STANTON Heizöl",
+            brand: "STANTON", 
+            phone: "0800 987 654 321",
+            email: "info@stanton-heizoel.de",
+            baseUrl: "https://stanton-heizoel.de"
+          },
+          greenoil: {
+            name: "GreenOil Eco-Heizöl",
+            brand: "GreenOil",
+            phone: "0800 456 789 123", 
+            email: "info@greenoil-eco.de",
+            baseUrl: "https://greenoil-eco.de"
+          }
+        };
+
+        // Page metadata configurations
+        const pageMetaConfigs = {
+          root: {
+            home: {
+              title: "HeizölNetz Deutschland - Bundesweites Heizöl-Netzwerk | Günstig & Zuverlässig",
+              description: "Deutschlands größtes Heizöl-Netzwerk mit 500+ Partnern. Günstige Preise, schnelle Lieferung, 99.8% Zuverlässigkeit. Jetzt Heizöl bestellen!"
+            },
+            impressum: {
+              title: "Impressum - HeizölNetz Deutschland",
+              description: "Impressum und rechtliche Informationen von HeizölNetz Deutschland."
+            },
+            agb: {
+              title: "AGB - HeizölNetz Deutschland",
+              description: "Allgemeine Geschäftsbedingungen von HeizölNetz Deutschland."
+            },
+            widerrufsrecht: {
+              title: "Widerrufsrecht - HeizölNetz Deutschland", 
+              description: "Widerrufsrecht und Widerrufsbelehrung von HeizölNetz Deutschland."
+            }
+          },
+          stanton: {
+            home: {
+              title: "STANTON Heizöl - Premium Heizöl-Lieferung | Qualität seit 1985",
+              description: "STANTON Heizöl - Ihr vertrauensvoller Partner für Premium Heizöl-Lieferung seit 1985. Höchste Qualität, zuverlässiger Service, faire Preise."
+            },
+            impressum: {
+              title: "Impressum - STANTON Heizöl",
+              description: "Impressum und rechtliche Informationen von STANTON Heizöl."
+            },
+            agb: {
+              title: "AGB - STANTON Heizöl",
+              description: "Allgemeine Geschäftsbedingungen von STANTON Heizöl."
+            },
+            widerrufsrecht: {
+              title: "Widerrufsrecht - STANTON Heizöl",
+              description: "Widerrufsrecht und Widerrufsbelehrung von STANTON Heizöl."
+            }
+          },
+          greenoil: {
+            home: {
+              title: "GreenOil Eco-Heizöl - Nachhaltige Heizlösungen | CO2-reduziert",
+              description: "GreenOil Eco-Heizöl - Nachhaltige und umweltfreundliche Heizlösungen. CO2-reduziert, bio-additiviert, für eine grünere Zukunft."
+            },
+            impressum: {
+              title: "Impressum - GreenOil Eco-Heizöl",
+              description: "Impressum und rechtliche Informationen von GreenOil Eco-Heizöl."
+            },
+            agb: {
+              title: "AGB - GreenOil Eco-Heizöl", 
+              description: "Allgemeine Geschäftsbedingungen von GreenOil Eco-Heizöl."
+            },
+            widerrufsrecht: {
+              title: "Widerrufsrecht - GreenOil Eco-Heizöl",
+              description: "Widerrufsrecht und Widerrufsbelehrung von GreenOil Eco-Heizöl."
+            }
+          }
+        };
+
+        // Detect shop and page
+        function detectShop(pathname) {
+          if (pathname.startsWith('/1/')) return 'stanton';
+          if (pathname.startsWith('/2/')) return 'greenoil';
+          return 'root';
+        }
+
+        function detectPage(pathname) {
+          const cleanPath = pathname.replace(/^\/[12]\//, '').replace(/\/$/, '');
+          if (!cleanPath || cleanPath === 'home') return 'home';
+          return cleanPath;
+        }
+
+        // Set metadata helper
+        function setMeta(name, content, property = false) {
+          const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+          let meta = document.querySelector(selector);
+          if (!meta) {
+            meta = document.createElement('meta');
+            if (property) {
+              meta.setAttribute('property', name);
+            } else {
+              meta.setAttribute('name', name);
+            }
+            document.head.appendChild(meta);
+          }
+          meta.setAttribute('content', content);
+        }
+
+        // Initialize metadata
+        const shop = detectShop(pathname);
+        const page = detectPage(pathname);
+        const shopConfig = shopConfigs[shop];
+        const pageMeta = pageMetaConfigs[shop][page] || pageMetaConfigs[shop].home;
+
+        // Set initial metadata
+        document.title = pageMeta.title;
+        setMeta('description', pageMeta.description);
+        setMeta('application-name', shopConfig.name);
+        setMeta('author', shopConfig.name);
+
+        // Set OpenGraph metadata
+        setMeta('og:title', pageMeta.title, true);
+        setMeta('og:description', pageMeta.description, true);
+        setMeta('og:site_name', shopConfig.name, true);
+        setMeta('og:type', 'website', true);
+        setMeta('og:locale', 'de_DE', true);
+
+        // Set Twitter metadata
+        setMeta('twitter:card', 'summary_large_image');
+        setMeta('twitter:title', pageMeta.title);
+        setMeta('twitter:description', pageMeta.description);
+        setMeta('twitter:site', '@heizoel_netz');
+
+        console.log(`Early metadata initialized for ${shopConfig.name} - ${page}`);
+      })();
+    </script>
   </head>
 
   <body>
