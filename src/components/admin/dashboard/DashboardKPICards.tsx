@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Users, TrendingUp, Euro } from 'lucide-react';
+import { Package, TrendingUp, Euro } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOrders } from '@/hooks/useOrders';
@@ -23,8 +23,9 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
     return today === orderDate;
   });
 
-  const totalRevenue = todayOrders.reduce((sum, order) => sum + order.total_amount, 0);
-  const uniqueCustomers = new Set(todayOrders.map(order => order.customer_email)).size;
+  const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total_amount, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const totalOrders = orders.length;
   
   const stats = [
     {
@@ -36,26 +37,26 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
       bgColor: 'bg-blue-50'
     },
     {
-      title: 'Neue Kunden',
-      value: uniqueCustomers,
+      title: 'Bestellungen Gesamt',
+      value: totalOrders,
       change: '+5%',
-      icon: Users,
+      icon: Package,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Umsatz heute',
-      value: `€${totalRevenue.toLocaleString('de-DE')}`,
+      value: `€${todayRevenue.toLocaleString('de-DE')}`,
       change: '+18%',
       icon: Euro,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
     {
-      title: 'Conversion Rate',
-      value: '2.4%',
-      change: '+0.8%',
-      icon: TrendingUp,
+      title: 'Umsatz gesamt',
+      value: `€${totalRevenue.toLocaleString('de-DE')}`,
+      change: '+8%',
+      icon: Euro,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     }
