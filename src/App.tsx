@@ -53,6 +53,7 @@ import AdminOrderDetail from "./pages/admin/AdminOrderDetail";
 import AdminShops from "./pages/admin/AdminShops";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import AdminSMTP from "./pages/admin/AdminSMTP";
+import AdminNexi from "./pages/admin/AdminNexi";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
@@ -118,6 +119,7 @@ function App() {
                   <Route path="shops" element={<AdminShops />} />
                   <Route path="bank-accounts" element={<AdminBankAccounts />} />
                   <Route path="smtp" element={<AdminSMTP />} />
+                  <Route path="nexi" element={<AdminNexi />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
 
