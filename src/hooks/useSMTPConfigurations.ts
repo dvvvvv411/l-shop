@@ -5,7 +5,11 @@ import { useToast } from '@/hooks/use-toast';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type SMTPConfiguration = Tables<'smtp_configurations'> & {
-  shops?: Tables<'shops'>;
+  shops?: {
+    id: string;
+    name: string;
+    company_name: string;
+  };
 };
 
 export type SMTPConfigurationInsert = TablesInsert<'smtp_configurations'>;

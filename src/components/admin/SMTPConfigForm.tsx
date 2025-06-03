@@ -60,7 +60,7 @@ const SMTPConfigForm: React.FC<SMTPConfigFormProps> = ({
       resend_api_key: initialData?.resend_api_key || '',
       sender_email: initialData?.sender_email || '',
       sender_name: initialData?.sender_name || 'Heizöl Team',
-      shop_id: initialData?.shop_id || '',
+      shop_id: initialData?.shop_id || undefined,
       is_active: initialData?.is_active ?? true,
     },
   });
@@ -176,14 +176,13 @@ const SMTPConfigForm: React.FC<SMTPConfigFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Verknüpfter Shop (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={(value) => field.onChange(value || undefined)} value={field.value || undefined}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Shop auswählen..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Kein Shop verknüpft</SelectItem>
                       {shops.map((shop) => (
                         <SelectItem key={shop.id} value={shop.id}>
                           {shop.name} - {shop.company_name}
