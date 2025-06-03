@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
@@ -15,7 +16,7 @@ const Kontakt = () => {
     {
       icon: Mail,
       title: "E-Mail",
-      value: "info@heizoeldirekt.de",
+      value: "info@stanton-energie.de",
       description: "Wir antworten innerhalb von 24h"
     },
     {

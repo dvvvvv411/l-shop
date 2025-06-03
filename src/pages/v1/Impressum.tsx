@@ -26,7 +26,7 @@ const Impressum = () => {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-3">Kontakt</h2>
               <p>Telefon: 0800 123 456 7</p>
-              <p>E-Mail: info@heizoeldirekt.de</p>
+              <p>E-Mail: info@stanton-energie.de</p>
             </section>
 
             <section>

@@ -31,7 +31,7 @@ const Datenschutz = () => {
                 <p>Schellingstr. 109 a</p>
                 <p>80798 München</p>
                 <p>Deutschland</p>
-                <p className="mt-2">E-Mail: info@heizoeldirekt.de</p>
+                <p className="mt-2">E-Mail: info@stanton-energie.de</p>
                 <p>Telefon: 0800 123 456 7</p>
               </div>
             </section>

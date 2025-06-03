@@ -26,7 +26,7 @@ const Header = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Mail size={16} />
-              <span>info@heizoeldirekt.de</span>
+              <span>info@stanton-energie.de</span>
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-6">
