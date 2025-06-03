@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CreditCard, Loader2 } from 'lucide-react';
+import { CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNexiPayments } from '@/hooks/useNexiPayments';
 import { useToast } from '@/hooks/use-toast';
@@ -43,6 +43,11 @@ const NexiPaymentButton = ({
     setIsProcessing(true);
     
     try {
+      console.log('=== NEXI PAYMENT DEBUG START ===');
+      console.log('Order Data:', orderData);
+      console.log('Order Number:', orderNumber);
+      console.log('Customer Email:', customerEmail);
+
       const currentUrl = window.location.origin;
       const returnUrl = `${currentUrl}/checkout/success?order=${orderNumber}`;
       const cancelUrl = `${currentUrl}/checkout/cancel?order=${orderNumber}`;
@@ -57,46 +62,66 @@ const NexiPaymentButton = ({
         cancelUrl
       };
 
-      console.log('Initiating Nexi payment with request:', paymentRequest);
+      console.log('Payment Request:', paymentRequest);
 
       const response = await initiatePayment(paymentRequest);
       
+      console.log('Payment Response:', response);
+      
       if (response && response.redirectUrl) {
-        console.log('Nexi payment initiated, redirecting to:', response.redirectUrl);
+        console.log('Payment initiated successfully, redirecting to:', response.redirectUrl);
         onPaymentInitiated(response.paymentId, response.redirectUrl);
+        
+        toast({
+          title: 'Zahlung gestartet',
+          description: 'Sie werden zur Kreditkarten-Zahlung weitergeleitet.',
+        });
         
         // Redirect to Nexi payment page
         window.location.href = response.redirectUrl;
       } else {
+        console.error('Invalid payment response:', response);
         throw new Error('Invalid payment response from Nexi');
       }
     } catch (error) {
-      console.error('Nexi payment initiation failed:', error);
+      console.error('=== NEXI PAYMENT ERROR ===');
+      console.error('Error details:', error);
+      console.error('=== END ERROR ===');
+      
       toast({
         title: 'Zahlungsfehler',
-        description: 'Die Kreditkarten-Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.',
+        description: 'Die Kreditkarten-Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsmethode.',
         variant: 'destructive'
       });
     } finally {
       setIsProcessing(false);
+      console.log('=== NEXI PAYMENT DEBUG END ===');
     }
   };
 
   return (
-    <Button
-      onClick={handleNexiPayment}
-      disabled={disabled || isProcessing}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2"
-    >
-      {isProcessing ? (
-        <Loader2 className="animate-spin" size={20} />
-      ) : (
-        <CreditCard size={20} />
-      )}
-      <span>
-        {isProcessing ? 'Zahlung wird vorbereitet...' : 'Mit Kreditkarte bezahlen'}
-      </span>
-    </Button>
+    <div className="space-y-2">
+      <Button
+        onClick={handleNexiPayment}
+        disabled={disabled || isProcessing}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2"
+      >
+        {isProcessing ? (
+          <Loader2 className="animate-spin" size={20} />
+        ) : (
+          <CreditCard size={20} />
+        )}
+        <span>
+          {isProcessing ? 'Zahlung wird vorbereitet...' : 'Mit Kreditkarte bezahlen'}
+        </span>
+      </Button>
+      
+      {/* Debug Info for Testing */}
+      <div className="text-xs text-gray-500 text-center">
+        <div>Testumgebung: Nexi Sandbox aktiv</div>
+        <div>Betrag: {orderData.totalPrice.toFixed(2)}€</div>
+      </div>
+    </div>
   );
 };
 

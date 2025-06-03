@@ -30,7 +30,9 @@ serve(async (req) => {
     )
 
     const { action, ...body } = await req.json();
-    console.log('Nexi payment function called with action:', action, 'body:', body);
+    console.log('=== NEXI EDGE FUNCTION START ===');
+    console.log('Action:', action);
+    console.log('Request body:', body);
 
     switch (action) {
       case 'initiate':
@@ -43,9 +45,16 @@ serve(async (req) => {
         throw new Error(`Unknown action: ${action}`);
     }
   } catch (error) {
-    console.error('Nexi payment function error:', error);
+    console.error('=== NEXI EDGE FUNCTION ERROR ===');
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    console.error('=== END ERROR ===');
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Check edge function logs for more information'
+      }),
       {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -55,29 +64,47 @@ serve(async (req) => {
 });
 
 async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest) {
-  console.log('Initiating Nexi payment for order:', request.orderId);
+  console.log('=== INITIATING NEXI PAYMENT ===');
+  console.log('Order ID:', request.orderId);
+  console.log('Amount (cents):', request.amount);
+  console.log('Currency:', request.currency);
 
   // Get Nexi configuration
+  console.log('Fetching active Nexi configuration...');
   const { data: config, error: configError } = await supabaseClient
     .from('nexi_payment_configs')
     .select('*')
     .eq('is_active', true)
     .single();
 
-  if (configError || !config) {
-    console.error('No active Nexi configuration found:', configError);
-    throw new Error('Nexi payment configuration not found');
+  if (configError) {
+    console.error('Database error fetching Nexi config:', configError);
+    throw new Error(`Failed to fetch Nexi configuration: ${configError.message}`);
   }
+
+  if (!config) {
+    console.error('No active Nexi configuration found');
+    throw new Error('No active Nexi payment configuration found. Please contact support.');
+  }
+
+  console.log('Found active Nexi config:', {
+    id: config.id,
+    merchant_id: config.merchant_id,
+    terminal_id: config.terminal_id,
+    is_sandbox: config.is_sandbox,
+    has_alias: !!config.alias,
+    has_mac_key: !!config.mac_key
+  });
 
   // Generate unique payment ID
   const paymentId = `nexi_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  console.log('Generated payment ID:', paymentId);
   
-  // Build Nexi API request with new fields
+  // Build Nexi API request
   const nexiRequest = {
     merchant_id: config.merchant_id,
     terminal_id: config.terminal_id,
     alias: config.alias,
-    mac_key: config.mac_key ? '***HIDDEN***' : undefined, // Don't log the actual MAC key
     amount: request.amount,
     currency: request.currency || 'EUR',
     order_id: request.orderId,
@@ -89,7 +116,10 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     language: 'de'
   };
 
-  console.log('Nexi API request (sanitized):', nexiRequest);
+  console.log('Nexi API request data:', {
+    ...nexiRequest,
+    mac_key: config.mac_key ? '[PRESENT]' : '[NOT SET]'
+  });
 
   // For sandbox/testing, create a mock redirect URL
   // In a real implementation, you would make an API call to Nexi here
@@ -97,15 +127,19 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     ? 'https://test.nexi.it/ecomm/api/hostedfields'
     : 'https://ecomm.nexi.it/ecomm/api/hostedfields';
     
-  const redirectUrl = `${baseUrl}/payment?payment_id=${paymentId}&order_id=${request.orderId}`;
+  const redirectUrl = `${baseUrl}/payment?payment_id=${paymentId}&order_id=${request.orderId}&merchant_id=${config.merchant_id}`;
 
-  // If we have ALIAS and MAC Key, we could implement proper MAC signature generation here
+  console.log('Generated redirect URL:', redirectUrl);
+
+  // Configuration status
   if (config.alias && config.mac_key) {
-    console.log('Configuration has ALIAS and MAC Key - ready for production integration');
-    // TODO: Implement proper MAC signature generation when integrating with real Nexi API
+    console.log('✅ Configuration has ALIAS and MAC Key - ready for production integration');
+  } else {
+    console.log('⚠️  Configuration missing ALIAS or MAC Key - using basic integration');
   }
 
   // Update order with Nexi payment information
+  console.log('Updating order with Nexi payment info...');
   const { error: updateError } = await supabaseClient
     .from('orders')
     .update({
@@ -117,12 +151,15 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     .eq('order_number', request.orderId);
 
   if (updateError) {
-    console.error('Failed to update order with Nexi payment info:', updateError);
-    throw new Error('Failed to update order');
+    console.error('Failed to update order:', updateError);
+    throw new Error(`Failed to update order: ${updateError.message}`);
   }
 
-  // Log the payment initiation (without sensitive data)
-  await supabaseClient
+  console.log('✅ Order updated successfully');
+
+  // Log the payment initiation
+  console.log('Creating payment log entry...');
+  const { error: logError } = await supabaseClient
     .from('nexi_payment_logs')
     .insert({
       order_id: request.orderId,
@@ -137,14 +174,25 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       }
     });
 
-  console.log('Nexi payment initiated successfully:', { paymentId, redirectUrl });
+  if (logError) {
+    console.error('Failed to create payment log:', logError);
+    // Don't throw here, just log the error
+  } else {
+    console.log('✅ Payment log created successfully');
+  }
+
+  const responseData = {
+    paymentId,
+    redirectUrl,
+    status: 'initiated',
+    environment: config.is_sandbox ? 'sandbox' : 'production'
+  };
+
+  console.log('=== PAYMENT INITIATION SUCCESS ===');
+  console.log('Response data:', responseData);
 
   return new Response(
-    JSON.stringify({
-      paymentId,
-      redirectUrl,
-      status: 'initiated'
-    }),
+    JSON.stringify(responseData),
     {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
@@ -152,7 +200,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 }
 
 async function checkPaymentStatus(supabaseClient: any, paymentId: string) {
-  console.log('Checking Nexi payment status for:', paymentId);
+  console.log('=== CHECKING PAYMENT STATUS ===');
+  console.log('Payment ID:', paymentId);
 
   // Get payment information from database
   const { data: order, error } = await supabaseClient
@@ -161,19 +210,35 @@ async function checkPaymentStatus(supabaseClient: any, paymentId: string) {
     .eq('nexi_payment_id', paymentId)
     .single();
 
-  if (error || !order) {
-    console.error('Order not found for payment ID:', paymentId, error);
+  if (error) {
+    console.error('Error fetching order:', error);
+    throw new Error(`Payment not found: ${error.message}`);
+  }
+
+  if (!order) {
+    console.error('No order found for payment ID:', paymentId);
     throw new Error('Payment not found');
   }
 
+  console.log('Found order:', {
+    order_number: order.order_number,
+    status: order.nexi_transaction_status,
+    payment_method: order.payment_method
+  });
+
   // For testing purposes, return the current status
   // In a real implementation, you would query the Nexi API here
+  const responseData = {
+    paymentId,
+    status: order.nexi_transaction_status || 'pending',
+    orderId: order.order_number,
+    amount: order.total_amount
+  };
+
+  console.log('Payment status response:', responseData);
+
   return new Response(
-    JSON.stringify({
-      paymentId,
-      status: order.nexi_transaction_status || 'pending',
-      orderId: order.order_number
-    }),
+    JSON.stringify(responseData),
     {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
@@ -181,15 +246,17 @@ async function checkPaymentStatus(supabaseClient: any, paymentId: string) {
 }
 
 async function handleWebhook(supabaseClient: any, webhookData: any) {
-  console.log('Handling Nexi webhook:', webhookData);
+  console.log('=== HANDLING NEXI WEBHOOK ===');
+  console.log('Webhook data:', webhookData);
 
   const { payment_id, status, order_id } = webhookData;
 
   if (!payment_id || !status) {
-    throw new Error('Invalid webhook data');
+    throw new Error('Invalid webhook data: missing payment_id or status');
   }
 
   // Update order status based on webhook
+  console.log('Updating order status from webhook...');
   const { error: updateError } = await supabaseClient
     .from('orders')
     .update({
@@ -201,11 +268,13 @@ async function handleWebhook(supabaseClient: any, webhookData: any) {
 
   if (updateError) {
     console.error('Failed to update order from webhook:', updateError);
-    throw new Error('Failed to update order');
+    throw new Error(`Failed to update order: ${updateError.message}`);
   }
 
+  console.log('✅ Order updated from webhook');
+
   // Log the webhook
-  await supabaseClient
+  const { error: logError } = await supabaseClient
     .from('nexi_payment_logs')
     .insert({
       order_id,
@@ -215,7 +284,13 @@ async function handleWebhook(supabaseClient: any, webhookData: any) {
       webhook_data: webhookData
     });
 
-  console.log('Nexi webhook processed successfully');
+  if (logError) {
+    console.error('Failed to log webhook:', logError);
+  } else {
+    console.log('✅ Webhook logged successfully');
+  }
+
+  console.log('=== WEBHOOK PROCESSING COMPLETE ===');
 
   return new Response(
     JSON.stringify({ success: true }),
