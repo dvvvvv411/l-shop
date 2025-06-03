@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -183,9 +182,6 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     password: '[REDACTED]'
   });
 
-  let redirectUrl: string;
-  let paymentUrl: string;
-
   // Generate MAC signature if MAC key is available (recommended for production)
   if (config.mac_key) {
     console.log('Using MAC key authentication for Italian Nexi API');
@@ -195,27 +191,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       const macSignature = await generateMacSignature(nexiParams, config.mac_key);
       
       // Add MAC to parameters as 'trandata' (Italian Nexi parameter name)
-      const authenticatedParams = {
-        ...nexiParams,
-        trandata: macSignature
-      };
-
-      // Use the Italian Nexi payment gateway endpoint
-      paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
-      
-      console.log('Making authenticated request to Italian Nexi API:', paymentUrl);
-      
-      // Create the payment URL with parameters for Italian Nexi
-      const urlParams = new URLSearchParams();
-      Object.entries(authenticatedParams).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          urlParams.append(key, value.toString());
-        }
-      });
-      
-      redirectUrl = `${paymentUrl}?${urlParams.toString()}`;
-      
-      console.log('Generated authenticated payment URL for Italian Nexi');
+      nexiParams.trandata = macSignature;
       
     } catch (error) {
       console.error('Error with MAC authentication:', error);
@@ -223,19 +199,15 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     }
   } else {
     console.log('⚠️  No MAC key available - using basic integration (not recommended for production)');
-    
-    // Basic integration without MAC authentication
-    paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
-    const urlParams = new URLSearchParams();
-    Object.entries(nexiParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        urlParams.append(key, value.toString());
-      }
-    });
-    redirectUrl = `${paymentUrl}?${urlParams.toString()}`;
   }
 
-  console.log('Final redirect URL generated (domain only):', redirectUrl.split('?')[0]);
+  // Use the Italian Nexi payment gateway endpoint for POST requests
+  const paymentUrl = `${nexiBaseUrl}/IPGateway/payment/payment.jsp`;
+  
+  console.log('Payment form will POST to:', paymentUrl);
+
+  // Generate HTML form that will auto-submit to Nexi
+  const formHtml = generateNexiForm(paymentUrl, nexiParams);
 
   // Update order with Nexi payment information
   console.log('Updating order with Nexi payment info...');
@@ -244,7 +216,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     .update({
       nexi_payment_id: paymentId,
       nexi_transaction_status: 'initiated',
-      nexi_redirect_url: redirectUrl,
+      nexi_redirect_url: paymentUrl,
       payment_method: 'nexi_card'
     })
     .eq('order_number', request.orderId);
@@ -280,21 +252,12 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         has_alias: !!config.alias,
         has_mac_key: !!config.mac_key,
         base_url: nexiBaseUrl,
-        integration_type: 'italian_nexi',
+        integration_type: 'italian_nexi_form_post',
         order_id: request.orderId,
         amount: request.amount,
         currency: request.currency || 'EUR'
       }
     };
-
-    console.log('Attempting to insert payment log with data:', {
-      ...logData,
-      request_data: {
-        ...logData.request_data,
-        has_password: '[REDACTED]',
-        has_mac_key: '[REDACTED]'
-      }
-    });
 
     const { error: logError } = await supabaseClient
       .from('nexi_payment_logs')
@@ -302,35 +265,31 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
     if (logError) {
       console.error('Failed to create payment log:', logError);
-      console.error('Log error details:', JSON.stringify(logError, null, 2));
-      // Continue anyway, logging is not critical for payment flow
     } else {
       console.log('✅ Payment log created successfully');
     }
-  } else if (orderError) {
-    console.error('Failed to fetch order ID for logging:', orderError);
   }
 
   const responseData = {
     paymentId,
-    redirectUrl,
+    formHtml,
     status: 'initiated',
     environment: config.is_sandbox ? 'sandbox' : 'production',
     nexiBaseUrl,
-    integration: 'italian_nexi',
+    integration: 'italian_nexi_form_post',
     debug: {
       order_id: request.orderId,
       amount: request.amount,
       currency: request.currency || 'EUR',
       has_mac_key: !!config.mac_key,
-      url_length: redirectUrl.length
+      form_fields_count: Object.keys(nexiParams).length
     }
   };
 
   console.log('=== PAYMENT INITIATION SUCCESS ===');
   console.log('Response data:', {
     ...responseData,
-    redirectUrl: '[URL_GENERATED]' // Don't log full URL for security
+    formHtml: '[HTML_FORM_GENERATED]'
   });
 
   return new Response(
@@ -339,6 +298,98 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
   );
+}
+
+function generateNexiForm(actionUrl: string, params: Record<string, any>): string {
+  console.log('Generating Nexi form HTML with', Object.keys(params).length, 'parameters');
+  
+  const formFields = Object.entries(params)
+    .filter(([key, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `<input type="hidden" name="${key}" value="${value}">`)
+    .join('\n    ');
+
+  const formHtml = `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weiterleitung zur sicheren Zahlung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .security-info {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <div class="message">
+            <h2>Weiterleitung zur sicheren Zahlung</h2>
+            <p>Sie werden automatisch zu unserem sicheren Zahlungspartner Nexi weitergeleitet...</p>
+            <p>Falls die Weiterleitung nicht automatisch erfolgt, klicken Sie bitte auf "Zur Zahlung".</p>
+        </div>
+        <form id="nexiForm" method="POST" action="${actionUrl}">
+            ${formFields}
+            <button type="submit" style="
+                background-color: #007cba;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 1rem;
+            ">Zur Zahlung</button>
+        </form>
+        <div class="security-info">
+            🔒 Sichere Verbindung zu Nexi - Ihre Daten sind geschützt
+        </div>
+    </div>
+    <script>
+        // Auto-submit the form after a short delay
+        setTimeout(function() {
+            document.getElementById('nexiForm').submit();
+        }, 2000);
+    </script>
+</body>
+</html>`;
+
+  return formHtml;
 }
 
 async function checkPaymentStatus(supabaseClient: any, paymentId: string) {

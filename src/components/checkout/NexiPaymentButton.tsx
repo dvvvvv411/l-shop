@@ -4,6 +4,7 @@ import { CreditCard, Loader2, AlertCircle, ExternalLink, Bug } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { useNexiPayments } from '@/hooks/useNexiPayments';
 import { useToast } from '@/hooks/use-toast';
+import NexiFormSubmissionPage from './NexiFormSubmissionPage';
 
 interface PriceCalculatorData {
   product: {
@@ -38,6 +39,8 @@ const NexiPaymentButton = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [formHtml, setFormHtml] = useState<string | null>(null);
+  const [paymentEnvironment, setPaymentEnvironment] = useState<string>('');
   const { initiatePayment } = useNexiPayments();
   const { toast } = useToast();
 
@@ -71,8 +74,8 @@ const NexiPaymentButton = ({
       
       console.log('Payment Response:', response);
       
-      if (response && response.redirectUrl) {
-        console.log('Payment initiated successfully');
+      if (response && response.formHtml) {
+        console.log('Payment initiated successfully with form submission');
         console.log('Environment:', response.environment || 'unknown');
         console.log('Base URL:', response.nexiBaseUrl || 'unknown');
         
@@ -86,18 +89,17 @@ const NexiPaymentButton = ({
           timestamp: new Date().toISOString()
         });
         
-        onPaymentInitiated(response.paymentId, response.redirectUrl);
+        // Set form HTML and environment for the submission page
+        setFormHtml(response.formHtml);
+        setPaymentEnvironment(response.environment || 'live');
+        
+        onPaymentInitiated(response.paymentId, 'form_submission');
         
         toast({
-          title: 'Zahlung wird gestartet',
-          description: `Sie werden zur sicheren Nexi-Zahlung weitergeleitet (${response.environment || 'live'}).`,
+          title: 'Zahlung wird vorbereitet',
+          description: `Weiterleitung zur Nexi-Zahlung wird vorbereitet (${response.environment || 'live'}).`,
         });
         
-        // Small delay to ensure toast is visible, then redirect
-        setTimeout(() => {
-          console.log('Redirecting to Nexi payment gateway...');
-          window.location.href = response.redirectUrl;
-        }, 1500);
       } else {
         console.error('Invalid payment response:', response);
         setDebugInfo({
@@ -147,6 +149,23 @@ const NexiPaymentButton = ({
       console.log('=== NEXI PAYMENT DEBUG END ===');
     }
   };
+
+  const handleBackToPayment = () => {
+    setFormHtml(null);
+    setPaymentEnvironment('');
+  };
+
+  // Show form submission page if formHtml is available
+  if (formHtml) {
+    return (
+      <NexiFormSubmissionPage
+        formHtml={formHtml}
+        onBack={handleBackToPayment}
+        orderNumber={orderNumber}
+        environment={paymentEnvironment}
+      />
+    );
+  }
 
   return (
     <div className="space-y-3">

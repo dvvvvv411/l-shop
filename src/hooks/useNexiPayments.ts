@@ -15,7 +15,7 @@ export interface NexiPaymentRequest {
 
 export interface NexiPaymentResponse {
   paymentId: string;
-  redirectUrl: string;
+  formHtml: string;
   status: string;
   environment?: string;
   nexiBaseUrl?: string;
