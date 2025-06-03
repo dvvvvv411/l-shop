@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
@@ -8,7 +7,8 @@ import {
   Building2,
   LogOut,
   Menu,
-  X
+  X,
+  Mail
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -40,6 +40,11 @@ const AdminLayout = () => {
       name: 'Bankkonten',
       href: '/admin/bank-accounts',
       icon: CreditCard,
+    },
+    {
+      name: 'SMTP',
+      href: '/admin/smtp',
+      icon: Mail,
     },
   ];
 
