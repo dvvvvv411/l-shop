@@ -1,1 +1,48 @@
+
 project_id = "oflztmlaurxmrgjttjyn"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://lovable.dev", "https://gptengineer.app"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+secure_password_change_enabled = true
+enable_manual_linking = false
+
+[auth.external.github]
+enabled = false
+client_id = ""
+secret = ""
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[functions.generate-invoice]
+verify_jwt = false
+
+[functions.scrape-northdata]
+verify_jwt = false
+
+[functions.send-order-confirmation]
+verify_jwt = false
+
+[storage]
+enabled = true
+port = 54323
+file_size_limit = "50MiB"

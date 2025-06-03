@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -13,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // Test data arrays for random generation
 const testData = {
@@ -131,6 +131,38 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     });
   };
 
+  const sendOrderConfirmationEmail = async (orderId: string, customerEmail: string) => {
+    try {
+      console.log('Sending order confirmation email...', { orderId, customerEmail });
+      
+      const originDomain = window.location.hostname;
+      
+      const { data, error } = await supabase.functions.invoke('send-order-confirmation', {
+        body: {
+          orderId,
+          customerEmail,
+          originDomain
+        }
+      });
+
+      if (error) {
+        console.error('Error sending confirmation email:', error);
+        throw error;
+      }
+
+      console.log('Order confirmation email sent successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to send order confirmation email:', error);
+      // Don't throw the error - we don't want to fail the order process because of email issues
+      toast({
+        title: 'E-Mail-Versand',
+        description: 'Die Bestellbestätigung konnte nicht versendet werden. Sie erhalten diese in Kürze.',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const onSubmit = async (data: OrderFormData) => {
     console.log('Checkout form submitted:', data);
     console.log('Using order data:', orderData);
@@ -189,6 +221,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       }
 
       console.log('Order created with order number:', createdOrder.order_number);
+
+      // Send order confirmation email
+      await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
 
       // Set order data for context
       const contextOrderData = {
