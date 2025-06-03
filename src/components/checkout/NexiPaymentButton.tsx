@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CreditCard, Loader2, AlertCircle } from 'lucide-react';
+import { CreditCard, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNexiPayments } from '@/hooks/useNexiPayments';
 import { useToast } from '@/hooks/use-toast';
@@ -69,30 +69,42 @@ const NexiPaymentButton = ({
       console.log('Payment Response:', response);
       
       if (response && response.redirectUrl) {
-        console.log('Payment initiated successfully, redirecting to:', response.redirectUrl);
+        console.log('Payment initiated successfully');
+        console.log('Environment:', response.environment || 'unknown');
+        console.log('Base URL:', response.nexiBaseUrl || 'unknown');
+        
         onPaymentInitiated(response.paymentId, response.redirectUrl);
         
         toast({
-          title: 'Zahlung gestartet',
-          description: 'Sie werden zur sicheren Kreditkarten-Zahlung weitergeleitet.',
+          title: 'Zahlung wird gestartet',
+          description: `Sie werden zur sicheren Nexi-Zahlung weitergeleitet (${response.environment || 'live'}).`,
         });
         
-        // Small delay to ensure toast is visible
+        // Small delay to ensure toast is visible, then redirect
         setTimeout(() => {
+          console.log('Redirecting to Nexi payment gateway...');
           window.location.href = response.redirectUrl;
-        }, 1000);
+        }, 1500);
       } else {
         console.error('Invalid payment response:', response);
-        throw new Error('Invalid payment response from Nexi');
+        throw new Error('Invalid payment response from Nexi gateway');
       }
     } catch (error) {
       console.error('=== NEXI PAYMENT ERROR ===');
       console.error('Error details:', error);
       console.error('=== END ERROR ===');
       
+      let errorMessage = 'Die Kreditkarten-Zahlung konnte nicht gestartet werden.';
+      
+      if (error.message?.includes('configuration')) {
+        errorMessage = 'Nexi-Konfiguration fehlt oder ist fehlerhaft. Bitte kontaktieren Sie den Support.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = 'Verbindung zum Zahlungsgateway fehlgeschlagen. Bitte versuchen Sie es erneut.';
+      }
+      
       toast({
         title: 'Zahlungsfehler',
-        description: 'Die Kreditkarten-Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsmethode.',
+        description: `${errorMessage} Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsmethode.`,
         variant: 'destructive'
       });
     } finally {
@@ -102,7 +114,7 @@ const NexiPaymentButton = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <Button
         onClick={handleNexiPayment}
         disabled={disabled || isProcessing}
@@ -116,11 +128,18 @@ const NexiPaymentButton = ({
         <span>
           {isProcessing ? 'Zahlung wird vorbereitet...' : 'Mit Kreditkarte bezahlen'}
         </span>
+        {!isProcessing && <ExternalLink size={16} className="ml-1" />}
       </Button>
       
-      <div className="text-xs text-gray-500 text-center">
-        <div>Sichere Zahlung über Nexi</div>
-        <div>Betrag: {orderData.totalPrice.toFixed(2)}€</div>
+      <div className="text-xs text-gray-500 text-center space-y-1">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>Sichere Zahlung über Nexi</span>
+        </div>
+        <div className="font-medium">Betrag: {orderData.totalPrice.toFixed(2)}€</div>
+        <div className="text-gray-400">
+          Sie werden zu unserem sicheren Zahlungspartner weitergeleitet
+        </div>
       </div>
     </div>
   );
