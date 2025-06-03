@@ -1,614 +1,594 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Truck, CreditCard, Shield, TestTube, FileText } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { ArrowLeft, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useOrder } from '@/contexts/OrderContext';
-import { useOrders } from '@/hooks/useOrders';
-import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useOrderEmail } from '@/hooks/useOrderEmail';
 
-// Test data arrays for random generation
-const testData = {
-  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
-  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
-  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
-  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109']
-};
-
-const generateRandomTestData = () => {
-  const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
-  const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-  
-  return {
-    deliveryFirstName: getRandomItem(testData.firstNames),
-    deliveryLastName: getRandomItem(testData.lastNames),
-    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    deliveryPostcode: getRandomItem(testData.postcodes),
-    deliveryCity: getRandomItem(testData.cities),
-    deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
-    useSameAddress: Math.random() > 0.3,
-    billingFirstName: getRandomItem(testData.firstNames),
-    billingLastName: getRandomItem(testData.lastNames),
-    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    billingPostcode: getRandomItem(testData.postcodes),
-    billingCity: getRandomItem(testData.cities),
-    paymentMethod: 'vorkasse' as const
-  };
-};
-
-const orderSchema = z.object({
-  deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
-  deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
-  deliveryStreet: z.string().min(5, 'Straße ist erforderlich'),
-  deliveryPostcode: z.string().regex(/^\d{5}$/, 'PLZ muss 5-stellig sein'),
-  deliveryCity: z.string().min(2, 'Stadt ist erforderlich'),
-  deliveryPhone: z.string().min(10, 'Telefonnummer ist erforderlich'),
-  useSameAddress: z.boolean(),
-  billingFirstName: z.string().optional(),
-  billingLastName: z.string().optional(),
-  billingStreet: z.string().optional(),
-  billingPostcode: z.string().optional(),
-  billingCity: z.string().optional(),
-  paymentMethod: z.enum(['vorkasse', 'rechnung']),
-  acceptTerms: z.boolean().refine(val => val === true, 'Sie müssen die AGB akzeptieren')
-});
-
-type OrderFormData = z.infer<typeof orderSchema>;
-
-interface PriceCalculatorData {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    description: string;
-  };
-  amount: number;
-  postcode: string;
-  basePrice: number;
-  deliveryFee: number;
-  totalPrice: number;
-  savings: number;
-}
-
-interface CheckoutFormProps {
-  orderData: PriceCalculatorData;
-  onOrderSuccess: (orderNumber: string) => void;
-}
-
-const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
-  const [useSameAddress, setUseSameAddress] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setOrderData: setContextOrderData } = useOrder();
-  const { createOrder } = useOrders();
-  const { toast } = useToast();
-
-  const form = useForm<OrderFormData>({
-    resolver: zodResolver(orderSchema),
-    defaultValues: {
-      useSameAddress: true,
-      paymentMethod: 'vorkasse',
-      acceptTerms: false
-    }
+const CheckoutForm = () => {
+  const navigate = useNavigate();
+  const { orderData, updateOrderData } = useOrder();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [orderCreated, setOrderCreated] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    firstName: orderData.firstName || '',
+    lastName: orderData.lastName || '',
+    email: orderData.email || '',
+    phone: orderData.phone || '',
+    street: orderData.street || '',
+    city: orderData.city || '',
+    postcode: orderData.postcode || '',
+    deliveryFirstName: orderData.deliveryFirstName || '',
+    deliveryLastName: orderData.deliveryLastName || '',
+    deliveryStreet: orderData.deliveryStreet || '',
+    deliveryCity: orderData.deliveryCity || '',
+    deliveryPostcode: orderData.deliveryPostcode || '',
+    deliveryPhone: orderData.deliveryPhone || '',
+    billingFirstName: orderData.billingFirstName || '',
+    billingLastName: orderData.billingLastName || '',
+    billingStreet: orderData.billingStreet || '',
+    billingCity: orderData.billingCity || '',
+    billingPostcode: orderData.billingPostcode || '',
+    notes: orderData.notes || '',
+    differentDeliveryAddress: orderData.differentDeliveryAddress || false,
+    paymentMethod: orderData.paymentMethod || 'invoice',
+    agbAccepted: orderData.agbAccepted || false,
   });
 
-  const handleGenerateTestData = () => {
-    const testDataValues = generateRandomTestData();
+  // Use the email hook to automatically send emails
+  const { isLoading: isEmailLoading, error: emailError, success: emailSuccess } = useOrderEmail(orderCreated);
 
-    form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
-    form.setValue('deliveryLastName', testDataValues.deliveryLastName);
-    form.setValue('deliveryStreet', testDataValues.deliveryStreet);
-    form.setValue('deliveryPostcode', testDataValues.deliveryPostcode);
-    form.setValue('deliveryCity', testDataValues.deliveryCity);
-    form.setValue('deliveryPhone', testDataValues.deliveryPhone);
-    form.setValue('useSameAddress', testDataValues.useSameAddress);
-    form.setValue('paymentMethod', testDataValues.paymentMethod);
+  useEffect(() => {
+    // Update form data when orderData changes (e.g., after returning from confirmation page)
+    setFormData({
+      firstName: orderData.firstName || '',
+      lastName: orderData.lastName || '',
+      email: orderData.email || '',
+      phone: orderData.phone || '',
+      street: orderData.street || '',
+      city: orderData.city || '',
+      postcode: orderData.postcode || '',
+      deliveryFirstName: orderData.deliveryFirstName || '',
+      deliveryLastName: orderData.deliveryLastName || '',
+      deliveryStreet: orderData.deliveryStreet || '',
+      deliveryCity: orderData.deliveryCity || '',
+      deliveryPostcode: orderData.deliveryPostcode || '',
+      deliveryPhone: orderData.deliveryPhone || '',
+      billingFirstName: orderData.billingFirstName || '',
+      billingLastName: orderData.billingLastName || '',
+      billingStreet: orderData.billingStreet || '',
+      billingCity: orderData.billingCity || '',
+      billingPostcode: orderData.billingPostcode || '',
+      notes: orderData.notes || '',
+      differentDeliveryAddress: orderData.differentDeliveryAddress || false,
+      paymentMethod: orderData.paymentMethod || 'invoice',
+      agbAccepted: orderData.agbAccepted || false,
+    });
+  }, [orderData]);
 
-    setUseSameAddress(testDataValues.useSameAddress);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    if (!testDataValues.useSameAddress) {
-      form.setValue('billingFirstName', testDataValues.billingFirstName);
-      form.setValue('billingLastName', testDataValues.billingLastName);
-      form.setValue('billingStreet', testDataValues.billingStreet);
-      form.setValue('billingPostcode', testDataValues.billingPostcode);
-      form.setValue('billingCity', testDataValues.billingCity);
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: checked }));
+
+    // If "differentDeliveryAddress" is unchecked, clear delivery address fields
+    if (name === 'differentDeliveryAddress' && !checked) {
+      setFormData(prev => ({
+        ...prev,
+        deliveryFirstName: '',
+        deliveryLastName: '',
+        deliveryStreet: '',
+        deliveryCity: '',
+        deliveryPostcode: '',
+        deliveryPhone: '',
+      }));
+    }
+  };
+
+  const handleRadioChange = (value: string) => {
+    setFormData(prev => ({ ...prev, paymentMethod: value }));
+  };
+
+  const handleSelectChange = (value: string) => {
+    setFormData(prev => ({ ...prev, paymentMethod: value }));
+  };
+
+  const nextStep = () => {
+    // Validate step 1
+    if (currentStep === 1) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.street || !formData.city || !formData.postcode) {
+        alert('Bitte füllen Sie alle Pflichtfelder aus.');
+        return;
+      }
     }
 
-    toast({
-      title: 'Testdaten generiert',
-      description: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.'
+    // Validate step 2
+    if (currentStep === 2) {
+      if (formData.differentDeliveryAddress) {
+        if (!formData.deliveryFirstName || !formData.deliveryLastName || !formData.deliveryStreet || !formData.deliveryCity || !formData.deliveryPostcode) {
+          alert('Bitte füllen Sie alle Lieferadressenfelder aus.');
+          return;
+        }
+      }
+    }
+
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
+  const updateOrderContext = () => {
+    updateOrderData({
+      ...orderData,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      street: formData.street,
+      city: formData.city,
+      postcode: formData.postcode,
+      deliveryFirstName: formData.deliveryFirstName,
+      deliveryLastName: formData.deliveryLastName,
+      deliveryStreet: formData.deliveryStreet,
+      deliveryCity: formData.deliveryCity,
+      deliveryPostcode: formData.deliveryPostcode,
+      deliveryPhone: formData.deliveryPhone,
+      billingFirstName: formData.billingFirstName,
+      billingLastName: formData.billingLastName,
+      billingStreet: formData.billingStreet,
+      billingCity: formData.billingCity,
+      billingPostcode: formData.billingPostcode,
+      notes: formData.notes,
+      differentDeliveryAddress: formData.differentDeliveryAddress,
+      paymentMethod: formData.paymentMethod,
+      agbAccepted: formData.agbAccepted,
     });
   };
 
-  const onSubmit = async (data: OrderFormData) => {
-    console.log('Checkout form submitted:', data);
-    console.log('Using order data:', orderData);
-    
-    setIsSubmitting(true);
+  const handleSubmitOrder = async () => {
+    setIsLoading(true);
     
     try {
-      const finalPrice = orderData.totalPrice;
-
-      // Capture the origin domain
-      const originDomain = window.location.hostname;
-
-      // Create order data for database
-      const dbOrderData = {
-        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: 'kunde@email.de',
-        customer_phone: data.deliveryPhone,
-        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
-        delivery_first_name: data.deliveryFirstName,
-        delivery_last_name: data.deliveryLastName,
-        delivery_street: data.deliveryStreet,
-        delivery_postcode: data.deliveryPostcode,
-        delivery_city: data.deliveryCity,
-        delivery_phone: data.deliveryPhone,
-        use_same_address: data.useSameAddress,
-        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
-        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
-        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
-        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
-        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
-        payment_method: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        liters: orderData.amount,
-        price_per_liter: orderData.product.price,
+      // Get current domain for tracking
+      const currentDomain = window.location.origin + window.location.pathname;
+      
+      // Create order in database
+      const orderPayload = {
+        customer_name: `${formData.firstName} ${formData.lastName}`,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        customer_address: `${formData.street}, ${formData.postcode} ${formData.city}`,
+        delivery_first_name: formData.deliveryFirstName || formData.firstName,
+        delivery_last_name: formData.deliveryLastName || formData.lastName,
+        delivery_street: formData.deliveryStreet || formData.street,
+        delivery_postcode: formData.deliveryPostcode || formData.postcode,
+        delivery_city: formData.deliveryCity || formData.city,
+        delivery_phone: formData.deliveryPhone || formData.phone,
+        billing_first_name: formData.billingFirstName || formData.firstName,
+        billing_last_name: formData.billingLastName || formData.lastName,
+        billing_street: formData.billingStreet || formData.street,
+        billing_postcode: formData.billingPostcode || formData.postcode,
+        billing_city: formData.billingCity || formData.city,
+        liters: orderData.liters,
+        price_per_liter: orderData.pricePerLiter,
+        total_amount: orderData.totalAmount,
+        product: orderData.product,
+        notes: formData.notes,
+        payment_method: formData.paymentMethod,
+        status: 'pending',
         base_price: orderData.basePrice,
         delivery_fee: orderData.deliveryFee,
-        discount: 0,
-        total_amount: finalPrice,
-        delivery_date_display: '4-7 Werktage',
-        status: 'pending',
-        origin_domain: originDomain
+        discount: orderData.discount,
+        delivery_date: orderData.deliveryDate,
+        origin_domain: currentDomain, // Add domain tracking for email routing
       };
 
-      console.log('Sending order data to database:', dbOrderData);
+      const { data: order, error } = await supabase
+        .from('orders')
+        .insert(orderPayload)
+        .select()
+        .single();
 
-      // Create order in database
-      const createdOrder = await createOrder(dbOrderData);
+      if (error) throw error;
 
-      if (!createdOrder) {
-        console.log('Order was already processed');
-        toast({
-          title: 'Information',
-          description: 'Diese Bestellung wurde bereits verarbeitet.',
+      console.log('Order created successfully:', order);
+      setOrderCreated(order.id); // This will trigger the email hook
+      
+      // Navigate to confirmation page
+      setTimeout(() => {
+        navigate('/bestellung-bestaetigt', { 
+          state: { 
+            orderNumber: order.order_number,
+            customerEmail: formData.email,
+            totalAmount: orderData.totalAmount 
+          } 
         });
-        return;
-      }
-
-      console.log('Order created with order number:', createdOrder.order_number);
-
-      // Set order data for context
-      const contextOrderData = {
-        deliveryFirstName: data.deliveryFirstName,
-        deliveryLastName: data.deliveryLastName,
-        deliveryStreet: data.deliveryStreet,
-        deliveryPostcode: data.deliveryPostcode,
-        deliveryCity: data.deliveryCity,
-        deliveryPhone: data.deliveryPhone,
-        useSameAddress: data.useSameAddress,
-        billingFirstName: data.billingFirstName,
-        billingLastName: data.billingLastName,
-        billingStreet: data.billingStreet,
-        billingPostcode: data.billingPostcode,
-        billingCity: data.billingCity,
-        paymentMethod: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        pricePerLiter: orderData.product.price,
-        basePrice: orderData.basePrice,
-        deliveryFee: orderData.deliveryFee,
-        discount: 0,
-        total: finalPrice,
-        deliveryDate: '4-7 Werktage',
-        orderNumber: createdOrder.order_number
-      };
-
-      setContextOrderData(contextOrderData);
-
-      // Call the success callback to move to confirmation step
-      onOrderSuccess(createdOrder.order_number);
-
-      // Clear localStorage
-      localStorage.removeItem('orderData');
+      }, 3000); // Give time for email to be sent
 
     } catch (error) {
       console.error('Error creating order:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-        variant: 'destructive'
-      });
+      alert('Fehler beim Erstellen der Bestellung. Bitte versuchen Sie es erneut.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Test Data Generator */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-amber-100 p-2 rounded-lg">
-              <TestTube className="text-amber-600" size={20} />
+  const Step1 = () => (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="firstName">Vorname *</Label>
+          <Input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="lastName">Nachname *</Label>
+          <Input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <Label htmlFor="email">E-Mail *</Label>
+          <Input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone">Telefon</Label>
+          <Input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+          />
+        </div>
+      </div>
+      <div className="mt-4">
+        <Label htmlFor="street">Straße und Hausnummer *</Label>
+        <Input
+          type="text"
+          id="street"
+          name="street"
+          value={formData.street}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <Label htmlFor="postcode">Postleitzahl *</Label>
+          <Input
+            type="text"
+            id="postcode"
+            name="postcode"
+            value={formData.postcode}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="city">Ort *</Label>
+          <Input
+            type="text"
+            id="city"
+            name="city"
+            value={formData.city}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+      </div>
+    </>
+  );
+
+  const Step2 = () => (
+    <>
+      <div className="mb-4">
+        <Label htmlFor="differentDeliveryAddress" className="flex items-center space-x-2">
+          <Checkbox
+            id="differentDeliveryAddress"
+            name="differentDeliveryAddress"
+            checked={formData.differentDeliveryAddress}
+            onCheckedChange={(checked) => {
+              setFormData(prev => ({ ...prev, differentDeliveryAddress: checked }));
+              handleCheckboxChange({ target: { name: 'differentDeliveryAddress', checked } } as any);
+            }}
+          />
+          <span>Abweichende Lieferadresse</span>
+        </Label>
+      </div>
+
+      {formData.differentDeliveryAddress && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="deliveryFirstName">Vorname *</Label>
+              <Input
+                type="text"
+                id="deliveryFirstName"
+                name="deliveryFirstName"
+                value={formData.deliveryFirstName}
+                onChange={handleInputChange}
+                required={formData.differentDeliveryAddress}
+                disabled={!formData.differentDeliveryAddress}
+              />
             </div>
             <div>
-              <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
-              <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
+              <Label htmlFor="deliveryLastName">Nachname *</Label>
+              <Input
+                type="text"
+                id="deliveryLastName"
+                name="deliveryLastName"
+                value={formData.deliveryLastName}
+                onChange={handleInputChange}
+                required={formData.differentDeliveryAddress}
+                disabled={!formData.differentDeliveryAddress}
+              />
             </div>
           </div>
-          <Button
-            type="button"
-            onClick={handleGenerateTestData}
-            variant="outline"
-            className="border-amber-300 text-amber-700 hover:bg-amber-100"
-          >
-            Testdaten generieren
-          </Button>
-        </div>
-      </motion.div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Delivery Address */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                <Truck className="text-blue-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Lieferadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll das Heizöl geliefert werden?</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="deliveryFirstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vorname *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Max" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryLastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nachname *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Mustermann" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryStreet"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Straße und Hausnummer *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Musterstraße 123" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
+          <div className="mt-4">
+            <Label htmlFor="deliveryStreet">Straße und Hausnummer *</Label>
+            <Input
+              type="text"
+              id="deliveryStreet"
+              name="deliveryStreet"
+              value={formData.deliveryStreet}
+              onChange={handleInputChange}
+              required={formData.differentDeliveryAddress}
+              disabled={!formData.differentDeliveryAddress}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <Label htmlFor="deliveryPostcode">Postleitzahl *</Label>
+              <Input
+                type="text"
+                id="deliveryPostcode"
                 name="deliveryPostcode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Postleitzahl *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="12345" {...field} defaultValue={orderData.postcode || ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                value={formData.deliveryPostcode}
+                onChange={handleInputChange}
+                required={formData.differentDeliveryAddress}
+                disabled={!formData.differentDeliveryAddress}
               />
-
-              <FormField
-                control={form.control}
+            </div>
+            <div>
+              <Label htmlFor="deliveryCity">Ort *</Label>
+              <Input
+                type="text"
+                id="deliveryCity"
                 name="deliveryCity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stadt *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Musterstadt" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryPhone"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Telefonnummer *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+49 123 456789" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                value={formData.deliveryCity}
+                onChange={handleInputChange}
+                required={formData.differentDeliveryAddress}
+                disabled={!formData.differentDeliveryAddress}
               />
             </div>
-          </motion.div>
+          </div>
+          <div className="mt-4">
+            <Label htmlFor="deliveryPhone">Telefon</Label>
+            <Input
+              type="tel"
+              id="deliveryPhone"
+              name="deliveryPhone"
+              value={formData.deliveryPhone}
+              onChange={handleInputChange}
+              disabled={!formData.differentDeliveryAddress}
+            />
+          </div>
+        </>
+      )}
 
-          {/* Billing Address */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-green-100 p-3 rounded-lg mr-4">
-                <FileText className="text-green-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Rechnungsadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll die Rechnung gesendet werden?</p>
-              </div>
-            </div>
+      <div className="mt-6">
+        <Label htmlFor="notes">Anmerkungen</Label>
+        <Textarea
+          id="notes"
+          name="notes"
+          value={formData.notes}
+          onChange={handleInputChange}
+          placeholder="Besondere Wünsche oder Anweisungen"
+        />
+      </div>
+    </>
+  );
 
-            <div className="mb-4">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={useSameAddress}
-                  onChange={(e) => {
-                    setUseSameAddress(e.target.checked);
-                    form.setValue('useSameAddress', e.target.checked);
-                  }}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-gray-700 font-medium">
-                  Rechnungsadresse ist identisch mit Lieferadresse
-                </span>
-              </label>
-            </div>
+  const Step3 = () => (
+    <>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Rechnungsadresse</h3>
+          <p>
+            {formData.firstName} {formData.lastName}
+            <br />
+            {formData.street}
+            <br />
+            {formData.postcode} {formData.city}
+          </p>
+        </div>
 
-            {!useSameAddress && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="billingFirstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Vorname *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Max" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {formData.differentDeliveryAddress ? (
+          <div>
+            <h3 className="text-lg font-semibold">Lieferadresse</h3>
+            <p>
+              {formData.deliveryFirstName} {formData.deliveryLastName}
+              <br />
+              {formData.deliveryStreet}
+              <br />
+              {formData.deliveryPostcode} {formData.deliveryCity}
+            </p>
+          </div>
+        ) : (
+          <div>
+            <h3 className="text-lg font-semibold">Lieferadresse</h3>
+            <p>
+              {formData.firstName} {formData.lastName}
+              <br />
+              {formData.street}
+              <br />
+              {formData.postcode} {formData.city}
+            </p>
+          </div>
+        )}
 
-                <FormField
-                  control={form.control}
-                  name="billingLastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nachname *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Mustermann" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div>
+          <h3 className="text-lg font-semibold">Bestellung</h3>
+          <p>
+            Produkt: {orderData.product}
+            <br />
+            Menge: {orderData.liters} Liter
+            <br />
+            Preis pro Liter: €{orderData.pricePerLiter}
+            <br />
+            Gesamtpreis: €{orderData.totalAmount}
+          </p>
+        </div>
 
-                <FormField
-                  control={form.control}
-                  name="billingStreet"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Straße und Hausnummer *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Musterstraße 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div>
+          <h3 className="text-lg font-semibold">Zahlungsmethode</h3>
+          <p>{formData.paymentMethod === 'invoice' ? 'Rechnung' : 'Vorkasse'}</p>
+        </div>
 
-                <FormField
-                  control={form.control}
-                  name="billingPostcode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postleitzahl *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="12345" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {formData.notes && (
+          <div>
+            <h3 className="text-lg font-semibold">Anmerkungen</h3>
+            <p>{formData.notes}</p>
+          </div>
+        )}
 
-                <FormField
-                  control={form.control}
-                  name="billingCity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Stadt *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Musterstadt" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <div>
+          <Label htmlFor="agbAccepted" className="flex items-center space-x-2">
+            <Checkbox
+              id="agbAccepted"
+              name="agbAccepted"
+              checked={formData.agbAccepted}
+              onCheckedChange={handleCheckboxChange}
+            />
+            <span>Ich akzeptiere die AGB *</span>
+          </Label>
+          {!formData.agbAccepted && <p className="text-red-500 text-sm">Bitte akzeptieren Sie die AGB, um fortzufahren.</p>}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <div className={`rounded-full h-8 w-8 flex items-center justify-center ${currentStep === 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+            1
+          </div>
+          <div className={`rounded-full h-8 w-8 flex items-center justify-center ${currentStep === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+            2
+          </div>
+          <div className={`rounded-full h-8 w-8 flex items-center justify-center ${currentStep === 3 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+            3
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {currentStep === 1 && 'Ihre Daten'}
+              {currentStep === 2 && 'Lieferadresse'}
+              {currentStep === 3 && 'Bestellung überprüfen'}
+            </CardTitle>
+            <CardDescription>
+              {currentStep === 1 && 'Bitte geben Sie Ihre Kontaktdaten ein'}
+              {currentStep === 2 && 'Wohin sollen wir das Heizöl liefern?'}
+              {currentStep === 3 && 'Überprüfen Sie Ihre Bestellung vor der Bestätigung'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {currentStep === 1 && <Step1 />}
+            {currentStep === 2 && <Step2 />}
+            {currentStep === 3 && <Step3 />}
+
+            {currentStep === 3 && orderCreated && (
+              <Alert className="mt-4">
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {isEmailLoading && "E-Mail-Bestätigung wird versendet..."}
+                  {emailSuccess && "Bestätigungs-E-Mail wurde erfolgreich versendet!"}
+                  {emailError && "E-Mail-Versand fehlgeschlagen, aber Ihre Bestellung wurde erfolgreich erstellt."}
+                </AlertDescription>
+              </Alert>
             )}
-          </motion.div>
 
-          {/* Payment Method */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <CreditCard className="text-purple-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Zahlungsart</h3>
-                <p className="text-sm text-gray-600">Sichere und bequeme Zahlung</p>
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <RadioGroup value={field.value} onValueChange={field.onChange}>
-                      <div className="space-y-3">
-                        <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="vorkasse" id="vorkasse" />
-                            <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-900">Vorkasse</div>
-                                  <div className="text-sm text-gray-600">
-                                    Überweisung vor Lieferung
-                                  </div>
-                                </div>
-                                <div className="text-sm text-green-600 font-semibold">
-                                  Empfohlen
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        </div>
-
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                            <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-600">Rechnung</div>
-                                  <div className="text-sm text-gray-500">
-                                    Zahlung nach Lieferung (derzeit nicht verfügbar)
-                                  </div>
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  Nur für Bestandskunden
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="flex justify-between mt-8">
+              {currentStep > 1 && (
+                <Button variant="outline" onClick={prevStep}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Zurück
+                </Button>
               )}
-            />
-          </motion.div>
-
-          {/* Terms and Submit */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
-          >
-            <div className="flex items-center mb-6">
-              <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                <Shield className="text-orange-600" size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">AGB und Widerrufsbelehrung</h3>
-                <p className="text-sm text-gray-600">Bitte bestätigen Sie die Geschäftsbedingungen</p>
-              </div>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-yellow-800 mb-2">Widerrufsbelehrung</h4>
-              <p className="text-yellow-700 text-sm">
-                Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
-                Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <div className="flex items-start space-x-3">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
-                      />
-                    </FormControl>
-                    <FormLabel className="text-sm text-gray-700 cursor-pointer">
-                      Ich akzeptiere die Allgemeinen Geschäftsbedingungen und die Widerrufsbelehrung. 
-                      Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
-                      sobald die Lieferung begonnen hat. *
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
+              {currentStep < 3 ? (
+                <Button onClick={() => {
+                  updateOrderContext();
+                  nextStep();
+                }}>
+                  Weiter
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  disabled={!formData.agbAccepted || isLoading}
+                  onClick={handleSubmitOrder}
+                >
+                  {isLoading ? (
+                    <>
+                      Bestellung wird erstellt...
+                      <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </>
+                  ) : (
+                    "Bestellung aufgeben"
+                  )}
+                </Button>
               )}
-            />
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
-            >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
-            </Button>
-          </motion.div>
-        </form>
-      </Form>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
