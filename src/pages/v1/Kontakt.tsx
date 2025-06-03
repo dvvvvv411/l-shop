@@ -10,7 +10,7 @@ const Kontakt = () => {
     {
       icon: Phone,
       title: "Telefon",
-      value: "0800 123 456 7",
+      value: "089 41435467",
       description: "Kostenlose Hotline Mo-Fr 8-18 Uhr"
     },
     {

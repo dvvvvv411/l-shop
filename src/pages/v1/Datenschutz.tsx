@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/v1/Header';
 import Footer from '@/components/Footer';
@@ -32,7 +31,7 @@ const Datenschutz = () => {
                 <p>80798 München</p>
                 <p>Deutschland</p>
                 <p className="mt-2">E-Mail: info@stanton-energie.de</p>
-                <p>Telefon: 0800 123 456 7</p>
+                <p>Telefon: 089 41435467</p>
               </div>
             </section>
 
