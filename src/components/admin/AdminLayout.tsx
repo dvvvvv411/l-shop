@@ -4,7 +4,6 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ShoppingCart, 
-  Settings, 
   CreditCard,
   Building2,
   LogOut,
@@ -41,11 +40,6 @@ const AdminLayout = () => {
       name: 'Bankkonten',
       href: '/admin/bank-accounts',
       icon: CreditCard,
-    },
-    {
-      name: 'Einstellungen',
-      href: '/admin/settings',
-      icon: Settings,
     },
   ];
 

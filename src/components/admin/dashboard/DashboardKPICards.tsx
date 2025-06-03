@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, TrendingUp, Euro, Users, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -36,7 +37,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
       icon: Package,
       gradient: 'from-blue-500 to-cyan-400',
       bgGradient: 'from-blue-50 to-cyan-50',
-      iconBg: 'from-blue-100 to-cyan-100'
+      iconBg: 'bg-gradient-to-br from-blue-500 to-cyan-400'
     },
     {
       title: 'Bestellungen Gesamt',
@@ -46,7 +47,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
       icon: Package,
       gradient: 'from-emerald-500 to-teal-400',
       bgGradient: 'from-emerald-50 to-teal-50',
-      iconBg: 'from-emerald-100 to-teal-100'
+      iconBg: 'bg-gradient-to-br from-emerald-500 to-teal-400'
     },
     {
       title: 'Umsatz heute',
@@ -56,7 +57,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
       icon: Euro,
       gradient: 'from-violet-500 to-purple-400',
       bgGradient: 'from-violet-50 to-purple-50',
-      iconBg: 'from-violet-100 to-purple-100'
+      iconBg: 'bg-gradient-to-br from-violet-500 to-purple-400'
     },
     {
       title: 'Umsatz gesamt',
@@ -66,7 +67,7 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
       icon: Euro,
       gradient: 'from-orange-500 to-amber-400',
       bgGradient: 'from-orange-50 to-amber-50',
-      iconBg: 'from-orange-100 to-amber-100'
+      iconBg: 'bg-gradient-to-br from-orange-500 to-amber-400'
     }
   ];
 
@@ -125,10 +126,10 @@ const DashboardKPICards: React.FC<DashboardKPICardsProps> = ({ isLoading: propIs
                   </p>
                 </div>
                 <div className={cn(
-                  "p-3 rounded-xl shadow-lg",
-                  "bg-gradient-to-br", stat.iconBg
+                  "p-3 rounded-xl shadow-lg text-white",
+                  stat.iconBg
                 )}>
-                  <Icon className={cn("h-5 w-5 bg-gradient-to-br", stat.gradient, "bg-clip-text text-transparent")} />
+                  <Icon className="h-5 w-5" />
                 </div>
               </CardHeader>
               
