@@ -47,7 +47,13 @@ serve(async (req) => {
             shops (
               id,
               name,
-              company_name
+              company_name,
+              company_address,
+              company_postcode,
+              company_city,
+              company_phone,
+              company_email,
+              company_website
             )
           )
         `)
@@ -70,7 +76,13 @@ serve(async (req) => {
           shops (
             id,
             name,
-            company_name
+            company_name,
+            company_address,
+            company_postcode,
+            company_city,
+            company_phone,
+            company_email,
+            company_website
           )
         `)
         .eq('is_active', true)
