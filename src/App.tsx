@@ -21,8 +21,6 @@ import Datenschutz from "./pages/Datenschutz";
 import Impressum from "./pages/Impressum";
 import Widerrufsrecht from "./pages/Widerrufsrecht";
 import NotFound from "./pages/NotFound";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCancel from "./pages/PaymentCancel";
 
 // V1 Pages
 import V1Home from "./pages/v1/Home";
@@ -73,8 +71,6 @@ function App() {
                 {/* Default/Legacy Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/checkout/success" element={<PaymentSuccess />} />
-                <Route path="/checkout/cancel" element={<PaymentCancel />} />
                 <Route path="/kasse" element={<Checkout />} />
                 <Route path="/confirmation" element={<Confirmation />} />
                 <Route path="/order" element={<Order />} />
