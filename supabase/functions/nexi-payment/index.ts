@@ -113,6 +113,15 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   console.log('Amount (cents):', request.amount);
   console.log('Currency:', request.currency);
 
+  // Validate request
+  if (!request.orderId || !request.amount || !request.returnUrl || !request.cancelUrl) {
+    throw new Error('Missing required payment parameters');
+  }
+
+  if (request.amount <= 0) {
+    throw new Error('Payment amount must be greater than zero');
+  }
+
   // Get Nexi configuration
   console.log('Fetching active Nexi configuration...');
   const { data: config, error: configError } = await supabaseClient
@@ -142,9 +151,9 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   });
 
   // Validate required fields for Italian Nexi
-  if (!config.password) {
-    console.error('Password is required for Italian Nexi');
-    throw new Error('Nexi password configuration is missing. Please contact support.');
+  if (!config.merchant_id || !config.password) {
+    console.error('Required Nexi configuration missing');
+    throw new Error('Nexi merchant ID and password are required. Please contact support.');
   }
 
   // Generate unique payment ID
@@ -282,7 +291,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       amount: request.amount,
       currency: request.currency || 'EUR',
       has_mac_key: !!config.mac_key,
-      form_fields_count: Object.keys(nexiParams).length
+      form_fields_count: Object.keys(nexiParams).length,
+      payment_url: paymentUrl
     }
   };
 
@@ -302,11 +312,27 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
 function generateNexiForm(actionUrl: string, params: Record<string, any>): string {
   console.log('Generating Nexi form HTML with', Object.keys(params).length, 'parameters');
+  console.log('Form will submit to:', actionUrl);
+  
+  // Validate parameters before generating form
+  const requiredParams = ['id', 'password', 'action', 'amt', 'currencycode', 'trackid'];
+  const missingParams = requiredParams.filter(param => !params[param]);
+  
+  if (missingParams.length > 0) {
+    console.error('Missing required form parameters:', missingParams);
+    throw new Error(`Missing required parameters: ${missingParams.join(', ')}`);
+  }
   
   const formFields = Object.entries(params)
     .filter(([key, value]) => value !== undefined && value !== null && value !== '')
-    .map(([key, value]) => `<input type="hidden" name="${key}" value="${value}">`)
-    .join('\n    ');
+    .map(([key, value]) => {
+      // Escape HTML to prevent injection
+      const escapedValue = String(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      return `    <input type="hidden" name="${key}" value="${escapedValue}">`;
+    })
+    .join('\n');
+
+  console.log('Generated form fields:', Object.keys(params).length);
 
   const formHtml = `<!DOCTYPE html>
 <html lang="de">
@@ -316,42 +342,78 @@ function generateNexiForm(actionUrl: string, params: Record<string, any>): strin
     <title>Weiterleitung zur sicheren Zahlung</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
         }
         .container {
             text-align: center;
             background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
         }
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid #007cba;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         .message {
-            color: #666;
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .message h2 {
+            color: #333;
             margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #007cba 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 124, 186, 0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 124, 186, 0.4);
         }
         .security-info {
-            font-size: 0.9rem;
-            color: #888;
-            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .security-icon {
+            color: #28a745;
         }
     </style>
 </head>
@@ -359,32 +421,57 @@ function generateNexiForm(actionUrl: string, params: Record<string, any>): strin
     <div class="container">
         <div class="spinner"></div>
         <div class="message">
-            <h2>Weiterleitung zur sicheren Zahlung</h2>
-            <p>Sie werden automatisch zu unserem sicheren Zahlungspartner Nexi weitergeleitet...</p>
-            <p>Falls die Weiterleitung nicht automatisch erfolgt, klicken Sie bitte auf "Zur Zahlung".</p>
+            <h2>Sichere Weiterleitung</h2>
+            <p>Sie werden automatisch zu Nexi weitergeleitet...</p>
+            <p style="font-size: 0.9rem; color: #666;">Falls die Weiterleitung nicht funktioniert, klicken Sie bitte auf den Button unten.</p>
         </div>
-        <form id="nexiForm" method="POST" action="${actionUrl}">
-            ${formFields}
-            <button type="submit" style="
-                background-color: #007cba;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-                margin-top: 1rem;
-            ">Zur Zahlung</button>
+        <form id="nexiForm" method="POST" action="${actionUrl}" style="display: inline-block;">
+${formFields}
+            <button type="submit" class="submit-btn">
+                🔒 Zur sicheren Zahlung
+            </button>
         </form>
         <div class="security-info">
-            🔒 Sichere Verbindung zu Nexi - Ihre Daten sind geschützt
+            <span class="security-icon">🛡️</span>
+            <span>256-Bit SSL-Verschlüsselung - Ihre Daten sind geschützt</span>
         </div>
     </div>
     <script>
+        console.log('Nexi payment form loaded');
+        console.log('Form action:', '${actionUrl}');
+        console.log('Form fields:', ${Object.keys(params).length});
+        
         // Auto-submit the form after a short delay
-        setTimeout(function() {
-            document.getElementById('nexiForm').submit();
-        }, 2000);
+        let autoSubmitted = false;
+        
+        function autoSubmit() {
+            if (autoSubmitted) return;
+            autoSubmitted = true;
+            
+            console.log('Auto-submitting Nexi form...');
+            const form = document.getElementById('nexiForm');
+            if (form) {
+                form.submit();
+            } else {
+                console.error('Form not found for auto-submit');
+            }
+        }
+        
+        // Auto-submit after 2 seconds
+        setTimeout(autoSubmit, 2000);
+        
+        // Fallback: submit on any user interaction
+        document.addEventListener('click', function() {
+            if (!autoSubmitted) {
+                autoSubmit();
+            }
+        });
+        
+        // Manual submit button handler
+        document.getElementById('nexiForm').addEventListener('submit', function(e) {
+            console.log('Form submitted manually or automatically');
+            autoSubmitted = true;
+        });
     </script>
 </body>
 </html>`;
