@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, TrendingUp, Euro, Users, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useOrders } from '@/hooks/useOrders';
+import { cn } from '@/lib/utils';
 
 interface DashboardKPICardsProps {
   dashboardStats?: any;
