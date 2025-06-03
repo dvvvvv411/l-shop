@@ -30,40 +30,53 @@ const NexiFormSubmissionPage = ({
 
   const handleManualSubmit = () => {
     setIsSubmitting(true);
-    // Create a temporary iframe to load and submit the form
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+    console.log('Manual submit triggered');
     
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (iframeDoc) {
-      iframeDoc.open();
-      iframeDoc.write(formHtml);
-      iframeDoc.close();
-      
-      // Find and submit the form in the iframe
-      const form = iframeDoc.getElementById('nexiForm') as HTMLFormElement;
-      if (form) {
-        // Redirect the parent window to the form's action URL with the form data
-        window.location.href = createFormSubmissionUrl(form);
-      }
+    // Parse the form HTML to extract the action URL and form data
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(formHtml, 'text/html');
+    const form = doc.getElementById('nexiForm') as HTMLFormElement;
+    
+    if (!form) {
+      console.error('Nexi form not found in HTML');
+      setIsSubmitting(false);
+      return;
     }
-    
-    // Clean up
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 1000);
-  };
 
-  const createFormSubmissionUrl = (form: HTMLFormElement): string => {
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
+    console.log('Form action URL:', form.action);
+    console.log('Form method:', form.method);
+
+    // Create a new form element in the current document
+    const newForm = document.createElement('form');
+    newForm.method = form.method || 'POST';
+    newForm.action = form.action;
+    newForm.style.display = 'none';
+
+    // Copy all form inputs to the new form
+    const inputs = form.querySelectorAll('input[type="hidden"]');
+    console.log('Found', inputs.length, 'hidden inputs');
     
-    for (const [key, value] of formData.entries()) {
-      params.append(key, value.toString());
-    }
+    inputs.forEach((input) => {
+      const hiddenInput = input as HTMLInputElement;
+      const newInput = document.createElement('input');
+      newInput.type = 'hidden';
+      newInput.name = hiddenInput.name;
+      newInput.value = hiddenInput.value;
+      newForm.appendChild(newInput);
+      console.log(`Added input: ${newInput.name} = ${newInput.value}`);
+    });
+
+    // Append form to document and submit
+    document.body.appendChild(newForm);
+    console.log('Submitting form to:', newForm.action);
+    newForm.submit();
     
-    return `${form.action}?${params.toString()}`;
+    // Clean up after a delay
+    setTimeout(() => {
+      if (document.body.contains(newForm)) {
+        document.body.removeChild(newForm);
+      }
+    }, 1000);
   };
 
   return (
