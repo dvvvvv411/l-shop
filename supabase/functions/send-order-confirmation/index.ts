@@ -166,274 +166,286 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bestellbestätigung ${order.order_number}</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333333;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #f8fafc;
         }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 640px;
+            margin: 0 auto;
+            background-color: #f9fafb;
+            padding: 24px;
+        }
+        .header-card {
             background-color: #ffffff;
             border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        .header {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: #000000;
-            padding: 40px 30px;
+        .header-content {
+            padding: 32px;
             text-align: center;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         }
-        .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 32px;
+        .header-title {
+            color: #ffffff;
+            font-size: 28px;
             font-weight: 700;
+            margin-bottom: 8px;
             letter-spacing: -0.5px;
-            color: #000000 !important;
         }
-        .header p {
-            margin: 0;
-            font-size: 18px;
-            opacity: 0.95;
+        .header-subtitle {
+            color: #ffffff;
+            font-size: 16px;
             font-weight: 400;
-            color: #000000 !important;
+            opacity: 0.95;
         }
-        .content {
-            padding: 40px 30px;
+        .main-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            padding: 32px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background-color: #dc2626;
+            margin-right: 12px;
+            border-radius: 2px;
         }
         .greeting {
             font-size: 18px;
             color: #1f2937;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             font-weight: 500;
         }
         .intro-text {
-            color: #4b5563;
-            margin-bottom: 32px;
-            font-size: 16px;
-            line-height: 1.7;
-        }
-        .info-section {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-            border-left: 4px solid #dc2626;
-        }
-        .info-section h3 {
-            margin: 0 0 16px 0;
-            color: #1f2937;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-        .order-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .order-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .order-item:last-child {
-            border-bottom: none;
-            font-weight: 600;
-            font-size: 18px;
-            color: #dc2626;
-            background-color: #ffffff;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 8px;
-            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
-        }
-        .order-label {
             color: #6b7280;
+            margin-bottom: 24px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .detail-item {
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .detail-label {
             font-size: 14px;
+            color: #6b7280;
             font-weight: 500;
             margin-bottom: 4px;
         }
-        .order-value {
-            color: #1f2937;
+        .detail-value {
             font-size: 16px;
+            color: #1f2937;
             font-weight: 600;
         }
-        .total-section {
+        .total-card {
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: #000000;
-            padding: 20px;
             border-radius: 12px;
-            margin: 24px 0;
+            padding: 24px;
             text-align: center;
+            margin: 24px 0;
         }
-        .total-section .total-label {
-            color: #000000 !important;
+        .total-label {
+            color: #ffffff;
             font-size: 16px;
             font-weight: 500;
             margin-bottom: 8px;
         }
-        .total-section .total-amount {
-            font-size: 28px;
+        .total-amount {
+            color: #ffffff;
+            font-size: 32px;
             font-weight: 700;
-            margin: 8px 0;
-            color: #000000 !important;
         }
-        .callback-notice {
+        .notice-card {
             background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
             color: #1f2937;
-            border-radius: 16px;
-            padding: 32px;
-            margin: 32px 0;
-            border: 3px solid #f59e0b;
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
-            position: relative;
         }
-        .callback-notice::before {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-            border-radius: 16px;
-            z-index: -1;
-        }
-        .callback-notice h3 {
-            color: #1f2937;
-            margin: 0 0 16px 0;
-            font-size: 20px;
+        .notice-title {
+            font-size: 18px;
             font-weight: 700;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .callback-notice p {
-            margin: 12px 0;
-            font-weight: 600;
-            color: #1f2937;
+        .notice-title::before {
+            content: '📞';
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .notice-text {
             font-size: 16px;
-            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 12px;
+            line-height: 1.5;
         }
-        .callback-notice .phone-highlight {
+        .phone-highlight {
             background-color: #ffffff;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border-radius: 8px;
             font-weight: 700;
             color: #1f2937;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: inline-block;
-            margin: 4px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 8px;
         }
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .contact-item {
-            color: #4b5563;
-        }
-        .contact-label {
-            font-weight: 600;
-            color: #1f2937;
+        .address-section {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
         }
         .address-text {
-            margin-top: 12px;
             color: #1f2937;
             font-size: 16px;
             line-height: 1.6;
         }
         .address-text strong {
             color: #1f2937;
+            font-weight: 600;
         }
-        .closing-text {
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .contact-item {
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .contact-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .contact-value {
+            font-size: 16px;
+            color: #1f2937;
+            font-weight: 600;
+        }
+        .closing-section {
             margin-top: 32px;
             padding-top: 24px;
-            border-top: 2px solid #f3f4f6;
-            color: #4b5563;
-            line-height: 1.7;
+            border-top: 2px solid #e5e7eb;
+        }
+        .closing-text {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
         .signature {
-            margin-top: 24px;
             color: #1f2937;
+            font-size: 16px;
             font-weight: 500;
         }
         .signature strong {
             color: #1f2937;
+            font-weight: 600;
         }
-        .footer {
+        .footer-card {
             background-color: #1f2937;
-            color: #d1d5db;
-            padding: 32px 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 32px;
             text-align: center;
         }
-        .footer .company-name {
+        .footer-company {
+            color: #ffffff;
             font-size: 20px;
             font-weight: 700;
-            color: #ffffff;
             margin-bottom: 16px;
         }
-        .footer .company-details {
-            margin: 8px 0;
-            font-size: 14px;
+        .footer-details {
             color: #d1d5db;
+            font-size: 14px;
+            margin: 8px 0;
         }
-        .footer a {
+        .footer-link {
             color: #dc2626;
             text-decoration: none;
             font-weight: 500;
         }
-        .footer a:hover {
+        .footer-link:hover {
             text-decoration: underline;
         }
-        @media (max-width: 600px) {
-            .container {
-                margin: 10px;
-                border-radius: 8px;
+        @media (max-width: 640px) {
+            .email-container {
+                padding: 16px;
             }
-            .content {
-                padding: 24px 20px;
+            .main-card {
+                padding: 24px;
             }
-            .header {
-                padding: 30px 20px;
+            .header-content {
+                padding: 24px;
             }
-            .order-grid,
+            .header-title {
+                font-size: 24px;
+            }
+            .total-amount {
+                font-size: 28px;
+            }
+            .order-details-grid {
+                grid-template-columns: 1fr;
+            }
             .contact-grid {
                 grid-template-columns: 1fr;
-                gap: 12px;
             }
-            .header h1 {
-                font-size: 24px;
-            }
-            .total-section .total-amount {
-                font-size: 24px;
-            }
-            .callback-notice {
-                padding: 24px;
-                margin: 24px 0;
-            }
-            .callback-notice h3 {
-                font-size: 18px;
+            .notice-card {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Bestellbestätigung</h1>
-            <p>Vielen Dank für Ihre Bestellung!</p>
+    <div class="email-container">
+        <!-- Header Card -->
+        <div class="header-card">
+            <div class="header-content">
+                <h1 class="header-title">Bestellbestätigung</h1>
+                <p class="header-subtitle">Vielen Dank für Ihre Bestellung!</p>
+            </div>
         </div>
         
-        <div class="content">
+        <!-- Main Content Card -->
+        <div class="main-card">
             <div class="greeting">
                 Liebe/r ${order.delivery_first_name} ${order.delivery_last_name},
             </div>
@@ -442,87 +454,96 @@ function generateOrderConfirmationEmail(order: any, shop: any): string {
                 vielen Dank für Ihre Bestellung bei ${companyName}. Wir haben Ihre Bestellung erfolgreich erhalten und werden diese schnellstmöglich bearbeiten.
             </div>
             
-            <div class="info-section">
-                <h3>🚀 Ihre Bestelldetails</h3>
-                <div class="order-grid">
-                    <div class="order-item">
-                        <div class="order-label">Bestellnummer</div>
-                        <div class="order-value">${order.order_number}</div>
-                    </div>
-                    <div class="order-item">
-                        <div class="order-label">Bestelldatum</div>
-                        <div class="order-value">${new Date(order.created_at).toLocaleDateString('de-DE')}</div>
-                    </div>
-                    <div class="order-item">
-                        <div class="order-label">Produkt</div>
-                        <div class="order-value">${order.product}</div>
-                    </div>
-                    <div class="order-item">
-                        <div class="order-label">Menge</div>
-                        <div class="order-value">${order.liters.toLocaleString()} Liter</div>
-                    </div>
-                    <div class="order-item">
-                        <div class="order-label">Preis pro Liter</div>
-                        <div class="order-value">€${Number(order.price_per_liter).toFixed(2)}</div>
-                    </div>
-                    <div class="order-item">
-                        <div class="order-label">Lieferkosten</div>
-                        <div class="order-value">${order.delivery_fee === 0 ? 'Kostenlos' : `€${Number(order.delivery_fee).toFixed(2)}`}</div>
-                    </div>
+            <h2 class="section-title">Ihre Bestelldetails</h2>
+            <div class="order-details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Bestellnummer</div>
+                    <div class="detail-value">${order.order_number}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Bestelldatum</div>
+                    <div class="detail-value">${new Date(order.created_at).toLocaleDateString('de-DE')}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Produkt</div>
+                    <div class="detail-value">${order.product}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Menge</div>
+                    <div class="detail-value">${order.liters.toLocaleString()} Liter</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Preis pro Liter</div>
+                    <div class="detail-value">€${Number(order.price_per_liter).toFixed(2)}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Lieferkosten</div>
+                    <div class="detail-value">${order.delivery_fee === 0 ? 'Kostenlos' : `€${Number(order.delivery_fee).toFixed(2)}`}</div>
                 </div>
             </div>
+        </div>
 
-            <div class="total-section">
-                <div class="total-label">Gesamtbetrag</div>
-                <div class="total-amount">€${Number(order.total_amount).toFixed(2)}</div>
-            </div>
-            
-            <div class="info-section">
-                <h3>🏠 Lieferadresse</h3>
+        <!-- Total Card -->
+        <div class="total-card">
+            <div class="total-label">Gesamtbetrag</div>
+            <div class="total-amount">€${Number(order.total_amount).toFixed(2)}</div>
+        </div>
+        
+        <!-- Delivery Address Card -->
+        <div class="main-card">
+            <h2 class="section-title">Lieferadresse</h2>
+            <div class="address-section">
                 <div class="address-text">
                     <strong>${order.delivery_first_name} ${order.delivery_last_name}</strong><br>
                     ${order.delivery_street}<br>
                     ${order.delivery_postcode} ${order.delivery_city}
                 </div>
             </div>
-            
-            <div class="callback-notice">
-                <h3>📞 Wichtiger Hinweis zur Lieferung</h3>
-                <p><strong>Wir werden Sie innerhalb der nächsten 24 Stunden telefonisch kontaktieren</strong>, um die Details Ihrer Lieferung zu besprechen und einen Liefertermin zu vereinbaren.</p>
-                <p>Bitte halten Sie Ihre Telefonnummer bereit:</p>
-                <div class="phone-highlight">${order.delivery_phone}</div>
+        </div>
+        
+        <!-- Important Notice Card -->
+        <div class="notice-card">
+            <div class="notice-title">Wichtiger Hinweis zur Lieferung</div>
+            <div class="notice-text">
+                <strong>Wir werden Sie innerhalb der nächsten 24 Stunden telefonisch kontaktieren</strong>, um die Details Ihrer Lieferung zu besprechen und einen Liefertermin zu vereinbaren.
             </div>
-            
-            <div class="info-section">
-                <h3>📋 Ihre Kontaktdaten</h3>
-                <div class="contact-grid">
-                    <div class="contact-item">
-                        <span class="contact-label">E-Mail:</span><br>
-                        ${order.customer_email_actual}
-                    </div>
-                    <div class="contact-item">
-                        <span class="contact-label">Telefon:</span><br>
-                        ${order.delivery_phone}
-                    </div>
+            <div class="notice-text">Bitte halten Sie Ihre Telefonnummer bereit:</div>
+            <div class="phone-highlight">${order.delivery_phone}</div>
+        </div>
+        
+        <!-- Contact Information Card -->
+        <div class="main-card">
+            <h2 class="section-title">Ihre Kontaktdaten</h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-label">E-Mail</div>
+                    <div class="contact-value">${order.customer_email_actual}</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Telefon</div>
+                    <div class="contact-value">${order.delivery_phone}</div>
                 </div>
             </div>
             
-            <div class="closing-text">
-                Bei Fragen können Sie uns jederzeit kontaktieren. Wir freuen uns darauf, Sie bald beliefern zu dürfen!
-            </div>
-            
-            <div class="signature">
-                Mit freundlichen Grüßen<br>
-                <strong>Ihr ${companyName} Team</strong>
+            <div class="closing-section">
+                <div class="closing-text">
+                    Bei Fragen können Sie uns jederzeit kontaktieren. Wir freuen uns darauf, Sie bald beliefern zu dürfen!
+                </div>
+                
+                <div class="signature">
+                    Mit freundlichen Grüßen<br>
+                    <strong>Ihr ${companyName} Team</strong>
+                </div>
             </div>
         </div>
         
-        <div class="footer">
-            <div class="company-name">${companyName}</div>
-            ${companyAddress ? `<div class="company-details">${companyAddress}, ${companyPostcode} ${companyCity}</div>` : ''}
-            ${companyPhone ? `<div class="company-details">Tel: ${companyPhone}</div>` : ''}
-            ${companyEmail ? `<div class="company-details">E-Mail: <a href="mailto:${companyEmail}">${companyEmail}</a></div>` : ''}
-            ${companyWebsite ? `<div class="company-details">Web: <a href="${companyWebsite}">${companyWebsite}</a></div>` : ''}
+        <!-- Footer Card -->
+        <div class="footer-card">
+            <div class="footer-company">${companyName}</div>
+            ${companyAddress ? `<div class="footer-details">${companyAddress}, ${companyPostcode} ${companyCity}</div>` : ''}
+            ${companyPhone ? `<div class="footer-details">Tel: ${companyPhone}</div>` : ''}
+            ${companyEmail ? `<div class="footer-details">E-Mail: <a href="mailto:${companyEmail}" class="footer-link">${companyEmail}</a></div>` : ''}
+            ${companyWebsite ? `<div class="footer-details">Web: <a href="${companyWebsite}" class="footer-link">${companyWebsite}</a></div>` : ''}
         </div>
     </div>
 </body>
