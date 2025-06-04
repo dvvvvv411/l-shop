@@ -9,16 +9,19 @@ import RecentOrdersTable from '@/components/admin/dashboard/RecentOrdersTable';
 import WebhookMonitor from '@/components/admin/WebhookMonitor';
 
 const AdminDashboard = () => {
-  const { orders, isLoading, error } = useOrders();
+  const { orders, isLoading } = useOrders();
   const { toast } = useToast();
 
-  if (error) {
-    toast({
-      title: 'Fehler beim Laden der Daten',
-      description: 'Die Dashboard-Daten konnten nicht geladen werden.',
-      variant: 'destructive'
-    });
-  }
+  // Show error toast if there are issues loading data
+  React.useEffect(() => {
+    if (!isLoading && !orders) {
+      toast({
+        title: 'Fehler beim Laden der Daten',
+        description: 'Die Dashboard-Daten konnten nicht geladen werden.',
+        variant: 'destructive'
+      });
+    }
+  }, [isLoading, orders, toast]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -30,11 +33,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* KPI Cards */}
-      <DashboardKPICards orders={orders} isLoading={isLoading} />
+      <DashboardKPICards isLoading={isLoading} />
 
       {/* Charts and Webhook Monitor */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DashboardCharts orders={orders} isLoading={isLoading} />
+        <DashboardCharts isLoading={isLoading} />
         <WebhookMonitor />
       </div>
 
@@ -48,7 +51,6 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <RecentOrdersTable 
-            orders={orders?.slice(0, 10) || []} 
             isLoading={isLoading} 
           />
         </CardContent>

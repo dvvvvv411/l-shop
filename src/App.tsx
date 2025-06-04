@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient } from 'react-query';
-import { Toaster } from 'react-hot-toast';
-import { ToastProvider, useToast } from '@/hooks/use-toast';
-import { OrderProvider } from '@/context/OrderContext';
-import { AdminAuthProvider, ProtectedAdminRoute } from '@/context/AdminAuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
+import { AdminAuthProvider, ProtectedAdminRoute } from '@/contexts/AdminAuthContext';
+import { OrderProvider } from '@/contexts/OrderContext';
 
 // Import main pages
 import Index from '@/pages/Index';
@@ -41,65 +41,57 @@ import AdminShops from '@/pages/admin/AdminShops';
 import AdminBankAccounts from '@/pages/admin/AdminBankAccounts';
 import AdminWebhookTest from '@/pages/admin/AdminWebhookTest';
 
-// Import versioned routes (example)
-import V1Routes from '@/routes/V1Routes';
-import V2Routes from '@/routes/V2Routes';
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClient>
-      <ToastProvider>
-        <Toaster />
-        <BrowserRouter>
-          <OrderProvider>
-            <AdminAuthProvider>
-              <Routes>
-                {/* Version routing */}
-                <Route path="/v1/*" element={<V1Routes />} />
-                <Route path="/v2/*" element={<V2Routes />} />
-                
-                {/* Main routes (default to current version) */}
-                <Route path="/" element={<Index />} />
-                <Route path="/produkte" element={<Produkte />} />
-                <Route path="/liefergebiet" element={<Liefergebiet />} />
-                <Route path="/service" element={<Service />} />
-                <Route path="/kontakt" element={<Kontakt />} />
-                <Route path="/impressum" element={<Impressum />} />
-                <Route path="/datenschutz" element={<Datenschutz />} />
-                <Route path="/agb" element={<AGB />} />
-                <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
-                
-                {/* Order flow */}
-                <Route path="/order" element={<Order />} />
-                <Route path="/summary" element={<Summary />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/confirmation" element={<Confirmation />} />
-                
-                {/* Payment flow */}
-                <Route path="/payment/webhook" element={<PaymentWebhook />} />
-                <Route path="/checkout/success" element={<PaymentSuccess />} />
-                <Route path="/checkout/cancel" element={<PaymentCancel />} />
-                
-                {/* Admin routes */}
-                <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-                <Route path="/admin/orders" element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>} />
-                <Route path="/admin/orders/:id" element={<ProtectedAdminRoute><AdminOrderDetail /></ProtectedAdminRoute>} />
-                <Route path="/admin/customers" element={<ProtectedAdminRoute><AdminCustomers /></ProtectedAdminRoute>} />
-                <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
-                <Route path="/admin/nexi" element={<ProtectedAdminRoute><AdminNexi /></ProtectedAdminRoute>} />
-                <Route path="/admin/smtp" element={<ProtectedAdminRoute><AdminSMTP /></ProtectedAdminRoute>} />
-                <Route path="/admin/shops" element={<ProtectedAdminRoute><AdminShops /></ProtectedAdminRoute>} />
-                <Route path="/admin/bank-accounts" element={<ProtectedAdminRoute><AdminBankAccounts /></ProtectedAdminRoute>} />
-                <Route path="/admin/webhook-test" element={<ProtectedAdminRoute><AdminWebhookTest /></ProtectedAdminRoute>} />
-                
-                {/* 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AdminAuthProvider>
-          </OrderProvider>
-        </BrowserRouter>
-      </ToastProvider>
-    </QueryClient>
+    <QueryClientProvider client={queryClient}>
+      <Toaster />
+      <BrowserRouter>
+        <OrderProvider>
+          <AdminAuthProvider>
+            <Routes>
+              {/* Main routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/produkte" element={<Produkte />} />
+              <Route path="/liefergebiet" element={<Liefergebiet />} />
+              <Route path="/service" element={<Service />} />
+              <Route path="/kontakt" element={<Kontakt />} />
+              <Route path="/impressum" element={<Impressum />} />
+              <Route path="/datenschutz" element={<Datenschutz />} />
+              <Route path="/agb" element={<AGB />} />
+              <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
+              
+              {/* Order flow */}
+              <Route path="/order" element={<Order />} />
+              <Route path="/summary" element={<Summary />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/confirmation" element={<Confirmation />} />
+              
+              {/* Payment flow */}
+              <Route path="/payment/webhook" element={<PaymentWebhook />} />
+              <Route path="/checkout/success" element={<PaymentSuccess />} />
+              <Route path="/checkout/cancel" element={<PaymentCancel />} />
+              
+              {/* Admin routes */}
+              <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+              <Route path="/admin/orders" element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>} />
+              <Route path="/admin/orders/:id" element={<ProtectedAdminRoute><AdminOrderDetail /></ProtectedAdminRoute>} />
+              <Route path="/admin/customers" element={<ProtectedAdminRoute><AdminCustomers /></ProtectedAdminRoute>} />
+              <Route path="/admin/settings" element={<ProtectedAdminRoute><AdminSettings /></ProtectedAdminRoute>} />
+              <Route path="/admin/nexi" element={<ProtectedAdminRoute><AdminNexi /></ProtectedAdminRoute>} />
+              <Route path="/admin/smtp" element={<ProtectedAdminRoute><AdminSMTP /></ProtectedAdminRoute>} />
+              <Route path="/admin/shops" element={<ProtectedAdminRoute><AdminShops /></ProtectedAdminRoute>} />
+              <Route path="/admin/bank-accounts" element={<ProtectedAdminRoute><AdminBankAccounts /></ProtectedAdminRoute>} />
+              <Route path="/admin/webhook-test" element={<ProtectedAdminRoute><AdminWebhookTest /></ProtectedAdminRoute>} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AdminAuthProvider>
+        </OrderProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

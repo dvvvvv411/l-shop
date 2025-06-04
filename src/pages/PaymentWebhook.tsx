@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -62,7 +61,7 @@ const PaymentWebhook = () => {
         setStatus('success');
         setMessage('Zahlung erfolgreich bestätigt');
         setTimeout(() => {
-          window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_transaction_id || tranid}`;
+          window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_payment_id || tranid}`;
         }, 2000);
       } else if (order.nexi_transaction_status === 'failed' || order.status === 'cancelled') {
         setStatus('failed');
@@ -104,7 +103,7 @@ const PaymentWebhook = () => {
           if (trackid) {
             checkOrderStatus(trackid).then((order) => {
               setTimeout(() => {
-                window.location.href = `/checkout/success?order=${trackid}&payment_id=${order?.nexi_transaction_id || tranid}`;
+                window.location.href = `/checkout/success?order=${trackid}&payment_id=${order?.nexi_payment_id || tranid}`;
               }, 2000);
             });
           } else {
@@ -138,7 +137,7 @@ const PaymentWebhook = () => {
                   setStatus('success');
                   setMessage('Zahlung erfolgreich bestätigt');
                   setTimeout(() => {
-                    window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_transaction_id || tranid}`;
+                    window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_payment_id || tranid}`;
                   }, 2000);
                 } else {
                   setStatus('failed');
@@ -177,13 +176,13 @@ const PaymentWebhook = () => {
             setStatus('success');
             setMessage('Zahlung erfolgreich bestätigt');
             setTimeout(() => {
-              window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_transaction_id}`;
+              window.location.href = `/checkout/success?order=${trackid}&payment_id=${order.nexi_payment_id}`;
             }, 2000);
           } else if (order.nexi_transaction_status === 'failed' || order.status === 'cancelled') {
             setStatus('failed');
             setMessage('Zahlung fehlgeschlagen');
             setTimeout(() => {
-              window.location.href = `/checkout/cancel?order=${trackid}&payment_id=${order.nexi_transaction_id}`;
+              window.location.href = `/checkout/cancel?order=${trackid}&payment_id=${order.nexi_payment_id}`;
             }, 2000);
           } else {
             setStatus('processing');
@@ -256,11 +255,11 @@ const PaymentWebhook = () => {
               <span className="font-semibold">Bestellnummer: {trackid}</span>
             </>
           )}
-          {(tranid || orderData?.nexi_transaction_id) && (
+          {(tranid || orderData?.nexi_payment_id) && (
             <>
               <br />
               <span className="text-sm text-gray-500">
-                Transaktions-ID: {tranid || orderData?.nexi_transaction_id}
+                Transaktions-ID: {tranid || orderData?.nexi_payment_id}
               </span>
             </>
           )}
