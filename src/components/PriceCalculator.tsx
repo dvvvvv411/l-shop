@@ -96,7 +96,7 @@ const PriceCalculator = () => {
       };
       localStorage.setItem('orderData', JSON.stringify(orderData));
       // Referrer is already saved in useEffect, so we can navigate directly
-      navigate('/kasse');
+      navigate('/checkout');
     }
   };
 
