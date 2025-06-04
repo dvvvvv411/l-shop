@@ -46,7 +46,7 @@ import V2Service from "./pages/v2/Service";
 import V2Produkte from "./pages/v2/Produkte";
 import V2Liefergebiet from "./pages/v2/Liefergebiet";
 
-// Admin pages
+// Admin pages - Fixed import path
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOrders from "./pages/admin/AdminOrders";

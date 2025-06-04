@@ -7,7 +7,17 @@ export const useFavicon = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Load favicon for current path
-    loadFaviconForPath(location.pathname);
+    console.log('useFavicon: Route changed to:', location.pathname);
+    
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      try {
+        loadFaviconForPath(location.pathname);
+      } catch (error) {
+        console.error('useFavicon: Error loading favicon:', error);
+      }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [location.pathname]);
 };

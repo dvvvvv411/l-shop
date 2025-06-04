@@ -63,39 +63,100 @@ export const generateFaviconDataURL = (config: FaviconConfig): string => {
 };
 
 export const getFaviconConfigForPath = (pathname: string): FaviconConfig => {
+  console.log('Getting favicon config for path:', pathname);
+  
   // Find exact match first
   const exactMatch = faviconConfigs.find(config => pathname === config.path);
-  if (exactMatch) return exactMatch;
+  if (exactMatch) {
+    console.log('Found exact match:', exactMatch);
+    return exactMatch;
+  }
   
   // Find path that starts with the config path
   const pathMatch = faviconConfigs.find(config => 
     config.path !== '/' && pathname.startsWith(config.path)
   );
-  if (pathMatch) return pathMatch;
+  if (pathMatch) {
+    console.log('Found path match:', pathMatch);
+    return pathMatch;
+  }
   
   // Default to root config
+  console.log('Using default root config');
   return faviconConfigs[0];
 };
 
-export const loadFaviconForPath = (pathname: string): void => {
-  const config = getFaviconConfigForPath(pathname);
+const removeFaviconElements = (): void => {
+  // Remove all existing favicon-related elements
+  const selectors = [
+    'link[rel*="icon"]',
+    'link[rel="shortcut icon"]',
+    'link[rel="apple-touch-icon"]'
+  ];
   
-  // Remove existing favicon links
-  const existingLinks = document.querySelectorAll('link[rel*="icon"]');
-  existingLinks.forEach(link => link.remove());
-  
-  // Create new favicon link
+  selectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => element.remove());
+  });
+};
+
+const createFaviconElement = (href: string, type: string = 'image/svg+xml'): HTMLLinkElement => {
   const link = document.createElement('link');
   link.rel = 'icon';
-  link.type = 'image/svg+xml';
-  
-  // Generate SVG favicon
-  const svg = getIconSVG(config.iconType, config.color);
-  const svgDataUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
-  link.href = svgDataUrl;
-  
-  // Add to head
-  document.head.appendChild(link);
-  
-  console.log(`Favicon loaded for path: ${pathname} (${config.name})`);
+  link.type = type;
+  link.href = href;
+  return link;
+};
+
+export const loadFaviconForPath = (pathname: string): void => {
+  try {
+    const config = getFaviconConfigForPath(pathname);
+    
+    console.log(`Loading favicon for path: ${pathname} (${config.name})`);
+    
+    // Remove existing favicon elements
+    removeFaviconElements();
+    
+    // Generate SVG favicon
+    const svg = getIconSVG(config.iconType, config.color);
+    const svgDataUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    
+    // Create primary SVG favicon
+    const svgLink = createFaviconElement(svgDataUrl, 'image/svg+xml');
+    
+    // Create PNG fallback for better browser support
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, 32, 32);
+        const pngDataUrl = canvas.toDataURL('image/png');
+        const pngLink = createFaviconElement(pngDataUrl, 'image/png');
+        document.head.appendChild(pngLink);
+        console.log('PNG fallback favicon added');
+      };
+      img.src = svgDataUrl;
+    }
+    
+    // Add SVG favicon to head
+    document.head.appendChild(svgLink);
+    
+    // Force browser to refresh favicon
+    const timestamp = Date.now();
+    svgLink.href = `${svgDataUrl}?t=${timestamp}`;
+    
+    console.log(`Favicon successfully loaded for: ${config.name}`);
+    
+  } catch (error) {
+    console.error('Error loading favicon:', error);
+    // Fallback to default favicon if something goes wrong
+    const defaultConfig = faviconConfigs[0];
+    if (pathname !== defaultConfig.path) {
+      loadFaviconForPath(defaultConfig.path);
+    }
+  }
 };
