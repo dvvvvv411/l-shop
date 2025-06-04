@@ -30,10 +30,10 @@ const AppContent = () => {
 
   return (
     <Routes>
-      {/* Admin login route - outside of layout */}
+      {/* Admin routes - handled globally on all domains */}
       <Route path="/admin/login" element={<AdminLogin />} />
       
-      {/* Protected admin routes with layout */}
+      {/* Protected admin routes with layout - work on all domains */}
       <Route path="/admin" element={
         <ProtectedAdminRoute>
           <AdminLayout />
