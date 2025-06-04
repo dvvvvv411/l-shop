@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,8 +7,9 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { CreditCard, Settings, Save, TestTube, AlertCircle } from 'lucide-react';
+import { CreditCard, Settings, Save, TestTube, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NexiConfig {
   id: string;
@@ -25,9 +25,9 @@ interface NexiConfig {
 const NexiConfigurationSection = () => {
   const { toast } = useToast();
   const [config, setConfig] = useState<NexiConfig>({
-    id: '1',
-    merchant_id: '002132517',
-    terminal_id: '03893387',
+    id: '',
+    merchant_id: '',
+    terminal_id: '',
     api_key: '',
     webhook_url: '',
     environment: 'test',
@@ -35,14 +35,95 @@ const NexiConfigurationSection = () => {
     is_active: true
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+
+  useEffect(() => {
+    loadNexiConfig();
+  }, []);
+
+  const loadNexiConfig = async () => {
+    try {
+      console.log('Loading Nexi configuration...');
+      const { data, error } = await supabase
+        .from('nexi_payment_configs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading Nexi config:', error);
+        throw error;
+      }
+
+      if (data) {
+        console.log('Loaded Nexi configuration:', data);
+        setConfig({
+          id: data.id,
+          merchant_id: data.merchant_id || '',
+          terminal_id: data.terminal_id || '',
+          api_key: data.api_key || '',
+          webhook_url: data.webhook_url || '',
+          environment: data.environment || 'test',
+          is_sandbox: data.is_sandbox ?? true,
+          is_active: data.is_active ?? true
+        });
+      } else {
+        console.log('No Nexi configuration found, using defaults');
+        // Keep default config if no data found
+      }
+    } catch (error) {
+      console.error('Failed to load Nexi configuration:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Die Nexi-Konfiguration konnte nicht geladen werden.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingConfig(false);
+    }
+  };
 
   const handleSaveConfig = async () => {
     setIsLoading(true);
     try {
       console.log('Saving Nexi configuration:', config);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const updateData = {
+        merchant_id: config.merchant_id,
+        terminal_id: config.terminal_id,
+        api_key: config.api_key,
+        webhook_url: config.webhook_url,
+        environment: config.environment,
+        is_sandbox: config.is_sandbox,
+        is_active: config.is_active,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+      if (config.id) {
+        // Update existing record
+        result = await supabase
+          .from('nexi_payment_configs')
+          .update(updateData)
+          .eq('id', config.id);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('nexi_payment_configs')
+          .insert(updateData)
+          .select()
+          .single();
+        
+        if (result.data) {
+          setConfig(prev => ({ ...prev, id: result.data.id }));
+        }
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
       toast({
         title: 'Konfiguration gespeichert',
         description: 'Die Nexi-Zahlungskonfiguration wurde erfolgreich aktualisiert.',
@@ -90,6 +171,28 @@ const NexiConfigurationSection = () => {
       setIsLoading(false);
     }
   };
+
+  if (isLoadingConfig) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            <CardTitle>Nexi Pay by Link Konfiguration</CardTitle>
+          </div>
+          <CardDescription>
+            Konfigurieren Sie die Nexi Italy Pay by Link Integration für sichere Kreditkartenzahlungen
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-8">
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Konfiguration wird geladen...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
