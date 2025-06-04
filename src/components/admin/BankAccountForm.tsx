@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,17 +20,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface BankAccount {
-  id: string;
-  bank_name: string;
-  account_holder: string;
-  iban: string;
-  bic: string;
-  is_default: boolean;
-  daily_limit?: number;
-  system_name: string;
-}
+// Use the correct Supabase type that includes is_default
+type BankAccount = Tables<'bank_accounts'>;
 
 interface BankAccountFormProps {
   isOpen: boolean;

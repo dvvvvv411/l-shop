@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +15,7 @@ import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialo
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import type { Tables } from '@/integrations/supabase/types';
 
-// Use the correct type from Supabase
+// Use the correct type from Supabase that includes is_default
 type BankAccount = Tables<'bank_accounts'>;
 
 const AdminBankAccounts = () => {
