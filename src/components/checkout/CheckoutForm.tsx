@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -13,7 +14,6 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import NexiPaymentButton from './NexiPaymentButton';
 
 // Test data arrays for random generation
 const testData = {
@@ -61,7 +61,7 @@ const orderSchema = z.object({
   billingStreet: z.string().optional(),
   billingPostcode: z.string().optional(),
   billingCity: z.string().optional(),
-  paymentMethod: z.enum(['vorkasse', 'rechnung', 'nexi_card']),
+  paymentMethod: z.enum(['vorkasse', 'rechnung']),
   acceptTerms: z.boolean().refine(val => val === true, 'Sie müssen die AGB akzeptieren')
 });
 
@@ -90,9 +90,6 @@ interface CheckoutFormProps {
 const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentStep, setShowPaymentStep] = useState(false);
-  const [createdOrderNumber, setCreatedOrderNumber] = useState<string>('');
-  const [customerEmailForPayment, setCustomerEmailForPayment] = useState<string>('');
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
   const { toast } = useToast();
@@ -226,52 +223,43 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Store order info for payment step
-      setCreatedOrderNumber(createdOrder.order_number);
-      setCustomerEmailForPayment(data.customerEmail);
+      // Send order confirmation email
+      await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
 
-      // Show payment selection instead of going directly to confirmation
-      if (data.paymentMethod === 'nexi_card') {
-        setShowPaymentStep(true);
-      } else {
-        // Send order confirmation email for non-card payments
-        await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
+      // Set order data for context
+      const contextOrderData = {
+        deliveryFirstName: data.deliveryFirstName,
+        deliveryLastName: data.deliveryLastName,
+        deliveryStreet: data.deliveryStreet,
+        deliveryPostcode: data.deliveryPostcode,
+        deliveryCity: data.deliveryCity,
+        deliveryPhone: data.deliveryPhone,
+        customerEmail: data.customerEmail,
+        useSameAddress: data.useSameAddress,
+        billingFirstName: data.billingFirstName,
+        billingLastName: data.billingLastName,
+        billingStreet: data.billingStreet,
+        billingPostcode: data.billingPostcode,
+        billingCity: data.billingCity,
+        paymentMethod: data.paymentMethod,
+        product: orderData.product.name,
+        amount: orderData.amount,
+        pricePerLiter: orderData.product.price,
+        basePrice: orderData.basePrice,
+        deliveryFee: orderData.deliveryFee,
+        discount: 0,
+        total: finalPrice,
+        deliveryDate: '4-7 Werktage',
+        orderNumber: createdOrder.order_number
+      };
 
-        // Set order data for context
-        const contextOrderData = {
-          deliveryFirstName: data.deliveryFirstName,
-          deliveryLastName: data.deliveryLastName,
-          deliveryStreet: data.deliveryStreet,
-          deliveryPostcode: data.deliveryPostcode,
-          deliveryCity: data.deliveryCity,
-          deliveryPhone: data.deliveryPhone,
-          customerEmail: data.customerEmail,
-          useSameAddress: data.useSameAddress,
-          billingFirstName: data.billingFirstName,
-          billingLastName: data.billingLastName,
-          billingStreet: data.billingStreet,
-          billingPostcode: data.billingPostcode,
-          billingCity: data.billingCity,
-          paymentMethod: data.paymentMethod,
-          product: orderData.product.name,
-          amount: orderData.amount,
-          pricePerLiter: orderData.product.price,
-          basePrice: orderData.basePrice,
-          deliveryFee: orderData.deliveryFee,
-          discount: 0,
-          total: finalPrice,
-          deliveryDate: '4-7 Werktage',
-          orderNumber: createdOrder.order_number
-        };
+      setContextOrderData(contextOrderData);
 
-        setContextOrderData(contextOrderData);
+      // Call the success callback to move to confirmation step
+      onOrderSuccess(createdOrder.order_number);
 
-        // Call the success callback to move to confirmation step
-        onOrderSuccess(createdOrder.order_number);
-
-        // Clear localStorage
-        localStorage.removeItem('orderData');
-      }
+      // Clear localStorage
+      localStorage.removeItem('orderData');
 
     } catch (error) {
       console.error('Error creating order:', error);
@@ -284,62 +272,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       setIsSubmitting(false);
     }
   };
-
-  const handlePaymentInitiated = (paymentId: string, redirectUrl: string) => {
-    console.log('Payment initiated:', { paymentId, redirectUrl });
-    // The payment system will handle the redirect
-    // When user returns, they'll be handled by the success/cancel pages
-  };
-
-  // Show payment step if order is created and payment method is card
-  if (showPaymentStep) {
-    return (
-      <div className="space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-white rounded-xl p-6 shadow-sm border"
-        >
-          <div className="flex items-center mb-6">
-            <div className="bg-blue-100 p-3 rounded-lg mr-4">
-              <CreditCard className="text-blue-600" size={20} />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Zahlung abschließen</h3>
-              <p className="text-sm text-gray-600">Bestellung #{createdOrderNumber}</p>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Gesamtbetrag:</span>
-                <span className="text-xl font-bold text-gray-900">{orderData.totalPrice.toFixed(2)}€</span>
-              </div>
-            </div>
-          </div>
-
-          <NexiPaymentButton
-            orderData={orderData}
-            orderNumber={createdOrderNumber}
-            customerEmail={customerEmailForPayment}
-            onPaymentInitiated={handlePaymentInitiated}
-          />
-
-          <div className="mt-4 text-center">
-            <Button
-              variant="ghost"
-              onClick={() => setShowPaymentStep(false)}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              Zurück zur Bestellung
-            </Button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -662,28 +594,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="nexi_card" id="nexi_card" />
-                            <Label htmlFor="nexi_card" className="flex-1 cursor-pointer">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className="font-semibold text-gray-900 flex items-center space-x-2">
-                                    <CreditCard size={16} />
-                                    <span>Kreditkarte</span>
-                                  </div>
-                                  <div className="text-sm text-gray-600">
-                                    Visa, Mastercard, American Express
-                                  </div>
-                                </div>
-                                <div className="text-sm text-blue-600 font-semibold">
-                                  Sofort
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        </div>
-
                         <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
                           <div className="flex items-center space-x-3">
                             <RadioGroupItem value="rechnung" id="rechnung" disabled />
@@ -766,8 +676,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               disabled={isSubmitting}
               className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
             >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 
-               form.watch('paymentMethod') === 'nexi_card' ? 'Zur Zahlung' : 'Zahlungspflichtig bestellen'}
+              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
             </Button>
           </motion.div>
         </form>

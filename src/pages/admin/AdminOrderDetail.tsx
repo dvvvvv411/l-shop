@@ -66,11 +66,7 @@ const AdminOrderDetail = () => {
       shop_id: null,
       bank_account_id: null,
       processed_by: null,
-      origin_domain: 'demo-shop.de',
-      nexi_payment_id: null,
-      nexi_transaction_status: null,
-      nexi_redirect_url: null,
-      nexi_webhook_data: null
+      origin_domain: 'demo-shop.de'
     },
     {
       id: '2',
@@ -115,11 +111,7 @@ const AdminOrderDetail = () => {
       shop_id: null,
       bank_account_id: null,
       processed_by: null,
-      origin_domain: 'premium-heizoel.com',
-      nexi_payment_id: null,
-      nexi_transaction_status: null,
-      nexi_redirect_url: null,
-      nexi_webhook_data: null
+      origin_domain: 'premium-heizoel.com'
     }
   ];
 
