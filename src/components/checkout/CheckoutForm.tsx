@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -300,7 +301,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <FormItem>
                   <FormLabel>E-Mail-Adresse *</FormLabel>
                   <FormControl>
-                    <Input placeholder="max.mustermann@email.de" type="email" {...field} />
+                    <Input placeholder="ihre.email@beispiel.de" type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -333,7 +334,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem>
                     <FormLabel>Vorname *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Max" {...field} />
+                      <Input placeholder="Vorname" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -347,7 +348,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem>
                     <FormLabel>Nachname *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Mustermann" {...field} />
+                      <Input placeholder="Nachname" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -361,7 +362,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem className="md:col-span-2">
                     <FormLabel>Straße und Hausnummer *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Musterstraße 123" {...field} />
+                      <Input placeholder="Straße und Hausnummer" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -375,7 +376,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem>
                     <FormLabel>Postleitzahl *</FormLabel>
                     <FormControl>
-                      <Input placeholder="12345" {...field} defaultValue={orderData.postcode || ''} />
+                      <Input placeholder="PLZ" {...field} defaultValue={orderData.postcode || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -389,7 +390,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem>
                     <FormLabel>Stadt *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Musterstadt" {...field} />
+                      <Input placeholder="Stadt" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -403,7 +404,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem className="md:col-span-2">
                     <FormLabel>Telefonnummer *</FormLabel>
                     <FormControl>
-                      <Input placeholder="+49 123 456789" {...field} />
+                      <Input placeholder="Telefonnummer" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -455,7 +456,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     <FormItem>
                       <FormLabel>Vorname *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Max" {...field} />
+                        <Input placeholder="Vorname" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -469,7 +470,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     <FormItem>
                       <FormLabel>Nachname *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Mustermann" {...field} />
+                        <Input placeholder="Nachname" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -483,7 +484,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     <FormItem className="md:col-span-2">
                       <FormLabel>Straße und Hausnummer *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Musterstraße 123" {...field} />
+                        <Input placeholder="Straße und Hausnummer" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -497,7 +498,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     <FormItem>
                       <FormLabel>Postleitzahl *</FormLabel>
                       <FormControl>
-                        <Input placeholder="12345" {...field} />
+                        <Input placeholder="PLZ" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -511,7 +512,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     <FormItem>
                       <FormLabel>Stadt *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Musterstadt" {...field} />
+                        <Input placeholder="Stadt" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
