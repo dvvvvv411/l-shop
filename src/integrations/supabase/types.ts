@@ -426,6 +426,109 @@ export type Database = {
           },
         ]
       }
+      nexi_payment_configs: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          environment: string | null
+          id: string
+          is_active: boolean
+          is_sandbox: boolean
+          merchant_id: string
+          shop_id: string | null
+          terminal_id: string
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          environment?: string | null
+          id?: string
+          is_active?: boolean
+          is_sandbox?: boolean
+          merchant_id: string
+          shop_id?: string | null
+          terminal_id: string
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          environment?: string | null
+          id?: string
+          is_active?: boolean
+          is_sandbox?: boolean
+          merchant_id?: string
+          shop_id?: string | null
+          terminal_id?: string
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexi_payment_configs_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nexi_payment_logs: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          notes: string | null
+          order_id: string | null
+          payment_id: string
+          request_data: Json | null
+          response_data: Json | null
+          status: string
+          transaction_type: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          payment_id: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status: string
+          transaction_type: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          payment_id?: string
+          request_data?: Json | null
+          response_data?: Json | null
+          status?: string
+          transaction_type?: string
+          webhook_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nexi_payment_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_email_templates: {
         Row: {
           created_at: string
@@ -574,6 +677,10 @@ export type Database = {
           invoice_file_url: string | null
           invoice_number: string | null
           liters: number
+          nexi_payment_id: string | null
+          nexi_redirect_url: string | null
+          nexi_transaction_status: string | null
+          nexi_webhook_data: Json | null
           notes: string | null
           order_number: string
           origin_domain: string | null
@@ -619,6 +726,10 @@ export type Database = {
           invoice_file_url?: string | null
           invoice_number?: string | null
           liters: number
+          nexi_payment_id?: string | null
+          nexi_redirect_url?: string | null
+          nexi_transaction_status?: string | null
+          nexi_webhook_data?: Json | null
           notes?: string | null
           order_number: string
           origin_domain?: string | null
@@ -664,6 +775,10 @@ export type Database = {
           invoice_file_url?: string | null
           invoice_number?: string | null
           liters?: number
+          nexi_payment_id?: string | null
+          nexi_redirect_url?: string | null
+          nexi_transaction_status?: string | null
+          nexi_webhook_data?: Json | null
           notes?: string | null
           order_number?: string
           origin_domain?: string | null
