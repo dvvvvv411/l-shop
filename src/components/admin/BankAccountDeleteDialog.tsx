@@ -13,13 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-
-interface BankAccount {
-  id: string;
-  bank_name: string;
-  account_holder: string;
-  is_default: boolean;
-}
+import { BankAccount } from '@/hooks/useBankAccounts';
 
 interface BankAccountDeleteDialogProps {
   account: BankAccount | null;
@@ -73,11 +67,6 @@ const BankAccountDeleteDialog: React.FC<BankAccountDeleteDialogProps> = ({
           <AlertDialogTitle>Bankkonto löschen</AlertDialogTitle>
           <AlertDialogDescription>
             Sind Sie sicher, dass Sie das Bankkonto "{account?.bank_name}" löschen möchten?
-            {account?.is_default && (
-              <span className="block mt-2 text-red-600 font-medium">
-                Achtung: Dies ist Ihr Standardkonto!
-              </span>
-            )}
             Diese Aktion kann nicht rückgängig gemacht werden.
           </AlertDialogDescription>
         </AlertDialogHeader>
