@@ -24,6 +24,24 @@ interface NexiPaymentLinkResponse {
   expiresAt?: string;
 }
 
+interface NexiApiPayload {
+  order: {
+    orderId: string;
+    amount: string;
+    currency: string;
+    customerId?: string;
+    description?: string;
+  };
+  payByLink: {
+    returnUrl: string;
+    cancelUrl: string;
+    expirationTime?: string;
+  };
+  customer?: {
+    email?: string;
+  };
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -65,7 +83,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   console.log('Initiating Nexi payment for order:', request.orderId);
 
   try {
-    // Get Nexi configuration - better error handling and detailed logging
+    // Get Nexi configuration
     console.log('Fetching Nexi configuration from database...');
     const { data: config, error: configError } = await supabaseClient
       .from('nexi_payment_configs')
@@ -138,46 +156,54 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     // Calculate expiration time (30 minutes from now)
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
-    // Determine the correct Nexi API base URL
+    // Determine the correct Nexi API base URL for modern REST API
     const baseUrl = nexiConfig.environment === 'production' 
-      ? 'https://xpay.nexigroup.com'
-      : 'https://int-ecomm.nexi.it';
+      ? 'https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1'
+      : 'https://xpaysandbox.nexigroup.com/api/phoenix-0.0/psp/api/v1';
 
-    // Build proper Nexi Pay by Link request according to documentation
-    const nexiPayload = {
-      apikey: nexiConfig.api_key.trim(),
-      alias: nexiConfig.merchant_id.trim(),
-      importo: request.amount.toString(), // Amount in cents
-      divisa: request.currency || 'EUR',
-      codTrans: paymentReference,
-      url: request.returnUrl,
-      url_back: request.cancelUrl,
-      urlpost: nexiConfig.webhook_url || `${Deno.env.get('SUPABASE_URL')}/functions/v1/nexi-payment`,
-      mail: request.customerEmail || '',
-      descrizione: request.description || `Order ${request.orderId}`,
-      languageId: 'DE'
+    // Build modern Nexi Pay by Link request according to new API documentation
+    const nexiPayload: NexiApiPayload = {
+      order: {
+        orderId: paymentReference,
+        amount: request.amount.toString(), // Amount in cents
+        currency: request.currency || 'EUR',
+        customerId: request.customerEmail || order.customer_email,
+        description: request.description || `Order ${request.orderId}`
+      },
+      payByLink: {
+        returnUrl: request.returnUrl,
+        cancelUrl: request.cancelUrl,
+        expirationTime: expiresAt
+      }
     };
+
+    // Add customer email if provided
+    if (request.customerEmail) {
+      nexiPayload.customer = {
+        email: request.customerEmail
+      };
+    }
 
     console.log('Nexi API request payload:', {
       ...nexiPayload,
-      apikey: `***${nexiPayload.apikey.slice(-4)}` // Hide API key in logs
+      // Hide sensitive data in logs
+      order: {
+        ...nexiPayload.order,
+        customerId: nexiPayload.order.customerId ? `***${nexiPayload.order.customerId.slice(-4)}` : undefined
+      }
     });
     console.log('Using API base URL:', baseUrl);
 
-    // Make API call to Nexi Pay by Link - use POST with form data
-    const formData = new URLSearchParams();
-    Object.entries(nexiPayload).forEach(([key, value]) => {
-      if (value) formData.append(key, value.toString());
-    });
-
-    console.log('Form data being sent:', formData.toString().replace(nexiPayload.apikey, `***${nexiPayload.apikey.slice(-4)}`));
-
-    const nexiResponse = await fetch(`${baseUrl}/ecomm/ecomm/DispatcherServlet`, {
+    // Make API call to modern Nexi Pay by Link REST API
+    const nexiResponse = await fetch(`${baseUrl}/orders/paybylink`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${nexiConfig.api_key.trim()}`,
+        'X-Api-Key': nexiConfig.api_key.trim(),
+        'Accept': 'application/json'
       },
-      body: formData.toString()
+      body: JSON.stringify(nexiPayload)
     });
 
     console.log('Nexi API response status:', nexiResponse.status);
@@ -189,25 +215,23 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       throw new Error(`Nexi API error: ${nexiResponse.status} - ${errorText}`);
     }
 
-    const responseText = await nexiResponse.text();
-    console.log('Nexi API raw response:', responseText);
+    const responseData = await nexiResponse.json();
+    console.log('Nexi API JSON response:', responseData);
 
-    // Parse Nexi response - it returns form parameters, not JSON
-    const responseParams = new URLSearchParams(responseText);
-    const esito = responseParams.get('esito');
-    const idOperazione = responseParams.get('idOperazione');
-    const redirectUrl = responseParams.get('url');
+    // Parse modern Nexi response - it returns JSON with payment link
+    const paymentId = responseData.paymentId || responseData.id || paymentReference;
+    const redirectUrl = responseData.paymentLink || responseData.redirectUrl || responseData.url;
 
     console.log('Parsed Nexi response:', {
-      esito,
-      idOperazione,
-      redirectUrl
+      paymentId,
+      redirectUrl,
+      status: responseData.status
     });
 
-    if (esito !== 'OK' || !redirectUrl) {
-      const errore = responseParams.get('errore') || 'Unknown error';
-      console.error('Nexi payment creation failed:', errore);
-      throw new Error(`Nexi payment creation failed: ${errore}`);
+    if (!redirectUrl) {
+      const errorMessage = responseData.error || responseData.message || 'No payment link received';
+      console.error('Nexi payment creation failed:', errorMessage);
+      throw new Error(`Nexi payment creation failed: ${errorMessage}`);
     }
 
     // Update order with Nexi payment information using order ID (UUID)
@@ -215,7 +239,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     const { error: updateError } = await supabaseClient
       .from('orders')
       .update({
-        nexi_payment_id: idOperazione || paymentReference,
+        nexi_payment_id: paymentId,
         nexi_transaction_status: 'initiated',
         nexi_redirect_url: redirectUrl,
         payment_method: 'nexi_card',
@@ -233,14 +257,14 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       .from('nexi_payment_logs')
       .insert({
         order_id: request.orderId, // This is order_number, not UUID
-        payment_id: idOperazione || paymentReference,
+        payment_id: paymentId,
         transaction_type: 'payment_initiation',
         status: 'initiated',
         amount: request.amount,
         currency: request.currency || 'EUR',
         request_data: nexiPayload,
-        response_data: Object.fromEntries(responseParams.entries()),
-        notes: 'Pay by Link payment initiated via Nexi API'
+        response_data: responseData,
+        notes: 'Pay by Link payment initiated via modern Nexi REST API'
       });
 
     if (logError) {
@@ -249,7 +273,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     }
 
     const response: NexiPaymentLinkResponse = {
-      paymentId: idOperazione || paymentReference,
+      paymentId,
       redirectUrl,
       status: 'initiated',
       expiresAt
@@ -332,17 +356,19 @@ async function handleWebhook(supabaseClient: any, webhookData: any): Promise<Res
   console.log('Handling Nexi webhook:', webhookData);
 
   try {
-    const { codTrans, esito, importo, divisa, data, orario } = webhookData;
+    // Modern Nexi webhooks use different field names
+    const { orderId, status, amount, currency, paymentId, timestamp } = webhookData;
+    const transactionId = paymentId || orderId;
 
-    if (!codTrans) {
-      throw new Error('Invalid webhook data: missing codTrans');
+    if (!transactionId) {
+      throw new Error('Invalid webhook data: missing transaction identifier');
     }
 
     // Find order by payment ID
     const { data: order, error } = await supabaseClient
       .from('orders')
       .select('*')
-      .eq('nexi_payment_id', codTrans)
+      .eq('nexi_payment_id', transactionId)
       .single();
 
     if (error || !order) {
@@ -350,20 +376,27 @@ async function handleWebhook(supabaseClient: any, webhookData: any): Promise<Res
       throw new Error('Order not found');
     }
 
-    // Map Nexi status to internal status
+    // Map modern Nexi status to internal status
     let internalStatus = 'pending';
     let nexiStatus = 'pending';
     
-    switch (esito) {
-      case 'OK':
+    switch (status?.toLowerCase()) {
+      case 'authorized':
+      case 'captured':
+      case 'completed':
+      case 'success':
         internalStatus = 'confirmed';
         nexiStatus = 'completed';
         break;
-      case 'KO':
+      case 'failed':
+      case 'declined':
+      case 'error':
         internalStatus = 'failed';
         nexiStatus = 'failed';
         break;
-      case 'ANNULLO':
+      case 'cancelled':
+      case 'canceled':
+      case 'voided':
         internalStatus = 'cancelled';
         nexiStatus = 'cancelled';
         break;
@@ -393,13 +426,13 @@ async function handleWebhook(supabaseClient: any, webhookData: any): Promise<Res
       .from('nexi_payment_logs')
       .insert({
         order_id: order.order_number,
-        payment_id: codTrans,
+        payment_id: transactionId,
         transaction_type: 'webhook',
         status: nexiStatus,
-        amount: importo ? parseInt(importo) : order.total_amount,
-        currency: divisa || 'EUR',
+        amount: amount ? parseInt(amount) : order.total_amount,
+        currency: currency || 'EUR',
         webhook_data: webhookData,
-        notes: `Webhook received with status: ${esito}`
+        notes: `Webhook received with status: ${status}`
       });
 
     if (logError) {
@@ -415,7 +448,7 @@ async function handleWebhook(supabaseClient: any, webhookData: any): Promise<Res
           old_status: order.status,
           new_status: internalStatus,
           changed_by: 'Nexi Webhook',
-          notes: `Payment ${esito} via Nexi. Transaction: ${codTrans}`
+          notes: `Payment ${status} via Nexi. Transaction: ${transactionId}`
         });
     } catch (historyError) {
       console.error('Failed to add status history:', historyError);
@@ -439,7 +472,7 @@ async function handleWebhook(supabaseClient: any, webhookData: any): Promise<Res
         .from('nexi_payment_logs')
         .insert({
           order_id: webhookData.orderId || null,
-          payment_id: webhookData.codTrans || null,
+          payment_id: webhookData.paymentId || webhookData.orderId || null,
           transaction_type: 'webhook_error',
           status: 'failed',
           webhook_data: webhookData,
