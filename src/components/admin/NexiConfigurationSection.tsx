@@ -5,18 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { CreditCard, Settings, Save, TestTube } from 'lucide-react';
+import { CreditCard, Settings, Save, TestTube, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NexiConfig {
   id: string;
   merchant_id: string;
   terminal_id: string;
+  api_key: string;
+  webhook_url: string;
+  environment: 'test' | 'production';
   is_sandbox: boolean;
   is_active: boolean;
-  shop_id?: string;
 }
 
 const NexiConfigurationSection = () => {
@@ -25,19 +28,20 @@ const NexiConfigurationSection = () => {
     id: '1',
     merchant_id: '002132517',
     terminal_id: '03893387',
+    api_key: '',
+    webhook_url: '',
+    environment: 'test',
     is_sandbox: true,
-    is_active: true,
-    shop_id: undefined
+    is_active: true
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSaveConfig = async () => {
     setIsLoading(true);
     try {
-      // In a real implementation, this would save to the database
       console.log('Saving Nexi configuration:', config);
       
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: 'Konfiguration gespeichert',
@@ -56,12 +60,20 @@ const NexiConfigurationSection = () => {
   };
 
   const handleTestConnection = async () => {
+    if (!config.api_key) {
+      toast({
+        title: 'API-Schlüssel fehlt',
+        description: 'Bitte geben Sie einen API-Schlüssel ein, bevor Sie die Verbindung testen.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // In a real implementation, this would test the Nexi connection
       console.log('Testing Nexi connection with config:', config);
       
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
         title: 'Verbindung erfolgreich',
@@ -84,10 +96,10 @@ const NexiConfigurationSection = () => {
       <CardHeader>
         <div className="flex items-center gap-2">
           <CreditCard className="h-5 w-5" />
-          <CardTitle>Nexi Zahlungskonfiguration</CardTitle>
+          <CardTitle>Nexi Pay by Link Konfiguration</CardTitle>
         </div>
         <CardDescription>
-          Konfigurieren Sie die Nexi Italy Zahlungsintegration für Kreditkartenzahlungen
+          Konfigurieren Sie die Nexi Italy Pay by Link Integration für sichere Kreditkartenzahlungen
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -98,8 +110,8 @@ const NexiConfigurationSection = () => {
             <Badge variant={config.is_active ? 'default' : 'secondary'}>
               {config.is_active ? 'Aktiv' : 'Inaktiv'}
             </Badge>
-            <Badge variant={config.is_sandbox ? 'outline' : 'default'}>
-              {config.is_sandbox ? 'Sandbox' : 'Live'}
+            <Badge variant={config.environment === 'test' ? 'outline' : 'default'}>
+              {config.environment === 'test' ? 'Test' : 'Live'}
             </Badge>
           </div>
           <div className="flex items-center gap-2">
@@ -107,7 +119,7 @@ const NexiConfigurationSection = () => {
               variant="outline"
               size="sm"
               onClick={handleTestConnection}
-              disabled={isLoading}
+              disabled={isLoading || !config.api_key}
               className="flex items-center gap-2"
             >
               <TestTube className="h-4 w-4" />
@@ -118,50 +130,104 @@ const NexiConfigurationSection = () => {
 
         <Separator />
 
-        {/* Configuration Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* API Configuration */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Settings className="h-4 w-4" />
+            <h4 className="font-medium">API-Konfiguration</h4>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="merchant_id">Merchant ID</Label>
+              <Input
+                id="merchant_id"
+                value={config.merchant_id}
+                onChange={(e) => setConfig({ ...config, merchant_id: e.target.value })}
+                placeholder="z.B. 002132517"
+              />
+              <p className="text-sm text-gray-500">
+                Ihre Nexi Merchant-ID aus dem Nexi Dashboard
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="terminal_id">Terminal ID</Label>
+              <Input
+                id="terminal_id"
+                value={config.terminal_id}
+                onChange={(e) => setConfig({ ...config, terminal_id: e.target.value })}
+                placeholder="z.B. 03893387"
+              />
+              <p className="text-sm text-gray-500">
+                Ihre Nexi Terminal-ID für Transaktionen
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="merchant_id">Merchant ID</Label>
+            <Label htmlFor="api_key">API-Schlüssel</Label>
             <Input
-              id="merchant_id"
-              value={config.merchant_id}
-              onChange={(e) => setConfig({ ...config, merchant_id: e.target.value })}
-              placeholder="z.B. 002132517"
+              id="api_key"
+              type="password"
+              value={config.api_key}
+              onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
+              placeholder="Geben Sie Ihren Nexi API-Schlüssel ein"
             />
             <p className="text-sm text-gray-500">
-              Ihre Nexi Merchant-ID aus dem Nexi Dashboard
+              Ihr API-Schlüssel für die Nexi Pay by Link Integration
+            </p>
+            {!config.api_key && (
+              <div className="flex items-center gap-2 text-amber-600">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-sm">API-Schlüssel ist erforderlich für die Integration</span>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="webhook_url">Webhook URL</Label>
+            <Input
+              id="webhook_url"
+              value={config.webhook_url}
+              onChange={(e) => setConfig({ ...config, webhook_url: e.target.value })}
+              placeholder="https://ihr-domain.com/api/nexi/webhook"
+            />
+            <p className="text-sm text-gray-500">
+              URL für den Empfang von Zahlungsstatusbenachrichtigungen (optional)
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="terminal_id">Terminal ID</Label>
-            <Input
-              id="terminal_id"
-              value={config.terminal_id}
-              onChange={(e) => setConfig({ ...config, terminal_id: e.target.value })}
-              placeholder="z.B. 03893387"
-            />
+            <Label htmlFor="environment">Umgebung</Label>
+            <Select 
+              value={config.environment} 
+              onValueChange={(value: 'test' | 'production') => 
+                setConfig({ 
+                  ...config, 
+                  environment: value, 
+                  is_sandbox: value === 'test' 
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="test">Test (Sandbox)</SelectItem>
+                <SelectItem value="production">Produktion (Live)</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-sm text-gray-500">
-              Ihre Nexi Terminal-ID für Transaktionen
+              Wählen Sie die Umgebung für Ihre Zahlungsabwicklung
             </p>
           </div>
         </div>
 
+        <Separator />
+
         {/* Switches */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Sandbox-Modus</Label>
-              <p className="text-sm text-gray-500">
-                Verwenden Sie die Nexi-Testumgebung für Entwicklung und Tests
-              </p>
-            </div>
-            <Switch
-              checked={config.is_sandbox}
-              onCheckedChange={(checked) => setConfig({ ...config, is_sandbox: checked })}
-            />
-          </div>
-
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Nexi-Zahlungen aktivieren</Label>
@@ -180,13 +246,14 @@ const NexiConfigurationSection = () => {
 
         {/* Information Section */}
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">Nexi Pay by Link Integration</h4>
+          <h4 className="font-medium text-blue-900 mb-2">Nexi Pay by Link Features</h4>
           <ul className="text-sm text-blue-700 space-y-1">
             <li>• Sichere Kreditkartenzahlungen über Nexi Italy</li>
-            <li>• Pay by Link-Methode für einfache Integration</li>
-            <li>• Unterstützt alle gängigen Kreditkarten</li>
+            <li>• Pay by Link-Methode ohne komplexe Integration</li>
+            <li>• Unterstützt alle gängigen Kreditkarten (Visa, Mastercard, etc.)</li>
             <li>• Automatische Webhooks für Statusupdates</li>
             <li>• PCI DSS-konforme Zahlungsabwicklung</li>
+            <li>• Mehrsprachige Zahlungsseiten</li>
           </ul>
         </div>
 

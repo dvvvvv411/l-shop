@@ -428,55 +428,43 @@ export type Database = {
       }
       nexi_payment_configs: {
         Row: {
-          alias: string | null
           api_key: string | null
-          base_url: string | null
           created_at: string
+          environment: string | null
           id: string
-          integration_method: string | null
           is_active: boolean
           is_sandbox: boolean
-          mac_key: string | null
           merchant_id: string
-          password: string | null
           shop_id: string | null
           terminal_id: string
-          test_mode: boolean | null
           updated_at: string
+          webhook_url: string | null
         }
         Insert: {
-          alias?: string | null
           api_key?: string | null
-          base_url?: string | null
           created_at?: string
+          environment?: string | null
           id?: string
-          integration_method?: string | null
           is_active?: boolean
           is_sandbox?: boolean
-          mac_key?: string | null
           merchant_id: string
-          password?: string | null
           shop_id?: string | null
           terminal_id: string
-          test_mode?: boolean | null
           updated_at?: string
+          webhook_url?: string | null
         }
         Update: {
-          alias?: string | null
           api_key?: string | null
-          base_url?: string | null
           created_at?: string
+          environment?: string | null
           id?: string
-          integration_method?: string | null
           is_active?: boolean
           is_sandbox?: boolean
-          mac_key?: string | null
           merchant_id?: string
-          password?: string | null
           shop_id?: string | null
           terminal_id?: string
-          test_mode?: boolean | null
           updated_at?: string
+          webhook_url?: string | null
         }
         Relationships: [
           {
