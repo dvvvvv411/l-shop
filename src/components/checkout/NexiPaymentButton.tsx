@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CreditCard, Loader2 } from 'lucide-react';
+import { CreditCard, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNexiPayments } from '@/hooks/useNexiPayments';
 import { useToast } from '@/hooks/use-toast';
@@ -57,21 +57,42 @@ const NexiPaymentButton = ({
         cancelUrl
       };
 
-      console.log('Initiating Nexi payment with request:', paymentRequest);
+      console.log('Initiating Nexi Pay by Link payment with request:', paymentRequest);
 
       const response = await initiatePayment(paymentRequest);
       
       if (response && response.redirectUrl) {
-        console.log('Nexi payment initiated, redirecting to:', response.redirectUrl);
+        console.log('Nexi Pay by Link initiated, redirecting to:', response.redirectUrl);
         onPaymentInitiated(response.paymentId, response.redirectUrl);
         
-        // Redirect to Nexi payment page
-        window.location.href = response.redirectUrl;
+        toast({
+          title: 'Zahlung wird geöffnet',
+          description: 'Sie werden zur sicheren Nexi Zahlungsseite weitergeleitet.',
+        });
+
+        // Open payment link in new tab for better user experience
+        const paymentWindow = window.open(response.redirectUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        if (!paymentWindow) {
+          // Fallback if popup is blocked
+          window.location.href = response.redirectUrl;
+        } else {
+          // Monitor the payment window
+          const checkClosed = setInterval(() => {
+            if (paymentWindow.closed) {
+              clearInterval(checkClosed);
+              // Check payment status after window is closed
+              setTimeout(() => {
+                window.location.href = returnUrl;
+              }, 1000);
+            }
+          }, 1000);
+        }
       } else {
         throw new Error('Invalid payment response from Nexi');
       }
     } catch (error) {
-      console.error('Nexi payment initiation failed:', error);
+      console.error('Nexi Pay by Link initiation failed:', error);
       toast({
         title: 'Zahlungsfehler',
         description: 'Die Kreditkarten-Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.',
@@ -86,16 +107,20 @@ const NexiPaymentButton = ({
     <Button
       onClick={handleNexiPayment}
       disabled={disabled || isProcessing}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2"
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors"
     >
       {isProcessing ? (
-        <Loader2 className="animate-spin" size={20} />
+        <>
+          <Loader2 className="animate-spin" size={20} />
+          <span>Zahlung wird vorbereitet...</span>
+        </>
       ) : (
-        <CreditCard size={20} />
+        <>
+          <CreditCard size={20} />
+          <span>Mit Kreditkarte bezahlen</span>
+          <ExternalLink size={16} className="ml-1" />
+        </>
       )}
-      <span>
-        {isProcessing ? 'Zahlung wird vorbereitet...' : 'Mit Kreditkarte bezahlen'}
-      </span>
     </Button>
   );
 };
