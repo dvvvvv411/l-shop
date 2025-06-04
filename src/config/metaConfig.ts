@@ -24,8 +24,8 @@ export interface ShopMetaConfig {
 const rootShopConfig: ShopMetaConfig = {
   name: "HeizölNetz Deutschland",
   brand: "HeizölNetz",
-  phone: "0800 123 456 789",
-  email: "info@heizoel-netz.de",
+  phone: "",
+  email: "",
   baseUrl: "https://heizoel-netz.de",
   pages: {
     home: {
@@ -76,8 +76,8 @@ const rootShopConfig: ShopMetaConfig = {
 const stantonShopConfig: ShopMetaConfig = {
   name: "STANTON Heizöl",
   brand: "STANTON",
-  phone: "0800 987 654 321",
-  email: "info@stanton-heizoel.de",
+  phone: "",
+  email: "",
   baseUrl: "https://stanton-heizoel.de",
   pages: {
     home: {
@@ -128,8 +128,8 @@ const stantonShopConfig: ShopMetaConfig = {
 const greenOilShopConfig: ShopMetaConfig = {
   name: "GreenOil Eco-Heizöl",
   brand: "GreenOil",
-  phone: "0800 456 789 123",
-  email: "info@greenoil-eco.de",
+  phone: "",
+  email: "",
   baseUrl: "https://greenoil-eco.de",
   pages: {
     home: {

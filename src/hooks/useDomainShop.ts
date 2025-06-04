@@ -18,8 +18,8 @@ const domainMappings: Record<string, DomainShopConfig> = {
     shopType: 'stanton',
     name: 'STANTON Heizöl',
     brand: 'STANTON',
-    phone: '0800 987 654 321',
-    email: 'info@stanton-heizoel.de',
+    phone: '',
+    email: '',
     faviconColor: '#dc2626',
     faviconIcon: 'drop'
   },
@@ -27,8 +27,8 @@ const domainMappings: Record<string, DomainShopConfig> = {
     shopType: 'greenoil',
     name: 'GreenOil Eco-Heizöl',
     brand: 'GreenOil',
-    phone: '0800 456 789 123',
-    email: 'info@greenoil-eco.de',
+    phone: '',
+    email: '',
     faviconColor: '#059669',
     faviconIcon: 'leaf'
   }
@@ -38,8 +38,8 @@ const defaultConfig: DomainShopConfig = {
   shopType: 'root',
   name: 'HeizölNetz Deutschland',
   brand: 'HeizölNetz',
-  phone: '0800 123 456 789',
-  email: 'info@heizoel-netz.de',
+  phone: '',
+  email: '',
   faviconColor: '#dc2626',
   faviconIcon: 'flame'
 };
