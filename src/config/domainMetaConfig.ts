@@ -22,92 +22,69 @@ export interface ShopMetaConfig {
   };
 }
 
-const shopMetaConfigs: Record<ShopType, ShopMetaConfig> = {
-  root: {
-    name: "HeizölNetz Deutschland",
-    brand: "HeizölNetz",
-    phone: "",
-    email: "",
-    baseUrl: window.location.origin,
-    pages: {
-      home: {
-        title: "HeizölNetz Deutschland - Bundesweites Heizöl-Netzwerk | Günstig & Zuverlässig",
-        description: "Deutschlands größtes Heizöl-Netzwerk mit 500+ Partnern. Günstige Preise, schnelle Lieferung, 99.8% Zuverlässigkeit. Jetzt Heizöl bestellen!",
-        keywords: "Heizöl, Deutschland, günstig, Lieferung, Netzwerk, Partner"
-      },
-      impressum: {
-        title: "Impressum - HeizölNetz Deutschland",
-        description: "Impressum und rechtliche Informationen von HeizölNetz Deutschland."
-      },
-      agb: {
-        title: "AGB - HeizölNetz Deutschland",
-        description: "Allgemeine Geschäftsbedingungen von HeizölNetz Deutschland."
-      },
-      widerrufsrecht: {
-        title: "Widerrufsrecht - HeizölNetz Deutschland", 
-        description: "Widerrufsrecht und Widerrufsbelehrung von HeizölNetz Deutschland."
-      }
-    }
-  },
-  stanton: {
-    name: "STANTON Heizöl",
-    brand: "STANTON",
-    phone: "",
-    email: "",
-    baseUrl: window.location.origin,
-    pages: {
-      home: {
-        title: "STANTON Heizöl - Premium Heizöl-Lieferung | Qualität seit 1985",
-        description: "STANTON Heizöl - Ihr vertrauensvoller Partner für Premium Heizöl-Lieferung seit 1985. Höchste Qualität, zuverlässiger Service, faire Preise.",
-        keywords: "STANTON, Heizöl, Premium, Qualität, seit 1985"
-      },
-      impressum: {
-        title: "Impressum - STANTON Heizöl",
-        description: "Impressum und rechtliche Informationen von STANTON Heizöl."
-      },
-      agb: {
-        title: "AGB - STANTON Heizöl",
-        description: "Allgemeine Geschäftsbedingungen von STANTON Heizöl."
-      },
-      widerrufsrecht: {
-        title: "Widerrufsrecht - STANTON Heizöl",
-        description: "Widerrufsrecht und Widerrufsbelehrung von STANTON Heizöl."
-      }
-    }
-  },
-  greenoil: {
-    name: "GreenOil Eco-Heizöl",
-    brand: "GreenOil",
-    phone: "",
-    email: "",
-    baseUrl: window.location.origin,
-    pages: {
-      home: {
-        title: "GreenOil Eco-Heizöl - Nachhaltige Heizlösungen | CO2-reduziert",
-        description: "GreenOil Eco-Heizöl - Nachhaltige und umweltfreundliche Heizlösungen. CO2-reduziert, bio-additiviert, für eine grünere Zukunft.",
-        keywords: "GreenOil, Eco-Heizöl, nachhaltig, CO2-reduziert, Bio"
-      },
-      impressum: {
-        title: "Impressum - GreenOil Eco-Heizöl",
-        description: "Impressum und rechtliche Informationen von GreenOil Eco-Heizöl."
-      },
-      agb: {
-        title: "AGB - GreenOil Eco-Heizöl", 
-        description: "Allgemeine Geschäftsbedingungen von GreenOil Eco-Heizöl."
-      },
-      widerrufsrecht: {
-        title: "Widerrufsrecht - GreenOil Eco-Heizöl",
-        description: "Widerrufsrecht und Widerrufsbelehrung von GreenOil Eco-Heizöl."
-      }
+// Generic configuration for all domain shops
+const genericShopMetaConfig: ShopMetaConfig = {
+  name: "Heizöl-Service",
+  brand: "Heizöl",
+  phone: "",
+  email: "",
+  baseUrl: window.location.origin,
+  pages: {
+    home: {
+      title: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung deutschlandweit",
+      description: "Günstiges Heizöl online bestellen. Schnelle Lieferung, beste Qualität, faire Preise. Vergleichen Sie Heizölpreise und sparen Sie beim Heizöl-Kauf.",
+      keywords: "Heizöl, günstig, bestellen, Lieferung, Preise, online"
+    },
+    impressum: {
+      title: "Impressum - Heizöl-Service",
+      description: "Impressum und rechtliche Informationen."
+    },
+    agb: {
+      title: "AGB - Heizöl-Service",
+      description: "Allgemeine Geschäftsbedingungen."
+    },
+    widerrufsrecht: {
+      title: "Widerrufsrecht - Heizöl-Service",
+      description: "Widerrufsrecht und Widerrufsbelehrung."
+    },
+    datenschutz: {
+      title: "Datenschutz - Heizöl-Service",
+      description: "Datenschutzerklärung und Informationen zum Datenschutz."
+    },
+    kontakt: {
+      title: "Kontakt - Heizöl-Service | Persönliche Beratung",
+      description: "Kontaktieren Sie uns für persönliche Beratung. Kompetente Fachberatung rund um Heizöl und Lieferung.",
+      keywords: "Kontakt, Beratung, Heizöl, Support"
+    },
+    service: {
+      title: "Service - Heizöl-Service | Premium Heizöl-Service",
+      description: "Erstklassiger Heizöl-Service: Schnelle Lieferung, zertifizierte Partner, Premium-Qualität für Ihren Heizbedarf.",
+      keywords: "Service, Heizöl, Lieferung, Premium, Qualität"
+    },
+    liefergebiet: {
+      title: "Liefergebiete - Heizöl-Service | Deutschlandweite Abdeckung",
+      description: "Heizöl-Lieferung deutschlandweit. Entdecken Sie unsere Liefergebiete und Partner-Standorte in ganz Deutschland.",
+      keywords: "Liefergebiet, Deutschland, deutschlandweit, Partner, Standorte"
+    },
+    produkte: {
+      title: "Heizöl-Produkte - Premium EL & Additive",
+      description: "Hochwertige Heizöl-Produkte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle für optimale Heizleistung.",
+      keywords: "Heizöl, Premium EL, schwefelarm, Additive, Qualität"
     }
   }
 };
 
+const shopMetaConfigs: Record<ShopType, ShopMetaConfig> = {
+  root: genericShopMetaConfig,
+  stanton: genericShopMetaConfig,
+  greenoil: genericShopMetaConfig
+};
+
 export function getDomainShopConfig(shopType: ShopType): ShopMetaConfig {
-  return shopMetaConfigs[shopType];
+  return genericShopMetaConfig;
 }
 
 export function getDomainPageMeta(shopType: ShopType, pageName: string): MetaData {
-  const shopConfig = shopMetaConfigs[shopType];
-  return shopConfig.pages[pageName] || shopConfig.pages.home;
+  const pageMeta = genericShopMetaConfig.pages[pageName] || genericShopMetaConfig.pages.home;
+  return pageMeta;
 }

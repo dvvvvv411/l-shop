@@ -15,96 +15,56 @@
       (function() {
         const pathname = window.location.pathname;
         
-        // Shop configurations
-        const shopConfigs = {
-          root: {
-            name: "HeizölNetz Deutschland",
-            brand: "HeizölNetz",
-            phone: "",
-            email: "",
-            baseUrl: "https://heizoel-netz.de"
+        // Generic shop configuration
+        const genericShopConfig = {
+          name: "Heizöl-Service",
+          brand: "Heizöl",
+          phone: "",
+          email: "",
+          baseUrl: window.location.origin
+        };
+
+        // Generic page metadata configuration
+        const genericPageMetaConfig = {
+          home: {
+            title: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung deutschlandweit",
+            description: "Günstiges Heizöl online bestellen. Schnelle Lieferung, beste Qualität, faire Preise. Vergleichen Sie Heizölpreise und sparen Sie beim Heizöl-Kauf."
           },
-          stanton: {
-            name: "STANTON Heizöl",
-            brand: "STANTON", 
-            phone: "",
-            email: "",
-            baseUrl: "https://stanton-heizoel.de"
+          impressum: {
+            title: "Impressum - Heizöl-Service",
+            description: "Impressum und rechtliche Informationen."
           },
-          greenoil: {
-            name: "GreenOil Eco-Heizöl",
-            brand: "GreenOil",
-            phone: "", 
-            email: "",
-            baseUrl: "https://greenoil-eco.de"
+          agb: {
+            title: "AGB - Heizöl-Service",
+            description: "Allgemeine Geschäftsbedingungen."
+          },
+          widerrufsrecht: {
+            title: "Widerrufsrecht - Heizöl-Service", 
+            description: "Widerrufsrecht und Widerrufsbelehrung."
+          },
+          datenschutz: {
+            title: "Datenschutz - Heizöl-Service",
+            description: "Datenschutzerklärung und Informationen zum Datenschutz."
+          },
+          kontakt: {
+            title: "Kontakt - Heizöl-Service | Persönliche Beratung",
+            description: "Kontaktieren Sie uns für persönliche Beratung. Kompetente Fachberatung rund um Heizöl und Lieferung."
+          },
+          service: {
+            title: "Service - Heizöl-Service | Premium Heizöl-Service",
+            description: "Erstklassiger Heizöl-Service: Schnelle Lieferung, zertifizierte Partner, Premium-Qualität für Ihren Heizbedarf."
+          },
+          liefergebiet: {
+            title: "Liefergebiete - Heizöl-Service | Deutschlandweite Abdeckung",
+            description: "Heizöl-Lieferung deutschlandweit. Entdecken Sie unsere Liefergebiete und Partner-Standorte in ganz Deutschland."
+          },
+          produkte: {
+            title: "Heizöl-Produkte - Premium EL & Additive",
+            description: "Hochwertige Heizöl-Produkte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle für optimale Heizleistung."
           }
         };
 
-        // Page metadata configurations
-        const pageMetaConfigs = {
-          root: {
-            home: {
-              title: "HeizölNetz Deutschland - Bundesweites Heizöl-Netzwerk | Günstig & Zuverlässig",
-              description: "Deutschlands größtes Heizöl-Netzwerk mit 500+ Partnern. Günstige Preise, schnelle Lieferung, 99.8% Zuverlässigkeit. Jetzt Heizöl bestellen!"
-            },
-            impressum: {
-              title: "Impressum - HeizölNetz Deutschland",
-              description: "Impressum und rechtliche Informationen von HeizölNetz Deutschland."
-            },
-            agb: {
-              title: "AGB - HeizölNetz Deutschland",
-              description: "Allgemeine Geschäftsbedingungen von HeizölNetz Deutschland."
-            },
-            widerrufsrecht: {
-              title: "Widerrufsrecht - HeizölNetz Deutschland", 
-              description: "Widerrufsrecht und Widerrufsbelehrung von HeizölNetz Deutschland."
-            }
-          },
-          stanton: {
-            home: {
-              title: "STANTON Heizöl - Premium Heizöl-Lieferung | Qualität seit 1985",
-              description: "STANTON Heizöl - Ihr vertrauensvoller Partner für Premium Heizöl-Lieferung seit 1985. Höchste Qualität, zuverlässiger Service, faire Preise."
-            },
-            impressum: {
-              title: "Impressum - STANTON Heizöl",
-              description: "Impressum und rechtliche Informationen von STANTON Heizöl."
-            },
-            agb: {
-              title: "AGB - STANTON Heizöl",
-              description: "Allgemeine Geschäftsbedingungen von STANTON Heizöl."
-            },
-            widerrufsrecht: {
-              title: "Widerrufsrecht - STANTON Heizöl",
-              description: "Widerrufsrecht und Widerrufsbelehrung von STANTON Heizöl."
-            }
-          },
-          greenoil: {
-            home: {
-              title: "GreenOil Eco-Heizöl - Nachhaltige Heizlösungen | CO2-reduziert",
-              description: "GreenOil Eco-Heizöl - Nachhaltige und umweltfreundliche Heizlösungen. CO2-reduziert, bio-additiviert, für eine grünere Zukunft."
-            },
-            impressum: {
-              title: "Impressum - GreenOil Eco-Heizöl",
-              description: "Impressum und rechtliche Informationen von GreenOil Eco-Heizöl."
-            },
-            agb: {
-              title: "AGB - GreenOil Eco-Heizöl", 
-              description: "Allgemeine Geschäftsbedingungen von GreenOil Eco-Heizöl."
-            },
-            widerrufsrecht: {
-              title: "Widerrufsrecht - GreenOil Eco-Heizöl",
-              description: "Widerrufsrecht und Widerrufsbelehrung von GreenOil Eco-Heizöl."
-            }
-          }
-        };
-
-        // Detect shop and page
-        function detectShop(pathname) {
-          if (pathname.startsWith('/1/')) return 'stanton';
-          if (pathname.startsWith('/2/')) return 'greenoil';
-          return 'root';
-        }
-
+        // Detect page
         function detectPage(pathname) {
           const cleanPath = pathname.replace(/^\/[12]\//, '').replace(/\/$/, '');
           if (!cleanPath || cleanPath === 'home') return 'home';
@@ -128,21 +88,19 @@
         }
 
         // Initialize metadata
-        const shop = detectShop(pathname);
         const page = detectPage(pathname);
-        const shopConfig = shopConfigs[shop];
-        const pageMeta = pageMetaConfigs[shop][page] || pageMetaConfigs[shop].home;
+        const pageMeta = genericPageMetaConfig[page] || genericPageMetaConfig.home;
 
         // Set initial metadata
         document.title = pageMeta.title;
         setMeta('description', pageMeta.description);
-        setMeta('application-name', shopConfig.name);
-        setMeta('author', shopConfig.name);
+        setMeta('application-name', genericShopConfig.name);
+        setMeta('author', genericShopConfig.name);
 
         // Set OpenGraph metadata
         setMeta('og:title', pageMeta.title, true);
         setMeta('og:description', pageMeta.description, true);
-        setMeta('og:site_name', shopConfig.name, true);
+        setMeta('og:site_name', genericShopConfig.name, true);
         setMeta('og:type', 'website', true);
         setMeta('og:locale', 'de_DE', true);
 
@@ -150,9 +108,8 @@
         setMeta('twitter:card', 'summary_large_image');
         setMeta('twitter:title', pageMeta.title);
         setMeta('twitter:description', pageMeta.description);
-        setMeta('twitter:site', '@heizoel_netz');
 
-        console.log(`Early metadata initialized for ${shopConfig.name} - ${page}`);
+        console.log(`Early metadata initialized for ${genericShopConfig.name} - ${page}`);
       })();
     </script>
   </head>

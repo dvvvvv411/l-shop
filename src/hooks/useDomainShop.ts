@@ -16,8 +16,8 @@ export interface DomainShopConfig {
 const domainMappings: Record<string, DomainShopConfig> = {
   'stanton-energie.de': {
     shopType: 'stanton',
-    name: 'STANTON Heizöl',
-    brand: 'STANTON',
+    name: 'Heizöl-Service',
+    brand: 'Heizöl',
     phone: '',
     email: '',
     faviconColor: '#dc2626',
@@ -25,8 +25,8 @@ const domainMappings: Record<string, DomainShopConfig> = {
   },
   'greenoil-lieferung.de': {
     shopType: 'greenoil',
-    name: 'GreenOil Eco-Heizöl',
-    brand: 'GreenOil',
+    name: 'Heizöl-Service',
+    brand: 'Heizöl',
     phone: '',
     email: '',
     faviconColor: '#059669',
@@ -36,8 +36,8 @@ const domainMappings: Record<string, DomainShopConfig> = {
 
 const defaultConfig: DomainShopConfig = {
   shopType: 'root',
-  name: 'HeizölNetz Deutschland',
-  brand: 'HeizölNetz',
+  name: 'Heizöl-Service',
+  brand: 'Heizöl',
   phone: '',
   email: '',
   faviconColor: '#dc2626',
