@@ -13,7 +13,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { BankAccount } from '@/hooks/useBankAccounts';
+import type { Tables } from '@/integrations/supabase/types';
+
+// Use the correct type from Supabase
+type BankAccount = Tables<'bank_accounts'>;
 
 interface BankAccountDeleteDialogProps {
   account: BankAccount | null;
