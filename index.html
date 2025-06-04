@@ -9,11 +9,20 @@
     <meta name="theme-color" content="#dc2626" />
     <meta name="msapplication-TileColor" content="#dc2626" />
     
-    <!-- Early metadata initialization -->
+    <!-- Enhanced domain-aware metadata initialization -->
     <script>
-      // Early metadata detection and initialization
+      // Enhanced domain-aware metadata detection and initialization
       (function() {
         const pathname = window.location.pathname;
+        const hostname = window.location.hostname;
+        
+        console.log('Early init - Hostname:', hostname, 'Pathname:', pathname);
+        
+        // Domain to shop mapping
+        const domainShopMapping = {
+          'stanton-energie.de': 'stanton',
+          'greenoil-lieferung.de': 'greenoil'
+        };
         
         // Shop configurations
         const shopConfigs = {
@@ -29,14 +38,14 @@
             brand: "STANTON", 
             phone: "0800 987 654 321",
             email: "info@stanton-heizoel.de",
-            baseUrl: "https://stanton-heizoel.de"
+            baseUrl: "https://stanton-energie.de"
           },
           greenoil: {
             name: "GreenOil Eco-Heizöl",
             brand: "GreenOil",
             phone: "0800 456 789 123", 
             email: "info@greenoil-eco.de",
-            baseUrl: "https://greenoil-eco.de"
+            baseUrl: "https://greenoil-lieferung.de"
           }
         };
 
@@ -98,8 +107,16 @@
           }
         };
 
-        // Detect shop and page
-        function detectShop(pathname) {
+        // Enhanced domain and page detection
+        function detectShop(hostname, pathname) {
+          // First check domain mapping
+          const shopFromDomain = domainShopMapping[hostname];
+          if (shopFromDomain) {
+            console.log('Shop detected from domain:', shopFromDomain);
+            return shopFromDomain;
+          }
+          
+          // Fallback to path-based detection
           if (pathname.startsWith('/1/')) return 'stanton';
           if (pathname.startsWith('/2/')) return 'greenoil';
           return 'root';
@@ -128,10 +145,12 @@
         }
 
         // Initialize metadata
-        const shop = detectShop(pathname);
+        const shop = detectShop(hostname, pathname);
         const page = detectPage(pathname);
         const shopConfig = shopConfigs[shop];
         const pageMeta = pageMetaConfigs[shop][page] || pageMetaConfigs[shop].home;
+
+        console.log('Early init - Shop:', shop, 'Page:', page);
 
         // Set initial metadata
         document.title = pageMeta.title;
@@ -153,6 +172,26 @@
         setMeta('twitter:site', '@heizoel_netz');
 
         console.log(`Early metadata initialized for ${shopConfig.name} - ${page}`);
+        
+        // Store domain info for React app
+        window.__DOMAIN_INFO__ = {
+          hostname: hostname,
+          shop: shop,
+          shouldRedirect: false
+        };
+        
+        // Domain-specific redirect logic
+        const domainRedirects = {
+          'stanton-energie.de': '/1/home',
+          'greenoil-lieferung.de': '/2/home'
+        };
+        
+        const targetPath = domainRedirects[hostname];
+        if (targetPath && !pathname.startsWith(targetPath.split('/').slice(0, 2).join('/'))) {
+          console.log('Early redirect needed from', pathname, 'to', targetPath);
+          window.__DOMAIN_INFO__.shouldRedirect = true;
+          window.__DOMAIN_INFO__.targetPath = targetPath;
+        }
       })();
     </script>
   </head>
