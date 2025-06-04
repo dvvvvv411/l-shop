@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Eye, Receipt, CheckCircle, FileText, ArrowUpDown, ArrowDown } from 'lucide-react';
+import { Eye, Receipt, CheckCircle, FileText, ArrowUpDown, ArrowDown, EyeOff } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 
 interface OrderTableActionsProps {
@@ -12,6 +12,9 @@ interface OrderTableActionsProps {
   onMarkAsPaid?: (order: Order) => void;
   onMarkAsExchanged?: (order: Order) => void;
   onMarkAsDown?: (order: Order) => void;
+  onHideOrder?: (order: Order) => void;
+  onUnhideOrder?: (order: Order) => void;
+  showHidden?: boolean;
 }
 
 const OrderTableActions: React.FC<OrderTableActionsProps> = ({
@@ -22,6 +25,9 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
   onMarkAsPaid,
   onMarkAsExchanged,
   onMarkAsDown,
+  onHideOrder,
+  onUnhideOrder,
+  showHidden = false,
 }) => {
   const handleMarkAsPaid = () => {
     if (onMarkAsPaid) {
@@ -38,6 +44,18 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
   const handleMarkAsDown = () => {
     if (onMarkAsDown) {
       onMarkAsDown(order);
+    }
+  };
+
+  const handleHideOrder = () => {
+    if (onHideOrder) {
+      onHideOrder(order);
+    }
+  };
+
+  const handleUnhideOrder = () => {
+    if (onUnhideOrder) {
+      onUnhideOrder(order);
     }
   };
 
@@ -117,6 +135,31 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
         >
           <FileText className="h-3 w-3" />
         </Button>
+      )}
+
+      {/* Hide/Unhide Order - Always available */}
+      {showHidden && order.is_hidden ? (
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={handleUnhideOrder}
+          title="Bestellung wieder einblenden"
+          className="h-7 w-7 p-0 text-blue-700 hover:text-blue-800 hover:bg-blue-50 flex-shrink-0"
+        >
+          <Eye className="h-3 w-3" />
+        </Button>
+      ) : (
+        !order.is_hidden && (
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleHideOrder}
+            title="Bestellung ausblenden"
+            className="h-7 w-7 p-0 text-gray-700 hover:text-gray-800 hover:bg-gray-50 flex-shrink-0"
+          >
+            <EyeOff className="h-3 w-3" />
+          </Button>
+        )
       )}
     </div>
   );

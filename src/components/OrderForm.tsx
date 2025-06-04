@@ -84,6 +84,7 @@ interface PriceCalculatorData {
   deliveryFee: number;
   totalPrice: number;
   savings: number;
+  postcode: string;
 }
 
 const OrderForm = () => {

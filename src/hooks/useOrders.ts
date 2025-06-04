@@ -17,17 +17,23 @@ export const useOrders = () => {
   const { toast } = useToast();
 
   // Fetch orders with latest status change information
-  const fetchOrders = async () => {
+  const fetchOrders = async (includeHidden: boolean = false) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('orders')
         .select(`
           *,
           order_status_history!left (
             created_at
           )
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+      // Filter out hidden orders unless specifically requested
+      if (!includeHidden) {
+        query = query.eq('is_hidden', false);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -146,6 +152,59 @@ export const useOrders = () => {
     }
   };
 
+  // Hide order
+  const hideOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ is_hidden: true, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Erfolg',
+        description: 'Bestellung wurde ausgeblendet.',
+      });
+
+      // Remove the order from the current list
+      setOrders(prev => prev.filter(order => order.id !== orderId));
+    } catch (error) {
+      console.error('Error hiding order:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Bestellung konnte nicht ausgeblendet werden.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Unhide order
+  const unhideOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ is_hidden: false, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Erfolg',
+        description: 'Bestellung wurde wieder eingeblendet.',
+      });
+    } catch (error) {
+      console.error('Error unhiding order:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Bestellung konnte nicht wieder eingeblendet werden.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   // Set up real-time subscription
   useEffect(() => {
     fetchOrders();
@@ -209,6 +268,8 @@ export const useOrders = () => {
     isLoading,
     createOrder,
     updateOrderStatus,
+    hideOrder,
+    unhideOrder,
     refetch: fetchOrders,
   };
 };

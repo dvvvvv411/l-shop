@@ -573,6 +573,7 @@ export type Database = {
           invoice_date: string | null
           invoice_file_url: string | null
           invoice_number: string | null
+          is_hidden: boolean
           liters: number
           notes: string | null
           order_number: string
@@ -618,6 +619,7 @@ export type Database = {
           invoice_date?: string | null
           invoice_file_url?: string | null
           invoice_number?: string | null
+          is_hidden?: boolean
           liters: number
           notes?: string | null
           order_number: string
@@ -663,6 +665,7 @@ export type Database = {
           invoice_date?: string | null
           invoice_file_url?: string | null
           invoice_number?: string | null
+          is_hidden?: boolean
           liters?: number
           notes?: string | null
           order_number?: string

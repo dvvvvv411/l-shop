@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,17 @@ interface OrderFiltersProps {
   setSearchTerm: (term: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
+  showHidden: boolean;
+  setShowHidden: (show: boolean) => void;
 }
 
 const OrderFilters: React.FC<OrderFiltersProps> = ({
   searchTerm,
   setSearchTerm,
   statusFilter,
-  setStatusFilter
+  setStatusFilter,
+  showHidden,
+  setShowHidden
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4">
@@ -43,6 +47,14 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
           <SelectItem value="down">Down</SelectItem>
         </SelectContent>
       </Select>
+      <Button
+        variant={showHidden ? "default" : "outline"}
+        onClick={() => setShowHidden(!showHidden)}
+        className="w-full sm:w-auto"
+      >
+        <EyeOff className="h-4 w-4 mr-2" />
+        {showHidden ? "Ausgeblendete anzeigen" : "Alle anzeigen"}
+      </Button>
     </div>
   );
 };

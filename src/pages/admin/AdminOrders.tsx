@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Phone, CreditCard, Globe, Copy, Clock } from 'lucide-react';
@@ -20,10 +21,11 @@ import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 import { useToast } from '@/hooks/use-toast';
 
 const AdminOrders = () => {
-  const { orders, isLoading, updateOrderStatus } = useOrders();
+  const { orders, isLoading, updateOrderStatus, hideOrder, unhideOrder, refetch } = useOrders();
   const { getBankAccountSystemName } = useBankAccounts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
+  const [showHidden, setShowHidden] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -43,6 +45,11 @@ const AdminOrders = () => {
   React.useEffect(() => {
     setLocalOrders(orders);
   }, [orders]);
+
+  // Refresh orders when showHidden changes
+  React.useEffect(() => {
+    refetch(showHidden);
+  }, [showHidden, refetch]);
 
   // Filter orders (no sorting functionality)
   const filteredOrders = useMemo(() => {
@@ -262,6 +269,24 @@ const AdminOrders = () => {
     }
   };
 
+  const handleHideOrderFromTable = async (order: Order) => {
+    try {
+      await hideOrder(order.id);
+    } catch (error) {
+      console.error('Error hiding order:', error);
+    }
+  };
+
+  const handleUnhideOrderFromTable = async (order: Order) => {
+    try {
+      await unhideOrder(order.id);
+      // Refresh the orders list to show the updated state
+      refetch(showHidden);
+    } catch (error) {
+      console.error('Error unhiding order:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -289,6 +314,11 @@ const AdminOrders = () => {
                 {newOrdersCount} Neue
               </span>
             )}
+            {showHidden && (
+              <span className="ml-3 px-2 py-1 text-sm bg-gray-100 text-gray-800 rounded-full">
+                Inkl. ausgeblendete
+              </span>
+            )}
           </h1>
           <p className="text-gray-600 mt-2">Verwalten Sie alle Heizöl-Bestellungen</p>
         </div>
@@ -309,6 +339,8 @@ const AdminOrders = () => {
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
+            showHidden={showHidden}
+            setShowHidden={setShowHidden}
           />
         </CardContent>
       </Card>
@@ -388,7 +420,7 @@ const AdminOrders = () => {
                     <TableHead className="min-w-[90px]">
                       Status
                     </TableHead>
-                    <TableHead className="min-w-[180px] pr-4">Aktionen</TableHead>
+                    <TableHead className="min-w-[200px] pr-4">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -400,7 +432,7 @@ const AdminOrders = () => {
                     return (
                       <TableRow 
                         key={order.id} 
-                        className="hover:bg-gray-50"
+                        className={`hover:bg-gray-50 ${order.is_hidden ? 'opacity-60 bg-gray-100' : ''}`}
                       >
                         <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
                           <Checkbox
@@ -414,7 +446,10 @@ const AdminOrders = () => {
                             <div className="text-gray-500">{new Date(order.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium">{order.order_number}</TableCell>
+                        <TableCell className="font-medium">
+                          {order.order_number}
+                          {order.is_hidden && <span className="ml-2 text-xs text-gray-500">(ausgeblendet)</span>}
+                        </TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <div className="font-medium">{order.customer_name}</div>
@@ -484,7 +519,7 @@ const AdminOrders = () => {
                         <TableCell>
                           <StatusBadge status={order.status} />
                         </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[180px] pr-4">
+                        <TableCell onClick={(e) => e.stopPropagation()} className="min-w-[200px] pr-4">
                           <OrderTableActions
                             order={order}
                             onViewOrder={handleViewOrder}
@@ -493,6 +528,9 @@ const AdminOrders = () => {
                             onMarkAsPaid={handleMarkAsPaidFromTable}
                             onMarkAsExchanged={handleMarkAsExchangedFromTable}
                             onMarkAsDown={handleMarkAsDownFromTable}
+                            onHideOrder={handleHideOrderFromTable}
+                            onUnhideOrder={handleUnhideOrderFromTable}
+                            showHidden={showHidden}
                           />
                         </TableCell>
                       </TableRow>

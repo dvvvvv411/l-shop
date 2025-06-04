@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
+import { useOrders } from '@/hooks/useOrders';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
 import OrderStatusHistorySection from './OrderStatusHistorySection';
@@ -34,6 +36,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   onOrderUpdate
 }) => {
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
+  const { hideOrder, unhideOrder } = useOrders();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
   const { addStatusChange, refetch: refetchHistory } = useOrderStatusHistory(order.id);
@@ -73,6 +76,28 @@ const OrderActions: React.FC<OrderActionsProps> = ({
 
   const handleMarkAsDown = async () => {
     await handleStatusChange('down');
+  };
+
+  const handleHideOrder = async () => {
+    try {
+      await hideOrder(order.id);
+      if (onOrderUpdate) {
+        onOrderUpdate({ is_hidden: true });
+      }
+    } catch (error) {
+      console.error('Failed to hide order:', error);
+    }
+  };
+
+  const handleUnhideOrder = async () => {
+    try {
+      await unhideOrder(order.id);
+      if (onOrderUpdate) {
+        onOrderUpdate({ is_hidden: false });
+      }
+    } catch (error) {
+      console.error('Failed to unhide order:', error);
+    }
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -220,6 +245,27 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               PDF anzeigen
+            </Button>
+          )}
+          
+          {/* Hide/Unhide Order */}
+          {order.is_hidden ? (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-blue-700 border-blue-200 hover:bg-blue-50"
+              onClick={handleUnhideOrder}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Bestellung wieder einblenden
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-gray-700 border-gray-200 hover:bg-gray-50"
+              onClick={handleHideOrder}
+            >
+              <EyeOff className="h-4 w-4 mr-2" />
+              Bestellung ausblenden
             </Button>
           )}
         </CardContent>
