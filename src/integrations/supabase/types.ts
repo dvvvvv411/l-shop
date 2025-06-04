@@ -429,11 +429,8 @@ export type Database = {
       nexi_payment_configs: {
         Row: {
           alias: string | null
-          api_key: string | null
-          base_url: string | null
           created_at: string
           id: string
-          integration_method: string | null
           is_active: boolean
           is_sandbox: boolean
           mac_key: string | null
@@ -441,16 +438,12 @@ export type Database = {
           password: string | null
           shop_id: string | null
           terminal_id: string
-          test_mode: boolean | null
           updated_at: string
         }
         Insert: {
           alias?: string | null
-          api_key?: string | null
-          base_url?: string | null
           created_at?: string
           id?: string
-          integration_method?: string | null
           is_active?: boolean
           is_sandbox?: boolean
           mac_key?: string | null
@@ -458,16 +451,12 @@ export type Database = {
           password?: string | null
           shop_id?: string | null
           terminal_id: string
-          test_mode?: boolean | null
           updated_at?: string
         }
         Update: {
           alias?: string | null
-          api_key?: string | null
-          base_url?: string | null
           created_at?: string
           id?: string
-          integration_method?: string | null
           is_active?: boolean
           is_sandbox?: boolean
           mac_key?: string | null
@@ -475,7 +464,6 @@ export type Database = {
           password?: string | null
           shop_id?: string | null
           terminal_id?: string
-          test_mode?: boolean | null
           updated_at?: string
         }
         Relationships: [
@@ -494,7 +482,6 @@ export type Database = {
           created_at: string
           currency: string | null
           id: string
-          notes: string | null
           order_id: string | null
           payment_id: string
           request_data: Json | null
@@ -508,7 +495,6 @@ export type Database = {
           created_at?: string
           currency?: string | null
           id?: string
-          notes?: string | null
           order_id?: string | null
           payment_id: string
           request_data?: Json | null
@@ -522,7 +508,6 @@ export type Database = {
           created_at?: string
           currency?: string | null
           id?: string
-          notes?: string | null
           order_id?: string | null
           payment_id?: string
           request_data?: Json | null

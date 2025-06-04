@@ -22,13 +22,6 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,9 +31,6 @@ const nexiConfigSchema = z.object({
   password: z.string().min(1, 'Password ist erforderlich'),
   alias: z.string().optional(),
   mac_key: z.string().optional(),
-  api_key: z.string().optional(),
-  integration_method: z.enum(['form_post', 'pay_by_link', 'hosted_payment_page']),
-  test_mode: z.boolean(),
   is_sandbox: z.boolean(),
   is_active: z.boolean(),
 });
@@ -54,9 +44,6 @@ interface NexiConfig {
   password?: string;
   alias?: string;
   mac_key?: string;
-  api_key?: string;
-  integration_method?: string;
-  test_mode?: boolean;
   is_sandbox: boolean;
   is_active: boolean;
   shop_id?: string;
@@ -80,9 +67,6 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
       password: config?.password || '',
       alias: config?.alias || '',
       mac_key: config?.mac_key || '',
-      api_key: config?.api_key || '',
-      integration_method: (config?.integration_method as any) || 'pay_by_link',
-      test_mode: config?.test_mode ?? true,
       is_sandbox: config?.is_sandbox ?? true,
       is_active: config?.is_active ?? false,
     },
@@ -94,32 +78,28 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
       console.log('Submitting Nexi config:', { 
         ...data, 
         password: data.password ? '[REDACTED]' : undefined,
-        mac_key: data.mac_key ? '[REDACTED]' : undefined,
-        api_key: data.api_key ? '[REDACTED]' : undefined
+        mac_key: data.mac_key ? '[REDACTED]' : undefined 
       });
 
+      // Ensure the data has the correct types for the database
       const updateData = {
         merchant_id: data.merchant_id.trim(),
         terminal_id: data.terminal_id.trim(),
         password: data.password.trim(),
         alias: data.alias?.trim() || null,
         mac_key: data.mac_key?.trim() || null,
-        api_key: data.api_key?.trim() || null,
-        integration_method: data.integration_method,
-        test_mode: data.test_mode,
         is_sandbox: data.is_sandbox,
         is_active: data.is_active,
-        base_url: data.test_mode ? 'https://int-ecommerce.nexi.it' : 'https://ecommerce.nexi.it'
       };
 
       console.log('Processed data for database:', { 
         ...updateData, 
         password: updateData.password ? '[REDACTED]' : null,
-        mac_key: updateData.mac_key ? '[REDACTED]' : null,
-        api_key: updateData.api_key ? '[REDACTED]' : null
+        mac_key: updateData.mac_key ? '[REDACTED]' : null 
       });
 
       if (config?.id) {
+        // Update existing config
         console.log('Updating existing config with ID:', config.id);
         const { error } = await supabase
           .from('nexi_payment_configs')
@@ -132,6 +112,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
         }
         console.log('Config updated successfully');
       } else {
+        // Create new config
         console.log('Creating new config');
         const { error } = await supabase
           .from('nexi_payment_configs')
@@ -164,7 +145,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             {config ? 'Nexi-Konfiguration bearbeiten' : 'Neue Nexi-Konfiguration'}
@@ -237,27 +218,6 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
 
             <FormField
               control={form.control}
-              name="api_key"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>API Key</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="password"
-                      placeholder="Ihr Nexi API Key (optional)" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Der von Nexi bereitgestellte API Key für erweiterte Funktionen
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="alias"
               render={({ field }) => (
                 <FormItem>
@@ -287,56 +247,9 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
                     />
                   </FormControl>
                   <FormDescription>
-                    Der von Nexi bereitgestellte MAC Key für sichere Transaktionssignierung
+                    Der von Nexi bereitgestellte MAC Key für sichere Transaktionssignierung. Erforderlich für Produktionsumgebung.
                   </FormDescription>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="integration_method"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Integration Method</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Wählen Sie die Integrationsmethode" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pay_by_link">Pay by Link (Empfohlen für Test)</SelectItem>
-                      <SelectItem value="form_post">Form POST</SelectItem>
-                      <SelectItem value="hosted_payment_page">Hosted Payment Page</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Die Art der Nexi-Integration. Pay by Link wird für die Testumgebung empfohlen.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="test_mode"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Test-Modus</FormLabel>
-                    <FormDescription>
-                      Verwenden Sie die Nexi-Testumgebung (int-ecommerce.nexi.it)
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />
@@ -349,7 +262,7 @@ const NexiConfigForm = ({ config, onClose, onSuccess }: NexiConfigFormProps) => 
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Sandbox-Modus</FormLabel>
                     <FormDescription>
-                      Legacy Sandbox-Einstellung (wird durch Test-Modus ersetzt)
+                      Verwenden Sie die Nexi-Testumgebung für Testzahlungen
                     </FormDescription>
                   </div>
                   <FormControl>

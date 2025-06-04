@@ -32,12 +32,8 @@ interface NexiConfig {
   password?: string;
   alias?: string;
   mac_key?: string;
-  api_key?: string;
-  integration_method?: string;
-  test_mode?: boolean;
   is_sandbox: boolean;
   is_active: boolean;
-  base_url?: string;
   shop_id?: string;
   created_at: string;
   updated_at: string;
@@ -144,9 +140,8 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
     const issues = [];
     
     if (!config.password) issues.push('Password fehlt');
-    if (!config.mac_key && !config.test_mode) issues.push('MAC Key empfohlen für Produktion');
+    if (!config.mac_key && !config.is_sandbox) issues.push('MAC Key empfohlen für Produktion');
     if (!config.alias) issues.push('ALIAS nicht gesetzt');
-    if (!config.integration_method) issues.push('Integration Method fehlt');
     
     if (issues.length === 0) {
       return { status: 'complete', message: 'Vollständig konfiguriert', color: 'text-green-600' };
@@ -182,7 +177,7 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
           <TableRow>
             <TableHead>Merchant ID</TableHead>
             <TableHead>Terminal ID</TableHead>
-            <TableHead>Integration</TableHead>
+            <TableHead>Konfiguration</TableHead>
             <TableHead>Umgebung</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Erstellt</TableHead>
@@ -211,29 +206,16 @@ const NexiConfigList = ({ onEdit, onRefresh, refreshTrigger }: NexiConfigListPro
                       <span className={config.alias ? 'text-green-600' : 'text-gray-400'}>
                         ALIAS: {config.alias ? '✓' : '○'}
                       </span>
-                      <span className={config.mac_key ? 'text-green-600' : config.test_mode ? 'text-gray-400' : 'text-yellow-500'}>
-                        MAC: {config.mac_key ? '✓' : config.test_mode ? '○' : '!'}
+                      <span className={config.mac_key ? 'text-green-600' : config.is_sandbox ? 'text-gray-400' : 'text-yellow-500'}>
+                        MAC: {config.mac_key ? '✓' : config.is_sandbox ? '○' : '!'}
                       </span>
-                      <span className={config.api_key ? 'text-green-600' : 'text-gray-400'}>
-                        API: {config.api_key ? '✓' : '○'}
-                      </span>
-                    </div>
-                    <div className="text-xs text-blue-600">
-                      {config.integration_method || 'form_post'}
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="space-y-1">
-                    <Badge variant={config.test_mode ? 'secondary' : 'default'}>
-                      {config.test_mode ? 'Test' : 'Live'}
-                    </Badge>
-                    {config.is_sandbox && (
-                      <Badge variant="outline" className="text-xs">
-                        Legacy Sandbox
-                      </Badge>
-                    )}
-                  </div>
+                  <Badge variant={config.is_sandbox ? 'secondary' : 'default'}>
+                    {config.is_sandbox ? 'Sandbox' : 'Live'}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant={config.is_active ? 'default' : 'secondary'}>

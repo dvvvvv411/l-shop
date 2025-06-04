@@ -45,15 +45,6 @@ export const useNexiPayments = () => {
       }
 
       console.log('Nexi payment initiated successfully:', data);
-      
-      // Show appropriate message based on environment
-      if (data?.environment === 'test') {
-        toast({
-          title: 'Test-Zahlung initialisiert',
-          description: 'Dies ist eine Test-Zahlung. Verwenden Sie Testkreditkarten.',
-        });
-      }
-      
       return data;
     } catch (error) {
       console.error('Failed to initiate Nexi payment:', error);
