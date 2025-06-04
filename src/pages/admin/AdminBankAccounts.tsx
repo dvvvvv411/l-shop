@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Edit, Trash2, Star, StarOff, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, ArrowDown, ArrowUp, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 import BankAccountForm from '@/components/admin/BankAccountForm';
@@ -20,7 +20,7 @@ interface BankAccount {
   account_holder: string;
   iban: string;
   bic: string;
-  is_default: boolean;
+  is_active: boolean;
   daily_limit: number;
   system_name: string;
   created_at: string;
@@ -35,7 +35,7 @@ const AdminBankAccounts = () => {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { getDailyUsage } = useBankAccounts();
+  const { getDailyUsage, toggleBankAccountStatus } = useBankAccounts();
 
   const { data: bankAccounts, isLoading } = useQuery({
     queryKey: ['bank-accounts'],
@@ -43,7 +43,7 @@ const AdminBankAccounts = () => {
       const { data, error } = await supabase
         .from('bank_accounts')
         .select('*')
-        .order('is_default', { ascending: false })
+        .order('is_active', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -73,29 +73,12 @@ const AdminBankAccounts = () => {
     enabled: !!bankAccounts?.length,
   });
 
-  const setDefaultMutation = useMutation({
-    mutationFn: async (accountId: string) => {
-      const { error } = await supabase
-        .from('bank_accounts')
-        .update({ is_default: true })
-        .eq('id', accountId);
-
-      if (error) throw error;
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ accountId, isActive }: { accountId: string; isActive: boolean }) => {
+      await toggleBankAccountStatus(accountId, isActive);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bank-accounts'] });
-      toast({
-        title: 'Erfolg',
-        description: 'Standardkonto wurde erfolgreich festgelegt.',
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Fehler',
-        description: 'Fehler beim Festlegen des Standardkontos.',
-        variant: 'destructive',
-      });
-      console.error('Error setting default account:', error);
     },
   });
 
@@ -114,8 +97,11 @@ const AdminBankAccounts = () => {
     setEditingAccount(null);
   };
 
-  const handleSetDefault = (accountId: string) => {
-    setDefaultMutation.mutate(accountId);
+  const handleToggleStatus = (account: BankAccount) => {
+    toggleStatusMutation.mutate({
+      accountId: account.id,
+      isActive: !account.is_active
+    });
   };
 
   const handleViewDetails = (account: BankAccount) => {
@@ -178,17 +164,22 @@ const AdminBankAccounts = () => {
           const usagePercentage = hasLimit ? getUsagePercentage(dailyUsage, account.daily_limit) : 0;
 
           return (
-            <Card key={account.id} className="relative cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetails(account)}>
+            <Card 
+              key={account.id} 
+              className={`relative cursor-pointer hover:shadow-md transition-shadow ${
+                !account.is_active ? 'border-red-500 border-2 bg-red-50/30' : ''
+              }`} 
+              onClick={() => handleViewDetails(account)}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <span className="font-bold text-blue-600">{account.system_name}</span>
                     <span className="text-gray-500">•</span>
                     <span>{account.bank_name}</span>
-                    {account.is_default && (
-                      <Badge variant="default" className="bg-green-100 text-green-800">
-                        <Star className="h-3 w-3 mr-1" />
-                        Standard
+                    {!account.is_active && (
+                      <Badge variant="destructive">
+                        Inaktiv
                       </Badge>
                     )}
                   </CardTitle>
@@ -201,17 +192,25 @@ const AdminBankAccounts = () => {
                       <Eye className="h-4 w-4 mr-1" />
                       Details
                     </Button>
-                    {!account.is_default && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSetDefault(account.id)}
-                        disabled={setDefaultMutation.isPending}
-                      >
-                        <StarOff className="h-4 w-4 mr-1" />
-                        Als Standard festlegen
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToggleStatus(account)}
+                      disabled={toggleStatusMutation.isPending}
+                      className={account.is_active ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                    >
+                      {account.is_active ? (
+                        <>
+                          <ArrowDown className="h-4 w-4 mr-1" />
+                          Deaktivieren
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUp className="h-4 w-4 mr-1" />
+                          Aktivieren
+                        </>
+                      )}
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -268,6 +267,12 @@ const AdminBankAccounts = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Status</p>
+                    <p className={`font-medium ${account.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                      {account.is_active ? 'Aktiv' : 'Inaktiv'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Erstellt am</p>

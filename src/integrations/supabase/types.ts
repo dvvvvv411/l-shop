@@ -63,7 +63,7 @@ export type Database = {
           daily_limit: number | null
           iban: string
           id: string
-          is_default: boolean
+          is_active: boolean
           system_name: string
           updated_at: string
         }
@@ -75,7 +75,7 @@ export type Database = {
           daily_limit?: number | null
           iban: string
           id?: string
-          is_default?: boolean
+          is_active?: boolean
           system_name: string
           updated_at?: string
         }
@@ -87,7 +87,7 @@ export type Database = {
           daily_limit?: number | null
           iban?: string
           id?: string
-          is_default?: boolean
+          is_active?: boolean
           system_name?: string
           updated_at?: string
         }

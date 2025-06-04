@@ -47,7 +47,10 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   const availableShops = shops;
   // Use the first shop as default (since is_default field no longer exists)
   const defaultShop = shops.length > 0 ? shops[0] : null;
-  const defaultBankAccount = bankAccounts.find(account => account.is_default);
+  
+  // Filter only active bank accounts for selection
+  const activeBankAccounts = bankAccounts.filter(account => account.is_active);
+  const defaultBankAccount = activeBankAccounts.length > 0 ? activeBankAccounts[0] : null;
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -62,13 +65,13 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     }
   }, [isOpen, defaultBankAccount]);
 
-  // Fetch daily usage for all bank accounts when dialog opens
+  // Fetch daily usage for all active bank accounts when dialog opens
   useEffect(() => {
     const fetchAllBankAccountUsages = async () => {
-      if (isOpen && bankAccounts.length > 0) {
+      if (isOpen && activeBankAccounts.length > 0) {
         const today = new Date().toISOString().split('T')[0];
         const usages = await Promise.all(
-          bankAccounts.map(async (account) => {
+          activeBankAccounts.map(async (account) => {
             const usage = await getDailyUsage(account.id, today);
             return {
               accountId: account.id,
@@ -84,7 +87,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     if (isOpen) {
       fetchAllBankAccountUsages();
     }
-  }, [isOpen, bankAccounts, getDailyUsage]);
+  }, [isOpen, activeBankAccounts, getDailyUsage]);
 
   // Check daily usage and limit when bank account or order changes
   useEffect(() => {
@@ -136,7 +139,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
 
   if (!order) return null;
 
-  const selectedBankAccount = bankAccounts.find(account => account.id === selectedBankAccountId);
+  const selectedBankAccount = activeBankAccounts.find(account => account.id === selectedBankAccountId);
   const usagePercentage = selectedBankAccount && selectedBankAccount.daily_limit > 0 
     ? (dailyUsage / selectedBankAccount.daily_limit) * 100 
     : 0;
@@ -211,7 +214,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                 </Select>
               </div>
 
-              {/* Bank Account Selection */}
+              {/* Bank Account Selection - Only show active accounts */}
               <div className="space-y-2">
                 <Label htmlFor="bank-account-select">Bankkonto auswählen</Label>
                 <Select value={selectedBankAccountId} onValueChange={setSelectedBankAccountId}>
@@ -219,16 +222,20 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                     <SelectValue placeholder="Bankkonto auswählen..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {bankAccounts.map((account) => (
+                    {activeBankAccounts.map((account) => (
                       <SelectItem key={account.id} value={account.id}>
                         <div className="flex items-center gap-2">
-                          {account.is_default && <span className="text-yellow-600">⭐</span>}
                           <span>{getBankAccountDisplayText(account)}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {activeBankAccounts.length === 0 && (
+                  <p className="text-sm text-red-600">
+                    Keine aktiven Bankkonten verfügbar. Bitte aktivieren Sie mindestens ein Bankkonto.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -278,7 +285,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
             </Button>
             <Button
               onClick={handleCreateInvoice}
-              disabled={!selectedShopId || !selectedBankAccountId || isGenerating || shopsLoading || bankAccountsLoading}
+              disabled={!selectedShopId || !selectedBankAccountId || isGenerating || shopsLoading || bankAccountsLoading || activeBankAccounts.length === 0}
               className={`${limitExceeded ? 'bg-orange-600 hover:bg-orange-700' : 'bg-red-600 hover:bg-red-700'}`}
             >
               <FileText className="h-4 w-4 mr-2" />

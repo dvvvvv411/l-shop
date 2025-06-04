@@ -16,7 +16,7 @@ export const useBankAccounts = () => {
       const { data, error } = await supabase
         .from('bank_accounts')
         .select('*')
-        .order('is_default', { ascending: false })
+        .order('is_active', { ascending: false })
         .order('bank_name', { ascending: true });
 
       if (error) throw error;
@@ -66,6 +66,34 @@ export const useBankAccounts = () => {
     }
   };
 
+  const toggleBankAccountStatus = async (accountId: string, isActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('bank_accounts')
+        .update({ is_active: isActive })
+        .eq('id', accountId);
+
+      if (error) throw error;
+
+      // Update local state
+      setBankAccounts(prev => prev.map(account => 
+        account.id === accountId ? { ...account, is_active: isActive } : account
+      ));
+
+      toast({
+        title: 'Erfolg',
+        description: `Bankkonto wurde ${isActive ? 'aktiviert' : 'deaktiviert'}.`,
+      });
+    } catch (error) {
+      console.error('Error toggling bank account status:', error);
+      toast({
+        title: 'Fehler',
+        description: `Fehler beim ${isActive ? 'Aktivieren' : 'Deaktivieren'} des Bankkontos.`,
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getBankAccountSystemName = (bankAccountId: string | null) => {
     if (!bankAccountId) return '-';
     const bankAccount = bankAccounts.find(ba => ba.id === bankAccountId);
@@ -112,5 +140,6 @@ export const useBankAccounts = () => {
     getDailyUsage,
     checkDailyLimit,
     getBankAccountSystemName,
+    toggleBankAccountStatus,
   };
 };
