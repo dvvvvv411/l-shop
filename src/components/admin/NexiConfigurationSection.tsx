@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,13 +59,15 @@ const NexiConfigurationSection = () => {
 
       if (data) {
         console.log('Loaded Nexi configuration:', data);
+        // Ensure environment is properly typed
+        const environment = data.environment === 'production' ? 'production' : 'test';
         setConfig({
           id: data.id,
           merchant_id: data.merchant_id || '',
           terminal_id: data.terminal_id || '',
           api_key: data.api_key || '',
           webhook_url: data.webhook_url || '',
-          environment: data.environment || 'test',
+          environment,
           is_sandbox: data.is_sandbox ?? true,
           is_active: data.is_active ?? true
         });
@@ -124,10 +127,14 @@ const NexiConfigurationSection = () => {
         throw result.error;
       }
 
+      console.log('Nexi configuration saved successfully');
       toast({
         title: 'Konfiguration gespeichert',
         description: 'Die Nexi-Zahlungskonfiguration wurde erfolgreich aktualisiert.',
       });
+
+      // Reload config to verify it was saved correctly
+      await loadNexiConfig();
     } catch (error) {
       console.error('Failed to save Nexi configuration:', error);
       toast({
@@ -152,8 +159,14 @@ const NexiConfigurationSection = () => {
 
     setIsLoading(true);
     try {
-      console.log('Testing Nexi connection with config:', config);
+      console.log('Testing Nexi connection with config:', {
+        merchant_id: config.merchant_id,
+        terminal_id: config.terminal_id,
+        environment: config.environment,
+        has_api_key: !!config.api_key
+      });
       
+      // Simulate connection test for now
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({

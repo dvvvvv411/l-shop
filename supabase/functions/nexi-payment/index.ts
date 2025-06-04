@@ -65,59 +65,103 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
   console.log('Initiating Nexi payment for order:', request.orderId);
 
   try {
-    // Get Nexi configuration
+    // Get Nexi configuration - better error handling and detailed logging
+    console.log('Fetching Nexi configuration from database...');
     const { data: config, error: configError } = await supabaseClient
       .from('nexi_payment_configs')
       .select('*')
       .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    console.log('Database query result:', { config, configError });
+
+    if (configError) {
+      console.error('Error fetching Nexi configuration:', configError);
+      throw new Error(`Database error: ${configError.message}`);
+    }
+
+    if (!config || config.length === 0) {
+      console.error('No active Nexi configuration found in database');
+      throw new Error('No active Nexi payment configuration found');
+    }
+
+    const nexiConfig = config[0];
+    console.log('Using Nexi configuration:', {
+      id: nexiConfig.id,
+      merchant_id: nexiConfig.merchant_id,
+      terminal_id: nexiConfig.terminal_id,
+      environment: nexiConfig.environment,
+      has_api_key: !!nexiConfig.api_key,
+      api_key_length: nexiConfig.api_key ? nexiConfig.api_key.length : 0
+    });
+
+    if (!nexiConfig.api_key || nexiConfig.api_key.trim() === '') {
+      console.error('API key is missing or empty in config:', nexiConfig);
+      throw new Error('Nexi API key not configured or empty');
+    }
+
+    if (!nexiConfig.merchant_id || nexiConfig.merchant_id.trim() === '') {
+      console.error('Merchant ID is missing or empty in config:', nexiConfig);
+      throw new Error('Nexi Merchant ID not configured or empty');
+    }
+
+    // Find order by order_number (not UUID)
+    console.log('Looking up order by order_number:', request.orderId);
+    const { data: order, error: orderError } = await supabaseClient
+      .from('orders')
+      .select('*')
+      .eq('order_number', request.orderId)
       .single();
 
-    if (configError || !config) {
-      console.error('No active Nexi configuration found:', configError);
-      throw new Error('Nexi payment configuration not found');
+    if (orderError) {
+      console.error('Error finding order:', orderError);
+      throw new Error(`Order not found: ${orderError.message}`);
     }
 
-    if (!config.api_key) {
-      console.error('API key is missing in config:', config);
-      throw new Error('Nexi API key not configured');
+    if (!order) {
+      console.error('Order not found with order_number:', request.orderId);
+      throw new Error(`Order ${request.orderId} not found`);
     }
 
-    console.log('Using Nexi configuration:', {
-      merchant_id: config.merchant_id,
-      terminal_id: config.terminal_id,
-      environment: config.environment,
-      has_api_key: !!config.api_key
+    console.log('Found order:', {
+      id: order.id,
+      order_number: order.order_number,
+      total_amount: order.total_amount
     });
 
     // Generate unique payment reference
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 15);
-    const paymentReference = `${config.merchant_id}_${timestamp}_${randomSuffix}`;
+    const paymentReference = `${nexiConfig.merchant_id}_${timestamp}_${randomSuffix}`;
     
     // Calculate expiration time (30 minutes from now)
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
     // Determine the correct Nexi API base URL
-    const baseUrl = config.environment === 'production' 
+    const baseUrl = nexiConfig.environment === 'production' 
       ? 'https://xpay.nexigroup.com'
       : 'https://int-ecomm.nexi.it';
 
     // Build proper Nexi Pay by Link request according to documentation
     const nexiPayload = {
-      apikey: config.api_key,
-      alias: config.merchant_id,
+      apikey: nexiConfig.api_key.trim(),
+      alias: nexiConfig.merchant_id.trim(),
       importo: request.amount.toString(), // Amount in cents
       divisa: request.currency || 'EUR',
       codTrans: paymentReference,
       url: request.returnUrl,
       url_back: request.cancelUrl,
-      urlpost: config.webhook_url || `${Deno.env.get('SUPABASE_URL')}/functions/v1/nexi-payment`,
+      urlpost: nexiConfig.webhook_url || `${Deno.env.get('SUPABASE_URL')}/functions/v1/nexi-payment`,
       mail: request.customerEmail || '',
       descrizione: request.description || `Order ${request.orderId}`,
       languageId: 'DE'
     };
 
-    console.log('Nexi API request payload:', nexiPayload);
+    console.log('Nexi API request payload:', {
+      ...nexiPayload,
+      apikey: `***${nexiPayload.apikey.slice(-4)}` // Hide API key in logs
+    });
     console.log('Using API base URL:', baseUrl);
 
     // Make API call to Nexi Pay by Link - use POST with form data
@@ -126,7 +170,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       if (value) formData.append(key, value.toString());
     });
 
-    console.log('Form data being sent:', formData.toString());
+    console.log('Form data being sent:', formData.toString().replace(nexiPayload.apikey, `***${nexiPayload.apikey.slice(-4)}`));
 
     const nexiResponse = await fetch(`${baseUrl}/ecomm/ecomm/DispatcherServlet`, {
       method: 'POST',
@@ -137,6 +181,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     });
 
     console.log('Nexi API response status:', nexiResponse.status);
+    console.log('Nexi API response headers:', Object.fromEntries(nexiResponse.headers.entries()));
     
     if (!nexiResponse.ok) {
       const errorText = await nexiResponse.text();
@@ -165,7 +210,8 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
       throw new Error(`Nexi payment creation failed: ${errore}`);
     }
 
-    // Update order with Nexi payment information
+    // Update order with Nexi payment information using order ID (UUID)
+    console.log('Updating order with payment information:', order.id);
     const { error: updateError } = await supabaseClient
       .from('orders')
       .update({
@@ -175,7 +221,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         payment_method: 'nexi_card',
         updated_at: new Date().toISOString()
       })
-      .eq('order_number', request.orderId);
+      .eq('id', order.id); // Use order UUID, not order_number
 
     if (updateError) {
       console.error('Failed to update order with Nexi payment info:', updateError);
@@ -186,7 +232,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     const { error: logError } = await supabaseClient
       .from('nexi_payment_logs')
       .insert({
-        order_id: request.orderId,
+        order_id: request.orderId, // This is order_number, not UUID
         payment_id: idOperazione || paymentReference,
         transaction_type: 'payment_initiation',
         status: 'initiated',
@@ -199,6 +245,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
     if (logError) {
       console.error('Failed to log payment initiation:', logError);
+      // Don't throw here, payment was successful
     }
 
     const response: NexiPaymentLinkResponse = {
