@@ -13,19 +13,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Enhanced webhook logging
-  console.log('=== ENHANCED NEXI WEBHOOK RECEIVED ===');
-  console.log('Timestamp:', new Date().toISOString());
-  console.log('Request method:', req.method);
-  console.log('Request URL:', req.url);
-  console.log('User-Agent:', req.headers.get('user-agent') || 'unknown');
-  console.log('Content-Type:', req.headers.get('content-type') || 'unknown');
-  console.log('Content-Length:', req.headers.get('content-length') || 'unknown');
-  console.log('All headers:', Object.fromEntries(req.headers.entries()));
-
-  // Accept both POST and GET requests from Nexi
-  if (!['POST', 'GET'].includes(req.method)) {
-    console.log('❌ Method not allowed:', req.method);
+  // Only accept POST requests for webhooks
+  if (req.method !== 'POST') {
     return new Response('Method not allowed', { 
       status: 405, 
       headers: corsHeaders 
@@ -33,80 +22,44 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== NEXI WEBHOOK RECEIVED ===');
+    console.log('Request method:', req.method);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
+
     // Use service role client for database operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
+    // Parse webhook data - Nexi can send form data or JSON
     let webhookData: any = {};
-    let rawData = '';
+    const contentType = req.headers.get('content-type') || '';
     
-    // Enhanced data parsing for different content types and methods
-    if (req.method === 'POST') {
-      const contentType = req.headers.get('content-type') || '';
-      console.log('Processing POST request with content-type:', contentType);
+    if (contentType.includes('application/json')) {
+      webhookData = await req.json();
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await req.formData();
+      webhookData = Object.fromEntries(formData.entries());
+    } else {
+      // Try to parse as text and then as form data
+      const text = await req.text();
+      console.log('Raw webhook data:', text);
       
-      if (contentType.includes('application/json')) {
-        rawData = await req.text();
-        console.log('Raw JSON data:', rawData);
-        webhookData = JSON.parse(rawData);
-      } else if (contentType.includes('application/x-www-form-urlencoded')) {
-        rawData = await req.text();
-        console.log('Raw form data:', rawData);
-        const formData = new URLSearchParams(rawData);
-        webhookData = Object.fromEntries(formData.entries());
+      if (text.includes('=') && text.includes('&')) {
+        // Parse as URL-encoded data
+        const params = new URLSearchParams(text);
+        webhookData = Object.fromEntries(params.entries());
       } else {
-        // Fallback: try to parse as text first
-        rawData = await req.text();
-        console.log('Raw webhook data (unknown content-type):', rawData);
-        
-        if (rawData.includes('=') && rawData.includes('&')) {
-          // Parse as URL-encoded data
-          const params = new URLSearchParams(rawData);
-          webhookData = Object.fromEntries(params.entries());
-        } else if (rawData.trim().startsWith('{')) {
-          // Try to parse as JSON
-          try {
-            webhookData = JSON.parse(rawData);
-          } catch {
-            webhookData = { raw_data: rawData };
-          }
-        } else {
-          webhookData = { raw_data: rawData };
+        try {
+          webhookData = JSON.parse(text);
+        } catch {
+          webhookData = { raw_data: text };
         }
       }
-    } else if (req.method === 'GET') {
-      // Parse GET parameters from URL
-      const url = new URL(req.url);
-      webhookData = Object.fromEntries(url.searchParams.entries());
-      rawData = url.search;
-      console.log('GET parameters:', webhookData);
     }
 
     console.log('Parsed webhook data:', webhookData);
-
-    // Log all webhook attempts for debugging
-    const { error: logError } = await supabaseClient
-      .from('nexi_payment_logs')
-      .insert({
-        payment_id: webhookData.tranid || webhookData.paymentid || 'webhook_' + Date.now(),
-        transaction_type: 'webhook_received',
-        status: 'received',
-        webhook_data: {
-          method: req.method,
-          headers: Object.fromEntries(req.headers.entries()),
-          parsed_data: webhookData,
-          raw_data: rawData,
-          url: req.url,
-          timestamp: new Date().toISOString()
-        },
-        notes: `Webhook received via ${req.method} from ${req.headers.get('user-agent') || 'unknown'}`
-      });
-
-    if (logError) {
-      console.error('Failed to log webhook attempt:', logError);
-    }
 
     // Extract key fields from webhook (Nexi Italy webhook parameters)
     const {
@@ -122,12 +75,10 @@ serve(async (req) => {
       udf1,           // Custom field 1
       udf2,           // Custom field 2
       error,          // Error code if any
-      error_text,     // Error description if any
-      responsecode,   // Response code
-      reason          // Reason text
+      error_text      // Error description if any
     } = webhookData;
 
-    console.log('Enhanced key webhook fields:', {
+    console.log('Key webhook fields:', {
       trackid,
       tranid,
       result,
@@ -138,19 +89,16 @@ serve(async (req) => {
       hash: hash ? '[PRESENT]' : '[MISSING]',
       paymentid,
       error,
-      error_text,
-      responsecode,
-      reason
+      error_text
     });
 
-    // Validate required fields with more flexible matching
-    if (!trackid && !tranid && !paymentid && !webhookData.orderid) {
-      console.error('❌ Missing required identifier in webhook');
+    // Validate required fields
+    if (!trackid && !tranid && !paymentid) {
+      console.error('Missing required identifier in webhook');
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required identifier (trackid, tranid, paymentid, or orderid)',
-          received_data: Object.keys(webhookData),
-          suggestion: 'Please ensure Nexi is configured to send trackid parameter'
+          error: 'Missing required identifier (trackid, tranid, or paymentid)',
+          received_data: Object.keys(webhookData)
         }), 
         { 
           status: 400, 
@@ -159,142 +107,95 @@ serve(async (req) => {
       );
     }
 
-    // Enhanced payment status determination
+    // Determine payment status from result
     let paymentStatus = 'pending';
     let orderStatus = 'pending';
     
     if (result) {
-      const resultUpper = result.toUpperCase();
-      switch (resultUpper) {
+      switch (result.toUpperCase()) {
         case 'CAPTURED':
         case 'SUCCESS':
         case 'APPROVED':
-        case 'PAID':
-        case 'COMPLETED':
           paymentStatus = 'completed';
           orderStatus = 'confirmed';
           break;
         case 'FAILED':
         case 'DECLINED':
         case 'ERROR':
-        case 'REJECTED':
-        case 'CANCELLED':
           paymentStatus = 'failed';
           orderStatus = 'cancelled';
           break;
         case 'PENDING':
         case 'PROCESSING':
-        case 'INITIATED':
           paymentStatus = 'pending';
           orderStatus = 'pending';
           break;
         default:
           paymentStatus = 'unknown';
           orderStatus = 'pending';
-          console.warn('Unknown payment result:', result);
-      }
-    } else if (responsecode) {
-      // Fallback to response code if result is not available
-      if (responsecode === '00' || responsecode === '000') {
-        paymentStatus = 'completed';
-        orderStatus = 'confirmed';
-      } else {
-        paymentStatus = 'failed';
-        orderStatus = 'cancelled';
       }
     }
 
-    console.log('Determined status:', { paymentStatus, orderStatus, basedOn: result ? 'result' : 'responsecode' });
+    console.log('Determined status:', { paymentStatus, orderStatus });
 
-    // Enhanced order lookup with multiple strategies
+    // Find the order using multiple identifiers
     let order = null;
-    let searchStrategy = '';
+    let orderQuery = null;
 
-    // Strategy 1: Try to find by trackid (order number) first
+    // Try to find by trackid (order number) first
     if (trackid) {
-      console.log('🔍 Strategy 1: Looking up order by trackid:', trackid);
-      const { data, error } = await supabaseClient
+      console.log('Looking up order by trackid:', trackid);
+      orderQuery = await supabaseClient
         .from('orders')
         .select('*')
         .eq('order_number', trackid)
         .single();
       
-      if (!error && data) {
-        order = data;
-        searchStrategy = 'trackid';
-        console.log('✅ Found order by trackid');
-      } else {
-        console.log('❌ No order found by trackid:', error?.message);
+      if (!orderQuery.error && orderQuery.data) {
+        order = orderQuery.data;
+        console.log('Found order by trackid');
       }
     }
 
-    // Strategy 2: Try to find by nexi_payment_id
+    // Try to find by nexi_payment_id if trackid didn't work
     if (!order && (tranid || paymentid)) {
       const searchId = tranid || paymentid;
-      console.log('🔍 Strategy 2: Looking up order by payment ID:', searchId);
+      console.log('Looking up order by payment ID:', searchId);
       
-      const { data, error } = await supabaseClient
+      orderQuery = await supabaseClient
         .from('orders')
         .select('*')
         .eq('nexi_payment_id', searchId)
         .single();
       
-      if (!error && data) {
-        order = data;
-        searchStrategy = 'payment_id';
-        console.log('✅ Found order by payment ID');
-      } else {
-        console.log('❌ No order found by payment ID:', error?.message);
-      }
-    }
-
-    // Strategy 3: Try to find by order number pattern matching
-    if (!order && trackid && /^[A-Z]\d+$/.test(trackid)) {
-      console.log('🔍 Strategy 3: Pattern matching for order number:', trackid);
-      
-      const { data, error } = await supabaseClient
-        .from('orders')
-        .select('*')
-        .ilike('order_number', trackid)
-        .single();
-      
-      if (!error && data) {
-        order = data;
-        searchStrategy = 'pattern_match';
-        console.log('✅ Found order by pattern matching');
+      if (!orderQuery.error && orderQuery.data) {
+        order = orderQuery.data;
+        console.log('Found order by payment ID');
       }
     }
 
     if (!order) {
-      console.error('❌ Order not found for webhook data:', { trackid, tranid, paymentid });
+      console.error('Order not found for webhook data:', { trackid, tranid, paymentid });
       
-      // Enhanced logging for orphaned webhooks
-      const { error: orphanError } = await supabaseClient
+      // Log the webhook attempt for debugging
+      const { error: logError } = await supabaseClient
         .from('nexi_payment_logs')
         .insert({
-          payment_id: tranid || paymentid || trackid || 'orphaned_' + Date.now(),
+          payment_id: tranid || paymentid || 'unknown',
           transaction_type: 'webhook_orphaned',
           status: 'error',
-          webhook_data: {
-            ...webhookData,
-            search_attempts: {
-              trackid_attempted: !!trackid,
-              payment_id_attempted: !!(tranid || paymentid),
-              pattern_match_attempted: !!(trackid && /^[A-Z]\d+$/.test(trackid))
-            }
-          },
+          webhook_data: webhookData,
           notes: `Order not found for identifiers: trackid=${trackid}, tranid=${tranid}, paymentid=${paymentid}`
         });
 
-      if (orphanError) {
-        console.error('Failed to log orphaned webhook:', orphanError);
+      if (logError) {
+        console.error('Failed to log orphaned webhook:', logError);
       }
 
       return new Response(
         JSON.stringify({ 
           error: 'Order not found',
-          searched_identifiers: { trackid, tranid, paymentid },
-          suggestion: 'Check if order exists in database and Nexi configuration sends correct trackid'
+          searched_identifiers: { trackid, tranid, paymentid }
         }), 
         { 
           status: 404, 
@@ -303,17 +204,12 @@ serve(async (req) => {
       );
     }
 
-    console.log(`✅ Processing webhook for order: ${order.order_number} (found via ${searchStrategy})`);
+    console.log('Processing webhook for order:', order.order_number);
 
-    // Update order with enhanced webhook data
+    // Update order with webhook data
     const updateData: any = {
       nexi_transaction_status: paymentStatus,
-      nexi_webhook_data: {
-        ...webhookData,
-        processed_at: new Date().toISOString(),
-        search_strategy: searchStrategy,
-        webhook_method: req.method
-      },
+      nexi_webhook_data: webhookData,
       nexi_webhook_received_at: new Date().toISOString(),
       status: orderStatus
     };
@@ -324,9 +220,8 @@ serve(async (req) => {
     if (ref) updateData.nexi_reference = ref;
     if (error) updateData.nexi_error_code = error;
     if (error_text) updateData.nexi_error_text = error_text;
-    if (responsecode) updateData.nexi_response_code = responsecode;
 
-    console.log('Updating order with enhanced data:', updateData);
+    console.log('Updating order with data:', updateData);
 
     const { error: updateError } = await supabaseClient
       .from('orders')
@@ -334,39 +229,30 @@ serve(async (req) => {
       .eq('id', order.id);
 
     if (updateError) {
-      console.error('❌ Failed to update order:', updateError);
+      console.error('Failed to update order:', updateError);
       throw new Error(`Failed to update order: ${updateError.message}`);
     }
 
     console.log('✅ Order updated successfully');
 
-    // Create enhanced payment log
+    // Create detailed payment log
     const logData = {
       order_id: order.id,
       payment_id: tranid || paymentid || order.nexi_payment_id,
-      transaction_type: 'webhook_processed',
+      transaction_type: 'webhook',
       status: paymentStatus,
       amount: amt ? parseInt(amt) : order.total_amount,
       currency: 'EUR',
-      webhook_data: {
-        ...webhookData,
-        processing_info: {
-          search_strategy: searchStrategy,
-          webhook_method: req.method,
-          processed_at: new Date().toISOString(),
-          user_agent: req.headers.get('user-agent'),
-          content_type: req.headers.get('content-type')
-        }
-      },
-      notes: `Webhook processed successfully: ${result || responsecode} - Auth: ${auth} - Ref: ${ref} - Found via ${searchStrategy}`
+      webhook_data: webhookData,
+      notes: `Webhook processed: ${result} - Auth: ${auth} - Ref: ${ref}`
     };
 
-    const { error: finalLogError } = await supabaseClient
+    const { error: logError } = await supabaseClient
       .from('nexi_payment_logs')
       .insert(logData);
 
-    if (finalLogError) {
-      console.error('Failed to create payment log:', finalLogError);
+    if (logError) {
+      console.error('Failed to create payment log:', logError);
       // Don't fail the webhook for logging errors
     } else {
       console.log('✅ Payment log created successfully');
@@ -374,7 +260,7 @@ serve(async (req) => {
 
     // Send confirmation email for successful payments
     if (paymentStatus === 'completed' && order.customer_email) {
-      console.log('📧 Triggering order confirmation email...');
+      console.log('Triggering order confirmation email...');
       
       try {
         const { error: emailError } = await supabaseClient.functions.invoke('send-order-confirmation', {
@@ -397,16 +283,15 @@ serve(async (req) => {
       }
     }
 
-    console.log('=== ENHANCED WEBHOOK PROCESSING COMPLETE ===');
+    console.log('=== WEBHOOK PROCESSING COMPLETE ===');
 
-    // Return success response that Nexi expects
+    // Return success response
     return new Response(
       JSON.stringify({ 
         success: true, 
         status: paymentStatus,
         order_number: order.order_number,
-        message: 'Webhook processed successfully',
-        timestamp: new Date().toISOString()
+        message: 'Webhook processed successfully'
       }),
       {
         status: 200,
@@ -415,14 +300,14 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('=== ENHANCED WEBHOOK PROCESSING ERROR ===');
+    console.error('=== WEBHOOK PROCESSING ERROR ===');
     console.error('Error details:', error.message);
     console.error('Stack trace:', error.stack);
 
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Check enhanced webhook logs for more information',
+        details: 'Check webhook logs for more information',
         timestamp: new Date().toISOString()
       }),
       {
