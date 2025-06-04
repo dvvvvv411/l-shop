@@ -1,10 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, Truck, Clock, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
 
 interface PriceCalculatorData {
   product: {
@@ -31,7 +29,6 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const finalPrice = orderData.totalPrice;
 
@@ -39,20 +36,6 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const vatRate = 0.19;
   const netPrice = finalPrice / (1 + vatRate);
   const vatAmount = finalPrice - netPrice;
-
-  // Determine the correct homepage path based on referrer
-  const getHomepagePath = () => {
-    const referrer = localStorage.getItem('orderReferrer');
-    if (referrer === '/2/home') {
-      return '/2/home';
-    }
-    return '/1/home'; // Default fallback
-  };
-
-  const handleBackToHomepage = () => {
-    const homepagePath = getHomepagePath();
-    navigate(homepagePath);
-  };
 
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) {
@@ -185,18 +168,6 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                 davon {vatAmount.toFixed(2)}€ MwSt.
               </div>
             </div>
-          </div>
-
-          {/* Back to Homepage Button */}
-          <div className="pt-4 border-t border-gray-200">
-            <Button
-              onClick={handleBackToHomepage}
-              variant="outline"
-              className="w-full flex items-center justify-center space-x-2 hover:bg-gray-50"
-            >
-              <Home size={16} />
-              <span>Zurück zur Startseite</span>
-            </Button>
           </div>
 
           {/* Delivery Info */}
