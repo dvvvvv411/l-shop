@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export type ShopType = 'root' | 'stanton' | 'greenoil';
 
@@ -44,16 +44,24 @@ const defaultConfig: DomainShopConfig = {
   faviconIcon: 'flame'
 };
 
-export const useDomainShop = () => {
-  const [shopConfig, setShopConfig] = useState<DomainShopConfig>(defaultConfig);
+// Helper function to get the correct shop config synchronously
+const getDomainShopConfig = (): DomainShopConfig => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return defaultConfig;
+  }
 
-  useEffect(() => {
-    const hostname = window.location.hostname;
-    const config = domainMappings[hostname] || defaultConfig;
-    setShopConfig(config);
-    
-    console.log('Domain shop detected:', { hostname, shopType: config.shopType });
-  }, []);
+  const hostname = window.location.hostname;
+  const config = domainMappings[hostname] || defaultConfig;
+  
+  console.log('Domain shop detected synchronously:', { hostname, shopType: config.shopType });
+  
+  return config;
+};
+
+export const useDomainShop = () => {
+  // Initialize with the correct config immediately - no flash!
+  const [shopConfig] = useState<DomainShopConfig>(() => getDomainShopConfig());
 
   return shopConfig;
 };
