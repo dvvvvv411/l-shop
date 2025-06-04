@@ -70,24 +70,8 @@ const NexiPaymentButton = ({
           description: 'Sie werden zur sicheren Nexi Zahlungsseite weitergeleitet.',
         });
 
-        // Open payment link in new tab for better user experience
-        const paymentWindow = window.open(response.redirectUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-        
-        if (!paymentWindow) {
-          // Fallback if popup is blocked
-          window.location.href = response.redirectUrl;
-        } else {
-          // Monitor the payment window
-          const checkClosed = setInterval(() => {
-            if (paymentWindow.closed) {
-              clearInterval(checkClosed);
-              // Check payment status after window is closed
-              setTimeout(() => {
-                window.location.href = returnUrl;
-              }, 1000);
-            }
-          }, 1000);
-        }
+        // Redirect directly to the payment page
+        window.location.href = response.redirectUrl;
       } else {
         throw new Error('Invalid payment response from Nexi');
       }

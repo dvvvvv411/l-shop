@@ -139,20 +139,20 @@ const NexiConfigurationSection = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="merchant_id">Merchant ID</Label>
+              <Label htmlFor="merchant_id">Merchant Alias</Label>
               <Input
                 id="merchant_id"
                 value={config.merchant_id}
                 onChange={(e) => setConfig({ ...config, merchant_id: e.target.value })}
-                placeholder="z.B. 002132517"
+                placeholder="z.B. ALIAS_WEB_00001"
               />
               <p className="text-sm text-gray-500">
-                Ihre Nexi Merchant-ID aus dem Nexi Dashboard
+                Ihr Nexi Merchant-Alias aus dem Nexi Dashboard
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="terminal_id">Terminal ID</Label>
+              <Label htmlFor="terminal_id">Terminal ID (optional)</Label>
               <Input
                 id="terminal_id"
                 value={config.terminal_id}
@@ -160,27 +160,27 @@ const NexiConfigurationSection = () => {
                 placeholder="z.B. 03893387"
               />
               <p className="text-sm text-gray-500">
-                Ihre Nexi Terminal-ID für Transaktionen
+                Ihre Nexi Terminal-ID (falls erforderlich)
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="api_key">API-Schlüssel</Label>
+            <Label htmlFor="api_key">API-Schlüssel (MAC Key)</Label>
             <Input
               id="api_key"
               type="password"
               value={config.api_key}
               onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
-              placeholder="Geben Sie Ihren Nexi API-Schlüssel ein"
+              placeholder="Geben Sie Ihren Nexi MAC-Schlüssel ein"
             />
             <p className="text-sm text-gray-500">
-              Ihr API-Schlüssel für die Nexi Pay by Link Integration
+              Ihr MAC-Schlüssel für die Nexi Pay by Link Integration
             </p>
             {!config.api_key && (
               <div className="flex items-center gap-2 text-amber-600">
                 <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">API-Schlüssel ist erforderlich für die Integration</span>
+                <span className="text-sm">MAC-Schlüssel ist erforderlich für die Integration</span>
               </div>
             )}
           </div>
@@ -254,6 +254,17 @@ const NexiConfigurationSection = () => {
             <li>• Automatische Webhooks für Statusupdates</li>
             <li>• PCI DSS-konforme Zahlungsabwicklung</li>
             <li>• Mehrsprachige Zahlungsseiten</li>
+          </ul>
+        </div>
+
+        {/* Technical Details */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h4 className="font-medium text-gray-900 mb-2">Technische Details</h4>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• API Endpoint: {config.environment === 'production' ? 'https://xpay.nexigroup.com' : 'https://int-ecomm.nexi.it'}</li>
+            <li>• Authentifizierung: MAC-Schlüssel basiert</li>
+            <li>• Datenformat: URL-encoded form data</li>
+            <li>• Webhook Format: Form POST parameters</li>
           </ul>
         </div>
 
