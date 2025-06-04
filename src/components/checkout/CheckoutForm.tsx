@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -594,15 +593,15 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
+                        <div className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                            <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
+                            <RadioGroupItem value="rechnung" id="rechnung" />
+                            <Label htmlFor="rechnung" className="flex-1 cursor-pointer">
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className="font-semibold text-gray-600">Rechnung</div>
-                                  <div className="text-sm text-gray-500">
-                                    Zahlung nach Lieferung (derzeit nicht verfügbar)
+                                  <div className="font-semibold text-gray-900">Rechnung</div>
+                                  <div className="text-sm text-gray-600">
+                                    Zahlung nach Lieferung
                                   </div>
                                 </div>
                                 <div className="text-sm text-gray-500">
