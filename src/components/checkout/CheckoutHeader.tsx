@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getLogoConfig } from '../../config/logoConfig';
+import { getLogoConfigByShopType } from '../../config/logoConfig';
+import { useDomainShop } from '../../hooks/useDomainShop';
 
 const CheckoutHeader = () => {
-  const referrer = localStorage.getItem('orderReferrer');
-  const logoConfig = getLogoConfig(referrer || undefined);
+  const shopConfig = useDomainShop();
+  const logoConfig = getLogoConfigByShopType(shopConfig.shopType);
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:px-8">
