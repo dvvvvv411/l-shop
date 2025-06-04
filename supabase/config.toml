@@ -43,9 +43,6 @@ verify_jwt = false
 [functions.scrape-northdata]
 verify_jwt = false
 
-[functions.nexi-webhook]
-verify_jwt = false
-
 [db]
 enabled = true
 port = 54322

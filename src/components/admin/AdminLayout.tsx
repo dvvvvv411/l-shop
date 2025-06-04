@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
@@ -46,11 +45,6 @@ const AdminLayout = () => {
       name: 'SMTP',
       href: '/admin/smtp',
       icon: Mail,
-    },
-    {
-      name: 'Nexi',
-      href: '/admin/nexi',
-      icon: CreditCard,
     },
   ];
 
