@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,7 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables } from '@/integrations/supabase/types';
 
-// Use the correct Supabase type that includes is_default
+// Use the correct Supabase type
 type BankAccount = Tables<'bank_accounts'>;
 
 interface BankAccountFormProps {
@@ -36,7 +37,7 @@ interface FormData {
   account_holder: string;
   iban: string;
   bic: string;
-  is_default: boolean;
+  is_active: boolean;
   daily_limit: number;
   system_name: string;
 }
@@ -55,7 +56,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
       account_holder: account?.account_holder || '',
       iban: account?.iban || '',
       bic: account?.bic || '',
-      is_default: account?.is_default || false,
+      is_active: account?.is_active || false,
       daily_limit: account?.daily_limit || 0,
       system_name: account?.system_name || '',
     },
@@ -68,7 +69,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         account_holder: account.account_holder,
         iban: account.iban,
         bic: account.bic,
-        is_default: account.is_default,
+        is_active: account.is_active,
         daily_limit: account.daily_limit || 0,
         system_name: account.system_name,
       });
@@ -78,7 +79,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         account_holder: '',
         iban: '',
         bic: '',
-        is_default: false,
+        is_active: false,
         daily_limit: 0,
         system_name: '',
       });
@@ -263,7 +264,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
 
             <FormField
               control={form.control}
-              name="is_default"
+              name="is_active"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
@@ -273,7 +274,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Als Standardkonto festlegen</FormLabel>
+                    <FormLabel>Konto aktivieren</FormLabel>
                   </div>
                 </FormItem>
               )}
