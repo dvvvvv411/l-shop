@@ -373,14 +373,15 @@ const NexiConfigurationSection = () => {
           </ul>
         </div>
 
-        {/* Technical Details */}
+        {/* Technical Details - UPDATED with correct endpoints */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <h4 className="font-medium text-gray-900 mb-2">Technische Details</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• API Endpoint: {config.environment === 'production' ? 'https://xpay.nexigroup.com' : 'https://int-ecomm.nexi.it'}</li>
+            <li>• Test API Endpoint: https://stg-ta.nexigroup.com/api/phoenix-0.0/psp/api/v1</li>
+            <li>• Live API Endpoint: https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1</li>
             <li>• Authentifizierung: MAC-Schlüssel basiert</li>
-            <li>• Datenformat: URL-encoded form data</li>
-            <li>• Webhook Format: Form POST parameters</li>
+            <li>• Datenformat: JSON (REST API)</li>
+            <li>• Webhook Format: JSON POST</li>
           </ul>
         </div>
 

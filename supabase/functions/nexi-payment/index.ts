@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -174,10 +173,12 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     const randomSuffix = Math.random().toString(36).substring(2, 8);
     const orderId = `${request.orderId}_${timestamp}_${randomSuffix}`;
     
-    // Determine the correct Nexi API base URL - using modern REST API endpoints
+    // UPDATED: Use correct modern Nexi API base URLs
     const baseUrl = nexiConfig.environment === 'production' 
       ? 'https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1'
-      : 'https://int-ecomm.nexi.it/ecomm/api/phoenix-0.0/psp/api/v1';
+      : 'https://stg-ta.nexigroup.com/api/phoenix-0.0/psp/api/v1';
+
+    console.log('Using CORRECT modern Nexi API base URL:', baseUrl);
 
     // Build modern Nexi REST API request payload
     const nexiPayload: NexiPaymentPayload = {
@@ -210,7 +211,6 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
 
     const payloadString = JSON.stringify(nexiPayload);
     console.log('Nexi API request payload:', nexiPayload);
-    console.log('Using API base URL:', baseUrl);
 
     // Generate correlation ID for tracking
     const correlationId = generateCorrelationId();
@@ -290,7 +290,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         currency: request.currency || 'EUR',
         request_data: nexiPayload,
         response_data: { responseData, correlationId },
-        notes: `Modern REST API payment initiated via Nexi. Correlation ID: ${correlationId}`
+        notes: `Modern REST API payment initiated via Nexi. Correlation ID: ${correlationId}. Using correct API endpoint: ${baseUrl}`
       });
 
     if (logError) {
