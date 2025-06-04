@@ -11,7 +11,11 @@ import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 import BankAccountForm from '@/components/admin/BankAccountForm';
 import BankAccountDeleteDialog from '@/components/admin/BankAccountDeleteDialog';
 import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialog';
-import { useBankAccounts, BankAccount } from '@/hooks/useBankAccounts';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
+import type { Tables } from '@/integrations/supabase/types';
+
+// Use the correct type from Supabase
+type BankAccount = Tables<'bank_accounts'>;
 
 const AdminBankAccounts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -146,7 +150,7 @@ const AdminBankAccounts = () => {
       <div className="grid gap-6">
         {bankAccounts?.map((account) => {
           const dailyUsage = dailyUsageMap?.[account.id] || 0;
-          const hasLimit = account.daily_limit > 0;
+          const hasLimit = account.daily_limit && account.daily_limit > 0;
           const usagePercentage = hasLimit ? getUsagePercentage(dailyUsage, account.daily_limit) : 0;
 
           return (
@@ -235,7 +239,7 @@ const AdminBankAccounts = () => {
                       <p className="font-medium">
                         {hasLimit ? (
                           <span className={getUsageColor(usagePercentage)}>
-                            {formatDailyUsage(dailyUsage, account.daily_limit)}
+                            {formatDailyUsage(dailyUsage, account.daily_limit || 0)}
                           </span>
                         ) : (
                           'Unbegrenzt'
