@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Filter, EyeOff } from 'lucide-react';
+import { Search, Filter, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,10 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
   showHidden,
   setShowHidden
 }) => {
+  const handleToggleHidden = () => {
+    setShowHidden(!showHidden);
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="relative flex-1">
@@ -49,11 +53,20 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
       </Select>
       <Button
         variant={showHidden ? "default" : "outline"}
-        onClick={() => setShowHidden(!showHidden)}
+        onClick={handleToggleHidden}
         className="w-full sm:w-auto"
       >
-        <EyeOff className="h-4 w-4 mr-2" />
-        {showHidden ? "Ausgeblendete anzeigen" : "Alle anzeigen"}
+        {showHidden ? (
+          <>
+            <Eye className="h-4 w-4 mr-2" />
+            Ausgeblendete anzeigen
+          </>
+        ) : (
+          <>
+            <EyeOff className="h-4 w-4 mr-2" />
+            Alle anzeigen
+          </>
+        )}
       </Button>
     </div>
   );

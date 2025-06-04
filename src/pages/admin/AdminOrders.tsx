@@ -51,7 +51,7 @@ const AdminOrders = () => {
     refetch(showHidden);
   }, [showHidden, refetch]);
 
-  // Filter orders (no sorting functionality)
+  // Filter orders based on showHidden state
   const filteredOrders = useMemo(() => {
     return displayOrders.filter(order => {
       const matchesSearch = 
@@ -62,9 +62,12 @@ const AdminOrders = () => {
       
       const matchesStatus = statusFilter === 'alle' || order.status === statusFilter;
       
-      return matchesSearch && matchesStatus;
+      // If showHidden is false, exclude hidden orders; if true, include all orders
+      const matchesHiddenFilter = showHidden || !order.is_hidden;
+      
+      return matchesSearch && matchesStatus && matchesHiddenFilter;
     });
-  }, [displayOrders, searchTerm, statusFilter]);
+  }, [displayOrders, searchTerm, statusFilter, showHidden]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
@@ -74,7 +77,7 @@ const AdminOrders = () => {
   );
 
   // New orders count (using 'pending' instead of 'Neu')
-  const newOrdersCount = displayOrders.filter(order => order.status === 'pending').length;
+  const newOrdersCount = displayOrders.filter(order => order.status === 'pending' && !order.is_hidden).length;
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {

@@ -248,7 +248,7 @@ const OrderActions: React.FC<OrderActionsProps> = ({
             </Button>
           )}
           
-          {/* Hide/Unhide Order */}
+          {/* Hide/Unhide Order - Show unhide button when order is hidden, show hide button only when status is pending and order is not hidden */}
           {order.is_hidden ? (
             <Button
               variant="outline"
@@ -259,14 +259,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
               Bestellung wieder einblenden
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              className="w-full justify-start text-gray-700 border-gray-200 hover:bg-gray-50"
-              onClick={handleHideOrder}
-            >
-              <EyeOff className="h-4 w-4 mr-2" />
-              Bestellung ausblenden
-            </Button>
+            currentStatus === 'pending' && (
+              <Button
+                variant="outline"
+                className="w-full justify-start text-gray-700 border-gray-200 hover:bg-gray-50"
+                onClick={handleHideOrder}
+              >
+                <EyeOff className="h-4 w-4 mr-2" />
+                Bestellung ausblenden
+              </Button>
+            )
           )}
         </CardContent>
       </Card>

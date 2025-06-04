@@ -23,7 +23,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#dc2626',
     faviconIcon: 'drop'
   },
-  'greenoil-lieferung.de': {
+  'greenoil-energie.de': {
     shopType: 'greenoil',
     name: 'Heizöl-Service',
     brand: 'Heizöl',

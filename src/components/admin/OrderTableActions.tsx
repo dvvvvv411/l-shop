@@ -137,7 +137,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
         </Button>
       )}
 
-      {/* Hide/Unhide Order - Always available */}
+      {/* Hide/Unhide Order - Show unhide button when showing hidden orders and order is hidden, show hide button only when status is pending and order is not hidden */}
       {showHidden && order.is_hidden ? (
         <Button 
           variant="ghost" 
@@ -149,7 +149,7 @@ const OrderTableActions: React.FC<OrderTableActionsProps> = ({
           <Eye className="h-3 w-3" />
         </Button>
       ) : (
-        !order.is_hidden && (
+        !order.is_hidden && order.status === 'pending' && (
           <Button 
             variant="ghost" 
             size="sm"
