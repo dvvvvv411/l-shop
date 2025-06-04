@@ -274,34 +274,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Test Data Generator */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-amber-100 p-2 rounded-lg">
-              <TestTube className="text-amber-600" size={20} />
-            </div>
-            <div>
-              <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
-              <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            onClick={handleGenerateTestData}
-            variant="outline"
-            className="border-amber-300 text-amber-700 hover:bg-amber-100"
-          >
-            Testdaten generieren
-          </Button>
-        </div>
-      </motion.div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Customer Email */}
