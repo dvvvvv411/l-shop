@@ -67,21 +67,29 @@ const AdminLogin = () => {
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                   Benutzername
                 </label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="h-12 bg-white/50 backdrop-blur-sm border-white/20 focus:bg-white/80 transition-all duration-300"
-                />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-[2px]">
+                    <div className="h-full w-full bg-white/90 backdrop-blur-sm rounded-[10px]"></div>
+                  </div>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    className="relative z-10 h-12 bg-transparent border-0 focus:bg-white/95 transition-all duration-300 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Passwort
                 </label>
                 <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-[2px]">
+                    <div className="h-full w-full bg-white/90 backdrop-blur-sm rounded-[10px]"></div>
+                  </div>
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -89,11 +97,11 @@ const AdminLogin = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="h-12 bg-white/50 backdrop-blur-sm border-white/20 focus:bg-white/80 transition-all duration-300 pr-12"
+                    className="relative z-10 h-12 bg-transparent border-0 focus:bg-white/95 transition-all duration-300 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 pr-12"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 hover:text-blue-600"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200 hover:text-blue-600 z-20"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
