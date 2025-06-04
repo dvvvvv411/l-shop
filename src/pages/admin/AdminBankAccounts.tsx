@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,20 +11,7 @@ import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 import BankAccountForm from '@/components/admin/BankAccountForm';
 import BankAccountDeleteDialog from '@/components/admin/BankAccountDeleteDialog';
 import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialog';
-import { useBankAccounts } from '@/hooks/useBankAccounts';
-
-interface BankAccount {
-  id: string;
-  bank_name: string;
-  account_holder: string;
-  iban: string;
-  bic: string;
-  is_active: boolean;
-  daily_limit: number;
-  system_name: string;
-  created_at: string;
-  updated_at: string;
-}
+import { useBankAccounts, BankAccount } from '@/hooks/useBankAccounts';
 
 const AdminBankAccounts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
