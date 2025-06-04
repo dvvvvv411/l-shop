@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -79,7 +80,7 @@ const PriceCalculator = () => {
 
   const handleOrderClick = () => {
     if (isFormValid) {
-      // Store order data in the format that CheckoutForm expects
+      // Store order data without postcode
       const orderData = {
         product: {
           id: currentProduct.id,
@@ -88,7 +89,6 @@ const PriceCalculator = () => {
           description: currentProduct.description
         },
         amount,
-        postcode,
         basePrice,
         deliveryFee,
         totalPrice,

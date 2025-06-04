@@ -73,6 +73,7 @@ const PriceCalculator = () => {
   };
   const handleOrderClick = () => {
     if (isFormValid) {
+      // Store order data without postcode
       const orderData = {
         product: {
           id: currentProduct.id,
@@ -81,7 +82,6 @@ const PriceCalculator = () => {
           description: currentProduct.description
         },
         amount,
-        postcode,
         basePrice,
         deliveryFee,
         totalPrice,
@@ -93,7 +93,9 @@ const PriceCalculator = () => {
     }
   };
   const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
-  return <div className="max-w-6xl mx-auto">
+  
+  return (
+    <div className="max-w-6xl mx-auto">
       {/* Compact Header */}
       <motion.div initial={{
       opacity: 0,
@@ -341,6 +343,7 @@ const PriceCalculator = () => {
           </motion.div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 export default PriceCalculator;

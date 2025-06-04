@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -75,7 +74,6 @@ interface PriceCalculatorData {
     description: string;
   };
   amount: number;
-  postcode: string;
   basePrice: number;
   deliveryFee: number;
   totalPrice: number;
@@ -376,7 +374,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   <FormItem>
                     <FormLabel>Postleitzahl *</FormLabel>
                     <FormControl>
-                      <Input placeholder="PLZ" {...field} defaultValue={orderData.postcode || ''} />
+                      <Input placeholder="PLZ" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

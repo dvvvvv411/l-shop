@@ -79,7 +79,6 @@ interface PriceCalculatorData {
     description: string;
   };
   amount: number;
-  postcode: string;
   basePrice: number;
   deliveryFee: number;
   totalPrice: number;
@@ -437,7 +436,7 @@ const OrderForm = () => {
               }) => <FormItem>
                       <FormLabel>Postleitzahl *</FormLabel>
                       <FormControl>
-                        <Input placeholder="12345" {...field} defaultValue={orderData.postcode || ''} />
+                        <Input placeholder="12345" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>} />
