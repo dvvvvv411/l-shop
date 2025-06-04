@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -447,7 +448,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.text(order.delivery_street || order.customer_address, 18, 74)
   doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 18, 80)
   
-  // Delivery details section (removed delivery date)
+  // Delivery details section - FORCE payment method to "Vorkasse"
   doc.setFontSize(11)
   doc.setFont('helvetica', 'bold')
   doc.text('Lieferdetails:', 15, 98)
@@ -455,7 +456,8 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
   doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 15, 105)
-  doc.text(`Zahlungsart: ${order.payment_method}`, 15, 110)
+  // Always show "Vorkasse" regardless of the actual order payment method
+  doc.text(`Zahlungsart: Vorkasse`, 15, 110)
   
   // Table header with improved styling
   let yPos = 125
