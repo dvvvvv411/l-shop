@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -166,18 +165,55 @@ const NexiConfigurationSection = () => {
         has_api_key: !!config.api_key
       });
       
-      // Simulate connection test for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: 'Verbindung erfolgreich',
-        description: 'Die Verbindung zu Nexi wurde erfolgreich getestet.',
+      // Test the connection using a simple API call
+      const baseUrl = config.environment === 'production' 
+        ? 'https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1'
+        : 'https://stg-ta.nexigroup.com/api/phoenix-0.0/psp/api/v1';
+
+      const testResponse = await fetch(`${baseUrl}/orders/build`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': config.api_key.trim(),
+          'X-Merchant-Id': config.merchant_id.trim(),
+          'Accept': 'application/json',
+          'User-Agent': 'Heizoel-Shop/1.0'
+        },
+        body: JSON.stringify({
+          orderId: `TEST_${Date.now()}`,
+          amount: { currency: 'EUR', value: 100 },
+          paymentSession: {
+            actionType: 'PAY',
+            amount: { currency: 'EUR', value: 100 },
+            language: 'ITA',
+            resultUrl: 'https://example.com/success',
+            cancelUrl: 'https://example.com/cancel'
+          }
+        })
       });
+
+      if (testResponse.status === 401) {
+        throw new Error('Authentifizierung fehlgeschlagen - Bitte überprüfen Sie Ihre API-Zugangsdaten');
+      } else if (testResponse.status === 400) {
+        // A 400 error with proper authentication means the API is reachable
+        toast({
+          title: 'Verbindung erfolgreich',
+          description: 'Die Authentifizierung mit der Nexi API war erfolgreich.',
+        });
+      } else if (testResponse.ok) {
+        toast({
+          title: 'Verbindung erfolgreich',
+          description: 'Die Verbindung zu Nexi wurde erfolgreich getestet.',
+        });
+      } else {
+        const errorText = await testResponse.text();
+        throw new Error(`API-Fehler: ${testResponse.status} - ${errorText}`);
+      }
     } catch (error) {
       console.error('Nexi connection test failed:', error);
       toast({
         title: 'Verbindungsfehler',
-        description: 'Die Verbindung zu Nexi konnte nicht hergestellt werden.',
+        description: error.message || 'Die Verbindung zu Nexi konnte nicht hergestellt werden.',
         variant: 'destructive',
       });
     } finally {
@@ -282,21 +318,21 @@ const NexiConfigurationSection = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="api_key">API-Schlüssel (MAC Key)</Label>
+            <Label htmlFor="api_key">API-Schlüssel</Label>
             <Input
               id="api_key"
               type="password"
               value={config.api_key}
               onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
-              placeholder="Geben Sie Ihren Nexi MAC-Schlüssel ein"
+              placeholder="Geben Sie Ihren Nexi API-Schlüssel ein"
             />
             <p className="text-sm text-gray-500">
-              Ihr MAC-Schlüssel für die Nexi Pay by Link Integration
+              Ihr API-Schlüssel für die moderne Nexi REST API
             </p>
             {!config.api_key && (
               <div className="flex items-center gap-2 text-amber-600">
                 <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">MAC-Schlüssel ist erforderlich für die Integration</span>
+                <span className="text-sm">API-Schlüssel ist erforderlich für die Integration</span>
               </div>
             )}
           </div>
@@ -373,13 +409,13 @@ const NexiConfigurationSection = () => {
           </ul>
         </div>
 
-        {/* Technical Details - UPDATED with correct endpoints */}
+        {/* Technical Details - UPDATED with correct authentication method */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <h4 className="font-medium text-gray-900 mb-2">Technische Details</h4>
           <ul className="text-sm text-gray-600 space-y-1">
             <li>• Test API Endpoint: https://stg-ta.nexigroup.com/api/phoenix-0.0/psp/api/v1</li>
             <li>• Live API Endpoint: https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1</li>
-            <li>• Authentifizierung: MAC-Schlüssel basiert</li>
+            <li>• Authentifizierung: API-Schlüssel basiert (X-API-Key Header)</li>
             <li>• Datenformat: JSON (REST API)</li>
             <li>• Webhook Format: JSON POST</li>
           </ul>

@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -88,17 +89,6 @@ function generateCorrelationId(): string {
   return 'COR-' + Date.now() + '-' + Math.random().toString(36).substring(2, 15);
 }
 
-function generateMac(payload: string, macKey: string): string {
-  // For Nexi, the MAC is calculated using SHA256 hash of the payload + MAC key
-  // This is a simplified implementation - in production, you'd use proper SHA256
-  const encoder = new TextEncoder();
-  const data = encoder.encode(payload + macKey);
-  
-  // Simple hash implementation for demo purposes
-  // In production, use proper SHA256 from crypto library
-  return btoa(String.fromCharCode(...data)).substring(0, 40);
-}
-
 async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest): Promise<Response> {
   console.log('Initiating Nexi payment for order:', request.orderId);
 
@@ -173,12 +163,12 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     const randomSuffix = Math.random().toString(36).substring(2, 8);
     const orderId = `${request.orderId}_${timestamp}_${randomSuffix}`;
     
-    // UPDATED: Use correct modern Nexi API base URLs
+    // Use correct modern Nexi API base URLs
     const baseUrl = nexiConfig.environment === 'production' 
       ? 'https://xpay.nexigroup.com/api/phoenix-0.0/psp/api/v1'
       : 'https://stg-ta.nexigroup.com/api/phoenix-0.0/psp/api/v1';
 
-    console.log('Using CORRECT modern Nexi API base URL:', baseUrl);
+    console.log('Using modern Nexi REST API base URL:', baseUrl);
 
     // Build modern Nexi REST API request payload
     const nexiPayload: NexiPaymentPayload = {
@@ -215,20 +205,19 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
     // Generate correlation ID for tracking
     const correlationId = generateCorrelationId();
 
-    // Calculate MAC for authentication
-    const mac = generateMac(payloadString, nexiConfig.api_key.trim());
-
     console.log('Making Nexi API request with correlation ID:', correlationId);
+    console.log('Using API key authentication with merchant ID:', nexiConfig.merchant_id);
 
-    // Make API call to modern Nexi REST API
+    // Make API call to modern Nexi REST API with correct authentication
     const nexiResponse = await fetch(`${baseUrl}/orders/build`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `MAC id="${nexiConfig.merchant_id}", ts="${timestamp}", nonce="${correlationId}", mac="${mac}"`,
+        'X-API-Key': nexiConfig.api_key.trim(), // Use API Key authentication
+        'X-Merchant-Id': nexiConfig.merchant_id.trim(),
         'Correlation-Id': correlationId,
-        'X-Merchant-Id': nexiConfig.merchant_id,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Heizoel-Shop/1.0'
       },
       body: payloadString
     });
@@ -290,7 +279,7 @@ async function initiatePayment(supabaseClient: any, request: NexiPaymentRequest)
         currency: request.currency || 'EUR',
         request_data: nexiPayload,
         response_data: { responseData, correlationId },
-        notes: `Modern REST API payment initiated via Nexi. Correlation ID: ${correlationId}. Using correct API endpoint: ${baseUrl}`
+        notes: `Modern REST API payment initiated via Nexi using API Key authentication. Correlation ID: ${correlationId}. API endpoint: ${baseUrl}`
       });
 
     if (logError) {
