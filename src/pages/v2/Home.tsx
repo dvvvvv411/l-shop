@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v2/Header';
@@ -10,10 +9,8 @@ import CustomerReviews from '../../components/v2/CustomerReviews';
 import Footer from '../../components/v2/Footer';
 import { Zap, Award } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
-
 const Home = () => {
   usePageMeta('home');
-
   return <div className="min-h-screen bg-gray-50">
       <Header />
       
@@ -90,7 +87,7 @@ const Home = () => {
             <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
               <div className="text-2xl font-light text-blue-600 mb-1">Service</div>
               <div className="text-slate-600 font-medium">Persönliche Betreuung</div>
-              <div className="text-xs text-slate-500 mt-1">8-20 Uhr täglich</div>
+              <div className="text-xs text-slate-500 mt-1">8-18 Uhr täglich</div>
             </div>
           </motion.div>
         </div>
