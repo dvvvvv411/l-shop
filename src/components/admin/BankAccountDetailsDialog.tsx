@@ -112,9 +112,9 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
             <span className="font-bold text-blue-600">{bankAccount.system_name}</span>
             <span className="text-gray-500">•</span>
             <span>{bankAccount.bank_name}</span>
-            {bankAccount.is_default && (
+            {bankAccount.is_active && (
               <Badge variant="default" className="bg-green-100 text-green-800">
-                Standard
+                Aktiv
               </Badge>
             )}
           </DialogTitle>
@@ -146,6 +146,12 @@ const BankAccountDetailsDialog: React.FC<BankAccountDetailsDialogProps> = ({
                 <div>
                   <p className="text-sm text-gray-500">BIC</p>
                   <p className="font-medium font-mono">{bankAccount.bic}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className={`font-medium ${bankAccount.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                    {bankAccount.is_active ? 'Aktiv' : 'Inaktiv'}
+                  </p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-500">Tageslimit & Nutzung</p>
