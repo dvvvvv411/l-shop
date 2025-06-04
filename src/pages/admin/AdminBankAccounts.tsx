@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,11 +14,8 @@ import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialo
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import type { Tables } from '@/integrations/supabase/types';
 
-// Use the correct type from Supabase and extend with required properties
-type BankAccountFromDB = Tables<'bank_accounts'>;
-type BankAccount = BankAccountFromDB & {
-  is_default?: boolean;
-};
+// Use the correct type from Supabase
+type BankAccount = Tables<'bank_accounts'>;
 
 const AdminBankAccounts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -41,11 +37,7 @@ const AdminBankAccounts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      // Transform the data to include is_default property
-      return (data as BankAccountFromDB[]).map(account => ({
-        ...account,
-        is_default: false // Default value since this property might not exist in DB
-      })) as BankAccount[];
+      return data as BankAccount[];
     },
   });
 
