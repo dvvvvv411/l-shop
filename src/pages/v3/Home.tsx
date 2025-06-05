@@ -205,7 +205,7 @@ const Home = () => {
                 <div className="text-violet-200 font-medium">Bundesländer</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">50k+</div>
+                <div className="text-3xl font-bold text-white mb-2">85k+</div>
                 <div className="text-violet-200 font-medium">Zufriedene Kunden</div>
               </div>
               <div className="text-center">
