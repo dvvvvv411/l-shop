@@ -15,7 +15,7 @@ const PriceCalculator = React.memo(() => {
   const location = useLocation();
   const [amount, setAmount] = useState<number>(3000);
   const [postcode, setPostcode] = useState<string>('');
-  const [quality, setQuality] = useState<string>('premium');
+  const [quality, setQuality] = useState<string>('standard');
   const [isValidPostcode, setIsValidPostcode] = useState(true);
   const [isValidAmount, setIsValidAmount] = useState(true);
 
