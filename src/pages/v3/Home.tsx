@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import PriceCalculator from '@/components/v3/PriceCalculator';
 import StatsSection from '@/components/v3/StatsSection';
 import WhyChooseUs from '@/components/v3/WhyChooseUs';
-import FAQ from '@/components/v3/FAQ';
+import AustrianHeatingAtlas from '@/components/v3/AustrianHeatingAtlas';
 import TrustElements from '@/components/v3/TrustElements';
 import CustomerReviews from '@/components/v3/CustomerReviews';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
@@ -121,8 +121,8 @@ const Home = () => {
       {/* Customer Reviews */}
       <CustomerReviews />
       
-      {/* FAQ Section */}
-      <FAQ />
+      {/* Austrian Heating Atlas Section - Replaces FAQ */}
+      <AustrianHeatingAtlas />
       
       <Footer />
     </div>
