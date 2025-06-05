@@ -179,19 +179,28 @@ const PriceCalculator = React.memo(() => {
                   </div>
                 </div>
                 
-                {/* Interactive Slider */}
+                {/* Enhanced Slider with Progress Bar Styling */}
                 <div className="px-2">
-                  <Slider
-                    value={[amount]}
-                    onValueChange={handleSliderChange}
-                    min={1000}
-                    max={32000}
-                    step={100}
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <Slider
+                      value={[amount]}
+                      onValueChange={handleSliderChange}
+                      min={1000}
+                      max={32000}
+                      step={100}
+                      className="w-full [&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-4 [&_[role=slider]]:border-violet-600 [&_[role=slider]]:bg-white [&_[role=slider]]:shadow-xl [&_[role=slider]]:ring-4 [&_[role=slider]]:ring-violet-200/50 [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 hover:[&_[role=slider]]:scale-110 [&>span:first-child]:h-3 [&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-violet-500 [&>span:first-child]:to-purple-600 [&>span:first-child]:rounded-full [&>span:first-child]:shadow-lg [&>span:first-child]:border [&>span:first-child]:border-violet-300/50 [&>span>span]:bg-gradient-to-r [&>span>span]:from-violet-500 [&>span>span]:to-purple-600"
+                    />
+                  </div>
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
                     <span>1.000L</span>
-                    <span className="text-violet-600 font-semibold">{amount.toLocaleString()}L</span>
+                    <motion.span 
+                      className="text-violet-600 font-semibold px-2 py-1 bg-violet-100/80 rounded-full"
+                      initial={{ scale: 0.8, opacity: 0.5 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {amount.toLocaleString()}L ({Math.round(calculations.progressPercentage)}%)
+                    </motion.span>
                     <span>32.000L</span>
                   </div>
                 </div>
@@ -202,35 +211,6 @@ const PriceCalculator = React.memo(() => {
                     <span>Menge muss zwischen 1.000L und 32.000L liegen</span>
                   </div>
                 )}
-                
-                {/* Optimized Progress Visualization */}
-                <div className="relative bg-white/50 backdrop-blur-sm rounded-xl p-3">
-                  <div className="w-full bg-gray-200/80 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      className="h-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg"
-                      initial={{ width: "0%" }}
-                      animate={{ width: `${calculations.progressPercentage}%` }}
-                      transition={{ 
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                        mass: 0.8
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Min</span>
-                    <motion.span 
-                      className="text-violet-600 font-semibold px-2 py-1 bg-violet-100/80 rounded-full"
-                      initial={{ scale: 0.8, opacity: 0.5 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {Math.round(calculations.progressPercentage)}%
-                    </motion.span>
-                    <span>Max</span>
-                  </div>
-                </div>
               </div>
             </motion.div>
 
