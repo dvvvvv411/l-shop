@@ -23,13 +23,13 @@ const AGB = () => {
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">§ 1 Geltungsbereich</h2>
               <div className="bg-violet-50 p-4 rounded-lg">
-                <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der Heizöl Österreich GmbH und ihren Kunden über die Lieferung von Heizöl in Österreich. Österreichisches Recht findet Anwendung.</p>
+                <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der Smart Energy Solutions GmbH und ihren Kunden über die Lieferung von Heizöl in Österreich. Österreichisches Recht findet Anwendung.</p>
               </div>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">§ 2 Vertragsschluss</h2>
-              <p>Der Vertrag kommt durch die Annahme der Bestellung durch die Heizöl Österreich GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung, E-Mail oder durch Auslieferung der Ware.</p>
+              <p>Der Vertrag kommt durch die Annahme der Bestellung durch die Smart Energy Solutions GmbH zustande. Die Annahme erfolgt durch schriftliche Auftragsbestätigung, E-Mail oder durch Auslieferung der Ware.</p>
             </section>
 
             <section>

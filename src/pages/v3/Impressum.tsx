@@ -23,8 +23,8 @@ const Impressum = () => {
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">Medieninhaber und Herausgeber</h2>
               <div className="bg-violet-50 p-4 rounded-lg">
-                <p className="font-semibold">Heizöl Österreich GmbH</p>
-                <p>Mariahilfer Straße 123</p>
+                <p className="font-semibold">Smart Energy Solutions GmbH</p>
+                <p>Linke Wienzeile 4/1/4</p>
                 <p>1060 Wien</p>
                 <p>Österreich</p>
               </div>
@@ -34,12 +34,10 @@ const Impressum = () => {
               <h2 className="text-xl font-semibold text-violet-800 mb-3">Kontakt</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p><span className="font-medium">Telefon:</span> +43 1 234 5678</p>
-                  <p><span className="font-medium">E-Mail:</span> info@heizoel-austria.com</p>
+                  <p><span className="font-medium">E-Mail:</span> info@smart-energy-solutions.at</p>
                 </div>
                 <div>
-                  <p><span className="font-medium">Fax:</span> +43 1 234 5679</p>
-                  <p><span className="font-medium">Web:</span> www.heizoel-austria.com</p>
+                  <p><span className="font-medium">Web:</span> www.smart-energy-solutions.at</p>
                 </div>
               </div>
             </section>
@@ -53,18 +51,18 @@ const Impressum = () => {
               <h2 className="text-xl font-semibold text-violet-800 mb-3">Firmenbucheintragung</h2>
               <div className="bg-amber-50 p-4 rounded-lg">
                 <p><span className="font-medium">Firmenbuchgericht:</span> Handelsgericht Wien</p>
-                <p><span className="font-medium">Firmenbuchnummer:</span> FN 123456a</p>
+                <p><span className="font-medium">Firmenbuchnummer:</span> FN 123456789a</p>
               </div>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">Umsatzsteuer-Identifikationsnummer</h2>
-              <p>ATU12345678</p>
+              <p>ATU987654321</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">Geschäftsführung</h2>
-              <p>Mag. Maria Österreicher</p>
+              <p>Mag. Alexander Bauer</p>
             </section>
 
             <section>
