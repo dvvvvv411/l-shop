@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { getLogoConfig } from '../../config/logoConfig';
+import { getLogoConfigByShopType } from '../../config/logoConfig';
+import { useDomainShop } from '../../hooks/useDomainShop';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const logoConfig = getLogoConfig('/2/home');
+  const shopConfig = useDomainShop();
+  const logoConfig = getLogoConfigByShopType(shopConfig.shopType);
 
   const handlePriceCalculatorClick = () => {
-    navigate('/2/home');
+    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMenuOpen(false);
   };
@@ -40,7 +42,7 @@ const Header = () => {
             transition={{ duration: 0.6 }}
             className="flex items-center"
           >
-            <Link to="/2/home" className="flex items-center">
+            <Link to="/" className="flex items-center">
               {logoConfig.useImage && logoConfig.imageUrl ? (
                 <img 
                   src={logoConfig.imageUrl} 
@@ -61,23 +63,23 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-6">
-            <Link to="/2/home" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
+            <Link to="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
               Startseite
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
             </Link>
-            <Link to="/2/produkte" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
+            <Link to="/produkte" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
               Heizöl
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
             </Link>
-            <Link to="/2/liefergebiet" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
+            <Link to="/liefergebiet" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
               Lieferung
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
             </Link>
-            <Link to="/2/service" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
+            <Link to="/service" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
               Über Uns
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
             </Link>
-            <Link to="/2/kontakt" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
+            <Link to="/kontakt" className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative group">
               Kundenservice
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
             </Link>
@@ -114,35 +116,35 @@ const Header = () => {
           >
             <nav className="flex flex-col space-y-3">
               <Link 
-                to="/2/home" 
+                to="/" 
                 className="text-gray-600 hover:text-blue-600 font-medium py-1" 
                 onClick={() => setIsMenuOpen(false)}
               >
                 Startseite
               </Link>
               <Link 
-                to="/2/produkte" 
+                to="/produkte" 
                 className="text-gray-600 hover:text-blue-600 font-medium py-1" 
                 onClick={() => setIsMenuOpen(false)}
               >
                 Heizöl
               </Link>
               <Link 
-                to="/2/liefergebiet" 
+                to="/liefergebiet" 
                 className="text-gray-600 hover:text-blue-600 font-medium py-1" 
                 onClick={() => setIsMenuOpen(false)}
               >
                 Lieferung
               </Link>
               <Link 
-                to="/2/service" 
+                to="/service" 
                 className="text-gray-600 hover:text-blue-600 font-medium py-1" 
                 onClick={() => setIsMenuOpen(false)}
               >
                 Über Uns
               </Link>
               <Link 
-                to="/2/kontakt" 
+                to="/kontakt" 
                 className="text-gray-600 hover:text-blue-600 font-medium py-1" 
                 onClick={() => setIsMenuOpen(false)}
               >
