@@ -27,12 +27,12 @@ const PriceCalculator = React.memo(() => {
   const products = useMemo(() => ({
     standard: {
       name: 'Standard EL',
-      price: 0.82,
+      price: 0.70,
       description: 'Bewährte Qualität nach ÖNORM'
     },
     premium: {
       name: 'Premium EL',
-      price: 0.89,
+      price: 0.75,
       description: 'Schwefelarm mit Additiven'
     }
   }), []);
@@ -179,7 +179,7 @@ const PriceCalculator = React.memo(() => {
                   </div>
                 </div>
                 
-                {/* Enhanced Slider with Progress Bar Styling */}
+                {/* Enhanced Slider with Updated Styling */}
                 <div className="px-2">
                   <div className="relative">
                     <Slider
@@ -188,7 +188,7 @@ const PriceCalculator = React.memo(() => {
                       min={1000}
                       max={32000}
                       step={100}
-                      className="w-full [&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-4 [&_[role=slider]]:border-violet-600 [&_[role=slider]]:bg-white [&_[role=slider]]:shadow-xl [&_[role=slider]]:ring-4 [&_[role=slider]]:ring-violet-200/50 [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 hover:[&_[role=slider]]:scale-110 [&>span:first-child]:h-3 [&>span:first-child]:bg-gradient-to-r [&>span:first-child]:from-violet-500 [&>span:first-child]:to-purple-600 [&>span:first-child]:rounded-full [&>span:first-child]:shadow-lg [&>span:first-child]:border [&>span:first-child]:border-violet-300/50 [&>span>span]:bg-gradient-to-r [&>span>span]:from-violet-500 [&>span>span]:to-purple-600"
+                      className="w-full [&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-4 [&_[role=slider]]:border-violet-600 [&_[role=slider]]:bg-white [&_[role=slider]]:shadow-xl [&_[role=slider]]:ring-4 [&_[role=slider]]:ring-violet-200/50 [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 hover:[&_[role=slider]]:scale-110 [&>span:first-child]:h-3 [&>span:first-child]:bg-gray-200 [&>span:first-child]:rounded-full [&>span:first-child]:shadow-lg [&>span:first-child]:border [&>span:first-child]:border-gray-300/50 [&>span>span]:bg-gradient-to-r [&>span>span]:from-violet-500 [&>span>span]:to-purple-600"
                     />
                   </div>
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
@@ -199,7 +199,7 @@ const PriceCalculator = React.memo(() => {
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ duration: 0.3 }}
                     >
-                      {amount.toLocaleString()}L ({Math.round(calculations.progressPercentage)}%)
+                      {amount.toLocaleString()}L
                     </motion.span>
                     <span>32.000L</span>
                   </div>
