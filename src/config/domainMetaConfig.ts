@@ -22,7 +22,59 @@ export interface ShopMetaConfig {
   };
 }
 
-// Generic configuration for all domain shops
+// Austrian-specific configuration
+const austrianShopMetaConfig: ShopMetaConfig = {
+  name: "Heizöl Österreich",
+  brand: "Heizöl AT",
+  phone: "+43 1 234 5678",
+  email: "info@heizoel-austria.com",
+  baseUrl: window.location.origin,
+  pages: {
+    home: {
+      title: "Heizöl Österreich - Premium Heizöl österreichweit zum Bestpreis",
+      description: "Günstige Heizöl-Lieferung in ganz Österreich. Von Wien bis Innsbruck, von Salzburg bis Graz. Premium-Qualität, schnelle Lieferung, faire Preise seit 1998.",
+      keywords: "Heizöl Österreich, günstig, bestellen, Lieferung, Wien, Salzburg, Innsbruck, Graz"
+    },
+    impressum: {
+      title: "Impressum - Heizöl Österreich",
+      description: "Impressum und rechtliche Informationen der Heizöl Österreich GmbH."
+    },
+    agb: {
+      title: "AGB - Heizöl Österreich",
+      description: "Allgemeine Geschäftsbedingungen der Heizöl Österreich GmbH."
+    },
+    widerrufsrecht: {
+      title: "Widerrufsrecht - Heizöl Österreich",
+      description: "Widerrufsrecht und Widerrufsbelehrung für Verbraucher in Österreich."
+    },
+    datenschutz: {
+      title: "Datenschutz - Heizöl Österreich",
+      description: "Datenschutzerklärung gemäß DSGVO der Heizöl Österreich GmbH."
+    },
+    kontakt: {
+      title: "Kontakt - Heizöl Österreich | Persönliche Beratung",
+      description: "Kontaktieren Sie uns für persönliche Beratung. Österreichweiter Service von Wien bis Vorarlberg.",
+      keywords: "Kontakt, Beratung, Heizöl, Österreich, Wien, Support"
+    },
+    service: {
+      title: "Über uns - Heizöl Österreich | Premium Heizöl-Service",
+      description: "Seit 1998 Ihr verlässlicher Partner für Premium-Heizöl in Österreich. Österreichische Qualität, faire Preise, persönlicher Service.",
+      keywords: "Service, Heizöl, Österreich, Premium, Qualität, seit 1998"
+    },
+    liefergebiet: {
+      title: "Liefergebiete - Heizöl Österreich | Österreichweite Abdeckung",
+      description: "Heizöl-Lieferung in alle 9 österreichischen Bundesländer. Von Wien bis Vorarlberg, schnelle Lieferung österreichweit.",
+      keywords: "Liefergebiet, Österreich, bundesweit, Wien, Salzburg, Tirol, Steiermark"
+    },
+    produkte: {
+      title: "Heizöl-Produkte - Premium EL & Additive für Österreich",
+      description: "Hochwertige Heizöl-Produkte für österreichische Haushalte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle.",
+      keywords: "Heizöl, Premium EL, schwefelarm, Additive, Österreich, Qualität"
+    }
+  }
+};
+
+// Generic configuration for other domain shops
 const genericShopMetaConfig: ShopMetaConfig = {
   name: "Heizöl-Service",
   brand: "Heizöl",
@@ -77,14 +129,16 @@ const genericShopMetaConfig: ShopMetaConfig = {
 const shopMetaConfigs: Record<ShopType, ShopMetaConfig> = {
   root: genericShopMetaConfig,
   stanton: genericShopMetaConfig,
-  greenoil: genericShopMetaConfig
+  greenoil: genericShopMetaConfig,
+  austria: austrianShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): ShopMetaConfig {
-  return genericShopMetaConfig;
+  return shopMetaConfigs[shopType] || genericShopMetaConfig;
 }
 
 export function getDomainPageMeta(shopType: ShopType, pageName: string): MetaData {
-  const pageMeta = genericShopMetaConfig.pages[pageName] || genericShopMetaConfig.pages.home;
+  const shopConfig = shopMetaConfigs[shopType] || genericShopMetaConfig;
+  const pageMeta = shopConfig.pages[pageName] || shopConfig.pages.home;
   return pageMeta;
 }

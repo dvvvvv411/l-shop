@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -6,6 +7,7 @@ import { useDomainShop } from '@/hooks/useDomainShop';
 import Index from '@/pages/Index';
 import V1Home from '@/pages/v1/Home';
 import V2Home from '@/pages/v2/Home';
+import V3Home from '@/pages/v3/Home';
 import Order from '@/pages/Order';
 import Summary from '@/pages/Summary';
 import Confirmation from '@/pages/Confirmation';
@@ -39,6 +41,16 @@ import V2Kontakt from '@/pages/v2/Kontakt';
 import V2Service from '@/pages/v2/Service';
 import V2Produkte from '@/pages/v2/Produkte';
 import V2Liefergebiet from '@/pages/v2/Liefergebiet';
+
+// V3 pages (Austrian)
+import V3Impressum from '@/pages/v3/Impressum';
+import V3AGB from '@/pages/v3/AGB';
+import V3Datenschutz from '@/pages/v3/Datenschutz';
+import V3Widerrufsrecht from '@/pages/v3/Widerrufsrecht';
+import V3Kontakt from '@/pages/v3/Kontakt';
+import V3Service from '@/pages/v3/Service';
+import V3Produkte from '@/pages/v3/Produkte';
+import V3Liefergebiet from '@/pages/v3/Liefergebiet';
 
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
@@ -82,6 +94,28 @@ const DomainRouter = () => {
         <Route path="/service" element={<V2Service />} />
         <Route path="/produkte" element={<V2Produkte />} />
         <Route path="/liefergebiet" element={<V2Liefergebiet />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
+  // For Austrian domain, route to V3 pages
+  if (shopConfig.shopType === 'austria') {
+    return (
+      <Routes>
+        <Route path="/" element={<V3Home />} />
+        <Route path="/bestellen" element={<Order />} />
+        <Route path="/zusammenfassung" element={<Summary />} />
+        <Route path="/bestaetigung" element={<Confirmation />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/impressum" element={<V3Impressum />} />
+        <Route path="/agb" element={<V3AGB />} />
+        <Route path="/datenschutz" element={<V3Datenschutz />} />
+        <Route path="/widerrufsrecht" element={<V3Widerrufsrecht />} />
+        <Route path="/kontakt" element={<V3Kontakt />} />
+        <Route path="/service" element={<V3Service />} />
+        <Route path="/produkte" element={<V3Produkte />} />
+        <Route path="/liefergebiet" element={<V3Liefergebiet />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     );
@@ -132,6 +166,20 @@ const DomainRouter = () => {
       <Route path="/2/service" element={<V2Service />} />
       <Route path="/2/produkte" element={<V2Produkte />} />
       <Route path="/2/liefergebiet" element={<V2Liefergebiet />} />
+
+      <Route path="/3/home" element={<V3Home />} />
+      <Route path="/3/bestellen" element={<Order />} />
+      <Route path="/3/zusammenfassung" element={<Summary />} />
+      <Route path="/3/bestaetigung" element={<Confirmation />} />
+      <Route path="/3/checkout" element={<Checkout />} />
+      <Route path="/3/impressum" element={<V3Impressum />} />
+      <Route path="/3/agb" element={<V3AGB />} />
+      <Route path="/3/datenschutz" element={<V3Datenschutz />} />
+      <Route path="/3/widerrufsrecht" element={<V3Widerrufsrecht />} />
+      <Route path="/3/kontakt" element={<V3Kontakt />} />
+      <Route path="/3/service" element={<V3Service />} />
+      <Route path="/3/produkte" element={<V3Produkte />} />
+      <Route path="/3/liefergebiet" element={<V3Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

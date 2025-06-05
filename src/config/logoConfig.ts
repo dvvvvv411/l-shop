@@ -22,6 +22,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     imageUrl: 'https://i.imgur.com/HvoI1pD.png',
     useImage: true
   },
+  '/3/home': {
+    name: 'Heizöl Österreich',
+    className: 'h-16 w-auto',
+    textContent: 'Heizöl AT',
+    useImage: false
+  },
   // Domain-specific configurations
   'stanton': {
     name: 'HeizölDirekt',
@@ -36,6 +42,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     textContent: 'OilExpress',
     imageUrl: 'https://i.imgur.com/HvoI1pD.png',
     useImage: true
+  },
+  'austria': {
+    name: 'Heizöl Österreich',
+    className: 'h-16 w-auto',
+    textContent: 'Heizöl AT',
+    useImage: false
   },
   'root': {
     name: 'HeizölDirekt',
@@ -56,6 +68,6 @@ export const getLogoConfig = (referrer?: string): LogoConfig => {
 };
 
 // New function to get logo config by domain shop type
-export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil'): LogoConfig => {
+export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria'): LogoConfig => {
   return logoConfigs[shopType] || logoConfigs['root'];
 };

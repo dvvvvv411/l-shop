@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -10,7 +10,7 @@ export interface DomainShopConfig {
   phone: string;
   email: string;
   faviconColor: string;
-  faviconIcon: 'flame' | 'drop' | 'leaf';
+  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain';
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -31,6 +31,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: '',
     faviconColor: '#059669',
     faviconIcon: 'leaf'
+  },
+  'heizoel-austria.com': {
+    shopType: 'austria',
+    name: 'Heizöl Österreich',
+    brand: 'Heizöl AT',
+    phone: '+43 1 234 5678',
+    email: 'info@heizoel-austria.com',
+    faviconColor: '#7c3aed',
+    faviconIcon: 'mountain'
   }
 };
 
