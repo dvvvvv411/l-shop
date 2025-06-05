@@ -15,7 +15,7 @@ const PriceCalculator = React.memo(() => {
   const location = useLocation();
   const [amount, setAmount] = useState<number>(3000);
   const [postcode, setPostcode] = useState<string>('');
-  const [quality, setQuality] = useState<string>('standard');
+  const [quality, setQuality] = useState<string>(''); // Initialize to empty string
   const [isValidPostcode, setIsValidPostcode] = useState(true);
   const [isValidAmount, setIsValidAmount] = useState(true);
 
@@ -51,9 +51,14 @@ const PriceCalculator = React.memo(() => {
     return isValid;
   }, []);
 
-  // Memoized calculations for better performance
+  // Memoized calculations for better performance with fallback
   const calculations = useMemo(() => {
-    const basePrice = products[quality as keyof typeof products].price;
+    // Fallback to standard product if no quality selected for price display
+    const selectedProduct = quality && products[quality as keyof typeof products] 
+      ? products[quality as keyof typeof products] 
+      : products.standard;
+    
+    const basePrice = selectedProduct.price;
     const totalBasePrice = amount * basePrice;
     const deliveryFee = amount >= 3000 ? 0 : 35;
     const totalPrice = totalBasePrice + deliveryFee;
@@ -110,7 +115,7 @@ const PriceCalculator = React.memo(() => {
     }
   }, [amount, quality, products, calculations, navigate]);
 
-  // Form validation - now includes quality in dependencies
+  // Form validation - quality must be selected and valid
   const isFormValid = useMemo(() => 
     postcode.length === 4 && 
     isValidPostcode && 
@@ -269,8 +274,16 @@ const PriceCalculator = React.memo(() => {
               transition={{ delay: 0.5, duration: 0.6 }}
             >
               <Label className="text-gray-800 font-semibold text-sm mb-3 block">
-                Heizöl-Qualität
+                Heizöl-Qualität *
               </Label>
+              
+              {/* Hint text when no quality is selected */}
+              {!quality && (
+                <div className="mb-3 flex items-center space-x-2 text-violet-600 text-sm bg-violet-50/80 p-2 rounded-lg">
+                  <Info size={14} />
+                  <span>Bitte wählen Sie eine Heizöl-Qualität aus</span>
+                </div>
+              )}
               
               <div className="grid grid-cols-2 gap-3">
                 {Object.entries(products).map(([key, product]) => (
@@ -315,7 +328,9 @@ const PriceCalculator = React.memo(() => {
             >
               <div className="relative p-5 bg-gradient-to-br from-violet-50/80 to-purple-50/80 backdrop-blur-sm rounded-xl border border-violet-200/50 shadow-lg">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-lg font-bold text-gray-900">Gesamtpreis</span>
+                  <span className="text-lg font-bold text-gray-900">
+                    {quality ? 'Gesamtpreis' : 'Geschätzter Preis'}
+                  </span>
                   <div className="flex items-center">
                     <Euro className="h-6 w-6 text-violet-600 mr-2" />
                     <motion.span 
@@ -329,6 +344,12 @@ const PriceCalculator = React.memo(() => {
                     </motion.span>
                   </div>
                 </div>
+                
+                {!quality && (
+                  <div className="mb-3 text-xs text-gray-600 bg-amber-50/80 p-2 rounded-lg">
+                    * Preis basiert auf Standard EL. Bitte wählen Sie eine Qualität für den finalen Preis.
+                  </div>
+                )}
                 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-700">Lieferung</span>
@@ -367,7 +388,9 @@ const PriceCalculator = React.memo(() => {
               >
                 <div className="flex items-center justify-center">
                   <Truck className="h-5 w-5 mr-2" />
-                  {isFormValid ? 'Jetzt bestellen' : 'Bitte alle Felder ausfüllen'}
+                  {isFormValid ? 'Jetzt bestellen' : 
+                   !quality ? 'Bitte Heizöl-Qualität wählen' : 
+                   'Bitte alle Felder ausfüllen'}
                 </div>
               </Button>
               
