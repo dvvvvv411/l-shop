@@ -3,12 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v3/Header';
 import Footer from '@/components/Footer';
-import PriceCalculator from '@/components/v2/PriceCalculator';
-import StatsSection from '@/components/v2/StatsSection';
-import WhyChooseUs from '@/components/v2/WhyChooseUs';
-import FAQ from '@/components/v2/FAQ';
-import TrustElements from '@/components/v2/TrustElements';
-import CustomerReviews from '@/components/v2/CustomerReviews';
+import PriceCalculator from '@/components/v3/PriceCalculator';
+import StatsSection from '@/components/v3/StatsSection';
+import WhyChooseUs from '@/components/v3/WhyChooseUs';
+import FAQ from '@/components/v3/FAQ';
+import TrustElements from '@/components/v3/TrustElements';
+import CustomerReviews from '@/components/v3/CustomerReviews';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 import { Mountain, Shield, Clock, Award } from 'lucide-react';
 
@@ -54,12 +54,22 @@ const Home = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Clock className="h-5 w-5 text-amber-500" />
-                  <span className="text-gray-700">24h Express-Lieferung</span>
+                  <span className="text-gray-700">2-5 Tage Express-Lieferung</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Award className="h-5 w-5 text-violet-600" />
                   <span className="text-gray-700">Seit 1998 vertraut</span>
                 </div>
+              </div>
+
+              {/* Austrian flag accent */}
+              <div className="flex items-center space-x-3 pt-4">
+                <div className="flex space-x-1">
+                  <div className="w-8 h-6 bg-red-600 rounded-sm shadow-sm"></div>
+                  <div className="w-8 h-6 bg-white border border-gray-200 rounded-sm shadow-sm"></div>
+                  <div className="w-8 h-6 bg-red-600 rounded-sm shadow-sm"></div>
+                </div>
+                <span className="text-gray-700 font-semibold">Österreichisches Traditionsunternehmen</span>
               </div>
             </motion.div>
             
@@ -69,17 +79,7 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="bg-white rounded-2xl shadow-2xl p-8 border border-violet-100">
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Heizöl-Preis berechnen
-                  </h2>
-                  <p className="text-gray-600">
-                    Sofort-Angebot für ganz Österreich
-                  </p>
-                </div>
-                <PriceCalculator />
-              </div>
+              <PriceCalculator />
               
               {/* Decorative elements */}
               <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-violet-200 to-purple-300 rounded-full opacity-60 blur-xl" />
