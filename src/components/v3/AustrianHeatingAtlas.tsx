@@ -121,6 +121,14 @@ const AustrianHeatingAtlas = () => {
     }
   ];
 
+  const scrollToPriceCalculator = () => {
+    // Scroll to the top of the page where the price calculator is located
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <div className="container mx-auto px-4">
@@ -284,7 +292,10 @@ const AustrianHeatingAtlas = () => {
               Egal in welchem Bundesland Sie wohnen - wir liefern österreichweit 
               mit der gleichen hohen Qualität und fairen Preisen.
             </p>
-            <button className="bg-white text-violet-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-violet-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
+            <button 
+              onClick={scrollToPriceCalculator}
+              className="bg-white text-violet-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-violet-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
               Jetzt für Ihre Region bestellen
             </button>
           </div>
