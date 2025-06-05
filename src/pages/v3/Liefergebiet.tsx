@@ -1,72 +1,57 @@
-
 import React from 'react';
 import Header from '@/components/v3/Header';
 import Footer from '@/components/Footer';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 import { Mountain, MapPin, Truck, Clock, CheckCircle } from 'lucide-react';
-
 const Liefergebiet = () => {
   useDomainPageMeta('liefergebiet');
-
-  const regions = [
-    {
-      name: 'Wien',
-      cities: ['Wien'],
-      color: 'violet',
-      deliveryTime: '24h'
-    },
-    {
-      name: 'Niederösterreich',
-      cities: ['St. Pölten', 'Wiener Neustadt', 'Krems', 'Baden', 'Mödling'],
-      color: 'purple',
-      deliveryTime: '24-48h'
-    },
-    {
-      name: 'Oberösterreich',
-      cities: ['Linz', 'Wels', 'Steyr', 'Braunau', 'Ried'],
-      color: 'violet',
-      deliveryTime: '24-48h'
-    },
-    {
-      name: 'Salzburg',
-      cities: ['Salzburg Stadt', 'Hallein', 'St. Johann', 'Zell am See'],
-      color: 'amber',
-      deliveryTime: '48h'
-    },
-    {
-      name: 'Tirol',
-      cities: ['Innsbruck', 'Kufstein', 'Kitzbühel', 'Lienz'],
-      color: 'purple',
-      deliveryTime: '48h'
-    },
-    {
-      name: 'Vorarlberg',
-      cities: ['Bregenz', 'Dornbirn', 'Feldkirch', 'Bludesch'],
-      color: 'violet',
-      deliveryTime: '48-72h'
-    },
-    {
-      name: 'Steiermark',
-      cities: ['Graz', 'Leoben', 'Kapfenberg', 'Bruck a.d. Mur'],
-      color: 'amber',
-      deliveryTime: '24-48h'
-    },
-    {
-      name: 'Kärnten',
-      cities: ['Klagenfurt', 'Villach', 'St. Veit', 'Spittal'],
-      color: 'purple',
-      deliveryTime: '48h'
-    },
-    {
-      name: 'Burgenland',
-      cities: ['Eisenstadt', 'Neusiedl', 'Oberwart', 'Güssing'],
-      color: 'violet',
-      deliveryTime: '24-48h'
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+  const regions = [{
+    name: 'Wien',
+    cities: ['Wien'],
+    color: 'violet',
+    deliveryTime: '24h'
+  }, {
+    name: 'Niederösterreich',
+    cities: ['St. Pölten', 'Wiener Neustadt', 'Krems', 'Baden', 'Mödling'],
+    color: 'purple',
+    deliveryTime: '24-48h'
+  }, {
+    name: 'Oberösterreich',
+    cities: ['Linz', 'Wels', 'Steyr', 'Braunau', 'Ried'],
+    color: 'violet',
+    deliveryTime: '24-48h'
+  }, {
+    name: 'Salzburg',
+    cities: ['Salzburg Stadt', 'Hallein', 'St. Johann', 'Zell am See'],
+    color: 'amber',
+    deliveryTime: '48h'
+  }, {
+    name: 'Tirol',
+    cities: ['Innsbruck', 'Kufstein', 'Kitzbühel', 'Lienz'],
+    color: 'purple',
+    deliveryTime: '48h'
+  }, {
+    name: 'Vorarlberg',
+    cities: ['Bregenz', 'Dornbirn', 'Feldkirch', 'Bludesch'],
+    color: 'violet',
+    deliveryTime: '48-72h'
+  }, {
+    name: 'Steiermark',
+    cities: ['Graz', 'Leoben', 'Kapfenberg', 'Bruck a.d. Mur'],
+    color: 'amber',
+    deliveryTime: '24-48h'
+  }, {
+    name: 'Kärnten',
+    cities: ['Klagenfurt', 'Villach', 'St. Veit', 'Spittal'],
+    color: 'purple',
+    deliveryTime: '48h'
+  }, {
+    name: 'Burgenland',
+    cities: ['Eisenstadt', 'Neusiedl', 'Oberwart', 'Güssing'],
+    color: 'violet',
+    deliveryTime: '24-48h'
+  }];
+  return <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <Header />
       
       <main className="container mx-auto px-4 py-12">
@@ -113,28 +98,20 @@ const Liefergebiet = () => {
               Unsere Liefergebiete
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {regions.map((region, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6 border border-violet-100 hover:border-violet-300 transition-colors">
+              {regions.map((region, index) => <div key={index} className="bg-white rounded-xl shadow-lg p-6 border border-violet-100 hover:border-violet-300 transition-colors">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-gray-900">{region.name}</h3>
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      region.color === 'violet' ? 'bg-violet-100 text-violet-700' :
-                      region.color === 'purple' ? 'bg-purple-100 text-purple-700' :
-                      'bg-amber-100 text-amber-700'
-                    }`}>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${region.color === 'violet' ? 'bg-violet-100 text-violet-700' : region.color === 'purple' ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-700'}`}>
                       {region.deliveryTime}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    {region.cities.map((city, cityIndex) => (
-                      <div key={cityIndex} className="flex items-center space-x-2">
+                    {region.cities.map((city, cityIndex) => <div key={cityIndex} className="flex items-center space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-500" />
                         <span className="text-gray-700 text-sm">{city}</span>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
 
@@ -174,9 +151,7 @@ const Liefergebiet = () => {
                 <div className="space-y-4">
                   <div className="bg-violet-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-violet-800 mb-2">Kostenlose Lieferung</h4>
-                    <p className="text-sm text-gray-700">
-                      Ab 1.000 Liter ist die Lieferung in ganz Österreich kostenfrei.
-                    </p>
+                    <p className="text-sm text-gray-700">Ab 3.000 Liter ist die Lieferung in ganz Österreich kostenfrei.</p>
                   </div>
                   <div className="bg-amber-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-amber-700 mb-2">Express-Service</h4>
@@ -211,8 +186,6 @@ const Liefergebiet = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Liefergebiet;
