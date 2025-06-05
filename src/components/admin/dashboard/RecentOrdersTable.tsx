@@ -23,6 +23,18 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIs
   // Get most recent orders
   const recentOrders = orders.slice(0, 5);
 
+  // Helper function to get German payment method label
+  const getPaymentMethodLabel = (paymentMethod: string | null | undefined) => {
+    switch (paymentMethod) {
+      case 'vorkasse':
+        return 'Vorkasse';
+      case 'rechnung':
+        return 'Rechnung';
+      default:
+        return 'Vorkasse'; // Default to Vorkasse if not specified
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -94,6 +106,7 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIs
                 <TableHead>Kunde</TableHead>
                 <TableHead>Menge</TableHead>
                 <TableHead>Betrag</TableHead>
+                <TableHead>Zahlungsart</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Datum</TableHead>
                 <TableHead className="w-20">Aktionen</TableHead>
@@ -116,6 +129,11 @@ const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({ isLoading: propIs
                   </TableCell>
                   <TableCell className="font-semibold">
                     €{order.total_amount.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm font-medium text-purple-600">
+                      {getPaymentMethodLabel(order.payment_method)}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge 

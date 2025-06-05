@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,6 +20,18 @@ const AdminOrderDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addStatusChange } = useOrderStatusHistory(orderId || '');
+
+  // Helper function to get German payment method label
+  const getPaymentMethodLabel = (paymentMethod: string | null | undefined) => {
+    switch (paymentMethod) {
+      case 'vorkasse':
+        return 'Vorkasse';
+      case 'rechnung':
+        return 'Rechnung';
+      default:
+        return 'Vorkasse'; // Default to Vorkasse if not specified
+    }
+  };
 
   // Demo order data - in a real app, this would come from an API
   const orders: Order[] = [
@@ -98,7 +111,7 @@ const AdminOrderDetail = () => {
       delivery_fee: 50.00,
       discount: 100,
       total_amount: 1890.00,
-      payment_method: 'lastschrift',
+      payment_method: 'rechnung',
       status: 'invoice_created',
       notes: null,
       delivery_date: '2024-01-16',
@@ -377,7 +390,7 @@ const AdminOrderDetail = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Zahlungsart</span>
-                    <span className="font-medium">{order.payment_method}</span>
+                    <span className="font-medium">{getPaymentMethodLabel(order.payment_method)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Status</span>

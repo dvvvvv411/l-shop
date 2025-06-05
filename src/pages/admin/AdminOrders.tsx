@@ -1,7 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Phone, CreditCard, Globe, Copy, Clock } from 'lucide-react';
+import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -64,6 +63,18 @@ const AdminOrders = () => {
   // New orders count (using 'pending' instead of 'Neu')
   const newOrdersCount = orders.filter(order => order.status === 'pending' && !order.is_hidden).length;
 
+  // Helper function to get German payment method label
+  const getPaymentMethodLabel = (paymentMethod: string | null | undefined) => {
+    switch (paymentMethod) {
+      case 'vorkasse':
+        return 'Vorkasse';
+      case 'rechnung':
+        return 'Rechnung';
+      default:
+        return 'Vorkasse'; // Default to Vorkasse if not specified
+    }
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedOrders(paginatedOrders.map(order => order.id));
@@ -97,8 +108,8 @@ const AdminOrders = () => {
   };
 
   const exportToCSV = () => {
-    // Updated headers to include "Letztes Update" column
-    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Letztes Update', 'Status'];
+    // Updated headers to include "Zahlungsmethode" column
+    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Zahlungsmethode', 'Letztes Update', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(order => {
@@ -118,6 +129,7 @@ const AdminOrders = () => {
           order.total_amount,
           getBankAccountSystemName(order.bank_account_id),
           order.origin_domain || '',
+          getPaymentMethodLabel(order.payment_method),
           lastUpdate,
           order.status
         ].join(',');
@@ -329,6 +341,12 @@ const AdminOrders = () => {
                         Domain
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[110px]">
+                      <div className="flex items-center gap-1">
+                        <Receipt className="h-4 w-4" />
+                        Zahlungsmethode
+                      </div>
+                    </TableHead>
                     <TableHead className="min-w-[120px]">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
@@ -426,6 +444,16 @@ const AdminOrders = () => {
                             ) : (
                               <span className="text-gray-400">-</span>
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="flex items-center gap-1">
+                              <Receipt className="h-3 w-3 text-gray-400" />
+                              <span className="font-medium text-purple-600">
+                                {getPaymentMethodLabel(order.payment_method)}
+                              </span>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
