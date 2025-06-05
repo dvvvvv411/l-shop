@@ -3,8 +3,10 @@ import Header from '@/components/v3/Header';
 import Footer from '@/components/Footer';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 import { Mountain, MapPin, Truck, Clock, CheckCircle } from 'lucide-react';
+
 const Liefergebiet = () => {
   useDomainPageMeta('liefergebiet');
+
   const regions = [{
     name: 'Wien',
     cities: ['Wien'],
@@ -51,7 +53,9 @@ const Liefergebiet = () => {
     color: 'violet',
     deliveryTime: '24-48h'
   }];
-  return <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <Header />
       
       <main className="container mx-auto px-4 py-12">
@@ -98,20 +102,28 @@ const Liefergebiet = () => {
               Unsere Liefergebiete
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {regions.map((region, index) => <div key={index} className="bg-white rounded-xl shadow-lg p-6 border border-violet-100 hover:border-violet-300 transition-colors">
+              {regions.map((region, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-lg p-6 border border-violet-100 hover:border-violet-300 transition-colors">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-gray-900">{region.name}</h3>
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${region.color === 'violet' ? 'bg-violet-100 text-violet-700' : region.color === 'purple' ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-700'}`}>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      region.color === 'violet' ? 'bg-violet-100 text-violet-700' : 
+                      region.color === 'purple' ? 'bg-purple-100 text-purple-700' : 
+                      'bg-amber-100 text-amber-700'
+                    }`}>
                       {region.deliveryTime}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    {region.cities.map((city, cityIndex) => <div key={cityIndex} className="flex items-center space-x-2">
+                    {region.cities.map((city, cityIndex) => (
+                      <div key={cityIndex} className="flex items-center space-x-2">
                         <CheckCircle className="h-4 w-4 text-green-500" />
                         <span className="text-gray-700 text-sm">{city}</span>
-                      </div>)}
+                      </div>
+                    ))}
                   </div>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -178,14 +190,13 @@ const Liefergebiet = () => {
               Wir erweitern kontinuierlich unsere Liefergebiete. Kontaktieren Sie uns - 
               oft können wir auch in angrenzende Gebiete liefern!
             </p>
-            <div className="inline-flex items-center bg-white/20 px-6 py-3 rounded-lg">
-              <span className="text-amber-300 font-medium">+43 1 234 5678</span>
-            </div>
           </div>
         </div>
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Liefergebiet;
