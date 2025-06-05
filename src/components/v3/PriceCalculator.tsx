@@ -1,15 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, Euro, Truck, Shield, Lock, CreditCard, AlertCircle, Info, Mountain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProductInfo from './ProductInfo';
 
-const PriceCalculator = () => {
+const PriceCalculator = React.memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const [amount, setAmount] = useState<number>(3000);
@@ -23,7 +24,7 @@ const PriceCalculator = () => {
     localStorage.setItem('orderReferrer', location.pathname);
   }, [location.pathname]);
 
-  const products = {
+  const products = useMemo(() => ({
     standard: {
       name: 'Standard EL',
       price: 0.82,
@@ -34,44 +35,50 @@ const PriceCalculator = () => {
       price: 0.89,
       description: 'Schwefelarm mit Additiven'
     }
-  };
+  }), []);
 
   // Validation functions
-  const validatePostcode = (value: string) => {
+  const validatePostcode = useCallback((value: string) => {
     // Austrian postcodes are 4 digits
     const isValid = /^\d{4}$/.test(value);
     setIsValidPostcode(isValid);
     return isValid;
-  };
+  }, []);
 
-  const validateAmount = (value: number) => {
+  const validateAmount = useCallback((value: number) => {
     const isValid = value >= 1000 && value <= 32000;
     setIsValidAmount(isValid);
     return isValid;
-  };
+  }, []);
 
-  const calculatePrice = () => {
+  // Memoized calculations for better performance
+  const calculations = useMemo(() => {
     const basePrice = products[quality as keyof typeof products].price;
-    return (amount * basePrice).toFixed(2);
-  };
+    const totalBasePrice = amount * basePrice;
+    const deliveryFee = amount >= 3000 ? 0 : 35;
+    const totalPrice = totalBasePrice + deliveryFee;
+    
+    return {
+      basePrice: totalBasePrice.toFixed(2),
+      deliveryFee,
+      totalPrice: totalPrice.toFixed(2),
+      progressPercentage: Math.max(5, Math.min(100, ((amount - 1000) / (32000 - 1000)) * 100))
+    };
+  }, [amount, quality, products]);
 
-  const getDeliveryFee = () => {
-    return amount >= 3000 ? 0 : 35;
-  };
-
-  const getTotalPrice = () => {
-    const basePrice = parseFloat(calculatePrice());
-    const deliveryFee = getDeliveryFee();
-    return (basePrice + deliveryFee).toFixed(2);
-  };
-
-  const handleAmountChange = (value: string) => {
+  const handleAmountChange = useCallback((value: string) => {
     const numValue = parseInt(value.replace(/\D/g, '')) || 0;
     setAmount(numValue);
     validateAmount(numValue);
-  };
+  }, [validateAmount]);
 
-  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSliderChange = useCallback((values: number[]) => {
+    const newAmount = values[0];
+    setAmount(newAmount);
+    validateAmount(newAmount);
+  }, [validateAmount]);
+
+  const handlePostcodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 4);
     setPostcode(value);
     if (value.length === 4) {
@@ -79,16 +86,11 @@ const PriceCalculator = () => {
     } else {
       setIsValidPostcode(true); // Don't show error while typing
     }
-  };
+  }, [validatePostcode]);
 
-  const handleOrderClick = () => {
+  const handleOrderClick = useCallback(() => {
     if (isFormValid) {
       const currentProduct = products[quality as keyof typeof products];
-      const basePrice = parseFloat(calculatePrice());
-      const deliveryFee = getDeliveryFee();
-      const totalPrice = parseFloat(getTotalPrice());
-
-      // Store order data in localStorage (without sensitive postcode info)
       const orderData = {
         product: {
           id: quality,
@@ -97,28 +99,22 @@ const PriceCalculator = () => {
           description: currentProduct.description
         },
         amount,
-        basePrice,
-        deliveryFee,
-        totalPrice,
+        basePrice: parseFloat(calculations.basePrice),
+        deliveryFee: calculations.deliveryFee,
+        totalPrice: parseFloat(calculations.totalPrice),
         savings: 0
       };
       
       localStorage.setItem('orderData', JSON.stringify(orderData));
-      
-      // Navigate to checkout
       navigate('/checkout');
     }
-  };
-
-  const getVisualizationWidth = () => {
-    // Ensure amount is within valid range for calculation
-    const clampedAmount = Math.max(1000, Math.min(32000, amount));
-    const percentage = ((clampedAmount - 1000) / (32000 - 1000)) * 100;
-    return Math.max(5, Math.min(100, percentage));
-  };
+  }, [amount, quality, products, calculations, navigate]);
 
   // Form validation
-  const isFormValid = postcode.length === 4 && isValidPostcode && isValidAmount && amount >= 1000 && amount <= 32000;
+  const isFormValid = useMemo(() => 
+    postcode.length === 4 && isValidPostcode && isValidAmount && amount >= 1000 && amount <= 32000,
+    [postcode, isValidPostcode, isValidAmount, amount]
+  );
 
   return (
     <TooltipProvider>
@@ -150,7 +146,7 @@ const PriceCalculator = () => {
           </motion.div>
 
           <div className="space-y-6">
-            {/* Compact Amount Input */}
+            {/* Enhanced Amount Input with Slider */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -161,7 +157,8 @@ const PriceCalculator = () => {
                 Menge (1.000L - 32.000L)
               </Label>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Input Field with Fixed Icon */}
                 <div className="relative">
                   <Input
                     type="text"
@@ -174,11 +171,28 @@ const PriceCalculator = () => {
                     } shadow-lg`}
                     placeholder="3.000"
                   />
-                  <div className="absolute right-4 top-4 flex items-center space-x-2">
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                     <span className="text-lg font-bold text-violet-600">L</span>
                     {!isValidAmount && (
                       <AlertCircle className="text-red-500" size={16} />
                     )}
+                  </div>
+                </div>
+                
+                {/* Interactive Slider */}
+                <div className="px-2">
+                  <Slider
+                    value={[amount]}
+                    onValueChange={handleSliderChange}
+                    min={1000}
+                    max={32000}
+                    step={100}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 mt-2">
+                    <span>1.000L</span>
+                    <span className="text-violet-600 font-semibold">{amount.toLocaleString()}L</span>
+                    <span>32.000L</span>
                   </div>
                 </div>
                 
@@ -189,20 +203,32 @@ const PriceCalculator = () => {
                   </div>
                 )}
                 
-                {/* Compact Visualization */}
+                {/* Optimized Progress Visualization */}
                 <div className="relative bg-white/50 backdrop-blur-sm rounded-xl p-3">
-                  <div className="w-full bg-gray-200/80 rounded-full h-3">
+                  <div className="w-full bg-gray-200/80 rounded-full h-3 overflow-hidden">
                     <motion.div
-                      className="h-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-600"
-                      style={{ width: `${getVisualizationWidth()}%` }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${getVisualizationWidth()}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="h-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg"
+                      initial={{ width: "0%" }}
+                      animate={{ width: `${calculations.progressPercentage}%` }}
+                      transition={{ 
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                        mass: 0.8
+                      }}
                     />
                   </div>
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>1.000L</span>
-                    <span>32.000L</span>
+                    <span>Min</span>
+                    <motion.span 
+                      className="text-violet-600 font-semibold px-2 py-1 bg-violet-100/80 rounded-full"
+                      initial={{ scale: 0.8, opacity: 0.5 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {Math.round(calculations.progressPercentage)}%
+                    </motion.span>
+                    <span>Max</span>
                   </div>
                 </div>
               </div>
@@ -233,7 +259,7 @@ const PriceCalculator = () => {
                   } shadow-lg`}
                   maxLength={4}
                 />
-                <div className="absolute right-4 top-4">
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   {!isValidPostcode && postcode.length === 4 ? (
                     <AlertCircle className="h-5 w-5 text-red-500" />
                   ) : (
@@ -295,7 +321,7 @@ const PriceCalculator = () => {
               </div>
             </motion.div>
 
-            {/* Compact Price Display */}
+            {/* Enhanced Price Display */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -306,26 +332,32 @@ const PriceCalculator = () => {
                   <span className="text-lg font-bold text-gray-900">Gesamtpreis</span>
                   <div className="flex items-center">
                     <Euro className="h-6 w-6 text-violet-600 mr-2" />
-                    <span className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent">
-                      {getTotalPrice()}
-                    </span>
+                    <motion.span 
+                      className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent"
+                      key={calculations.totalPrice}
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {calculations.totalPrice}
+                    </motion.span>
                   </div>
                 </div>
                 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-700">Lieferung</span>
                   <span className={`font-semibold ${
-                    getDeliveryFee() === 0 
+                    calculations.deliveryFee === 0 
                       ? 'text-green-600' 
                       : 'text-gray-700'
                   }`}>
-                    {getDeliveryFee() === 0 ? (
+                    {calculations.deliveryFee === 0 ? (
                       <>
                         <Shield className="h-4 w-4 inline mr-1" />
                         Kostenlos
                       </>
                     ) : (
-                      `€${getDeliveryFee()}`
+                      `€${calculations.deliveryFee}`
                     )}
                   </span>
                 </div>
@@ -378,6 +410,8 @@ const PriceCalculator = () => {
       </motion.div>
     </TooltipProvider>
   );
-};
+});
+
+PriceCalculator.displayName = 'PriceCalculator';
 
 export default PriceCalculator;
