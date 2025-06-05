@@ -26,7 +26,8 @@ export const logoConfigs: Record<string, LogoConfig> = {
     name: 'Heizöl Österreich',
     className: 'h-16 w-auto',
     textContent: 'Heizöl AT',
-    useImage: false
+    imageUrl: 'https://i.imgur.com/FrtZ9Dd.png',
+    useImage: true
   },
   // Domain-specific configurations
   'stanton': {
@@ -47,7 +48,8 @@ export const logoConfigs: Record<string, LogoConfig> = {
     name: 'Heizöl Österreich',
     className: 'h-16 w-auto',
     textContent: 'Heizöl AT',
-    useImage: false
+    imageUrl: 'https://i.imgur.com/FrtZ9Dd.png',
+    useImage: true
   },
   'root': {
     name: 'HeizölDirekt',
