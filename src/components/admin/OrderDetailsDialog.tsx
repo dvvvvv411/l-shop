@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -12,11 +13,15 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
 import OrderNotesSection from './OrderNotesSection';
 import OrderStatusHistorySection from './OrderStatusHistorySection';
+import EditableCard from './EditableCard';
+import EditableField from './EditableField';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 interface OrderDetailsDialogProps {
@@ -36,7 +41,64 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 }) => {
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const [editingCard, setEditingCard] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
   const { addStatusChange } = useOrderStatusHistory(order?.id || '');
+
+  // Editable field states
+  const [customerData, setCustomerData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+  });
+
+  const [deliveryData, setDeliveryData] = useState({
+    firstName: '',
+    lastName: '',
+    street: '',
+    postcode: '',
+    city: '',
+    phone: '',
+  });
+
+  const [billingData, setBillingData] = useState({
+    firstName: '',
+    lastName: '',
+    street: '',
+    postcode: '',
+    city: '',
+  });
+
+  // Initialize data when order changes
+  React.useEffect(() => {
+    if (order) {
+      setCustomerData({
+        name: order.customer_name || '',
+        email: order.customer_email || '',
+        phone: order.customer_phone || '',
+        address: order.customer_address || '',
+      });
+
+      setDeliveryData({
+        firstName: order.delivery_first_name || '',
+        lastName: order.delivery_last_name || '',
+        street: order.delivery_street || '',
+        postcode: order.delivery_postcode || '',
+        city: order.delivery_city || '',
+        phone: order.delivery_phone || '',
+      });
+
+      setBillingData({
+        firstName: order.billing_first_name || '',
+        lastName: order.billing_last_name || '',
+        street: order.billing_street || '',
+        postcode: order.billing_postcode || '',
+        city: order.billing_city || '',
+      });
+    }
+  }, [order]);
 
   if (!order) return null;
 
@@ -137,6 +199,144 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     if (onOrderUpdate) {
       onOrderUpdate(orderId, updatedData);
     }
+  };
+
+  const saveCustomerData = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          customer_name: customerData.name,
+          customer_email: customerData.email,
+          customer_phone: customerData.phone,
+          customer_address: customerData.address,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      if (onOrderUpdate) {
+        onOrderUpdate(order.id, {
+          customer_name: customerData.name,
+          customer_email: customerData.email,
+          customer_phone: customerData.phone,
+          customer_address: customerData.address,
+        });
+      }
+
+      setEditingCard(null);
+    } catch (error) {
+      console.error('Error updating customer data:', error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveDeliveryData = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          delivery_first_name: deliveryData.firstName,
+          delivery_last_name: deliveryData.lastName,
+          delivery_street: deliveryData.street,
+          delivery_postcode: deliveryData.postcode,
+          delivery_city: deliveryData.city,
+          delivery_phone: deliveryData.phone,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      if (onOrderUpdate) {
+        onOrderUpdate(order.id, {
+          delivery_first_name: deliveryData.firstName,
+          delivery_last_name: deliveryData.lastName,
+          delivery_street: deliveryData.street,
+          delivery_postcode: deliveryData.postcode,
+          delivery_city: deliveryData.city,
+          delivery_phone: deliveryData.phone,
+        });
+      }
+
+      setEditingCard(null);
+    } catch (error) {
+      console.error('Error updating delivery data:', error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveBillingData = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          billing_first_name: billingData.firstName,
+          billing_last_name: billingData.lastName,
+          billing_street: billingData.street,
+          billing_postcode: billingData.postcode,
+          billing_city: billingData.city,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      if (onOrderUpdate) {
+        onOrderUpdate(order.id, {
+          billing_first_name: billingData.firstName,
+          billing_last_name: billingData.lastName,
+          billing_street: billingData.street,
+          billing_postcode: billingData.postcode,
+          billing_city: billingData.city,
+        });
+      }
+
+      setEditingCard(null);
+    } catch (error) {
+      console.error('Error updating billing data:', error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset data to original values
+    if (order) {
+      setCustomerData({
+        name: order.customer_name || '',
+        email: order.customer_email || '',
+        phone: order.customer_phone || '',
+        address: order.customer_address || '',
+      });
+
+      setDeliveryData({
+        firstName: order.delivery_first_name || '',
+        lastName: order.delivery_last_name || '',
+        street: order.delivery_street || '',
+        postcode: order.delivery_postcode || '',
+        city: order.delivery_city || '',
+        phone: order.delivery_phone || '',
+      });
+
+      setBillingData({
+        firstName: order.billing_first_name || '',
+        lastName: order.billing_last_name || '',
+        street: order.billing_street || '',
+        postcode: order.billing_postcode || '',
+        city: order.billing_city || '',
+      });
+    }
+    setEditingCard(null);
   };
 
   return (
@@ -301,94 +501,148 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                 </Card>
 
                 {/* Customer Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Kundendaten</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <span className="font-medium">Name:</span>
-                      <span className="ml-2">{order.customer_name}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium">E-Mail:</span>
-                      <span className="ml-2">{order.customer_email}</span>
-                    </div>
-                    {order.customer_phone && (
-                      <div>
-                        <span className="font-medium">Telefon:</span>
-                        <span className="ml-2">{order.customer_phone}</span>
-                      </div>
-                    )}
-                    <div>
-                      <span className="font-medium">Adresse:</span>
-                      <span className="ml-2">{order.customer_address}</span>
-                    </div>
-                  </CardContent>
-                </Card>
+                <EditableCard
+                  title="Kundendaten"
+                  isEditing={editingCard === 'customer'}
+                  onEditToggle={() => setEditingCard('customer')}
+                  onSave={saveCustomerData}
+                  onCancel={handleCancelEdit}
+                  isSaving={isSaving}
+                >
+                  <EditableField
+                    label="Name"
+                    value={customerData.name}
+                    isEditing={editingCard === 'customer'}
+                    onSave={(value) => setCustomerData(prev => ({ ...prev, name: value }))}
+                    onCancel={() => {}}
+                    required
+                  />
+                  <EditableField
+                    label="E-Mail"
+                    value={customerData.email}
+                    isEditing={editingCard === 'customer'}
+                    onSave={(value) => setCustomerData(prev => ({ ...prev, email: value }))}
+                    onCancel={() => {}}
+                    required
+                  />
+                  <EditableField
+                    label="Telefon"
+                    value={customerData.phone}
+                    isEditing={editingCard === 'customer'}
+                    onSave={(value) => setCustomerData(prev => ({ ...prev, phone: value }))}
+                    onCancel={() => {}}
+                  />
+                  <EditableField
+                    label="Adresse"
+                    value={customerData.address}
+                    isEditing={editingCard === 'customer'}
+                    onSave={(value) => setCustomerData(prev => ({ ...prev, address: value }))}
+                    onCancel={() => {}}
+                    required
+                  />
+                </EditableCard>
 
                 {/* Delivery Information */}
-                {(order.delivery_first_name || order.delivery_street || order.delivery_postcode) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Lieferadresse</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {(order.delivery_first_name || order.delivery_last_name) && (
-                        <div>
-                          <span className="font-medium">Name:</span>
-                          <span className="ml-2">{order.delivery_first_name} {order.delivery_last_name}</span>
-                        </div>
-                      )}
-                      {order.delivery_street && (
-                        <div>
-                          <span className="font-medium">Straße:</span>
-                          <span className="ml-2">{order.delivery_street}</span>
-                        </div>
-                      )}
-                      {(order.delivery_postcode || order.delivery_city) && (
-                        <div>
-                          <span className="font-medium">Ort:</span>
-                          <span className="ml-2">{order.delivery_postcode} {order.delivery_city}</span>
-                        </div>
-                      )}
-                      {order.delivery_phone && (
-                        <div>
-                          <span className="font-medium">Telefon:</span>
-                          <span className="ml-2">{order.delivery_phone}</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                {(order.delivery_first_name || order.delivery_street || order.delivery_postcode || editingCard === 'delivery') && (
+                  <EditableCard
+                    title="Lieferadresse"
+                    isEditing={editingCard === 'delivery'}
+                    onEditToggle={() => setEditingCard('delivery')}
+                    onSave={saveDeliveryData}
+                    onCancel={handleCancelEdit}
+                    isSaving={isSaving}
+                  >
+                    <EditableField
+                      label="Vorname"
+                      value={deliveryData.firstName}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, firstName: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Nachname"
+                      value={deliveryData.lastName}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, lastName: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Straße"
+                      value={deliveryData.street}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, street: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="PLZ"
+                      value={deliveryData.postcode}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, postcode: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Stadt"
+                      value={deliveryData.city}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, city: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Telefon"
+                      value={deliveryData.phone}
+                      isEditing={editingCard === 'delivery'}
+                      onSave={(value) => setDeliveryData(prev => ({ ...prev, phone: value }))}
+                      onCancel={() => {}}
+                    />
+                  </EditableCard>
                 )}
 
                 {/* Billing Information */}
-                {(order.billing_first_name || order.billing_street || order.billing_postcode) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Rechnungsadresse</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {(order.billing_first_name || order.billing_last_name) && (
-                        <div>
-                          <span className="font-medium">Name:</span>
-                          <span className="ml-2">{order.billing_first_name} {order.billing_last_name}</span>
-                        </div>
-                      )}
-                      {order.billing_street && (
-                        <div>
-                          <span className="font-medium">Straße:</span>
-                          <span className="ml-2">{order.billing_street}</span>
-                        </div>
-                      )}
-                      {(order.billing_postcode || order.billing_city) && (
-                        <div>
-                          <span className="font-medium">Ort:</span>
-                          <span className="ml-2">{order.billing_postcode} {order.billing_city}</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                {(order.billing_first_name || order.billing_street || order.billing_postcode || editingCard === 'billing') && (
+                  <EditableCard
+                    title="Rechnungsadresse"
+                    isEditing={editingCard === 'billing'}
+                    onEditToggle={() => setEditingCard('billing')}
+                    onSave={saveBillingData}
+                    onCancel={handleCancelEdit}
+                    isSaving={isSaving}
+                  >
+                    <EditableField
+                      label="Vorname"
+                      value={billingData.firstName}
+                      isEditing={editingCard === 'billing'}
+                      onSave={(value) => setBillingData(prev => ({ ...prev, firstName: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Nachname"
+                      value={billingData.lastName}
+                      isEditing={editingCard === 'billing'}
+                      onSave={(value) => setBillingData(prev => ({ ...prev, lastName: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Straße"
+                      value={billingData.street}
+                      isEditing={editingCard === 'billing'}
+                      onSave={(value) => setBillingData(prev => ({ ...prev, street: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="PLZ"
+                      value={billingData.postcode}
+                      isEditing={editingCard === 'billing'}
+                      onSave={(value) => setBillingData(prev => ({ ...prev, postcode: value }))}
+                      onCancel={() => {}}
+                    />
+                    <EditableField
+                      label="Stadt"
+                      value={billingData.city}
+                      isEditing={editingCard === 'billing'}
+                      onSave={(value) => setBillingData(prev => ({ ...prev, city: value }))}
+                      onCancel={() => {}}
+                    />
+                  </EditableCard>
                 )}
               </div>
 
