@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mountain, Phone, Mail, MapPin, Clock, Shield, Award } from 'lucide-react';
@@ -16,7 +15,7 @@ const Footer = () => {
               <img 
                 src="https://i.imgur.com/FrtZ9Dd.png" 
                 alt="Heizöl Österreich" 
-                className="h-16 w-auto"
+                className="h-32 w-auto"
               />
             </div>
             
