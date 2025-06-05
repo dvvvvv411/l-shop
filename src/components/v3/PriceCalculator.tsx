@@ -344,7 +344,7 @@ const PriceCalculator = () => {
                 className={`w-full font-bold py-5 px-6 rounded-xl text-lg shadow-xl transition-all duration-300 ${
                   isFormValid
                     ? 'bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 text-white hover:scale-[1.02]'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-violet-300 to-purple-300 text-violet-600 cursor-not-allowed'
                 }`}
               >
                 <div className="flex items-center justify-center">
