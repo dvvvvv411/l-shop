@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Header from '@/components/v3/Header';
-import Footer from '@/components/Footer';
+import Footer from '@/components/v3/Footer';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 import { Mountain, Shield } from 'lucide-react';
 
@@ -23,10 +23,9 @@ const Datenschutz = () => {
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">1. Verantwortlicher</h2>
               <div className="bg-violet-50 p-4 rounded-lg">
-                <p className="font-semibold">Heizöl Österreich GmbH</p>
-                <p>Mariahilfer Straße 123, 1060 Wien, Österreich</p>
+                <p className="font-semibold">Sommer Öl und Industriebedarf GmbH</p>
+                <p>Brünner Straße 209/8/9, 1210 Wien, Österreich</p>
                 <p>E-Mail: datenschutz@heizoel-austria.com</p>
-                <p>Telefon: +43 1 234 5678</p>
               </div>
             </section>
 
@@ -71,7 +70,6 @@ const Datenschutz = () => {
               <div className="bg-violet-50 p-4 rounded-lg">
                 <p>Bei Fragen zum Datenschutz wenden Sie sich an:</p>
                 <p>E-Mail: datenschutz@heizoel-austria.com</p>
-                <p>Telefon: +43 1 234 5678</p>
               </div>
             </section>
 

@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mountain, Phone, Mail, MapPin, Clock, Shield, Award } from 'lucide-react';
+import { Mountain, Mail, MapPin, Clock, Shield, Award } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -14,7 +15,7 @@ const Footer = () => {
             <div className="flex items-center space-x-3">
               <img 
                 src="https://i.imgur.com/FrtZ9Dd.png" 
-                alt="Heizöl Österreich" 
+                alt="Sommer Öl und Industriebedarf" 
                 className="h-32 w-auto"
               />
             </div>
@@ -107,14 +108,6 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-6 text-white">Kontakt Österreich</h4>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <Phone className="h-5 w-5 text-violet-300 mt-1 flex-shrink-0" />
-                <div>
-                  <p className="text-white font-medium">+43 1 234 5678</p>
-                  <p className="text-violet-200 text-sm">Mo-Fr: 8:00-18:00 Uhr</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
                 <Mail className="h-5 w-5 text-violet-300 mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-white">info@heizoel-austria.com</p>
@@ -147,7 +140,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-violet-300 text-sm">
-              © 2024 Heizöl Österreich. Alle Rechte vorbehalten.
+              © 2024 Sommer Öl und Industriebedarf GmbH. Alle Rechte vorbehalten.
             </div>
             
             <div className="flex items-center space-x-6 text-sm text-violet-300">
