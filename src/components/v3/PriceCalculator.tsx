@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mountain, Calculator, Euro, Truck, Shield, Lock, CreditCard, AlertCircle, Info } from 'lucide-react';
@@ -305,17 +306,20 @@ const PriceCalculator = () => {
               </div>
             </motion.div>
 
-            {/* Price Display */}
+            {/* Simplified Price Display */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                <div className="space-y-3">
-                  <div className="flex justify-between text-gray-700">
-                    <span>Grundpreis ({amount.toLocaleString()}L × €{products[quality as keyof typeof products].price.toFixed(2)})</span>
-                    <span className="font-semibold">€{calculatePrice()}</span>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">Gesamtpreis</span>
+                    <div className="flex items-center">
+                      <Euro className="h-6 w-6 text-violet-600 mr-2" />
+                      <span className="text-2xl font-bold text-violet-600">{getTotalPrice()}</span>
+                    </div>
                   </div>
                   
                   <div className="flex justify-between text-gray-700">
@@ -323,16 +327,6 @@ const PriceCalculator = () => {
                     <span className={`font-semibold ${getDeliveryFee() === 0 ? 'text-green-600' : ''}`}>
                       {getDeliveryFee() === 0 ? 'Kostenlos' : `€${getDeliveryFee()}`}
                     </span>
-                  </div>
-                  
-                  <hr className="border-gray-300" />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Gesamtpreis</span>
-                    <div className="flex items-center">
-                      <Euro className="h-6 w-6 text-violet-600 mr-2" />
-                      <span className="text-2xl font-bold text-violet-600">{getTotalPrice()}</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -350,7 +344,7 @@ const PriceCalculator = () => {
                 className={`w-full font-bold py-4 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 ${
                   isFormValid
                     ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white hover:scale-[1.02]'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed transform-none'
+                    : 'bg-violet-200 text-violet-400 cursor-not-allowed transform-none'
                 }`}
               >
                 <Truck className="h-5 w-5 mr-3" />
@@ -373,23 +367,6 @@ const PriceCalculator = () => {
               </div>
             </motion.div>
           </div>
-
-          {/* Footer Info */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-8 text-center"
-          >
-            <div className="inline-flex items-center space-x-4 text-xs text-gray-600 bg-gray-100 px-6 py-3 rounded-full">
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
-                <div className="w-2 h-2 bg-white border border-gray-300 rounded-sm"></div>
-                <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
-              </div>
-              <span>100% österreichische Qualität | ÖNORM-zertifiziert | Seit 1998</span>
-            </div>
-          </motion.div>
         </div>
       </motion.div>
     </TooltipProvider>
