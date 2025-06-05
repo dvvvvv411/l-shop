@@ -67,10 +67,8 @@ const PriceCalculator = () => {
 
   const handleAmountChange = (value: string) => {
     const numValue = parseInt(value.replace(/\D/g, '')) || 0;
-    if (numValue >= 1000 && numValue <= 32000) {
-      setAmount(numValue);
-      validateAmount(numValue);
-    }
+    setAmount(numValue);
+    validateAmount(numValue);
   };
 
   const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,12 +111,14 @@ const PriceCalculator = () => {
   };
 
   const getVisualizationWidth = () => {
-    const percentage = ((amount - 1000) / (32000 - 1000)) * 100;
+    // Ensure amount is within valid range for calculation
+    const clampedAmount = Math.max(1000, Math.min(32000, amount));
+    const percentage = ((clampedAmount - 1000) / (32000 - 1000)) * 100;
     return Math.max(5, Math.min(100, percentage));
   };
 
   // Form validation
-  const isFormValid = postcode.length === 4 && isValidPostcode && isValidAmount;
+  const isFormValid = postcode.length === 4 && isValidPostcode && isValidAmount && amount >= 1000 && amount <= 32000;
 
   return (
     <TooltipProvider>
@@ -191,7 +191,7 @@ const PriceCalculator = () => {
                   </motion.p>
                 )}
                 
-                {/* Visualization Bar */}
+                {/* Fixed Visualization Bar */}
                 <div className="relative">
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <motion.div
@@ -351,8 +351,21 @@ const PriceCalculator = () => {
                 {isFormValid ? 'Jetzt bestellen - Österreichweit' : 'Bitte alle Felder ausfüllen'}
               </Button>
               
-              {/* Security Notices */}
-              <div className="mt-4 space-y-2">
+              {/* Enhanced Security Notices with "Sichere Zahlung" emblem */}
+              <div className="mt-4 space-y-3">
+                {/* Sichere Zahlung Emblem */}
+                <div className="flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-full shadow-lg flex items-center space-x-3">
+                    <Shield className="h-5 w-5" />
+                    <span className="font-semibold text-sm">Sichere Zahlung</span>
+                    <div className="flex space-x-1">
+                      <Lock className="h-4 w-4" />
+                      <CreditCard className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Austrian Quality Badge */}
                 <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 bg-gray-100 px-6 py-3 rounded-full">
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
@@ -361,6 +374,8 @@ const PriceCalculator = () => {
                   </div>
                   <span>100% österreichische Qualität | ÖNORM-zertifiziert | Seit 1998</span>
                 </div>
+                
+                {/* Privacy Notice */}
                 <div className="text-center text-xs text-gray-500">
                   Ihre Daten werden verschlüsselt übertragen und nicht an Dritte weitergegeben
                 </div>
