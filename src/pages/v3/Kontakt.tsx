@@ -1,15 +1,11 @@
-
 import React from 'react';
 import Header from '@/components/v3/Header';
 import Footer from '@/components/Footer';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 import { Mountain, Phone, Mail, MapPin, Clock } from 'lucide-react';
-
 const Kontakt = () => {
   useDomainPageMeta('kontakt');
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+  return <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <Header />
       
       <main className="container mx-auto px-4 py-12">
@@ -56,8 +52,8 @@ const Kontakt = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Adresse</h3>
-                    <p className="text-gray-700">Mariahilfer Straße 123</p>
-                    <p className="text-gray-700">1060 Wien, Österreich</p>
+                    <p className="text-gray-700">Brünner Straße 209/8/9</p>
+                    <p className="text-gray-700">1210 Wien</p>
                   </div>
                 </div>
 
@@ -93,21 +89,13 @@ const Kontakt = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Vorname *
                     </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                      required
-                    />
+                    <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent" required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nachname *
                     </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                      required
-                    />
+                    <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent" required />
                   </div>
                 </div>
 
@@ -115,21 +103,14 @@ const Kontakt = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     E-Mail *
                   </label>
-                  <input
-                    type="email"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                    required
-                  />
+                  <input type="email" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent" required />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Telefon
                   </label>
-                  <input
-                    type="tel"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                  />
+                  <input type="tel" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
                 </div>
 
                 <div>
@@ -154,18 +135,10 @@ const Kontakt = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nachricht *
                   </label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                    placeholder="Wie können wir Ihnen helfen?"
-                    required
-                  />
+                  <textarea rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Wie können wir Ihnen helfen?" required />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-violet-600 to-purple-700 text-white py-3 px-6 rounded-lg font-medium hover:from-violet-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl border border-amber-300/50"
-                >
+                <button type="submit" className="w-full bg-gradient-to-r from-violet-600 to-purple-700 text-white py-3 px-6 rounded-lg font-medium hover:from-violet-700 hover:to-purple-800 transition-all shadow-lg hover:shadow-xl border border-amber-300/50">
                   <Mountain className="inline h-5 w-5 mr-2" />
                   Nachricht senden
                 </button>
@@ -197,8 +170,6 @@ const Kontakt = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Kontakt;
