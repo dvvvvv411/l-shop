@@ -23,9 +23,10 @@ const Datenschutz = () => {
             <section>
               <h2 className="text-xl font-semibold text-violet-800 mb-3">1. Verantwortlicher</h2>
               <div className="bg-violet-50 p-4 rounded-lg">
-                <p className="font-semibold">Smart Energy Solutions GmbH</p>
-                <p>Linke Wienzeile 4/1/4, 1060 Wien, Österreich</p>
-                <p>E-Mail: datenschutz@smart-energy-solutions.at</p>
+                <p className="font-semibold">Heizöl Österreich GmbH</p>
+                <p>Mariahilfer Straße 123, 1060 Wien, Österreich</p>
+                <p>E-Mail: datenschutz@heizoel-austria.com</p>
+                <p>Telefon: +43 1 234 5678</p>
               </div>
             </section>
 
@@ -69,7 +70,8 @@ const Datenschutz = () => {
               <h2 className="text-xl font-semibold text-violet-800 mb-3">6. Datenschutzbeauftragte/r</h2>
               <div className="bg-violet-50 p-4 rounded-lg">
                 <p>Bei Fragen zum Datenschutz wenden Sie sich an:</p>
-                <p>E-Mail: datenschutz@smart-energy-solutions.at</p>
+                <p>E-Mail: datenschutz@heizoel-austria.com</p>
+                <p>Telefon: +43 1 234 5678</p>
               </div>
             </section>
 
