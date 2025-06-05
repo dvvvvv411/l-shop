@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -11,14 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown, User, MapPin, FileText } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import StatusBadge from './StatusBadge';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
 import OrderNotesSection from './OrderNotesSection';
 import OrderStatusHistorySection from './OrderStatusHistorySection';
-import EditableAddressSection from './EditableAddressSection';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 interface OrderDetailsDialogProps {
@@ -302,95 +300,156 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   </CardContent>
                 </Card>
 
-                {/* Product Information */}
+                {/* Customer Information */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Produktdetails</CardTitle>
+                    <CardTitle>Kundendaten</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <span className="font-medium">Produkt:</span>
-                        <div className="mt-1">
-                          <Badge variant="secondary">{order.product || 'Standard Heizöl'}</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Menge:</span>
-                        <div className="mt-1 text-lg font-semibold">{order.liters.toLocaleString()} L</div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Preis pro Liter:</span>
-                        <div className="mt-1">{formatCurrency(order.price_per_liter)}</div>
-                      </div>
-                      <div>
-                        <span className="font-medium">Gesamtpreis:</span>
-                        <div className="mt-1 text-lg font-semibold text-green-600">{formatCurrency(order.total_amount)}</div>
-                      </div>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <span className="font-medium">Name:</span>
+                      <span className="ml-2">{order.customer_name}</span>
                     </div>
-
-                    <Separator className="my-4" />
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {order.base_price && (
-                        <div>
-                          <span className="font-medium">Grundpreis:</span>
-                          <div className="mt-1">{formatCurrency(order.base_price)}</div>
-                        </div>
-                      )}
-                      {order.delivery_fee && (
-                        <div>
-                          <span className="font-medium">Liefergebühr:</span>
-                          <div className="mt-1">{formatCurrency(order.delivery_fee)}</div>
-                        </div>
-                      )}
-                      {order.discount && (
-                        <div>
-                          <span className="font-medium">Rabatt:</span>
-                          <div className="mt-1 text-red-600">-{formatCurrency(order.discount)}</div>
-                        </div>
-                      )}
+                    <div>
+                      <span className="font-medium">E-Mail:</span>
+                      <span className="ml-2">{order.customer_email}</span>
                     </div>
-
-                    {order.payment_method && (
-                      <div className="mt-4">
-                        <span className="font-medium">Zahlungsmethode:</span>
-                        <span className="ml-2">{order.payment_method}</span>
+                    {order.customer_phone && (
+                      <div>
+                        <span className="font-medium">Telefon:</span>
+                        <span className="ml-2">{order.customer_phone}</span>
                       </div>
                     )}
+                    <div>
+                      <span className="font-medium">Adresse:</span>
+                      <span className="ml-2">{order.customer_address}</span>
+                    </div>
                   </CardContent>
                 </Card>
-              </div>
-
-              {/* Editable Address Sections */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Customer Information */}
-                <EditableAddressSection
-                  title="Kundendaten"
-                  icon={<User className="h-5 w-5" />}
-                  order={order}
-                  addressType="customer"
-                  onOrderUpdate={handleOrderUpdateFromDialog}
-                />
 
                 {/* Delivery Information */}
-                <EditableAddressSection
-                  title="Lieferadresse"
-                  icon={<MapPin className="h-5 w-5" />}
-                  order={order}
-                  addressType="delivery"
-                  onOrderUpdate={handleOrderUpdateFromDialog}
-                />
+                {(order.delivery_first_name || order.delivery_street || order.delivery_postcode) && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Lieferadresse</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {(order.delivery_first_name || order.delivery_last_name) && (
+                        <div>
+                          <span className="font-medium">Name:</span>
+                          <span className="ml-2">{order.delivery_first_name} {order.delivery_last_name}</span>
+                        </div>
+                      )}
+                      {order.delivery_street && (
+                        <div>
+                          <span className="font-medium">Straße:</span>
+                          <span className="ml-2">{order.delivery_street}</span>
+                        </div>
+                      )}
+                      {(order.delivery_postcode || order.delivery_city) && (
+                        <div>
+                          <span className="font-medium">Ort:</span>
+                          <span className="ml-2">{order.delivery_postcode} {order.delivery_city}</span>
+                        </div>
+                      )}
+                      {order.delivery_phone && (
+                        <div>
+                          <span className="font-medium">Telefon:</span>
+                          <span className="ml-2">{order.delivery_phone}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Billing Information */}
-                <EditableAddressSection
-                  title="Rechnungsadresse"
-                  icon={<FileText className="h-5 w-5" />}
-                  order={order}
-                  addressType="billing"
-                  onOrderUpdate={handleOrderUpdateFromDialog}
-                />
+                {(order.billing_first_name || order.billing_street || order.billing_postcode) && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Rechnungsadresse</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {(order.billing_first_name || order.billing_last_name) && (
+                        <div>
+                          <span className="font-medium">Name:</span>
+                          <span className="ml-2">{order.billing_first_name} {order.billing_last_name}</span>
+                        </div>
+                      )}
+                      {order.billing_street && (
+                        <div>
+                          <span className="font-medium">Straße:</span>
+                          <span className="ml-2">{order.billing_street}</span>
+                        </div>
+                      )}
+                      {(order.billing_postcode || order.billing_city) && (
+                        <div>
+                          <span className="font-medium">Ort:</span>
+                          <span className="ml-2">{order.billing_postcode} {order.billing_city}</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
+
+              {/* Product Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Produktdetails</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <span className="font-medium">Produkt:</span>
+                      <div className="mt-1">
+                        <Badge variant="secondary">{order.product || 'Standard Heizöl'}</Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Menge:</span>
+                      <div className="mt-1 text-lg font-semibold">{order.liters.toLocaleString()} L</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Preis pro Liter:</span>
+                      <div className="mt-1">{formatCurrency(order.price_per_liter)}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Gesamtpreis:</span>
+                      <div className="mt-1 text-lg font-semibold text-green-600">{formatCurrency(order.total_amount)}</div>
+                    </div>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {order.base_price && (
+                      <div>
+                        <span className="font-medium">Grundpreis:</span>
+                        <div className="mt-1">{formatCurrency(order.base_price)}</div>
+                      </div>
+                    )}
+                    {order.delivery_fee && (
+                      <div>
+                        <span className="font-medium">Liefergebühr:</span>
+                        <div className="mt-1">{formatCurrency(order.delivery_fee)}</div>
+                      </div>
+                    )}
+                    {order.discount && (
+                      <div>
+                        <span className="font-medium">Rabatt:</span>
+                        <div className="mt-1 text-red-600">-{formatCurrency(order.discount)}</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {order.payment_method && (
+                    <div className="mt-4">
+                      <span className="font-medium">Zahlungsmethode:</span>
+                      <span className="ml-2">{order.payment_method}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Order Notes Section */}
               <OrderNotesSection orderId={order.id} />
