@@ -1,15 +1,25 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mountain, Calculator, Euro, Truck, Shield, Lock, CreditCard } from 'lucide-react';
+import { Mountain, Calculator, Euro, Truck, Shield, Lock, CreditCard, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PriceCalculator = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [amount, setAmount] = useState<number>(3000);
   const [postcode, setPostcode] = useState<string>('');
   const [quality, setQuality] = useState<string>('premium');
+  const [isValidPostcode, setIsValidPostcode] = useState(true);
+  const [isValidAmount, setIsValidAmount] = useState(true);
+
+  // Save referrer information when component mounts
+  useEffect(() => {
+    localStorage.setItem('orderReferrer', location.pathname);
+  }, [location.pathname]);
 
   const products = {
     standard: {
@@ -22,6 +32,20 @@ const PriceCalculator = () => {
       price: 0.89,
       description: 'Schwefelarm mit Additiven'
     }
+  };
+
+  // Validation functions
+  const validatePostcode = (value: string) => {
+    // Austrian postcodes are 4 digits
+    const isValid = /^\d{4}$/.test(value);
+    setIsValidPostcode(isValid);
+    return isValid;
+  };
+
+  const validateAmount = (value: number) => {
+    const isValid = value >= 1000 && value <= 32000;
+    setIsValidAmount(isValid);
+    return isValid;
   };
 
   const calculatePrice = () => {
@@ -43,12 +67,46 @@ const PriceCalculator = () => {
     const numValue = parseInt(value.replace(/\D/g, '')) || 0;
     if (numValue >= 1000 && numValue <= 32000) {
       setAmount(numValue);
+      validateAmount(numValue);
     }
   };
 
-  const handleCalculate = () => {
-    if (postcode.length >= 4) {
-      console.log('Calculating price for Austrian delivery', { amount, postcode, quality });
+  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setPostcode(value);
+    if (value.length === 4) {
+      validatePostcode(value);
+    } else {
+      setIsValidPostcode(true); // Don't show error while typing
+    }
+  };
+
+  const handleOrderClick = () => {
+    if (isFormValid) {
+      const currentProduct = products[quality as keyof typeof products];
+      const basePrice = parseFloat(calculatePrice());
+      const deliveryFee = getDeliveryFee();
+      const totalPrice = parseFloat(getTotalPrice());
+
+      // Store order data in localStorage (without sensitive postcode info)
+      const orderData = {
+        product: {
+          id: quality,
+          name: currentProduct.name,
+          price: currentProduct.price,
+          description: currentProduct.description
+        },
+        amount,
+        basePrice,
+        deliveryFee,
+        totalPrice,
+        savings: 0
+      };
+      
+      localStorage.setItem('orderData', JSON.stringify(orderData));
+      
+      // Navigate to checkout
+      navigate('/checkout');
     }
   };
 
@@ -56,6 +114,9 @@ const PriceCalculator = () => {
     const percentage = ((amount - 1000) / (32000 - 1000)) * 100;
     return Math.max(5, Math.min(100, percentage));
   };
+
+  // Form validation
+  const isFormValid = postcode.length === 4 && isValidPostcode && isValidAmount;
 
   return (
     <motion.div
@@ -98,11 +159,34 @@ const PriceCalculator = () => {
                   type="text"
                   value={amount.toLocaleString()}
                   onChange={(e) => handleAmountChange(e.target.value)}
-                  className="text-2xl font-bold py-4 pr-16 border-2 border-gray-300 focus:border-violet-500 rounded-xl"
+                  className={`text-2xl font-bold py-4 pr-16 border-2 focus:border-violet-500 rounded-xl ${
+                    !isValidAmount
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-300'
+                  }`}
                   placeholder="3.000"
                 />
                 <span className="absolute right-4 top-4 text-xl font-semibold text-gray-500">L</span>
+                {!isValidAmount && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="absolute right-16 top-4"
+                  >
+                    <AlertCircle className="text-red-500" size={20} />
+                  </motion.div>
+                )}
               </div>
+              
+              {!isValidAmount && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-500 text-sm"
+                >
+                  Menge muss zwischen 1.000L und 32.000L liegen
+                </motion.p>
+              )}
               
               {/* Visualization Bar */}
               <div className="relative">
@@ -133,20 +217,37 @@ const PriceCalculator = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <Label htmlFor="postcode" className="text-gray-800 font-semibold text-lg mb-4 block">
-              Österreichische Postleitzahl
+              Österreichische Postleitzahl *
             </Label>
             <div className="relative">
               <Input
                 id="postcode"
                 type="text"
                 value={postcode}
-                onChange={(e) => setPostcode(e.target.value)}
+                onChange={handlePostcodeChange}
                 placeholder="z.B. 1010 (Wien)"
-                className="py-4 text-lg border-2 border-gray-300 focus:border-violet-500 rounded-xl pr-12"
+                className={`py-4 text-lg border-2 focus:border-violet-500 rounded-xl pr-12 ${
+                  !isValidPostcode && postcode.length === 4
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300'
+                }`}
                 maxLength={4}
               />
-              <Mountain className="absolute right-4 top-4 h-5 w-5 text-violet-500" />
+              {!isValidPostcode && postcode.length === 4 ? (
+                <AlertCircle className="absolute right-4 top-4 h-5 w-5 text-red-500" />
+              ) : (
+                <Mountain className="absolute right-4 top-4 h-5 w-5 text-violet-500" />
+              )}
             </div>
+            {!isValidPostcode && postcode.length === 4 && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm mt-1"
+              >
+                Bitte geben Sie eine gültige 4-stellige österreichische PLZ ein
+              </motion.p>
+            )}
           </motion.div>
 
           {/* Quality Selection Buttons */}
@@ -190,7 +291,7 @@ const PriceCalculator = () => {
             </div>
           </motion.div>
 
-          {/* Price Display - Less Prominent */}
+          {/* Price Display */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -230,12 +331,16 @@ const PriceCalculator = () => {
             transition={{ delay: 0.7, duration: 0.6 }}
           >
             <Button 
-              onClick={handleCalculate}
-              disabled={!postcode || postcode.length < 4}
-              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              onClick={handleOrderClick}
+              disabled={!isFormValid}
+              className={`w-full font-bold py-4 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 ${
+                isFormValid
+                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white hover:scale-[1.02]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed transform-none'
+              }`}
             >
               <Truck className="h-5 w-5 mr-3" />
-              Jetzt bestellen - Österreichweit
+              {isFormValid ? 'Jetzt bestellen - Österreichweit' : 'Bitte alle Felder ausfüllen'}
             </Button>
             
             {/* Security Notices */}
