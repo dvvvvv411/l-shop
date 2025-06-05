@@ -2,10 +2,13 @@ import React from 'react';
 import Header from '@/components/v3/Header';
 import Footer from '@/components/Footer';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
-import { Mountain, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Mountain, Mail, MapPin, Clock } from 'lucide-react';
+
 const Kontakt = () => {
   useDomainPageMeta('kontakt');
-  return <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <Header />
       
       <main className="container mx-auto px-4 py-12">
@@ -24,17 +27,6 @@ const Kontakt = () => {
               <h2 className="text-2xl font-bold text-violet-800 mb-6">Unser Service-Team</h2>
               
               <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-violet-100 p-3 rounded-lg">
-                    <Phone className="h-6 w-6 text-violet-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Telefon</h3>
-                    <p className="text-violet-600 font-medium">+43 1 234 5678</p>
-                    <p className="text-sm text-gray-600">Kostenlose Beratung</p>
-                  </div>
-                </div>
-
                 <div className="flex items-start space-x-4">
                   <div className="bg-amber-100 p-3 rounded-lg">
                     <Mail className="h-6 w-6 text-amber-600" />
@@ -170,6 +162,8 @@ const Kontakt = () => {
       </main>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Kontakt;
