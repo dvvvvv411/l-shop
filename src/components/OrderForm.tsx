@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -56,7 +55,7 @@ const orderSchema = z.object({
   deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
   deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
   deliveryStreet: z.string().min(5, 'Straße ist erforderlich'),
-  deliveryPostcode: z.string().regex(/^\d{5}$/, 'PLZ muss 5-stellig sein'),
+  deliveryPostcode: z.string().min(1, 'PLZ ist erforderlich'),
   deliveryCity: z.string().min(2, 'Stadt ist erforderlich'),
   deliveryPhone: z.string().min(10, 'Telefonnummer ist erforderlich'),
   // Billing Address
