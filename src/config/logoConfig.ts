@@ -61,6 +61,29 @@ export const logoConfigs: Record<string, LogoConfig> = {
 };
 
 export const getLogoConfig = (referrer?: string): LogoConfig => {
+  // Check current URL path first for V3 routes
+  if (typeof window !== 'undefined') {
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/3/') || currentPath === '/3') {
+      return logoConfigs['/3/home'];
+    }
+    if (currentPath.startsWith('/2/') || currentPath === '/2') {
+      return logoConfigs['/2/home'];
+    }
+    if (currentPath.startsWith('/1/') || currentPath === '/1') {
+      return logoConfigs['/1/home'];
+    }
+  }
+  
+  // Check for order referrer stored in localStorage (for checkout pages)
+  if (typeof window !== 'undefined') {
+    const orderReferrer = localStorage.getItem('orderReferrer');
+    if (orderReferrer && logoConfigs[orderReferrer]) {
+      return logoConfigs[orderReferrer];
+    }
+  }
+  
+  // Use explicit referrer parameter
   if (referrer && logoConfigs[referrer]) {
     return logoConfigs[referrer];
   }
@@ -72,4 +95,9 @@ export const getLogoConfig = (referrer?: string): LogoConfig => {
 // New function to get logo config by domain shop type
 export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria'): LogoConfig => {
   return logoConfigs[shopType] || logoConfigs['root'];
+};
+
+// Enhanced function to get logo config for V3 routes specifically
+export const getLogoConfigForV3 = (): LogoConfig => {
+  return logoConfigs['/3/home'];
 };

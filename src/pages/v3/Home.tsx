@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v3/Header';
-import Footer from '@/components/Footer';
+import Footer from '@/components/v3/Footer';
 import PriceCalculator from '@/components/v3/PriceCalculator';
 import StatsSection from '@/components/v3/StatsSection';
 import WhyChooseUs from '@/components/v3/WhyChooseUs';

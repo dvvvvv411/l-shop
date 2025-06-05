@@ -1,12 +1,30 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getLogoConfigByShopType } from '../../config/logoConfig';
+import { getLogoConfig } from '../../config/logoConfig';
 import { useDomainShop } from '../../hooks/useDomainShop';
 
 const CheckoutHeader = () => {
   const shopConfig = useDomainShop();
-  const logoConfig = getLogoConfigByShopType(shopConfig.shopType);
+  
+  // Enhanced logo selection logic for checkout
+  const getCheckoutLogoConfig = () => {
+    // Check for order referrer in localStorage first
+    if (typeof window !== 'undefined') {
+      const orderReferrer = localStorage.getItem('orderReferrer');
+      if (orderReferrer) {
+        // Direct route-based config lookup
+        const logoConfig = getLogoConfig(orderReferrer);
+        return logoConfig;
+      }
+    }
+    
+    // Fallback to domain-based config
+    const logoConfig = getLogoConfig();
+    return logoConfig;
+  };
+
+  const logoConfig = getCheckoutLogoConfig();
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-4 sm:px-6 lg:px-8">

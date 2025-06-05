@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria';
 
@@ -64,6 +64,15 @@ const getDomainShopConfig = (): DomainShopConfig => {
   const config = domainMappings[hostname] || defaultConfig;
   
   console.log('Domain shop detected synchronously:', { hostname, shopType: config.shopType });
+  
+  // Set appropriate order referrer for checkout branding
+  if (config.shopType === 'austria') {
+    localStorage.setItem('orderReferrer', '/3/home');
+  } else if (config.shopType === 'greenoil') {
+    localStorage.setItem('orderReferrer', '/2/home');
+  } else if (config.shopType === 'stanton') {
+    localStorage.setItem('orderReferrer', '/1/home');
+  }
   
   return config;
 };
