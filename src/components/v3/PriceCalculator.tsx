@@ -110,10 +110,16 @@ const PriceCalculator = React.memo(() => {
     }
   }, [amount, quality, products, calculations, navigate]);
 
-  // Form validation
+  // Form validation - now includes quality in dependencies
   const isFormValid = useMemo(() => 
-    postcode.length === 4 && isValidPostcode && isValidAmount && amount >= 1000 && amount <= 32000,
-    [postcode, isValidPostcode, isValidAmount, amount]
+    postcode.length === 4 && 
+    isValidPostcode && 
+    isValidAmount && 
+    amount >= 1000 && 
+    amount <= 32000 && 
+    quality && 
+    products[quality as keyof typeof products],
+    [postcode, isValidPostcode, isValidAmount, amount, quality, products]
   );
 
   return (
