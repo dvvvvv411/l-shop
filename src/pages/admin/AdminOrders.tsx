@@ -17,11 +17,10 @@ import OrderTableActions from '@/components/admin/OrderTableActions';
 import OrdersStatsCards from '@/components/admin/OrdersStatsCards';
 import { useOrders, Order } from '@/hooks/useOrders';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
-import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 import { useToast } from '@/hooks/use-toast';
 
 const AdminOrders = () => {
-  const { orders, isLoading, updateOrderStatus, hideOrder, unhideOrder, refetch } = useOrders();
+  const { orders, isLoading, updateOrderStatus, hideOrder, unhideOrder, updateOrder } = useOrders();
   const { getBankAccountSystemName } = useBankAccounts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
@@ -34,26 +33,12 @@ const AdminOrders = () => {
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [selectedOrderForInvoiceView, setSelectedOrderForInvoiceView] = useState<Order | null>(null);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
-  const [localOrders, setLocalOrders] = useState<Order[]>([]);
   const { toast } = useToast();
   const ordersPerPage = 20;
 
-  // Use local orders state if available, otherwise use orders from hook
-  const displayOrders = localOrders.length > 0 ? localOrders : orders;
-
-  // Update local orders when orders change
-  React.useEffect(() => {
-    setLocalOrders(orders);
-  }, [orders]);
-
-  // Refresh orders when showHidden changes
-  React.useEffect(() => {
-    refetch(showHidden);
-  }, [showHidden, refetch]);
-
-  // Filter orders based on showHidden state
+  // Filter orders based on search, status, and hidden visibility
   const filteredOrders = useMemo(() => {
-    return displayOrders.filter(order => {
+    return orders.filter(order => {
       const matchesSearch = 
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,7 +52,7 @@ const AdminOrders = () => {
       
       return matchesSearch && matchesStatus && matchesHiddenFilter;
     });
-  }, [displayOrders, searchTerm, statusFilter, showHidden]);
+  }, [orders, searchTerm, statusFilter, showHidden]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
@@ -77,7 +62,7 @@ const AdminOrders = () => {
   );
 
   // New orders count (using 'pending' instead of 'Neu')
-  const newOrdersCount = displayOrders.filter(order => order.status === 'pending' && !order.is_hidden).length;
+  const newOrdersCount = orders.filter(order => order.status === 'pending' && !order.is_hidden).length;
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -177,12 +162,6 @@ const AdminOrders = () => {
     setSelectedOrderForInvoiceView(null);
   };
 
-  const handleViewPDF = (order: Order) => {
-    if (order.invoice_file_url) {
-      window.open(order.invoice_file_url, '_blank');
-    }
-  };
-
   // Function to copy phone number to clipboard
   const handleCopyPhone = async (phone: string | null) => {
     if (!phone) return;
@@ -203,11 +182,9 @@ const AdminOrders = () => {
     }
   };
 
-  // Function to update order locally after invoice generation
+  // Function to handle order updates from dialogs
   const handleOrderUpdate = (orderId: string, updatedData: Partial<Order>) => {
-    setLocalOrders(prev => prev.map(order => 
-      order.id === orderId ? { ...order, ...updatedData } : order
-    ));
+    updateOrder(orderId, updatedData);
     
     // Also update the selected order if it's currently being viewed
     if (selectedOrder && selectedOrder.id === orderId) {
@@ -219,74 +196,12 @@ const AdminOrders = () => {
   const handleStatusChangeFromDialog = async (orderId: string, newStatus: string) => {
     try {
       await updateOrderStatus(orderId, newStatus);
-      // Update local state with new status and update latest_status_change
-      const now = new Date().toISOString();
-      setLocalOrders(prev => prev.map(order => 
-        order.id === orderId ? { ...order, status: newStatus, latest_status_change: now } : order
-      ));
       // Update selected order if it's currently being viewed
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(prev => prev ? { ...prev, status: newStatus, latest_status_change: now } : null);
+        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
       }
     } catch (error) {
       console.error('Error updating order status:', error);
-    }
-  };
-
-  const handleMarkAsPaidFromTable = async (order: Order) => {
-    try {
-      await updateOrderStatus(order.id, 'confirmed');
-      // Update local state with new status and update latest_status_change
-      const now = new Date().toISOString();
-      setLocalOrders(prev => prev.map(o => 
-        o.id === order.id ? { ...o, status: 'confirmed', latest_status_change: now } : o
-      ));
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
-
-  const handleMarkAsExchangedFromTable = async (order: Order) => {
-    try {
-      await updateOrderStatus(order.id, 'exchanged');
-      // Update local state with new status and update latest_status_change
-      const now = new Date().toISOString();
-      setLocalOrders(prev => prev.map(o => 
-        o.id === order.id ? { ...o, status: 'exchanged', latest_status_change: now } : o
-      ));
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
-
-  const handleMarkAsDownFromTable = async (order: Order) => {
-    try {
-      await updateOrderStatus(order.id, 'down');
-      // Update local state with new status and update latest_status_change
-      const now = new Date().toISOString();
-      setLocalOrders(prev => prev.map(o => 
-        o.id === order.id ? { ...o, status: 'down', latest_status_change: now } : o
-      ));
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
-
-  const handleHideOrderFromTable = async (order: Order) => {
-    try {
-      await hideOrder(order.id);
-    } catch (error) {
-      console.error('Error hiding order:', error);
-    }
-  };
-
-  const handleUnhideOrderFromTable = async (order: Order) => {
-    try {
-      await unhideOrder(order.id);
-      // Refresh the orders list to show the updated state
-      refetch(showHidden);
-    } catch (error) {
-      console.error('Error unhiding order:', error);
     }
   };
 
@@ -332,7 +247,7 @@ const AdminOrders = () => {
       </div>
 
       {/* Statistics Cards */}
-      <OrdersStatsCards orders={displayOrders} />
+      <OrdersStatsCards orders={orders} />
 
       {/* Filters */}
       <Card>
@@ -364,7 +279,7 @@ const AdminOrders = () => {
           <CardHeader>
             <CardTitle>Bestellübersicht</CardTitle>
             <CardDescription>
-              {filteredOrders.length} von {displayOrders.length} Bestellungen
+              {filteredOrders.length} von {orders.length} Bestellungen
               {currentPage > 1 && ` (Seite ${currentPage} von ${totalPages})`}
             </CardDescription>
           </CardHeader>
@@ -528,11 +443,11 @@ const AdminOrders = () => {
                             onViewOrder={handleViewOrder}
                             onGenerateInvoice={handleGenerateInvoice}
                             onViewInvoice={handleViewInvoice}
-                            onMarkAsPaid={handleMarkAsPaidFromTable}
-                            onMarkAsExchanged={handleMarkAsExchangedFromTable}
-                            onMarkAsDown={handleMarkAsDownFromTable}
-                            onHideOrder={handleHideOrderFromTable}
-                            onUnhideOrder={handleUnhideOrderFromTable}
+                            onMarkAsPaid={(order) => updateOrderStatus(order.id, 'confirmed')}
+                            onMarkAsExchanged={(order) => updateOrderStatus(order.id, 'exchanged')}
+                            onMarkAsDown={(order) => updateOrderStatus(order.id, 'down')}
+                            onHideOrder={(order) => hideOrder(order.id)}
+                            onUnhideOrder={(order) => unhideOrder(order.id)}
                             showHidden={showHidden}
                           />
                         </TableCell>
@@ -543,7 +458,7 @@ const AdminOrders = () => {
               </Table>
             </div>
 
-            {displayOrders.length === 0 && (
+            {orders.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 Noch keine Bestellungen vorhanden
               </div>

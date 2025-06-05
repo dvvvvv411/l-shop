@@ -16,24 +16,18 @@ export const useOrders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch orders with latest status change information
-  const fetchOrders = async (includeHidden: boolean = false) => {
+  // Always fetch all orders (including hidden) - filtering happens in UI
+  const fetchOrders = async () => {
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
           order_status_history!left (
             created_at
           )
-        `);
-
-      // Filter out hidden orders unless specifically requested
-      if (!includeHidden) {
-        query = query.eq('is_hidden', false);
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -127,12 +121,20 @@ export const useOrders = () => {
     }
   };
 
-  // Update order status
+  // Update order status with optimistic updates
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
+      // Optimistic update
+      const now = new Date().toISOString();
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, status, updated_at: now, latest_status_change: now }
+          : order
+      ));
+
       const { error } = await supabase
         .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({ status, updated_at: now })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -143,6 +145,8 @@ export const useOrders = () => {
       });
     } catch (error) {
       console.error('Error updating order status:', error);
+      // Revert optimistic update on error
+      fetchOrders();
       toast({
         title: 'Fehler',
         description: 'Bestellstatus konnte nicht aktualisiert werden.',
@@ -152,12 +156,20 @@ export const useOrders = () => {
     }
   };
 
-  // Hide order
+  // Hide order with optimistic updates
   const hideOrder = async (orderId: string) => {
     try {
+      // Optimistic update
+      const now = new Date().toISOString();
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, is_hidden: true, updated_at: now }
+          : order
+      ));
+
       const { error } = await supabase
         .from('orders')
-        .update({ is_hidden: true, updated_at: new Date().toISOString() })
+        .update({ is_hidden: true, updated_at: now })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -166,11 +178,10 @@ export const useOrders = () => {
         title: 'Erfolg',
         description: 'Bestellung wurde ausgeblendet.',
       });
-
-      // Remove the order from the current list
-      setOrders(prev => prev.filter(order => order.id !== orderId));
     } catch (error) {
       console.error('Error hiding order:', error);
+      // Revert optimistic update on error
+      fetchOrders();
       toast({
         title: 'Fehler',
         description: 'Bestellung konnte nicht ausgeblendet werden.',
@@ -180,12 +191,20 @@ export const useOrders = () => {
     }
   };
 
-  // Unhide order
+  // Unhide order with optimistic updates
   const unhideOrder = async (orderId: string) => {
     try {
+      // Optimistic update
+      const now = new Date().toISOString();
+      setOrders(prev => prev.map(order => 
+        order.id === orderId 
+          ? { ...order, is_hidden: false, updated_at: now }
+          : order
+      ));
+
       const { error } = await supabase
         .from('orders')
-        .update({ is_hidden: false, updated_at: new Date().toISOString() })
+        .update({ is_hidden: false, updated_at: now })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -196,6 +215,8 @@ export const useOrders = () => {
       });
     } catch (error) {
       console.error('Error unhiding order:', error);
+      // Revert optimistic update on error
+      fetchOrders();
       toast({
         title: 'Fehler',
         description: 'Bestellung konnte nicht wieder eingeblendet werden.',
@@ -203,6 +224,13 @@ export const useOrders = () => {
       });
       throw error;
     }
+  };
+
+  // Update order with optimistic updates (for invoice generation, etc.)
+  const updateOrder = (orderId: string, updatedData: Partial<Order>) => {
+    setOrders(prev => prev.map(order => 
+      order.id === orderId ? { ...order, ...updatedData } : order
+    ));
   };
 
   // Set up real-time subscription
@@ -270,6 +298,7 @@ export const useOrders = () => {
     updateOrderStatus,
     hideOrder,
     unhideOrder,
+    updateOrder,
     refetch: fetchOrders,
   };
 };
