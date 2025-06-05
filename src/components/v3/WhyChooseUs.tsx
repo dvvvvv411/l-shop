@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Mountain, Shield, Euro, Clock, Award, Truck } from 'lucide-react';
@@ -42,6 +41,14 @@ const WhyChooseUs = () => {
       gradient: "from-amber-500 to-yellow-600"
     }
   ];
+
+  const scrollToPriceCalculator = () => {
+    // Scroll to the top of the page where the price calculator is located
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   return (
     <section className="py-20 bg-gradient-to-br from-violet-50 via-white to-purple-50">
@@ -105,7 +112,10 @@ const WhyChooseUs = () => {
           <div className="bg-gradient-to-r from-violet-600 to-amber-500 rounded-2xl p-8 text-white">
             <h3 className="text-2xl font-bold mb-4">Bereit für Ihre Heizöl-Bestellung?</h3>
             <p className="text-violet-100 mb-6">Erhalten Sie jetzt Ihr persönliches Angebot für ganz Österreich</p>
-            <button className="bg-white text-violet-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-violet-50 transition-colors shadow-lg hover:shadow-xl">
+            <button 
+              onClick={scrollToPriceCalculator}
+              className="bg-white text-violet-700 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-violet-50 transition-colors shadow-lg hover:shadow-xl"
+            >
               Jetzt Angebot anfordern
             </button>
           </div>
