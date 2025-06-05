@@ -1,27 +1,49 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mountain, Calculator, Euro, Truck, Zap, CheckCircle } from 'lucide-react';
+import { Mountain, Calculator, Euro, Truck, Shield, Lock, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 
 const PriceCalculator = () => {
   const [amount, setAmount] = useState<number>(3000);
   const [postcode, setPostcode] = useState<string>('');
   const [quality, setQuality] = useState<string>('premium');
 
-  const calculatePrice = () => {
-    const basePrice = quality === 'premium' ? 0.89 : 0.82;
-    const discount = amount >= 5000 ? 0.05 : amount >= 3000 ? 0.03 : 0;
-    const finalPrice = basePrice * (1 - discount);
-    return (amount * finalPrice).toFixed(2);
+  const products = {
+    standard: {
+      name: 'Standard EL',
+      price: 0.82,
+      description: 'Bewährte Qualität nach ÖNORM'
+    },
+    premium: {
+      name: 'Premium EL',
+      price: 0.89,
+      description: 'Schwefelarm mit Additiven'
+    }
   };
 
-  const calculateDiscount = () => {
-    return amount >= 5000 ? 5 : amount >= 3000 ? 3 : 0;
+  const calculatePrice = () => {
+    const basePrice = products[quality as keyof typeof products].price;
+    return (amount * basePrice).toFixed(2);
+  };
+
+  const getDeliveryFee = () => {
+    return amount >= 3000 ? 0 : 35;
+  };
+
+  const getTotalPrice = () => {
+    const basePrice = parseFloat(calculatePrice());
+    const deliveryFee = getDeliveryFee();
+    return (basePrice + deliveryFee).toFixed(2);
+  };
+
+  const handleAmountChange = (value: string) => {
+    const numValue = parseInt(value.replace(/\D/g, '')) || 0;
+    if (numValue >= 1000 && numValue <= 32000) {
+      setAmount(numValue);
+    }
   };
 
   const handleCalculate = () => {
@@ -30,25 +52,20 @@ const PriceCalculator = () => {
     }
   };
 
+  const getVisualizationWidth = () => {
+    const percentage = ((amount - 1000) / (32000 - 1000)) * 100;
+    return Math.max(5, Math.min(100, percentage));
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, rotateX: 15 }}
-      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-      transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-      className="relative group"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="relative"
     >
-      {/* 3D Card Container */}
-      <div className="relative bg-gradient-to-br from-white via-violet-50/50 to-amber-50/30 rounded-3xl p-8 shadow-2xl border border-violet-200/30 backdrop-blur-sm transform transition-all duration-500 hover:shadow-violet-500/20 hover:shadow-3xl hover:-translate-y-2 hover:scale-[1.02]">
+      <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200">
         
-        {/* Animated Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/5 via-transparent to-amber-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute -inset-4 bg-gradient-to-r from-violet-400/20 to-amber-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-700" />
-        
-        {/* Floating Particles */}
-        <div className="absolute top-4 right-6 w-2 h-2 bg-violet-400 rounded-full animate-pulse opacity-60" />
-        <div className="absolute top-12 right-12 w-1 h-1 bg-amber-400 rounded-full animate-pulse opacity-40 delay-500" />
-        <div className="absolute bottom-8 left-8 w-1.5 h-1.5 bg-violet-300 rounded-full animate-pulse opacity-50 delay-1000" />
-
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -56,59 +73,56 @@ const PriceCalculator = () => {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="flex items-center mb-8"
         >
-          <div className="relative mr-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-violet-500 to-amber-500 p-4 rounded-2xl blur-md opacity-30"
-            />
-            <div className="relative bg-gradient-to-r from-violet-600 to-amber-500 p-4 rounded-2xl shadow-lg">
-              <Calculator className="h-8 w-8 text-white" />
-            </div>
+          <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-3 rounded-xl shadow-lg mr-4">
+            <Calculator className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">Premium Heizöl-Rechner</h3>
-            <p className="text-gray-600">Ihr persönliches Angebot für ganz Österreich</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">Heizöl-Preisrechner</h3>
+            <p className="text-gray-600">Schnell und einfach zum besten Preis</p>
           </div>
         </motion.div>
 
-        <div className="space-y-6">
-          {/* Amount Slider with Dynamic Visualization */}
+        <div className="space-y-8">
+          {/* Amount Input with Visualization */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <Label className="text-gray-800 font-semibold text-lg mb-3 block">
-              Menge: {amount.toLocaleString()} Liter
+            <Label className="text-gray-800 font-semibold text-lg mb-4 block">
+              Gewünschte Menge (1.000L - 32.000L)
             </Label>
-            <div className="relative">
-              <Slider
-                value={[amount]}
-                onValueChange={(value) => setAmount(value[0])}
-                max={10000}
-                min={500}
-                step={100}
-                className="w-full mb-4"
-              />
-              <div className="flex justify-between text-sm text-gray-500 mb-4">
-                <span>500L</span>
-                <span>5.000L</span>
-                <span>10.000L</span>
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={amount.toLocaleString()}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  className="text-2xl font-bold py-4 pr-16 border-2 border-gray-300 focus:border-violet-500 rounded-xl"
+                  placeholder="3.000"
+                />
+                <span className="absolute right-4 top-4 text-xl font-semibold text-gray-500">L</span>
               </div>
               
-              {/* Discount Badge */}
-              {calculateDiscount() > 0 && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="inline-flex items-center bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {calculateDiscount()}% Rabatt
-                </motion.div>
-              )}
+              {/* Visualization Bar */}
+              <div className="relative">
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <motion.div
+                    className="bg-gradient-to-r from-violet-500 to-purple-600 h-3 rounded-full relative"
+                    style={{ width: `${getVisualizationWidth()}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${getVisualizationWidth()}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  >
+                    <div className="absolute right-0 top-0 w-4 h-4 bg-white border-2 border-violet-500 rounded-full -mt-0.5 shadow-lg"></div>
+                  </motion.div>
+                </div>
+                <div className="flex justify-between text-sm text-gray-500 mt-2">
+                  <span>1.000L</span>
+                  <span>16.000L</span>
+                  <span>32.000L</span>
+                </div>
+              </div>
             </div>
           </motion.div>
 
@@ -118,7 +132,7 @@ const PriceCalculator = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            <Label htmlFor="postcode" className="text-gray-800 font-semibold text-lg mb-3 block">
+            <Label htmlFor="postcode" className="text-gray-800 font-semibold text-lg mb-4 block">
               Österreichische Postleitzahl
             </Label>
             <div className="relative">
@@ -128,84 +142,82 @@ const PriceCalculator = () => {
                 value={postcode}
                 onChange={(e) => setPostcode(e.target.value)}
                 placeholder="z.B. 1010 (Wien)"
-                className="pl-4 pr-12 py-3 text-lg border-2 border-violet-200 focus:border-violet-500 rounded-xl transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                className="py-4 text-lg border-2 border-gray-300 focus:border-violet-500 rounded-xl pr-12"
                 maxLength={4}
               />
-              <Mountain className="absolute right-4 top-3.5 h-5 w-5 text-violet-500" />
+              <Mountain className="absolute right-4 top-4 h-5 w-5 text-violet-500" />
             </div>
           </motion.div>
 
-          {/* Quality Selection */}
+          {/* Quality Selection Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
           >
-            <Label className="text-gray-800 font-semibold text-lg mb-3 block">
-              Heizöl-Qualität
+            <Label className="text-gray-800 font-semibold text-lg mb-4 block">
+              Heizöl-Qualität wählen
             </Label>
-            <Select value={quality} onValueChange={setQuality}>
-              <SelectTrigger className="py-3 text-lg border-2 border-violet-200 focus:border-violet-500 rounded-xl bg-white/80 backdrop-blur-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="premium">
-                  <div className="flex items-center">
-                    <Zap className="h-4 w-4 text-amber-500 mr-2" />
-                    Premium EL (€0,89/L)
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(products).map(([key, product]) => (
+                <motion.button
+                  key={key}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setQuality(key)}
+                  className={`p-6 rounded-xl border-2 text-left transition-all ${
+                    quality === key
+                      ? 'border-violet-500 bg-violet-50 shadow-lg'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="font-bold text-lg text-gray-900">{product.name}</h4>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-violet-600">€{product.price.toFixed(2)}</div>
+                      <div className="text-sm text-gray-500">pro Liter</div>
+                    </div>
                   </div>
-                </SelectItem>
-                <SelectItem value="standard">
-                  <div className="flex items-center">
-                    Standard EL (€0,82/L)
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+                  <p className="text-gray-600 text-sm">{product.description}</p>
+                  {quality === key && (
+                    <div className="mt-3 flex items-center text-violet-600 text-sm font-medium">
+                      <div className="w-2 h-2 bg-violet-500 rounded-full mr-2"></div>
+                      Ausgewählt
+                    </div>
+                  )}
+                </motion.button>
+              ))}
+            </div>
           </motion.div>
 
-          {/* Dynamic Price Display */}
+          {/* Price Display - Less Prominent */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="relative"
           >
-            <div className="bg-gradient-to-br from-violet-600 via-violet-700 to-purple-800 rounded-2xl p-6 shadow-xl text-white relative overflow-hidden">
-              
-              {/* Animated Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-4 left-4 w-8 h-8 border border-white/30 rounded-full" />
-                <div className="absolute bottom-6 right-6 w-6 h-6 border border-white/20 rounded-full" />
-                <div className="absolute top-1/2 right-8 w-4 h-4 bg-white/20 rounded-full" />
-              </div>
-              
-              <div className="relative z-10">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-violet-200 font-medium">Ihr Gesamtpreis:</span>
-                  <div className="text-right">
-                    <div className="text-xs text-violet-300 mb-1">inkl. 20% MwSt.</div>
-                  </div>
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <div className="space-y-3">
+                <div className="flex justify-between text-gray-700">
+                  <span>Grundpreis ({amount.toLocaleString()}L × €{products[quality as keyof typeof products].price.toFixed(2)})</span>
+                  <span className="font-semibold">€{calculatePrice()}</span>
                 </div>
                 
-                <div className="flex items-center justify-center mb-4">
-                  <Euro className="h-8 w-8 text-amber-400 mr-3" />
-                  <motion.span
-                    key={calculatePrice()}
-                    initial={{ scale: 1.2, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                    className="text-4xl md:text-5xl font-bold text-white"
-                  >
-                    {calculatePrice()}
-                  </motion.span>
-                </div>
-                
-                <div className="flex items-center justify-center text-violet-200">
-                  <Truck className="h-5 w-5 mr-2" />
-                  <span className="text-sm">
-                    {amount >= 3000 ? 'Kostenlose Lieferung' : 'Lieferung: €35'}
+                <div className="flex justify-between text-gray-700">
+                  <span>Lieferung</span>
+                  <span className={`font-semibold ${getDeliveryFee() === 0 ? 'text-green-600' : ''}`}>
+                    {getDeliveryFee() === 0 ? 'Kostenlos' : `€${getDeliveryFee()}`}
                   </span>
+                </div>
+                
+                <hr className="border-gray-300" />
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-900">Gesamtpreis</span>
+                  <div className="flex items-center">
+                    <Euro className="h-6 w-6 text-violet-600 mr-2" />
+                    <span className="text-2xl font-bold text-violet-600">{getTotalPrice()}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -220,11 +232,32 @@ const PriceCalculator = () => {
             <Button 
               onClick={handleCalculate}
               disabled={!postcode || postcode.length < 4}
-              className="w-full bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              <Calculator className="h-5 w-5 mr-3" />
+              <Truck className="h-5 w-5 mr-3" />
               Jetzt bestellen - Österreichweit
             </Button>
+            
+            {/* Security Notices */}
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Shield className="h-4 w-4 text-green-600 mr-2" />
+                  <span>SSL-verschlüsselt</span>
+                </div>
+                <div className="flex items-center">
+                  <Lock className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Datenschutz garantiert</span>
+                </div>
+                <div className="flex items-center">
+                  <CreditCard className="h-4 w-4 text-green-600 mr-2" />
+                  <span>Sichere Bezahlung</span>
+                </div>
+              </div>
+              <div className="text-center text-xs text-gray-500">
+                Ihre Daten werden verschlüsselt übertragen und nicht an Dritte weitergegeben
+              </div>
+            </div>
           </motion.div>
         </div>
 
@@ -233,15 +266,15 @@ const PriceCalculator = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="mt-6 text-center"
+          className="mt-8 text-center"
         >
-          <div className="inline-flex items-center space-x-4 text-xs text-gray-600 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full">
+          <div className="inline-flex items-center space-x-4 text-xs text-gray-600 bg-gray-100 px-6 py-3 rounded-full">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
               <div className="w-2 h-2 bg-white border border-gray-300 rounded-sm"></div>
               <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
             </div>
-            <span>100% österreichische Qualität | ÖNORM-zertifiziert</span>
+            <span>100% österreichische Qualität | ÖNORM-zertifiziert | Seit 1998</span>
           </div>
         </motion.div>
       </div>
