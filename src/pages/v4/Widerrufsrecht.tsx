@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/v4/Header';
 import Footer from '@/components/v4/Footer';
@@ -45,13 +44,12 @@ const Widerrufsrecht = () => {
                 <div className="bg-blue-50/80 p-6 rounded-xl">
                   <h3 className="font-bold mb-2">Moyens de contact :</h3>
                   <p>
-                    <strong>Email :</strong> retractation@fuel-france.fr<br />
-                    <strong>Téléphone :</strong> +33 1 23 45 67 89<br />
+                    <strong>Email :</strong> info@fioul-rapide.fr<br />
                     <strong>Courrier :</strong><br />
-                    Fuel Express France<br />
+                    Energy OIL Company Sàrl<br />
                     Service Rétractation<br />
-                    123 Avenue de la République<br />
-                    75011 Paris, France
+                    95 rue Compans<br />
+                    75019 Paris, France
                   </p>
                 </div>
               </section>
@@ -60,7 +58,7 @@ const Widerrufsrecht = () => {
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Modèle de formulaire de rétractation</h2>
                 <div className="bg-gray-50 p-6 rounded-xl border-l-4 border-red-600">
                   <p className="italic">
-                    À l'attention de Fuel Express France :<br /><br />
+                    À l'attention de Energy OIL Company Sàrl :<br /><br />
                     
                     Je vous notifie par la présente ma rétractation du contrat portant 
                     sur la vente du bien ci-dessous :<br /><br />
