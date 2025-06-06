@@ -19,7 +19,7 @@ const Home = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-50 via-slate-50 to-orange-50 py-20 overflow-hidden">
+      <section id="calculator" className="relative bg-gradient-to-br from-red-50 via-slate-50 to-orange-50 py-20 overflow-hidden">
         {/* Minimalist Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 right-20 w-96 h-96 bg-red-400 rounded-full blur-3xl"></div>
@@ -81,7 +81,7 @@ const Home = () => {
               <div className="text-slate-600 font-medium">Accompagnement personnel</div>
               <div className="text-xs text-slate-500 mt-1">8h-18h quotidien</div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
