@@ -7,6 +7,7 @@ import CheckoutSummary from './CheckoutSummary';
 import CheckoutConfirmation from './CheckoutConfirmation';
 import CheckoutHeader from './CheckoutHeader';
 import { useToast } from '@/hooks/use-toast';
+import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { Button } from '@/components/ui/button';
 import {
   Breadcrumb,
@@ -39,11 +40,12 @@ const CheckoutLayout = () => {
   const [orderNumber, setOrderNumber] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
+  const t = useCheckoutTranslations();
 
   // Function to get legal link paths based on order referrer
   const getLegalLinkPaths = () => {
     const referrer = localStorage.getItem('orderReferrer');
-    const basePath = referrer === '/2/home' ? '/2' : '/1';
+    const basePath = referrer === '/4/home' ? '/4' : '/1';
     
     return {
       datenschutz: `${basePath}/datenschutz`,
@@ -150,8 +152,8 @@ const CheckoutLayout = () => {
                     <CheckCircle className="text-green-600" size={24} />
                   </div>
                   <div className="text-center">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Bestellung bestätigt!</h1>
-                    <p className="text-gray-600">Vielen Dank für Ihre Heizöl-Bestellung</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{t.confirmation.title}</h1>
+                    <p className="text-gray-600">{t.confirmation.subtitle}</p>
                   </div>
                 </div>
               </div>
@@ -191,7 +193,7 @@ const CheckoutLayout = () => {
                       className="text-gray-600 hover:text-gray-900 p-0 h-auto font-normal"
                     >
                       <ArrowLeft size={18} className="mr-2" />
-                      Zurück
+                      {t.navigation.back}
                     </Button>
                   </div>
 
@@ -204,22 +206,22 @@ const CheckoutLayout = () => {
                             href="/"
                             className="hover:text-gray-700 transition-colors"
                           >
-                            Warenkorb
+                            {t.navigation.cart}
                           </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                           <BreadcrumbPage className="text-gray-900 font-medium">
-                            Informationen
+                            {t.navigation.information}
                           </BreadcrumbPage>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                          <span className="text-gray-400">Versand</span>
+                          <span className="text-gray-400">{t.navigation.shipping}</span>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                          <span className="text-gray-400">Zahlung</span>
+                          <span className="text-gray-400">{t.navigation.payment}</span>
                         </BreadcrumbItem>
                       </BreadcrumbList>
                     </Breadcrumb>
@@ -230,7 +232,7 @@ const CheckoutLayout = () => {
                     <div className="flex items-center justify-center p-4 border border-gray-200 rounded-lg bg-gray-50">
                       <ShieldCheck className="text-green-600 mr-2" size={20} />
                       <span className="text-sm text-gray-700">
-                        Sichere SSL-Verschlüsselung für Ihre Daten
+                        {t.navigation.secureEncryption}
                       </span>
                     </div>
                   </div>

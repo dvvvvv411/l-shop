@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
+import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { supabase } from '@/integrations/supabase/client';
 
 // Test data arrays for random generation
@@ -47,13 +48,13 @@ const generateRandomTestData = () => {
 };
 
 const orderSchema = z.object({
-  customerEmail: z.string().email('Gültige E-Mail-Adresse erforderlich'),
-  deliveryFirstName: z.string().min(2, 'Vorname ist erforderlich'),
-  deliveryLastName: z.string().min(2, 'Nachname ist erforderlich'),
-  deliveryStreet: z.string().min(5, 'Straße ist erforderlich'),
-  deliveryPostcode: z.string().min(1, 'PLZ ist erforderlich'),
-  deliveryCity: z.string().min(2, 'Stadt ist erforderlich'),
-  deliveryPhone: z.string().min(10, 'Telefonnummer ist erforderlich'),
+  customerEmail: z.string().email(t.validation.emailRequired),
+  deliveryFirstName: z.string().min(2, t.validation.firstNameRequired),
+  deliveryLastName: z.string().min(2, t.validation.lastNameRequired),
+  deliveryStreet: z.string().min(5, t.validation.streetRequired),
+  deliveryPostcode: z.string().min(1, t.validation.postcodeRequired),
+  deliveryCity: z.string().min(2, t.validation.cityRequired),
+  deliveryPhone: z.string().min(10, t.validation.phoneRequired),
   useSameAddress: z.boolean(),
   billingFirstName: z.string().optional(),
   billingLastName: z.string().optional(),
@@ -61,7 +62,7 @@ const orderSchema = z.object({
   billingPostcode: z.string().optional(),
   billingCity: z.string().optional(),
   paymentMethod: z.enum(['vorkasse', 'rechnung']),
-  acceptTerms: z.boolean().refine(val => val === true, 'Sie müssen die AGB akzeptieren')
+  acceptTerms: z.boolean().refine(val => val === true, t.validation.termsRequired)
 });
 
 type OrderFormData = z.infer<typeof orderSchema>;
@@ -91,6 +92,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
   const { toast } = useToast();
+  const t = useCheckoutTranslations();
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -287,8 +289,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <Mail className="text-purple-600" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">E-Mail-Adresse</h3>
-                <p className="text-sm text-gray-600">Für Bestellbestätigung und Kommunikation</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.emailSection.title}</h3>
+                <p className="text-sm text-gray-600">{t.emailSection.subtitle}</p>
               </div>
             </div>
 
@@ -297,9 +299,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               name="customerEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-Mail-Adresse *</FormLabel>
+                  <FormLabel>{t.emailSection.emailLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="ihre.email@beispiel.de" type="email" {...field} />
+                    <Input placeholder={t.emailSection.emailPlaceholder} type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -319,8 +321,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <Truck className="text-blue-600" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Lieferadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll das Heizöl geliefert werden?</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.deliverySection.title}</h3>
+                <p className="text-sm text-gray-600">{t.deliverySection.subtitle}</p>
               </div>
             </div>
 
@@ -330,9 +332,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryFirstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Vorname *</FormLabel>
+                    <FormLabel>{t.deliverySection.firstNameLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Vorname" {...field} />
+                      <Input placeholder={t.deliverySection.firstNamePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -344,9 +346,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryLastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nachname *</FormLabel>
+                    <FormLabel>{t.deliverySection.lastNameLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nachname" {...field} />
+                      <Input placeholder={t.deliverySection.lastNamePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -358,9 +360,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryStreet"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel>Straße und Hausnummer *</FormLabel>
+                    <FormLabel>{t.deliverySection.streetLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Straße und Hausnummer" {...field} />
+                      <Input placeholder={t.deliverySection.streetPlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -372,9 +374,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryPostcode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Postleitzahl *</FormLabel>
+                    <FormLabel>{t.deliverySection.postcodeLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="PLZ" {...field} />
+                      <Input placeholder={t.deliverySection.postcodePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -386,9 +388,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryCity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stadt *</FormLabel>
+                    <FormLabel>{t.deliverySection.cityLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Stadt" {...field} />
+                      <Input placeholder={t.deliverySection.cityPlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -400,9 +402,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 name="deliveryPhone"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
-                    <FormLabel>Telefonnummer *</FormLabel>
+                    <FormLabel>{t.deliverySection.phoneLabel}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Telefonnummer" {...field} />
+                      <Input placeholder={t.deliverySection.phonePlaceholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -423,8 +425,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <FileText className="text-green-600" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Rechnungsadresse</h3>
-                <p className="text-sm text-gray-600">Wohin soll die Rechnung gesendet werden?</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.billingSection.title}</h3>
+                <p className="text-sm text-gray-600">{t.billingSection.subtitle}</p>
               </div>
             </div>
 
@@ -440,7 +442,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <span className="text-gray-700 font-medium">
-                  Rechnungsadresse ist identisch mit Lieferadresse
+                  {t.billingSection.sameAddressLabel}
                 </span>
               </label>
             </div>
@@ -452,9 +454,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingFirstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vorname *</FormLabel>
+                      <FormLabel>{t.deliverySection.firstNameLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Vorname" {...field} />
+                        <Input placeholder={t.deliverySection.firstNamePlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -466,9 +468,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingLastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nachname *</FormLabel>
+                      <FormLabel>{t.deliverySection.lastNameLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nachname" {...field} />
+                        <Input placeholder={t.deliverySection.lastNamePlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -480,9 +482,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingStreet"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Straße und Hausnummer *</FormLabel>
+                      <FormLabel>{t.deliverySection.streetLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Straße und Hausnummer" {...field} />
+                        <Input placeholder={t.deliverySection.streetPlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -494,9 +496,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingPostcode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postleitzahl *</FormLabel>
+                      <FormLabel>{t.deliverySection.postcodeLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder="PLZ" {...field} />
+                        <Input placeholder={t.deliverySection.postcodePlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -508,9 +510,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingCity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stadt *</FormLabel>
+                      <FormLabel>{t.deliverySection.cityLabel}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Stadt" {...field} />
+                        <Input placeholder={t.deliverySection.cityPlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -532,8 +534,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <CreditCard className="text-purple-600" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Zahlungsart</h3>
-                <p className="text-sm text-gray-600">Sichere und bequeme Zahlung</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.paymentSection.title}</h3>
+                <p className="text-sm text-gray-600">{t.paymentSection.subtitle}</p>
               </div>
             </div>
 
@@ -551,13 +553,13 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                             <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className="font-semibold text-gray-900">Vorkasse</div>
+                                  <div className="font-semibold text-gray-900">{t.paymentSection.vorkasse.title}</div>
                                   <div className="text-sm text-gray-600">
-                                    Überweisung vor Lieferung
+                                    {t.paymentSection.vorkasse.description}
                                   </div>
                                 </div>
                                 <div className="text-sm text-green-600 font-semibold">
-                                  Empfohlen
+                                  {t.paymentSection.vorkasse.recommended}
                                 </div>
                               </div>
                             </Label>
@@ -570,13 +572,13 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                             <Label htmlFor="rechnung" className="flex-1 cursor-pointer">
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className="font-semibold text-gray-900">Rechnung</div>
+                                  <div className="font-semibold text-gray-900">{t.paymentSection.rechnung.title}</div>
                                   <div className="text-sm text-gray-600">
-                                    Zahlung nach Lieferung
+                                    {t.paymentSection.rechnung.description}
                                   </div>
                                 </div>
                                 <div className="text-sm text-gray-500">
-                                  Nur für Bestandskunden
+                                  {t.paymentSection.rechnung.existingCustomers}
                                 </div>
                               </div>
                             </Label>
@@ -603,16 +605,15 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                 <Shield className="text-orange-600" size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">AGB und Widerrufsbelehrung</h3>
-                <p className="text-sm text-gray-600">Bitte bestätigen Sie die Geschäftsbedingungen</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.termsSection.title}</h3>
+                <p className="text-sm text-gray-600">{t.termsSection.subtitle}</p>
               </div>
             </div>
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-yellow-800 mb-2">Widerrufsbelehrung</h4>
+              <h4 className="font-semibold text-yellow-800 mb-2">{t.termsSection.withdrawalTitle}</h4>
               <p className="text-yellow-700 text-sm">
-                Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
-                Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+                {t.termsSection.withdrawalText}
               </p>
             </div>
 
@@ -631,9 +632,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                       />
                     </FormControl>
                     <FormLabel className="text-sm text-gray-700 cursor-pointer">
-                      Ich akzeptiere die Allgemeinen Geschäftsbedingungen und die Widerrufsbelehrung. 
-                      Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
-                      sobald die Lieferung begonnen hat. *
+                      {t.termsSection.acceptTermsText}
                     </FormLabel>
                   </div>
                   <FormMessage />
@@ -646,7 +645,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               disabled={isSubmitting}
               className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
             >
-              {isSubmitting ? 'Bestellung wird erstellt...' : 'Zahlungspflichtig bestellen'}
+              {isSubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
             </Button>
           </motion.div>
         </form>

@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOrder } from '@/contexts/OrderContext';
+import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 
 interface PriceCalculatorData {
   product: {
@@ -33,6 +35,7 @@ const CheckoutConfirmation = ({
   const {
     orderData: contextOrderData
   } = useOrder();
+  const t = useCheckoutTranslations();
 
   if (!contextOrderData) {
     return (
@@ -63,7 +66,7 @@ const CheckoutConfirmation = ({
           </h2>
           
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
-            <div className="text-sm text-red-600 font-medium">Ihre Bestellnummer</div>
+            <div className="text-sm text-red-600 font-medium">{t.confirmation.orderNumber}</div>
             <div className="text-2xl font-bold text-red-700">{orderNumber}</div>
           </div>
         </motion.div>
@@ -80,34 +83,34 @@ const CheckoutConfirmation = ({
               <CreditCard className="text-blue-600" size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">Zahlungshinweise</h3>
+              <h3 className="text-xl font-bold text-gray-900">{t.confirmation.paymentInstructions}</h3>
               <p className="text-gray-600">So zahlen Sie Ihre Bestellung</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="bg-blue-50 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-3">Nächste Schritte</h4>
+              <h4 className="font-semibold text-blue-900 mb-3">{t.confirmation.nextSteps}</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start space-x-3">
                   <Phone className="text-blue-600 mt-1" size={16} />
                   <div>
-                    <div className="font-semibold text-blue-900">1. Telefonischer Kontakt</div>
-                    <div className="text-blue-700">Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen.</div>
+                    <div className="font-semibold text-blue-900">{t.confirmation.phoneContact}</div>
+                    <div className="text-blue-700">{t.confirmation.phoneContactDesc}</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CreditCard className="text-blue-600 mt-1" size={16} />
                   <div>
-                    <div className="font-semibold text-blue-900">2. Überweisung</div>
-                    <div className="text-blue-700">Nach unserem Anruf überweisen Sie den Betrag von <strong>{contextOrderData.total.toFixed(2)}€</strong> auf unser Konto.</div>
+                    <div className="font-semibold text-blue-900">{t.confirmation.bankTransfer}</div>
+                    <div className="text-blue-700">{t.confirmation.bankTransferDesc.replace('{amount}', contextOrderData.total.toFixed(2))}</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Truck className="text-blue-600 mt-1" size={16} />
                   <div>
-                    <div className="font-semibold text-blue-900">3. Lieferung</div>
-                    <div className="text-blue-700">Nach Zahlungseingang erfolgt die Lieferung in 4-7 Werktagen.</div>
+                    <div className="font-semibold text-blue-900">{t.confirmation.delivery}</div>
+                    <div className="text-blue-700">{t.confirmation.deliveryDesc}</div>
                   </div>
                 </div>
               </div>
@@ -127,8 +130,8 @@ const CheckoutConfirmation = ({
               <Truck className="text-orange-600" size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">Lieferinformationen</h3>
-              <p className="text-gray-600">Wichtige Details zu Ihrer Lieferung</p>
+              <h3 className="text-xl font-bold text-gray-900">{t.confirmation.deliveryInformation}</h3>
+              <p className="text-gray-600">{t.confirmation.deliveryDetails}</p>
             </div>
           </div>
 
@@ -136,14 +139,14 @@ const CheckoutConfirmation = ({
             <div className="bg-orange-50 rounded-lg p-4">
               <div className="flex items-center mb-2">
                 <Calendar className="text-orange-600 mr-2" size={18} />
-                <span className="font-semibold text-orange-900">Liefertermin</span>
+                <span className="font-semibold text-orange-900">{t.confirmation.deliveryTerm}</span>
               </div>
               <div className="text-orange-800 font-bold">{contextOrderData.deliveryDate}</div>
-              <div className="text-orange-700 text-sm">Nach Zahlungseingang</div>
+              <div className="text-orange-700 text-sm">{t.summary.afterPayment}</div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4">
-              <div className="font-semibold text-gray-900 mb-2">Lieferadresse</div>
+              <div className="font-semibold text-gray-900 mb-2">{t.confirmation.deliveryAddress}</div>
               <div className="text-gray-700 text-sm space-y-1">
                 <div>{contextOrderData.deliveryFirstName} {contextOrderData.deliveryLastName}</div>
                 <div>{contextOrderData.deliveryStreet}</div>
@@ -153,10 +156,9 @@ const CheckoutConfirmation = ({
           </div>
 
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-semibold text-yellow-800 mb-2">📞 Wichtiger Hinweis zur Lieferung</h4>
+            <h4 className="font-semibold text-yellow-800 mb-2">{t.confirmation.importantNote}</h4>
             <p className="text-yellow-700 text-sm">
-              Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. 
-              Bitte stellen Sie sicher, dass Sie unter {contextOrderData.deliveryPhone} erreichbar sind.
+              {t.confirmation.importantNoteDesc.replace('{phone}', contextOrderData.deliveryPhone)}
             </p>
           </div>
         </motion.div>
@@ -175,24 +177,24 @@ const CheckoutConfirmation = ({
               <Package className="text-blue-600" size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Bestellübersicht</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t.summary.orderSummary}</h3>
               <p className="text-sm text-gray-600">Ihre bestätigte Bestellung</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between">
-              <span className="text-gray-600">Produkt</span>
+              <span className="text-gray-600">{t.summary.product}</span>
               <span className="font-semibold">{orderData.product.name}</span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-gray-600">Menge</span>
+              <span className="text-gray-600">{t.summary.quantity}</span>
               <span className="font-semibold">{orderData.amount.toLocaleString('de-DE')} Liter</span>
             </div>
             
             <div className="flex justify-between">
-              <span className="text-gray-600">Preis pro Liter</span>
+              <span className="text-gray-600">{t.summary.pricePerLiter}</span>
               <span className="font-semibold">{orderData.product.price.toFixed(2)}€</span>
             </div>
             
@@ -206,31 +208,31 @@ const CheckoutConfirmation = ({
             <div className="flex justify-between text-green-600">
               <span>Lieferung</span>
               <span className="font-semibold">
-                {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+                {orderData.deliveryFee === 0 ? t.summary.free : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
             </div>
             
             <hr className="border-gray-200" />
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Netto</span>
+              <span className="text-gray-600">{t.summary.net}</span>
               <span className="font-semibold">{netPrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">MwSt. (19%)</span>
+              <span className="text-gray-600">{t.summary.vat}</span>
               <span className="font-semibold">{vatAmount.toFixed(2)}€</span>
             </div>
             
             <hr className="border-gray-200" />
             
             <div className="flex justify-between text-xl font-bold">
-              <span>Gesamtpreis</span>
+              <span>{t.summary.total}</span>
               <span className="text-blue-600">{orderData.totalPrice.toFixed(2)}€</span>
             </div>
             
             <div className="text-xs text-gray-500 text-center">
-              inkl. {vatAmount.toFixed(2)}€ MwSt.
+              {t.summary.inclVat.replace('{amount}', vatAmount.toFixed(2))}
             </div>
           </div>
         </motion.div>

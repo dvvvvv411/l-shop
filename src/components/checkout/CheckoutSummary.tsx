@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 
 interface PriceCalculatorData {
   product: {
@@ -29,6 +31,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const { toast } = useToast();
+  const t = useCheckoutTranslations();
 
   const finalPrice = orderData.totalPrice;
 
@@ -74,14 +77,14 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           <div className="flex items-center space-x-3">
             <Package className="text-blue-600" size={20} />
             <span className="font-semibold text-gray-900">
-              Bestellung anzeigen
+              {t.summary.showOrder}
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="text-right">
               <span className="font-bold text-blue-600">{finalPrice.toFixed(2)}€</span>
               <div className="text-xs text-gray-500">
-                inkl. {vatAmount.toFixed(2)}€ MwSt.
+                {t.summary.inclVat.replace('{amount}', vatAmount.toFixed(2))}
               </div>
             </div>
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -105,7 +108,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                   {orderData.amount.toLocaleString('de-DE')} Liter
                 </p>
                 <p className="text-sm text-gray-500">
-                  {orderData.product.price.toFixed(2)}€ pro Liter
+                  {orderData.product.price.toFixed(2)}€ {t.summary.pricePerLiter.toLowerCase()}
                 </p>
               </div>
               
@@ -114,7 +117,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                   {orderData.basePrice.toFixed(2)}€
                 </p>
                 <div className="text-xs text-gray-500 mt-1">
-                  Menge: 1
+                  {t.summary.quantity}: 1
                 </div>
               </div>
             </div>
@@ -123,9 +126,9 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           {/* Discount Code Input */}
           <div className="space-y-3">
             <div className="flex space-x-2">
-              <input type="text" placeholder="Rabattcode eingeben" value={couponCode} onChange={e => setCouponCode(e.target.value)} onKeyPress={handleKeyPress} className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${couponError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}`} />
+              <input type="text" placeholder={t.summary.discountPlaceholder} value={couponCode} onChange={e => setCouponCode(e.target.value)} onKeyPress={handleKeyPress} className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${couponError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}`} />
               <button onClick={handleCouponSubmit} disabled={isApplying} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {isApplying ? 'Prüfe...' : 'Anwenden'}
+                {isApplying ? t.summary.checkingButton : t.summary.applyButton}
               </button>
             </div>
             {couponError && <p className="text-red-600 text-sm">{couponError}</p>}
@@ -134,24 +137,24 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           {/* Price Breakdown */}
           <div className="space-y-3 pt-4 border-t border-gray-200">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Zwischensumme</span>
+              <span className="text-gray-600">{t.summary.subtotal}</span>
               <span className="text-gray-900">{orderData.basePrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Versand</span>
+              <span className="text-gray-600">{t.summary.shipping}</span>
               <span className="text-green-600 font-medium">
-                {orderData.deliveryFee === 0 ? 'Kostenlos' : `${orderData.deliveryFee.toFixed(2)}€`}
+                {orderData.deliveryFee === 0 ? t.summary.free : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
             </div>
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Netto</span>
+              <span className="text-gray-600">{t.summary.net}</span>
               <span className="text-gray-900">{netPrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">MwSt. (19%)</span>
+              <span className="text-gray-600">{t.summary.vat}</span>
               <span className="text-gray-900">{vatAmount.toFixed(2)}€</span>
             </div>
           </div>
@@ -159,13 +162,13 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           {/* Total */}
           <div className="flex justify-between items-center pt-4 border-t border-gray-200">
             <div>
-              <span className="text-lg font-semibold text-gray-900">Gesamt</span>
-              <div className="text-xs text-gray-500">inkl. MwSt.</div>
+              <span className="text-lg font-semibold text-gray-900">{t.summary.total}</span>
+              <div className="text-xs text-gray-500">{t.summary.inclVat}</div>
             </div>
             <div className="text-right">
               <span className="text-lg font-bold text-gray-900">{finalPrice.toFixed(2)}€</span>
               <div className="text-xs text-gray-500">
-                davon {vatAmount.toFixed(2)}€ MwSt.
+                {t.summary.ofWhichVat.replace('{amount}', vatAmount.toFixed(2))}
               </div>
             </div>
           </div>
@@ -177,14 +180,14 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                 <Truck className="text-blue-600" size={16} />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 text-sm">Lieferinformation</h4>
+                <h4 className="font-semibold text-blue-900 text-sm">{t.summary.deliveryInfo}</h4>
                 <div className="flex items-center space-x-2 mt-1">
                   <Clock className="text-blue-600" size={14} />
                   <p className="text-blue-800 text-sm">
-                    <strong>4-7 Werktage</strong> nach Zahlungseingang
+                    <strong>{t.summary.workdays}</strong> {t.summary.afterPayment}
                   </p>
                 </div>
-                <p className="text-blue-700 text-xs mt-1">Kostenlose Lieferung ab 3.000 Liter</p>
+                <p className="text-blue-700 text-xs mt-1">{t.summary.freeShippingNote}</p>
               </div>
             </div>
           </div>
@@ -193,19 +196,19 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           <div className="grid grid-cols-2 gap-3 mt-6">
             <div className="flex items-center space-x-2 text-xs text-gray-600">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>SSL verschlüsselt</span>
+              <span>{t.summary.sslEncrypted}</span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-gray-600">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Sichere Zahlung</span>
+              <span>{t.summary.securePayment}</span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-gray-600">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Pünktliche Lieferung</span>
+              <span>{t.summary.timelyDelivery}</span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-gray-600">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Faire Preise</span>
+              <span>{t.summary.fairPrices}</span>
             </div>
           </div>
         </div>
