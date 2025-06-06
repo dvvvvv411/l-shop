@@ -56,7 +56,7 @@ const Header = () => {
           {/* Logo */}
           <Link 
             to="/4/home" 
-            className="flex items-center space-x-3 hover:scale-105 transition-transform duration-300"
+            className="flex items-center hover:scale-105 transition-transform duration-300"
           >
             {logoConfig.useImage && logoConfig.imageUrl ? (
               <img 
@@ -69,12 +69,6 @@ const Header = () => {
                 <span className="text-2xl font-bold">{logoConfig.textContent}</span>
               </div>
             )}
-            <div className="hidden md:block">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-                {logoConfig.name}
-              </h1>
-              <p className="text-sm text-gray-600">Qualité française premium</p>
-            </div>
           </Link>
 
           {/* Desktop Navigation */}
