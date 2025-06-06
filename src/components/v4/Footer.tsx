@@ -39,13 +39,13 @@ const Footer = () => {
                 <img 
                   src={logoConfig.footerImageUrl} 
                   alt={logoConfig.name}
-                  className="h-18 w-auto"
+                  className="h-27 w-auto"
                 />
               ) : logoConfig.useImage && logoConfig.imageUrl ? (
                 <img 
                   src={logoConfig.imageUrl} 
                   alt={logoConfig.name}
-                  className="h-18 w-auto filter brightness-0 invert"
+                  className="h-27 w-auto filter brightness-0 invert"
                 />
               ) : (
                 <div className="bg-gradient-to-br from-red-600 to-red-700 text-white p-3 rounded-xl">
@@ -53,11 +53,6 @@ const Footer = () => {
                 </div>
               )}
             </Link>
-            
-            <p className="text-gray-300 leading-relaxed mb-6">
-              Votre spécialiste français du fioul domestique depuis 1995. 
-              Livraison rapide et service client d'exception dans toute la France.
-            </p>
             
             <div className="flex space-x-1 mb-4">
               <div className="w-6 h-4 bg-blue-600 rounded-sm"></div>
@@ -129,27 +124,14 @@ const Footer = () => {
                 </Link>
               ))}
             </div>
-            
-            <div className="mt-8 p-4 bg-red-600/20 rounded-xl border border-red-600/30">
-              <h5 className="font-semibold text-red-400 mb-2">Qualité garantie</h5>
-              <p className="text-gray-300 text-sm">
-                Fioul domestique conforme aux normes françaises NF EN 14213
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Company Legal Info */}
+        {/* Company Legal Info - Bottom Section Only */}
         <div className="border-t border-gray-700 mt-12 pt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
-            <div>
-              <h5 className="font-semibold text-red-400 mb-3">Informations légales</h5>
-              <div className="text-gray-400 text-sm space-y-1">
-                <p>Energy OIL Company Sàrl</p>
-                <p>SIRET: 40538489200015</p>
-                <p>TVA intracommunautaire: FR03145160497</p>
-                <p>RCS Paris: 405 384 892</p>
-              </div>
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+            <div className="text-gray-400 text-sm">
+              © 2023 Energy OIL Company Sàrl. Tous droits réservés.
             </div>
             <div className="flex items-center justify-end space-x-6 text-sm text-gray-400">
               <span>Paiement sécurisé SSL</span>
@@ -157,12 +139,6 @@ const Footer = () => {
               <span>Livraison assurée</span>
               <span>•</span>
               <span>Service client français</span>
-            </div>
-          </div>
-          
-          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-            <div className="text-gray-400 text-sm">
-              © 2023 Energy OIL Company Sàrl. Tous droits réservés.
             </div>
           </div>
         </div>
