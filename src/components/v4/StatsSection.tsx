@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Users, Calendar, Award } from 'lucide-react';
@@ -13,7 +12,7 @@ const StatsSection = () => {
     },
     {
       icon: Users,
-      value: '45.000+',
+      value: '150.000+',
       label: 'Clients fidèles',
       description: 'Particuliers satisfaits'
     },
