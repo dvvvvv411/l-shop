@@ -115,7 +115,7 @@ const PriceCalculator = () => {
         transition={{ duration: 0.6 }}
         className="text-center mb-8"
       >
-        <div className="inline-flex items-center bg-gradient-to-r from-red-50 to-blue-50 border border-red-200 text-red-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+        <div className="inline-flex items-center bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 text-red-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
           <Zap size={16} className="mr-2" />
           Calcul instantané • Prix garantis compétitifs
         </div>
@@ -188,8 +188,8 @@ const PriceCalculator = () => {
               {/* Amount Input */}
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-xs">2</span>
+                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-orange-600 font-bold text-xs">2</span>
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
                     Quantité: {amount.toLocaleString('fr-FR')}L
@@ -200,10 +200,10 @@ const PriceCalculator = () => {
                     type="number"
                     value={amount}
                     onChange={(e) => handleAmountChange(Number(e.target.value))}
-                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-all ${
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 text-lg font-semibold transition-all ${
                       !isValidAmount
                         ? 'border-red-400 bg-red-50'
-                        : 'border-gray-200 focus:border-blue-500'
+                        : 'border-gray-200 focus:border-orange-500'
                     }`}
                     min="1000"
                     max="32000"
@@ -220,7 +220,7 @@ const PriceCalculator = () => {
                   step="500"
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, #dc2626 0%, #dc2626 ${
+                    background: `linear-gradient(to right, #ea580c 0%, #ea580c ${
                       ((amount - 1000) / (32000 - 1000)) * 100
                     }%, #e5e7eb ${((amount - 1000) / (32000 - 1000)) * 100}%, #e5e7eb 100%)`
                   }}
@@ -263,7 +263,7 @@ const PriceCalculator = () => {
                       onClick={() => setSelectedProduct(product.id)}
                     >
                       {product.badge && (
-                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs px-2 py-1 rounded-full font-bold">
+                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                           {product.badge}
                         </div>
                       )}
@@ -300,7 +300,7 @@ const PriceCalculator = () => {
             className="bg-gradient-to-br from-gray-50 to-red-50 rounded-2xl border border-red-100 overflow-hidden"
           >
             {/* Price Header */}
-            <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-4">
+            <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Calculator size={20} />
@@ -370,7 +370,7 @@ const PriceCalculator = () => {
                 onClick={handleOrderClick}
                 className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 ${
                   isFormValid
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl'
+                    ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700 shadow-lg hover:shadow-xl'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
