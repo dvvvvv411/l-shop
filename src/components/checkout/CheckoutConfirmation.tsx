@@ -84,7 +84,7 @@ const CheckoutConfirmation = ({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">{t.confirmation.paymentInstructions}</h3>
-              <p className="text-gray-600">So zahlen Sie Ihre Bestellung</p>
+              <p className="text-gray-600">{t.confirmation.howToPay}</p>
             </div>
           </div>
 
@@ -178,7 +178,7 @@ const CheckoutConfirmation = ({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{t.summary.orderSummary}</h3>
-              <p className="text-sm text-gray-600">Ihre bestätigte Bestellung</p>
+              <p className="text-sm text-gray-600">{t.summary.confirmedOrder}</p>
             </div>
           </div>
 

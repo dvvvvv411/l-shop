@@ -79,6 +79,7 @@ export interface CheckoutTranslations {
     securePayment: string;
     timelyDelivery: string;
     fairPrices: string;
+    confirmedOrder: string; // Added for "Ihre bestätigte Bestellung"
   };
   // Confirmation section
   confirmation: {
@@ -87,6 +88,7 @@ export interface CheckoutTranslations {
     orderNumber: string;
     orderSuccess: string;
     paymentInstructions: string;
+    howToPay: string; // Added for "So zahlen Sie Ihre Bestellung"
     nextSteps: string;
     phoneContact: string;
     phoneContactDesc: string;
@@ -111,6 +113,11 @@ export interface CheckoutTranslations {
     shipping: string;
     payment: string;
     secureEncryption: string;
+  };
+  // Header
+  header: {
+    securePayment: string; // Added for "Sichere Zahlung"
+    sslEncrypted: string; // Added for "SSL verschlüsselt"
   };
   // Validation messages
   validation: {
@@ -201,7 +208,8 @@ const translations = {
       sslEncrypted: 'SSL verschlüsselt',
       securePayment: 'Sichere Zahlung',
       timelyDelivery: 'Pünktliche Lieferung',
-      fairPrices: 'Faire Preise'
+      fairPrices: 'Faire Preise',
+      confirmedOrder: 'Ihre bestätigte Bestellung'
     },
     confirmation: {
       title: 'Bestellung bestätigt!',
@@ -209,6 +217,7 @@ const translations = {
       orderNumber: 'Ihre Bestellnummer',
       orderSuccess: 'Ihre Bestellung wurde erfolgreich aufgenommen!',
       paymentInstructions: 'Zahlungshinweise',
+      howToPay: 'So zahlen Sie Ihre Bestellung',
       nextSteps: 'Nächste Schritte',
       phoneContact: '1. Telefonischer Kontakt',
       phoneContactDesc: 'Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen.',
@@ -232,6 +241,10 @@ const translations = {
       shipping: 'Versand',
       payment: 'Zahlung',
       secureEncryption: 'Sichere SSL-Verschlüsselung für Ihre Daten'
+    },
+    header: {
+      securePayment: 'Sichere Zahlung',
+      sslEncrypted: 'SSL verschlüsselt'
     },
     validation: {
       emailRequired: 'Gültige E-Mail-Adresse erforderlich',
@@ -319,7 +332,8 @@ const translations = {
       sslEncrypted: 'Chiffrement SSL',
       securePayment: 'Paiement sécurisé',
       timelyDelivery: 'Livraison ponctuelle',
-      fairPrices: 'Prix équitables'
+      fairPrices: 'Prix équitables',
+      confirmedOrder: 'Votre commande confirmée'
     },
     confirmation: {
       title: 'Commande confirmée !',
@@ -327,6 +341,7 @@ const translations = {
       orderNumber: 'Votre numéro de commande',
       orderSuccess: 'Votre commande a été enregistrée avec succès !',
       paymentInstructions: 'Instructions de paiement',
+      howToPay: 'Comment payer votre commande',
       nextSteps: 'Prochaines étapes',
       phoneContact: '1. Vérification de commande',
       phoneContactDesc: 'Votre commande sera vérifiée et vous recevrez bientôt les informations bancaires.',
@@ -350,6 +365,10 @@ const translations = {
       shipping: 'Livraison',
       payment: 'Paiement',
       secureEncryption: 'Chiffrement SSL sécurisé pour vos données'
+    },
+    header: {
+      securePayment: 'Paiement sécurisé',
+      sslEncrypted: 'Chiffrement SSL'
     },
     validation: {
       emailRequired: 'Adresse e-mail valide requise',

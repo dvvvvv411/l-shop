@@ -3,9 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { getLogoConfig } from '../../config/logoConfig';
 import { useDomainShop } from '../../hooks/useDomainShop';
+import { useCheckoutTranslations } from '../../hooks/useCheckoutTranslations';
 
 const CheckoutHeader = () => {
   const shopConfig = useDomainShop();
+  const t = useCheckoutTranslations();
   
   // Enhanced logo selection logic for checkout
   const getCheckoutLogoConfig = () => {
@@ -57,11 +59,11 @@ const CheckoutHeader = () => {
         <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>Sichere Zahlung</span>
+            <span>{t.header.securePayment}</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>SSL verschlüsselt</span>
+            <span>{t.header.sslEncrypted}</span>
           </div>
         </div>
       </div>
