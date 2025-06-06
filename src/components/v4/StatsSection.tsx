@@ -1,146 +1,181 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { MapPin, Users, Calendar, Award } from 'lucide-react';
 
 const StatsSection = () => {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+
   const stats = [
     {
       icon: MapPin,
       value: '95',
-      label: 'Départements couverts',
-      description: 'Dans toute la France métropolitaine',
-      color: 'from-red-500 to-red-600'
+      label: 'Départements',
+      description: 'Toute la France métropolitaine couverte',
+      color: 'from-red-500 to-orange-500'
     },
     {
       icon: Users,
       value: '45.000+',
-      label: 'Clients satisfaits',
-      description: 'Particuliers et professionnels',
-      color: 'from-blue-500 to-blue-600'
+      label: 'Clients fidèles',
+      description: 'Particuliers et professionnels satisfaits',
+      color: 'from-orange-500 to-red-600'
     },
     {
       icon: Calendar,
       value: '28',
-      label: 'Années d\'expérience',
-      description: 'Leader français du fioul',
-      color: 'from-red-500 to-red-600'
+      label: 'Années',
+      description: 'Leader français du fioul domestique',
+      color: 'from-red-600 to-red-700'
     },
     {
       icon: Award,
       value: '4.8/5',
-      label: 'Note moyenne',
-      description: 'Basée sur les avis clients',
-      color: 'from-blue-500 to-blue-600'
+      label: 'Satisfaction',
+      description: 'Note moyenne de nos clients',
+      color: 'from-red-700 to-orange-600'
     }
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        damping: 20,
-        stiffness: 100
-      }
-    }
-  };
-
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0">
-        <div className="absolute top-10 left-10 w-24 h-24 bg-red-100 rounded-full opacity-60 blur-xl"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-blue-100 rounded-full opacity-60 blur-xl"></div>
-      </div>
-      
-      <div className="container mx-auto px-4 relative">
+    <section className="relative min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-red-100 overflow-hidden">
+      {/* Large Background Numbers */}
+      <motion.div 
+        style={{ y }}
+        className="absolute inset-0 opacity-5 pointer-events-none"
+      >
+        <div className="text-[40rem] font-black text-red-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          28
+        </div>
+      </motion.div>
+
+      {/* Floating Elements */}
+      <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          animate={{ 
+            rotate: 360,
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ 
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-20 right-20 w-32 h-32 bg-gradient-to-br from-red-400 to-orange-400 rounded-full opacity-20 blur-xl"
+        />
+        <motion.div
+          animate={{ 
+            rotate: -360,
+            scale: [1.1, 1, 1.1]
+          }}
+          transition={{ 
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-20 left-20 w-40 h-40 bg-gradient-to-br from-orange-400 to-red-400 rounded-full opacity-20 blur-xl"
+        />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10 min-h-screen flex flex-col justify-center">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <div className="inline-flex items-center space-x-3 mb-4">
-            <div className="flex space-x-1">
-              <div className="w-3 h-2 bg-blue-600 rounded-sm"></div>
-              <div className="w-3 h-2 bg-white border border-gray-300 rounded-sm"></div>
-              <div className="w-3 h-2 bg-red-600 rounded-sm"></div>
-            </div>
-            <span className="text-red-600 font-semibold">Excellence française</span>
+          <div className="inline-flex items-center space-x-3 mb-6">
+            <div className="w-2 h-12 bg-gradient-to-b from-red-600 to-orange-600 rounded-full"></div>
+            <span className="text-2xl font-light text-red-700">Excellence française</span>
+            <div className="w-2 h-12 bg-gradient-to-b from-orange-600 to-red-600 rounded-full"></div>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Votre partenaire fioul de confiance
+          <h2 className="text-5xl lg:text-7xl font-light text-gray-900 mb-6 leading-tight">
+            Notre <span className="font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">impact</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Depuis 1995, nous livrons du fioul de qualité premium dans toute la France, 
-            avec un service client d'exception et des prix compétitifs.
+          <p className="text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+            Depuis 1995, nous redéfinissons l'excellence dans la livraison de fioul domestique
           </p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-        >
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="relative group"
-              >
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 group-hover:scale-105">
-                  {/* Icon */}
-                  <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="h-8 w-8 text-white" />
-                  </div>
+        {/* Horizontal Timeline Stats */}
+        <div className="relative">
+          {/* Timeline Line */}
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 transform -translate-y-1/2 hidden lg:block"></div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-0">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.5, y: 100 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ 
+                    duration: 0.8, 
+                    delay: index * 0.2,
+                    type: "spring",
+                    bounce: 0.4
+                  }}
+                  className="relative group"
+                >
+                  {/* Timeline Dot */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white border-4 border-red-600 rounded-full z-10 hidden lg:block group-hover:scale-150 transition-transform duration-300"></div>
                   
-                  {/* Value */}
-                  <div className="mb-3">
-                    <motion.span 
-                      className={`text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      whileInView={{ scale: 1, opacity: 1 }}
+                  {/* Content Card */}
+                  <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-4">
+                    {/* Icon */}
+                    <div className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-300`}>
+                      <Icon className="h-10 w-10 text-white" />
+                    </div>
+                    
+                    {/* Value */}
+                    <motion.div 
+                      className="mb-4"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
                       viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 + 0.5, duration: 0.5 }}
+                      transition={{ delay: index * 0.2 + 0.5, duration: 0.6, type: "spring" }}
                     >
-                      {stat.value}
-                    </motion.span>
+                      <span className={`text-6xl lg:text-7xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                        {stat.value}
+                      </span>
+                    </motion.div>
+                    
+                    {/* Label */}
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      {stat.label}
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="text-gray-600 leading-relaxed text-lg">
+                      {stat.description}
+                    </p>
                   </div>
-                  
-                  {/* Label */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    {stat.label}
-                  </h3>
-                  
-                  {/* Description */}
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    {stat.description}
-                  </p>
-                  
-                  {/* Hover effect decoration */}
-                  <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${stat.color} rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="text-center mt-20"
+        >
+          <div className="inline-flex items-center space-x-4 bg-white/80 backdrop-blur-sm border border-red-200 rounded-full px-8 py-4">
+            <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
+            <span className="text-red-700 font-semibold text-lg">
+              Rejoignez nos 45.000+ clients satisfaits
+            </span>
+            <div className="w-3 h-3 bg-orange-600 rounded-full animate-pulse"></div>
+          </div>
         </motion.div>
       </div>
     </section>
