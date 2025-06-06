@@ -72,6 +72,16 @@ const CustomerReviews = () => {
     }
   };
 
+  const scrollToCalculator = () => {
+    const calculatorElement = document.querySelector('#calculator');
+    if (calculatorElement) {
+      calculatorElement.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-red-50 via-white to-blue-50 relative overflow-hidden">
       {/* Background decorations */}
@@ -177,14 +187,14 @@ const CustomerReviews = () => {
               Faites confiance à l'expertise française de Fuel Express France 
               pour votre approvisionnement en fioul domestique.
             </p>
-            <motion.a
-              href="#calculator"
+            <motion.button
+              onClick={scrollToCalculator}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             >
               Demander un devis gratuit
-            </motion.a>
+            </motion.button>
           </div>
         </motion.div>
       </div>
