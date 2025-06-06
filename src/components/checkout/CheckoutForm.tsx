@@ -47,26 +47,6 @@ const generateRandomTestData = () => {
   };
 };
 
-const orderSchema = z.object({
-  customerEmail: z.string().email(t.validation.emailRequired),
-  deliveryFirstName: z.string().min(2, t.validation.firstNameRequired),
-  deliveryLastName: z.string().min(2, t.validation.lastNameRequired),
-  deliveryStreet: z.string().min(5, t.validation.streetRequired),
-  deliveryPostcode: z.string().min(1, t.validation.postcodeRequired),
-  deliveryCity: z.string().min(2, t.validation.cityRequired),
-  deliveryPhone: z.string().min(10, t.validation.phoneRequired),
-  useSameAddress: z.boolean(),
-  billingFirstName: z.string().optional(),
-  billingLastName: z.string().optional(),
-  billingStreet: z.string().optional(),
-  billingPostcode: z.string().optional(),
-  billingCity: z.string().optional(),
-  paymentMethod: z.enum(['vorkasse', 'rechnung']),
-  acceptTerms: z.boolean().refine(val => val === true, t.validation.termsRequired)
-});
-
-type OrderFormData = z.infer<typeof orderSchema>;
-
 interface PriceCalculatorData {
   product: {
     id: string;
@@ -93,6 +73,27 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const t = useCheckoutTranslations();
+
+  // Create the schema inside the component where `t` is available
+  const orderSchema = z.object({
+    customerEmail: z.string().email(t.validation.emailRequired),
+    deliveryFirstName: z.string().min(2, t.validation.firstNameRequired),
+    deliveryLastName: z.string().min(2, t.validation.lastNameRequired),
+    deliveryStreet: z.string().min(5, t.validation.streetRequired),
+    deliveryPostcode: z.string().min(1, t.validation.postcodeRequired),
+    deliveryCity: z.string().min(2, t.validation.cityRequired),
+    deliveryPhone: z.string().min(10, t.validation.phoneRequired),
+    useSameAddress: z.boolean(),
+    billingFirstName: z.string().optional(),
+    billingLastName: z.string().optional(),
+    billingStreet: z.string().optional(),
+    billingPostcode: z.string().optional(),
+    billingCity: z.string().optional(),
+    paymentMethod: z.enum(['vorkasse', 'rechnung']),
+    acceptTerms: z.boolean().refine(val => val === true, t.validation.termsRequired)
+  });
+
+  type OrderFormData = z.infer<typeof orderSchema>;
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
