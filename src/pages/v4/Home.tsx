@@ -3,116 +3,95 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v4/Header';
 import Footer from '@/components/v4/Footer';
-import PriceCalculator from '@/components/v4/PriceCalculator';
+import PriceCalculator from '@/components/v2/PriceCalculator';
 import StatsSection from '@/components/v4/StatsSection';
 import WhyChooseUs from '@/components/v4/WhyChooseUs';
 import TrustElements from '@/components/v4/TrustElements';
 import CustomerReviews from '@/components/v4/CustomerReviews';
 import FrenchRegionsMap from '@/components/v4/FrenchRegionsMap';
+import { Zap, Award } from 'lucide-react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Home = () => {
+  usePageMeta('home');
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-red-800">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-          <div className="absolute bottom-20 right-10 w-48 h-48 bg-blue-600/20 rounded-full blur-2xl"></div>
+      <section className="relative bg-gradient-to-br from-blue-50 via-slate-50 to-emerald-50 py-20 overflow-hidden">
+        {/* Minimalist Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 right-20 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-20 w-80 h-80 bg-emerald-400 rounded-full blur-3xl"></div>
         </div>
-        
-        <div className="relative container mx-auto px-4 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-white space-y-8"
+              className="mb-8"
             >
-              <div className="space-y-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
-                  className="flex items-center space-x-3"
-                >
-                  <div className="flex space-x-1">
-                    <div className="w-4 h-3 bg-blue-600 rounded-sm"></div>
-                    <div className="w-4 h-3 bg-white rounded-sm"></div>
-                    <div className="w-4 h-3 bg-red-600 rounded-sm"></div>
-                  </div>
-                  <span className="text-xl font-semibold">Fuel Express France</span>
-                </motion.div>
-                
-                <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  Fioul de chauffage au
-                  <span className="block bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent">
-                    meilleur prix
-                  </span>
-                  en France
-                </h1>
-                
-                <p className="text-xl lg:text-2xl text-red-100 leading-relaxed">
-                  Qualité française premium depuis 1995. Livraison express dans toute la France métropolitaine.
-                </p>
+              <div className="inline-flex items-center bg-gradient-to-r from-blue-100 to-emerald-100 text-slate-700 px-5 py-2 rounded-full text-sm font-medium mb-8">
+                <Zap size={16} className="mr-2" />
+                Premium Energielösungen seit 1998
+                <Award size={14} className="ml-2" />
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6, duration: 0.6 }}
-                  className="flex items-center space-x-3 text-red-100"
-                >
-                  <div className="w-5 h-5 bg-green-400 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                  <span className="text-lg">Livraison en 24-48h</span>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
-                  className="flex items-center space-x-3 text-red-100"
-                >
-                  <div className="w-5 h-5 bg-green-400 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                  <span className="text-lg">Prix garantis compétitifs</span>
-                </motion.div>
-              </div>
+              <h1 className="text-4xl md:text-6xl font-light text-slate-800 mb-6 leading-tight">
+                Energie für Ihr 
+                <span className="font-semibold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent"> Zuhause</span>
+              </h1>
+              <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Professionelle Heizöl-Lieferung mit <strong className="text-blue-600">30 Jahren Erfahrung</strong>. 
+                Exzellente Qualität, transparente Preise und persönlicher Service für Ihren Komfort.
+              </p>
             </motion.div>
-            
-            <motion.div
-              id="calculator"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <PriceCalculator />
-            </motion.div>
+          </div>
+
+          {/* Price Calculator */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <PriceCalculator />
+          </motion.div>
+
+          {/* Enhanced Benefits Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+          >
+            <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
+              <div className="text-2xl font-light text-blue-600 mb-1">Schnell</div>
+              <div className="text-slate-600 font-medium">Express-Lieferung</div>
+              <div className="text-xs text-slate-500 mt-1">In 4-7 Werktagen</div>
+            </div>
+            <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
+              <div className="text-2xl font-light text-emerald-600 mb-1">Premium</div>
+              <div className="text-slate-600 font-medium">Höchste Qualität</div>
+              <div className="text-xs text-slate-500 mt-1">Zertifiziert & geprüft</div>
+            </div>
+            <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 hover:shadow-lg transition-all">
+              <div className="text-2xl font-light text-blue-600 mb-1">Service</div>
+              <div className="text-slate-600 font-medium">Persönliche Betreuung</div>
+              <div className="text-xs text-slate-500 mt-1">8-18 Uhr täglich</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* All Sections */}
       <StatsSection />
-      
-      {/* Why Choose Us */}
       <WhyChooseUs />
-      
-      {/* French Regions Map */}
       <FrenchRegionsMap />
-      
-      {/* Trust Elements */}
       <TrustElements />
-      
-      {/* Customer Reviews */}
       <CustomerReviews />
-      
       <Footer />
     </div>
   );
