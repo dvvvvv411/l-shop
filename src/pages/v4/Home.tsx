@@ -14,6 +14,16 @@ import { usePageMeta } from '@/hooks/usePageMeta';
 const Home = () => {
   usePageMeta('home');
   
+  const scrollToCalculator = () => {
+    const calculatorElement = document.querySelector('#calculator');
+    if (calculatorElement) {
+      calculatorElement.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -47,6 +57,16 @@ const Home = () => {
                 Livraison professionnelle de fioul avec <strong className="text-red-600">30 ans d'expérience</strong>. 
                 Qualité excellente, prix transparents et service personnel pour votre confort.
               </p>
+              
+              {/* Add Calculer mon prix button */}
+              <motion.button
+                onClick={scrollToCalculator}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-8 inline-block bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Calculer mon prix
+              </motion.button>
             </motion.div>
           </div>
 

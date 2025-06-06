@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Menu, X, Mail, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getLogoConfigForV4 } from '@/config/logoConfig';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const logoConfig = getLogoConfigForV4();
 
   const isActive = (path: string) => {
@@ -15,6 +16,32 @@ const Header = () => {
       return location.pathname === '/4/home' || location.pathname === '/4/';
     }
     return location.pathname === path;
+  };
+
+  const scrollToCalculator = () => {
+    // If we're already on the home page, just scroll
+    if (location.pathname === '/4/home' || location.pathname === '/4/') {
+      const calculatorElement = document.querySelector('#calculator');
+      if (calculatorElement) {
+        calculatorElement.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    } else {
+      // If we're on a different page, navigate to home first then scroll
+      navigate('/4/home');
+      setTimeout(() => {
+        const calculatorElement = document.querySelector('#calculator');
+        if (calculatorElement) {
+          calculatorElement.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    }
+    setIsMenuOpen(false);
   };
 
   const navigationItems = [
@@ -94,12 +121,10 @@ const Header = () => {
           {/* CTA Button */}
           <div className="hidden lg:block">
             <Button 
-              asChild
+              onClick={scrollToCalculator}
               className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <Link to="/4/home#calculator">
-                Calculer le prix
-              </Link>
+              Calculer le prix
             </Button>
           </div>
 
@@ -132,13 +157,10 @@ const Header = () => {
               ))}
               
               <Button 
-                asChild
+                onClick={scrollToCalculator}
                 className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white mt-4"
-                onClick={() => setIsMenuOpen(false)}
               >
-                <Link to="/4/home#calculator">
-                  Calculer le prix
-                </Link>
+                Calculer le prix
               </Button>
             </nav>
           </div>
