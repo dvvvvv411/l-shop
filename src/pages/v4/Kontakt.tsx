@@ -353,7 +353,7 @@ const Kontakt = () => {
                 </p>
                 <Button 
                   asChild
-                  className="w-full bg-white text-red-600 hover:bg-gray-100 font-medium"
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 border-0 font-medium"
                 >
                   <a href="/4/home#calculator">
                     Calculer mon prix maintenant
