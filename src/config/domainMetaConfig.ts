@@ -1,4 +1,3 @@
-import { useDomainShop, type ShopType } from '@/hooks/useDomainShop';
 
 export interface MetaData {
   title: string;
@@ -10,7 +9,7 @@ export interface MetaData {
   twitterDescription?: string;
 }
 
-export interface ShopMetaConfig {
+export interface DomainShopMetaConfig {
   name: string;
   brand: string;
   phone: string;
@@ -21,122 +20,22 @@ export interface ShopMetaConfig {
   };
 }
 
-// Austrian-specific configuration
-const austrianShopMetaConfig: ShopMetaConfig = {
-  name: "Heizöl Österreich",
-  brand: "Heizöl AT",
-  phone: "+43 1 234 5678",
-  email: "info@heizoel-austria.com",
-  baseUrl: window.location.origin,
-  pages: {
-    home: {
-      title: "Heizöl Österreich - Premium Heizöl österreichweit zum Bestpreis",
-      description: "Günstige Heizöl-Lieferung in ganz Österreich. Von Wien bis Innsbruck, von Salzburg bis Graz. Premium-Qualität, schnelle Lieferung, faire Preise seit 1998.",
-      keywords: "Heizöl Österreich, günstig, bestellen, Lieferung, Wien, Salzburg, Innsbruck, Graz"
-    },
-    impressum: {
-      title: "Impressum - Heizöl Österreich",
-      description: "Impressum und rechtliche Informationen der Heizöl Österreich GmbH."
-    },
-    agb: {
-      title: "AGB - Heizöl Österreich",
-      description: "Allgemeine Geschäftsbedingungen der Heizöl Österreich GmbH."
-    },
-    widerrufsrecht: {
-      title: "Widerrufsrecht - Heizöl Österreich",
-      description: "Widerrufsrecht und Widerrufsbelehrung für Verbraucher in Österreich."
-    },
-    datenschutz: {
-      title: "Datenschutz - Heizöl Österreich",
-      description: "Datenschutzerklärung gemäß DSGVO der Heizöl Österreich GmbH."
-    },
-    kontakt: {
-      title: "Kontakt - Heizöl Österreich | Persönliche Beratung",
-      description: "Kontaktieren Sie uns für persönliche Beratung. Österreichweiter Service von Wien bis Vorarlberg.",
-      keywords: "Kontakt, Beratung, Heizöl, Österreich, Wien, Support"
-    },
-    service: {
-      title: "Über uns - Heizöl Österreich | Premium Heizöl-Service",
-      description: "Seit 1998 Ihr verlässlicher Partner für Premium-Heizöl in Österreich. Österreichische Qualität, faire Preise, persönlicher Service.",
-      keywords: "Service, Heizöl, Österreich, Premium, Qualität, seit 1998"
-    },
-    liefergebiet: {
-      title: "Liefergebiete - Heizöl Österreich | Österreichweite Abdeckung",
-      description: "Heizöl-Lieferung in alle 9 österreichischen Bundesländer. Von Wien bis Vorarlberg, schnelle Lieferung österreichweit.",
-      keywords: "Liefergebiet, Österreich, bundesweit, Wien, Salzburg, Tirol, Steiermark"
-    },
-    produkte: {
-      title: "Heizöl-Produkte - Premium EL & Additive für Österreich",
-      description: "Hochwertige Heizöl-Produkte für österreichische Haushalte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle.",
-      keywords: "Heizöl, Premium EL, schwefelarm, Additive, Österreich, Qualität"
-    }
-  }
-};
-
-// French-specific configuration
-const frenchShopMetaConfig: ShopMetaConfig = {
-  name: "Fuel Express France",
-  brand: "Fioul FR",
-  phone: "+33 1 23 45 67 89",
-  email: "contact@fuel-france.fr",
-  baseUrl: window.location.origin,
-  pages: {
-    home: {
-      title: "Fuel Express France - Fioul de chauffage au meilleur prix en France",
-      description: "Livraison de fioul domestique dans toute la France métropolitaine. Qualité française premium, livraison express, prix compétitifs depuis 1995.",
-      keywords: "fioul domestique, livraison fioul, prix fioul, France, qualité française"
-    },
-    impressum: {
-      title: "Mentions Légales - Fuel Express France",
-      description: "Mentions légales et informations juridiques de Fuel Express France."
-    },
-    agb: {
-      title: "CGV - Fuel Express France",
-      description: "Conditions générales de vente de Fuel Express France."
-    },
-    widerrufsrecht: {
-      title: "Droit de Rétractation - Fuel Express France",
-      description: "Droit de rétractation et informations pour les consommateurs français."
-    },
-    datenschutz: {
-      title: "Confidentialité - Fuel Express France",
-      description: "Politique de confidentialité conforme au RGPD de Fuel Express France."
-    },
-    kontakt: {
-      title: "Contact - Fuel Express France | Conseil Personnel",
-      description: "Contactez-nous pour un conseil personnel. Service dans toute la France métropolitaine.",
-      keywords: "contact, conseil, fioul, France, support"
-    },
-    service: {
-      title: "À Propos - Fuel Express France | Service Fioul Premium",
-      description: "Depuis 1995, votre partenaire de confiance pour le fioul en France. Qualité française, prix équitables, service personnel.",
-      keywords: "service, fioul, France, premium, qualité, depuis 1995"
-    },
-    liefergebiet: {
-      title: "Zones de Livraison - Fuel Express France | Couverture Nationale",
-      description: "Livraison de fioul dans toute la France métropolitaine. Découvrez nos zones de livraison et nos partenaires locaux.",
-      keywords: "zone livraison, France, national, partenaires, régions"
-    },
-    produkte: {
-      title: "Produits Fioul - Fioul Domestique & Additifs Premium",
-      description: "Produits fioul de haute qualité : fioul domestique standard et premium, combustibles à faible teneur en soufre.",
-      keywords: "fioul domestique, premium, additifs, qualité, France"
-    }
-  }
-};
-
-// Generic configuration for other domain shops
-const genericShopMetaConfig: ShopMetaConfig = {
+// German configuration for all German shops
+const germanShopMetaConfig: DomainShopMetaConfig = {
   name: "Heizöl-Service",
   brand: "Heizöl",
   phone: "",
   email: "",
-  baseUrl: window.location.origin,
+  baseUrl: "https://heizoel-netz.de",
   pages: {
     home: {
       title: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung deutschlandweit",
       description: "Günstiges Heizöl online bestellen. Schnelle Lieferung, beste Qualität, faire Preise. Vergleichen Sie Heizölpreise und sparen Sie beim Heizöl-Kauf.",
-      keywords: "Heizöl, günstig, bestellen, Lieferung, Preise, online"
+      keywords: "Heizöl, günstig, bestellen, Lieferung, Preise, online",
+      ogTitle: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung",
+      ogDescription: "Günstiges Heizöl online bestellen mit schneller Lieferung",
+      twitterTitle: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung",
+      twitterDescription: "Günstiges Heizöl online bestellen mit schneller Lieferung"
     },
     impressum: {
       title: "Impressum - Heizöl-Service",
@@ -147,7 +46,7 @@ const genericShopMetaConfig: ShopMetaConfig = {
       description: "Allgemeine Geschäftsbedingungen."
     },
     widerrufsrecht: {
-      title: "Widerrufsrecht - Heizöl-Service",
+      title: "Widerrufsrecht - Heizöl-Service", 
       description: "Widerrufsrecht und Widerrufsbelehrung."
     },
     datenschutz: {
@@ -173,24 +72,89 @@ const genericShopMetaConfig: ShopMetaConfig = {
       title: "Heizöl-Produkte - Premium EL & Additive",
       description: "Hochwertige Heizöl-Produkte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle für optimale Heizleistung.",
       keywords: "Heizöl, Premium EL, schwefelarm, Additive, Qualität"
+    },
+    checkout: {
+      title: "Bestellung abschließen - Heizöl-Service",
+      description: "Schließen Sie Ihre Heizöl-Bestellung ab. Sichere Bezahlung und schnelle Lieferung garantiert."
     }
   }
 };
 
-const shopMetaConfigs: Record<ShopType, ShopMetaConfig> = {
-  root: genericShopMetaConfig,
-  stanton: genericShopMetaConfig,
-  greenoil: genericShopMetaConfig,
-  austria: austrianShopMetaConfig,
+// French configuration for the French shop
+const frenchShopMetaConfig: DomainShopMetaConfig = {
+  name: "Fioul Rapide",
+  brand: "Fioul FR",
+  phone: "",
+  email: "info@fioul-rapide.fr",
+  baseUrl: "https://fioul-rapide.fr",
+  pages: {
+    home: {
+      title: "Fioul au meilleur prix - Livraison rapide de fioul domestique en France",
+      description: "Commandez votre fioul domestique en ligne au meilleur prix. Livraison rapide, qualité premium, prix équitables. Comparez les prix du fioul et économisez.",
+      keywords: "fioul, domestique, pas cher, livraison, prix, en ligne",
+      ogTitle: "Fioul au meilleur prix - Livraison rapide de fioul",
+      ogDescription: "Commandez votre fioul domestique en ligne avec livraison rapide",
+      twitterTitle: "Fioul au meilleur prix - Livraison rapide de fioul",
+      twitterDescription: "Commandez votre fioul domestique en ligne avec livraison rapide"
+    },
+    impressum: {
+      title: "Mentions légales - Fioul Rapide",
+      description: "Mentions légales et informations juridiques."
+    },
+    agb: {
+      title: "CGV - Fioul Rapide",
+      description: "Conditions générales de vente."
+    },
+    widerrufsrecht: {
+      title: "Droit de rétractation - Fioul Rapide",
+      description: "Droit de rétractation et informations de rétractation."
+    },
+    datenschutz: {
+      title: "Confidentialité - Fioul Rapide",
+      description: "Politique de confidentialité et informations sur la protection des données."
+    },
+    kontakt: {
+      title: "Contact - Fioul Rapide | Conseil personnalisé",
+      description: "Contactez-nous pour un conseil personnalisé. Expertise professionnelle autour du fioul et de la livraison.",
+      keywords: "contact, conseil, fioul, support"
+    },
+    service: {
+      title: "Service - Fioul Rapide | Service fioul premium",
+      description: "Service fioul de première classe : livraison rapide, partenaires certifiés, qualité premium pour vos besoins de chauffage.",
+      keywords: "service, fioul, livraison, premium, qualité"
+    },
+    liefergebiet: {
+      title: "Zones de livraison - Fioul Rapide | Couverture France entière",
+      description: "Livraison de fioul dans toute la France. Découvrez nos zones de livraison et points partenaires partout en France.",
+      keywords: "zone livraison, France, national, partenaires, points"
+    },
+    produkte: {
+      title: "Produits fioul - Fioul Premium & Additifs",
+      description: "Produits fioul de haute qualité : fioul premium, combustibles à faible teneur en soufre, fioul additivé pour un chauffage optimal.",
+      keywords: "fioul, premium, faible soufre, additifs, qualité"
+    },
+    checkout: {
+      title: "Finaliser votre commande - Fioul Rapide",
+      description: "Finalisez votre commande de fioul. Paiement sécurisé et livraison rapide garantie."
+    }
+  }
+};
+
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france';
+
+const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
+  root: germanShopMetaConfig,
+  stanton: germanShopMetaConfig,
+  greenoil: germanShopMetaConfig,
+  austria: germanShopMetaConfig, // Austrian shop uses German for now
   france: frenchShopMetaConfig
 };
 
-export function getDomainShopConfig(shopType: ShopType): ShopMetaConfig {
-  return shopMetaConfigs[shopType] || genericShopMetaConfig;
+export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {
+  return domainShopConfigs[shopType] || germanShopMetaConfig;
 }
 
 export function getDomainPageMeta(shopType: ShopType, pageName: string): MetaData {
-  const shopConfig = shopMetaConfigs[shopType] || genericShopMetaConfig;
-  const pageMeta = shopConfig.pages[pageName] || shopConfig.pages.home;
-  return pageMeta;
+  const shopConfig = getDomainShopConfig(shopType);
+  return shopConfig.pages[pageName] || shopConfig.pages.home;
 }

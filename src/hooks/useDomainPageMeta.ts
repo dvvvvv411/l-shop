@@ -43,7 +43,10 @@ export function useDomainPageMeta(pageName: string) {
     updateMetaTag('og:url', canonicalUrl, 'property');
     updateMetaTag('og:site_name', shopMetaConfig.name, 'property');
     updateMetaTag('og:type', 'website', 'property');
-    updateMetaTag('og:locale', 'de_DE', 'property');
+    
+    // Set locale based on shop type
+    const locale = shopConfig.shopType === 'france' ? 'fr_FR' : 'de_DE';
+    updateMetaTag('og:locale', locale, 'property');
     
     // Update Twitter Card meta tags
     const twitterTitle = pageMeta.twitterTitle || pageMeta.title;
@@ -63,8 +66,8 @@ export function useDomainPageMeta(pageName: string) {
       "email": shopMetaConfig.email,
       "url": shopMetaConfig.baseUrl,
       "description": pageMeta.description,
-      "serviceType": "Heizöl-Lieferung",
-      "areaServed": "Deutschland"
+      "serviceType": shopConfig.shopType === 'france' ? "Livraison de fioul" : "Heizöl-Lieferung",
+      "areaServed": shopConfig.shopType === 'france' ? "France" : "Deutschland"
     };
     
     updateStructuredData(structuredData);
@@ -72,7 +75,8 @@ export function useDomainPageMeta(pageName: string) {
     console.log(`Domain meta updated for ${shopMetaConfig.name} - ${pageName}:`, {
       title: pageMeta.title,
       description: pageMeta.description,
-      canonicalUrl
+      canonicalUrl,
+      locale
     });
     
   }, [location.pathname, pageName, shopConfig]);

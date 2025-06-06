@@ -44,7 +44,10 @@ export function usePageMeta(pageName: string) {
       updateMetaTag('og:url', canonicalUrl, 'property');
       updateMetaTag('og:site_name', shopConfig.name, 'property');
       updateMetaTag('og:type', 'website', 'property');
-      updateMetaTag('og:locale', 'de_DE', 'property');
+      
+      // Set locale based on path
+      const locale = location.pathname.startsWith('/4/') ? 'fr_FR' : 'de_DE';
+      updateMetaTag('og:locale', locale, 'property');
       
       // Update Twitter Card meta tags
       const twitterTitle = pageMeta.twitterTitle || pageMeta.title;
@@ -64,8 +67,8 @@ export function usePageMeta(pageName: string) {
         "email": shopConfig.email,
         "url": shopConfig.baseUrl,
         "description": pageMeta.description,
-        "serviceType": "Heizöl-Lieferung",
-        "areaServed": "Deutschland"
+        "serviceType": location.pathname.startsWith('/4/') ? "Livraison de fioul" : "Heizöl-Lieferung",
+        "areaServed": location.pathname.startsWith('/4/') ? "France" : "Deutschland"
       };
       
       updateStructuredData(structuredData);
@@ -73,7 +76,8 @@ export function usePageMeta(pageName: string) {
       console.log(`Meta updated via React for ${shopConfig.name} - ${pageName}:`, {
         title: pageMeta.title,
         description: pageMeta.description,
-        canonicalUrl
+        canonicalUrl,
+        locale
       });
       
       setIsInitialized(true);
