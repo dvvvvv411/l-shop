@@ -52,7 +52,7 @@ const Contact = () => {
                     <p className="text-gray-700">75019 Paris, France</p>
                   </div>
                 </div>
-
+                
                 <div className="flex items-start space-x-4">
                   <div className="bg-red-100 p-3 rounded-lg">
                     <Clock className="h-6 w-6 text-red-600" />
