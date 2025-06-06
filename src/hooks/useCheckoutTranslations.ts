@@ -85,6 +85,7 @@ export interface CheckoutTranslations {
     title: string;
     subtitle: string;
     orderNumber: string;
+    orderSuccess: string;
     paymentInstructions: string;
     nextSteps: string;
     phoneContact: string;
@@ -99,6 +100,8 @@ export interface CheckoutTranslations {
     deliveryAddress: string;
     importantNote: string;
     importantNoteDesc: string;
+    basePrice: string;
+    deliveryLabel: string;
   };
   // Navigation
   navigation: {
@@ -204,6 +207,7 @@ const translations = {
       title: 'Bestellung bestätigt!',
       subtitle: 'Vielen Dank für Ihre Heizöl-Bestellung',
       orderNumber: 'Ihre Bestellnummer',
+      orderSuccess: 'Ihre Bestellung wurde erfolgreich aufgenommen!',
       paymentInstructions: 'Zahlungshinweise',
       nextSteps: 'Nächste Schritte',
       phoneContact: '1. Telefonischer Kontakt',
@@ -217,7 +221,9 @@ const translations = {
       deliveryTerm: 'Liefertermin',
       deliveryAddress: 'Lieferadresse',
       importantNote: '📞 Wichtiger Hinweis zur Lieferung',
-      importantNoteDesc: 'Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. Bitte stellen Sie sicher, dass Sie unter {phone} erreichbar sind.'
+      importantNoteDesc: 'Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. Bitte stellen Sie sicher, dass Sie unter {phone} erreichbar sind.',
+      basePrice: 'Grundpreis',
+      deliveryLabel: 'Lieferung'
     },
     navigation: {
       back: 'Zurück',
@@ -307,8 +313,8 @@ const translations = {
       applyButton: 'Appliquer',
       checkingButton: 'Vérification...',
       deliveryInfo: 'Information de livraison',
-      workdays: '4-7 jours ouvrés',
-      afterPayment: 'après réception du paiement',
+      workdays: '2-4 jours ouvrés',
+      afterPayment: 'après vérification de la commande',
       freeShippingNote: 'Livraison gratuite à partir de 3 000 litres',
       sslEncrypted: 'Chiffrement SSL',
       securePayment: 'Paiement sécurisé',
@@ -319,20 +325,23 @@ const translations = {
       title: 'Commande confirmée !',
       subtitle: 'Merci pour votre commande de fioul',
       orderNumber: 'Votre numéro de commande',
+      orderSuccess: 'Votre commande a été enregistrée avec succès !',
       paymentInstructions: 'Instructions de paiement',
       nextSteps: 'Prochaines étapes',
-      phoneContact: '1. Contact téléphonique',
-      phoneContactDesc: 'Nous vous appellerons dans les 24 heures pour confirmer votre commande.',
+      phoneContact: '1. Vérification de commande',
+      phoneContactDesc: 'Votre commande sera vérifiée et vous recevrez bientôt les informations bancaires.',
       bankTransfer: '2. Virement bancaire',
-      bankTransferDesc: 'Après notre appel, vous virerez le montant de {amount}€ sur notre compte.',
+      bankTransferDesc: 'Après réception des informations bancaires, vous virerez le montant de {amount}€.',
       delivery: '3. Livraison',
-      deliveryDesc: 'Après réception du paiement, la livraison s\'effectue en 4-7 jours ouvrés.',
+      deliveryDesc: 'Après réception du paiement, la livraison s\'effectue en 2-4 jours ouvrés.',
       deliveryInformation: 'Informations de livraison',
       deliveryDetails: 'Détails importants concernant votre livraison',
       deliveryTerm: 'Date de livraison',
       deliveryAddress: 'Adresse de livraison',
       importantNote: '📞 Note importante concernant la livraison',
-      importantNoteDesc: 'Notre chauffeur vous contactera par téléphone le jour de livraison. Veuillez vous assurer d\'être joignable au {phone}.'
+      importantNoteDesc: 'Notre chauffeur vous contactera par téléphone le jour de livraison. Veuillez vous assurer d\'être joignable au {phone}.',
+      basePrice: 'Prix de base',
+      deliveryLabel: 'Livraison'
     },
     navigation: {
       back: 'Retour',

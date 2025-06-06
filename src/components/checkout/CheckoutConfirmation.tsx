@@ -62,7 +62,7 @@ const CheckoutConfirmation = ({
           className="bg-white rounded-xl p-8 shadow-lg text-center"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Ihre Bestellung wurde erfolgreich aufgenommen!
+            {t.confirmation.orderSuccess}
           </h2>
           
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
@@ -141,7 +141,7 @@ const CheckoutConfirmation = ({
                 <Calendar className="text-orange-600 mr-2" size={18} />
                 <span className="font-semibold text-orange-900">{t.confirmation.deliveryTerm}</span>
               </div>
-              <div className="text-orange-800 font-bold">{contextOrderData.deliveryDate}</div>
+              <div className="text-orange-800 font-bold">{t.summary.workdays}</div>
               <div className="text-orange-700 text-sm">{t.summary.afterPayment}</div>
             </div>
 
@@ -201,12 +201,12 @@ const CheckoutConfirmation = ({
             <hr className="border-gray-200" />
             
             <div className="flex justify-between">
-              <span className="text-gray-600">Grundpreis</span>
+              <span className="text-gray-600">{t.confirmation.basePrice}</span>
               <span className="font-semibold">{orderData.basePrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-green-600">
-              <span>Lieferung</span>
+              <span>{t.confirmation.deliveryLabel}</span>
               <span className="font-semibold">
                 {orderData.deliveryFee === 0 ? t.summary.free : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
