@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -40,6 +40,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@heizoel-austria.com',
     faviconColor: '#7c3aed',
     faviconIcon: 'mountain'
+  },
+  'fuel-france.fr': {
+    shopType: 'france',
+    name: 'Fuel Express France',
+    brand: 'Fioul FR',
+    phone: '+33 1 23 45 67 89',
+    email: 'contact@fuel-france.fr',
+    faviconColor: '#dc2626',
+    faviconIcon: 'flame'
   }
 };
 
@@ -72,6 +81,8 @@ const getDomainShopConfig = (): DomainShopConfig => {
     localStorage.setItem('orderReferrer', '/2/home');
   } else if (config.shopType === 'stanton') {
     localStorage.setItem('orderReferrer', '/1/home');
+  } else if (config.shopType === 'france') {
+    localStorage.setItem('orderReferrer', '/4/home');
   }
   
   return config;

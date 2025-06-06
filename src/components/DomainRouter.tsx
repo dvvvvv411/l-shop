@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -8,6 +7,7 @@ import Index from '@/pages/Index';
 import V1Home from '@/pages/v1/Home';
 import V2Home from '@/pages/v2/Home';
 import V3Home from '@/pages/v3/Home';
+import V4Home from '@/pages/v4/Home';
 import Order from '@/pages/Order';
 import Summary from '@/pages/Summary';
 import Confirmation from '@/pages/Confirmation';
@@ -51,6 +51,16 @@ import V3Kontakt from '@/pages/v3/Kontakt';
 import V3Service from '@/pages/v3/Service';
 import V3Produkte from '@/pages/v3/Produkte';
 import V3Liefergebiet from '@/pages/v3/Liefergebiet';
+
+// V4 pages (French)
+import V4Impressum from '@/pages/v4/Impressum';
+import V4AGB from '@/pages/v4/AGB';
+import V4Datenschutz from '@/pages/v4/Datenschutz';
+import V4Widerrufsrecht from '@/pages/v4/Widerrufsrecht';
+import V4Kontakt from '@/pages/v4/Kontakt';
+import V4Service from '@/pages/v4/Service';
+import V4Produkte from '@/pages/v4/Produkte';
+import V4Liefergebiet from '@/pages/v4/Liefergebiet';
 
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
@@ -121,6 +131,28 @@ const DomainRouter = () => {
     );
   }
 
+  // For French domain, route to V4 pages
+  if (shopConfig.shopType === 'france') {
+    return (
+      <Routes>
+        <Route path="/" element={<V4Home />} />
+        <Route path="/bestellen" element={<Order />} />
+        <Route path="/zusammenfassung" element={<Summary />} />
+        <Route path="/bestaetigung" element={<Confirmation />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/mentions-legales" element={<V4Impressum />} />
+        <Route path="/cgv" element={<V4AGB />} />
+        <Route path="/confidentialite" element={<V4Datenschutz />} />
+        <Route path="/retractation" element={<V4Widerrufsrecht />} />
+        <Route path="/contact" element={<V4Kontakt />} />
+        <Route path="/service" element={<V4Service />} />
+        <Route path="/produits" element={<V4Produkte />} />
+        <Route path="/livraison" element={<V4Liefergebiet />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
   // Default routing for root domain (with all original routes preserved)
   return (
     <Routes>
@@ -180,6 +212,20 @@ const DomainRouter = () => {
       <Route path="/3/service" element={<V3Service />} />
       <Route path="/3/produkte" element={<V3Produkte />} />
       <Route path="/3/liefergebiet" element={<V3Liefergebiet />} />
+
+      <Route path="/4/home" element={<V4Home />} />
+      <Route path="/4/bestellen" element={<Order />} />
+      <Route path="/4/zusammenfassung" element={<Summary />} />
+      <Route path="/4/bestaetigung" element={<Confirmation />} />
+      <Route path="/4/checkout" element={<Checkout />} />
+      <Route path="/4/mentions-legales" element={<V4Impressum />} />
+      <Route path="/4/cgv" element={<V4AGB />} />
+      <Route path="/4/confidentialite" element={<V4Datenschutz />} />
+      <Route path="/4/retractation" element={<V4Widerrufsrecht />} />
+      <Route path="/4/contact" element={<V4Kontakt />} />
+      <Route path="/4/service" element={<V4Service />} />
+      <Route path="/4/produits" element={<V4Produkte />} />
+      <Route path="/4/livraison" element={<V4Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
