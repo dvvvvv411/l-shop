@@ -1,20 +1,42 @@
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Calculator, TrendingDown, Clock, AlertCircle, CheckCircle, Zap, Shield, ArrowRight } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 import { motion } from 'framer-motion';
-import { Calculator, Euro, Truck, Shield, Lock, AlertCircle, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const PriceCalculator = React.memo(() => {
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  badge?: string;
+}
+
+const products: Product[] = [
+  {
+    id: 'standard',
+    name: 'Fioul Standard',
+    price: 0.72,
+    description: 'Fioul domestique certifié normes françaises',
+    badge: 'Populaire'
+  },
+  {
+    id: 'premium',
+    name: 'Fioul Premium',
+    price: 0.77,
+    description: 'Fioul domestique haute qualité avec additifs',
+    badge: 'Recommandé'
+  }
+];
+
+const PriceCalculator = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [amount, setAmount] = useState<number>(3000);
-  const [postcode, setPostcode] = useState<string>('');
-  const [quality, setQuality] = useState<string>('');
+  const [amount, setAmount] = useState(3000);
+  const [postcode, setPostcode] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('standard');
   const [isValidPostcode, setIsValidPostcode] = useState(true);
   const [isValidAmount, setIsValidAmount] = useState(true);
 
@@ -23,65 +45,29 @@ const PriceCalculator = React.memo(() => {
     localStorage.setItem('orderReferrer', location.pathname);
   }, [location.pathname]);
 
-  const products = useMemo(() => ({
-    standard: {
-      name: 'Fioul Standard',
-      price: 0.72,
-      description: 'Qualité certifiée aux normes françaises'
-    },
-    premium: {
-      name: 'Fioul Premium',
-      price: 0.77,
-      description: 'Fioul domestique haute qualité'
-    }
-  }), []);
+  // Get selected product
+  const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
+
+  // Calculate prices
+  const basePrice = amount * currentProduct.price;
+  const deliveryFee = amount >= 3000 ? 0 : 39;
+  const totalPrice = basePrice + deliveryFee;
+  const savings = deliveryFee === 0 ? 39 : 0;
 
   // Validation functions
-  const validatePostcode = useCallback((value: string) => {
-    // French postcodes are 5 digits
+  const validatePostcode = (value: string) => {
     const isValid = /^\d{5}$/.test(value);
     setIsValidPostcode(isValid);
     return isValid;
-  }, []);
+  };
 
-  const validateAmount = useCallback((value: number) => {
+  const validateAmount = (value: number) => {
     const isValid = value >= 1000 && value <= 32000;
     setIsValidAmount(isValid);
     return isValid;
-  }, []);
+  };
 
-  // Memoized calculations for better performance with fallback
-  const calculations = useMemo(() => {
-    const selectedProduct = quality && products[quality as keyof typeof products] 
-      ? products[quality as keyof typeof products] 
-      : products.standard;
-    
-    const basePrice = selectedProduct.price;
-    const totalBasePrice = amount * basePrice;
-    const deliveryFee = amount >= 3000 ? 0 : 39;
-    const totalPrice = totalBasePrice + deliveryFee;
-    
-    return {
-      basePrice: totalBasePrice.toFixed(2),
-      deliveryFee,
-      totalPrice: totalPrice.toFixed(2),
-      progressPercentage: Math.max(5, Math.min(100, ((amount - 1000) / (32000 - 1000)) * 100))
-    };
-  }, [amount, quality, products]);
-
-  const handleAmountChange = useCallback((value: string) => {
-    const numValue = parseInt(value.replace(/\D/g, '')) || 0;
-    setAmount(numValue);
-    validateAmount(numValue);
-  }, [validateAmount]);
-
-  const handleSliderChange = useCallback((values: number[]) => {
-    const newAmount = values[0];
-    setAmount(newAmount);
-    validateAmount(newAmount);
-  }, [validateAmount]);
-
-  const handlePostcodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 5);
     setPostcode(value);
     if (value.length === 5) {
@@ -89,321 +75,344 @@ const PriceCalculator = React.memo(() => {
     } else {
       setIsValidPostcode(true);
     }
-  }, [validatePostcode]);
+  };
 
-  const handleOrderClick = useCallback(() => {
+  const handleAmountChange = (value: number) => {
+    setAmount(value);
+    validateAmount(value);
+  };
+
+  const handleOrderClick = () => {
     if (isFormValid) {
-      const currentProduct = products[quality as keyof typeof products];
+      // Store order data without postcode
       const orderData = {
         product: {
-          id: quality,
+          id: currentProduct.id,
           name: currentProduct.name,
           price: currentProduct.price,
           description: currentProduct.description
         },
         amount,
-        basePrice: parseFloat(calculations.basePrice),
-        deliveryFee: calculations.deliveryFee,
-        totalPrice: parseFloat(calculations.totalPrice),
-        savings: 0
+        basePrice,
+        deliveryFee,
+        totalPrice,
+        savings
       };
-      
       localStorage.setItem('orderData', JSON.stringify(orderData));
+      // Referrer is already saved in useEffect, so we can navigate directly
       navigate('/checkout');
     }
-  }, [amount, quality, products, calculations, navigate]);
+  };
 
-  const isFormValid = useMemo(() => 
-    postcode.length === 5 && 
-    isValidPostcode && 
-    isValidAmount && 
-    amount >= 1000 && 
-    amount <= 32000 && 
-    quality && 
-    products[quality as keyof typeof products],
-    [postcode, isValidPostcode, isValidAmount, amount, quality, products]
-  );
+  const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
 
   return (
-    <TooltipProvider>
+    <div className="max-w-6xl mx-auto">
+      {/* Compact Header */}
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10"
+        transition={{ duration: 0.6 }}
+        className="text-center mb-8"
       >
-        <div className="relative backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl p-6 shadow-2xl shadow-red-500/10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="relative flex items-center mb-6"
+        <div className="inline-flex items-center bg-gradient-to-r from-red-50 to-blue-50 border border-red-200 text-red-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <Zap size={16} className="mr-2" />
+          Calcul instantané • Prix garantis compétitifs
+        </div>
+        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+          Votre prix fioul en <span className="text-red-600">60 secondes</span>
+        </h2>
+        <p className="text-gray-600 text-lg">
+          Transparent • Rapide • Fiable
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Form Inputs */}
+        <div className="lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6"
           >
-            <div className="relative">
-              <div className="bg-gradient-to-br from-red-600 to-red-700 p-3 rounded-xl shadow-lg">
-                <Calculator className="h-5 w-5 text-white" />
-              </div>
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-red-700 to-red-800 bg-clip-text text-transparent">
-                Calculateur de Prix Fioul
-              </h3>
-            </div>
-          </motion.div>
-
-          <div className="space-y-6">
-            {/* Amount Input with Slider */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="relative"
-            >
-              <Label className="text-gray-800 font-semibold text-sm mb-3 block">
-                Quantité (1.000L - 32.000L)
-              </Label>
-              
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Code Postal Input */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 font-bold text-xs">1</span>
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">Code postal</label>
+                </div>
                 <div className="relative">
-                  <Input
+                  <input
                     type="text"
-                    value={amount.toLocaleString()}
-                    onChange={(e) => handleAmountChange(e.target.value)}
-                    className={`text-xl font-bold py-4 pr-16 border-2 backdrop-blur-sm bg-white/80 rounded-xl transition-all duration-300 ${
-                      !isValidAmount
-                        ? 'border-red-400 bg-red-50/80'
-                        : 'border-red-200 hover:border-red-400 focus:border-red-500'
-                    } shadow-lg`}
-                    placeholder="3.000"
+                    value={postcode}
+                    onChange={handlePostcodeChange}
+                    placeholder="ex. 75001"
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-all ${
+                      !isValidPostcode && postcode.length === 5
+                        ? 'border-red-400 bg-red-50'
+                        : isValidPostcode && postcode.length === 5
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-gray-200 focus:border-red-500'
+                    }`}
+                    maxLength={5}
                   />
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                    <span className="text-lg font-bold text-red-600">L</span>
-                    {!isValidAmount && (
-                      <AlertCircle className="text-red-500" size={16} />
-                    )}
-                  </div>
-                </div>
-                
-                <div className="px-2">
-                  <div className="relative">
-                    <Slider
-                      value={[amount]}
-                      onValueChange={handleSliderChange}
-                      min={1000}
-                      max={32000}
-                      step={100}
-                      className="w-full [&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-4 [&_[role=slider]]:border-red-600 [&_[role=slider]]:bg-white [&_[role=slider]]:shadow-xl [&_[role=slider]]:ring-4 [&_[role=slider]]:ring-red-200/50 [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 hover:[&_[role=slider]]:scale-110 [&>span:first-child]:h-3 [&>span:first-child]:bg-gray-200 [&>span:first-child]:rounded-full [&>span:first-child]:shadow-lg [&>span:first-child]:border [&>span:first-child]:border-gray-300/50 [&>span>span]:bg-gradient-to-r [&>span>span]:from-red-500 [&>span>span]:to-red-600"
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>1.000L</span>
-                    <motion.span 
-                      className="text-red-600 font-semibold px-2 py-1 bg-red-100/80 rounded-full"
-                      initial={{ scale: 0.8, opacity: 0.5 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
+                  {postcode.length === 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute right-4 top-3"
                     >
-                      {amount.toLocaleString()}L
-                    </motion.span>
-                    <span>32.000L</span>
-                  </div>
-                </div>
-                
-                {!isValidAmount && (
-                  <div className="flex items-center space-x-2 text-red-500 text-xs bg-red-50/80 p-2 rounded-lg">
-                    <AlertCircle size={14} />
-                    <span>La quantité doit être entre 1.000L et 32.000L</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Postcode Input */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="relative"
-            >
-              <Label htmlFor="postcode" className="text-gray-800 font-semibold text-sm mb-3 block">
-                Code postal français *
-              </Label>
-              
-              <div className="relative">
-                <Input
-                  id="postcode"
-                  type="text"
-                  value={postcode}
-                  onChange={handlePostcodeChange}
-                  placeholder="ex. 75001"
-                  className={`py-4 text-lg backdrop-blur-sm bg-white/80 border-2 rounded-xl pr-12 transition-all duration-300 ${
-                    !isValidPostcode && postcode.length === 5
-                      ? 'border-red-400 bg-red-50/80'
-                      : 'border-red-200 hover:border-red-400 focus:border-red-500'
-                  } shadow-lg`}
-                  maxLength={5}
-                />
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  {!isValidPostcode && postcode.length === 5 ? (
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                      <div className="w-2 h-2 bg-white border border-gray-300 rounded-sm"></div>
-                      <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
-                    </div>
+                      {isValidPostcode ? (
+                        <CheckCircle className="text-green-500" size={20} />
+                      ) : (
+                        <AlertCircle className="text-red-500" size={20} />
+                      )}
+                    </motion.div>
                   )}
                 </div>
-              </div>
-              
-              {!isValidPostcode && postcode.length === 5 && (
-                <div className="mt-2 flex items-center space-x-2 text-red-500 text-xs bg-red-50/80 p-2 rounded-lg">
-                  <AlertCircle size={14} />
-                  <span>Veuillez saisir un code postal français valide (5 chiffres)</span>
-                </div>
-              )}
-            </motion.div>
-
-            {/* Quality Selection */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              <Label className="text-gray-800 font-semibold text-sm mb-3 block">
-                Qualité du fioul *
-              </Label>
-              
-              {!quality && (
-                <div className="mb-3 flex items-center space-x-2 text-red-600 text-sm bg-red-50/80 p-2 rounded-lg">
-                  <Info size={14} />
-                  <span>Veuillez choisir une qualité de fioul</span>
-                </div>
-              )}
-              
-              <div className="grid grid-cols-2 gap-3">
-                {Object.entries(products).map(([key, product]) => (
-                  <button
-                    key={key}
-                    onClick={() => setQuality(key)}
-                    className={`relative p-4 rounded-xl border-2 text-left transition-all duration-300 backdrop-blur-sm ${
-                      quality === key
-                        ? 'border-red-400 bg-red-50/80'
-                        : 'border-red-200/50 bg-white/60 hover:border-red-300'
-                    }`}
+                {!isValidPostcode && postcode.length === 5 && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500 text-sm"
                   >
-                    <div className="pr-8">
-                      <h4 className="font-bold text-lg text-gray-900 mb-1">{product.name}</h4>
-                      <div className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent mb-1">
-                        €{product.price.toFixed(2)}
-                      </div>
-                      <p className="text-gray-600 text-xs">{product.description}</p>
-                    </div>
-                  </button>
-                ))}
+                    Code postal valide requis
+                  </motion.p>
+                )}
               </div>
-            </motion.div>
 
-            {/* Price Display */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-            >
-              <div className="relative p-5 bg-gradient-to-br from-red-50/80 to-red-100/80 backdrop-blur-sm rounded-xl border border-red-200/50 shadow-lg">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-lg font-bold text-gray-900">
-                    {quality ? 'Prix total' : 'Prix estimé'}
-                  </span>
-                  <div className="flex items-center">
-                    <Euro className="h-6 w-6 text-red-600 mr-2" />
-                    <motion.span 
-                      className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent"
-                      key={calculations.totalPrice}
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {calculations.totalPrice}
-                    </motion.span>
+              {/* Amount Input */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-bold text-xs">2</span>
                   </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    Quantité: {amount.toLocaleString('fr-FR')}L
+                  </label>
                 </div>
-                
-                {!quality && (
-                  <div className="mb-3 text-xs text-gray-600 bg-amber-50/80 p-2 rounded-lg">
-                    * Prix basé sur le Fioul Standard. Veuillez choisir une qualité pour le prix final.
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => handleAmountChange(Number(e.target.value))}
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 text-lg font-semibold transition-all ${
+                      !isValidAmount
+                        ? 'border-red-400 bg-red-50'
+                        : 'border-gray-200 focus:border-blue-500'
+                    }`}
+                    min="1000"
+                    max="32000"
+                    step="500"
+                  />
+                  <span className="absolute right-4 top-3 text-gray-500 font-medium">L</span>
+                </div>
+                <input
+                  type="range"
+                  value={amount}
+                  onChange={(e) => handleAmountChange(Number(e.target.value))}
+                  min="1000"
+                  max="32000"
+                  step="500"
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #dc2626 0%, #dc2626 ${
+                      ((amount - 1000) / (32000 - 1000)) * 100
+                    }%, #e5e7eb ${((amount - 1000) / (32000 - 1000)) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>1.000L</span>
+                  <span>32.000L</span>
+                </div>
+                {!isValidAmount && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500 text-sm"
+                  >
+                    1.000L - 32.000L autorisé
+                  </motion.p>
+                )}
+              </div>
+            </div>
+
+            {/* Product Selection */}
+            <div className="mt-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-red-600 font-bold text-xs">3</span>
+                </div>
+                <label className="text-sm font-semibold text-gray-700">Choisir le produit</label>
+              </div>
+              <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {products.map((product) => (
+                    <motion.div
+                      key={product.id}
+                      whileHover={{ scale: 1.02 }}
+                      className={`relative flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        selectedProduct === product.id
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => setSelectedProduct(product.id)}
+                    >
+                      {product.badge && (
+                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs px-2 py-1 rounded-full font-bold">
+                          {product.badge}
+                        </div>
+                      )}
+                      <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor={product.id} className="cursor-pointer">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-semibold text-gray-900 text-sm">{product.name}</div>
+                              <div className="text-xs text-gray-600">{product.description}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-red-600">{product.price.toFixed(2)}€</div>
+                              <div className="text-xs text-gray-500">par L</div>
+                            </div>
+                          </div>
+                        </Label>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Right Column - Sticky Price Display */}
+        <div className="lg:sticky lg:top-6 lg:h-fit">
+          <motion.div
+            key={`${amount}-${selectedProduct}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="bg-gradient-to-br from-gray-50 to-red-50 rounded-2xl border border-red-100 overflow-hidden"
+          >
+            {/* Price Header */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Calculator size={20} />
+                  <span className="font-semibold">Votre prix</span>
+                </div>
+                {savings > 0 && (
+                  <div className="bg-white/20 px-2 py-1 rounded-full text-xs font-bold">
+                    {savings}€ économisés !
                   </div>
                 )}
-                
+              </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {/* Price Breakdown */}
+              <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-700">Livraison</span>
-                  <span className={`font-semibold ${
-                    calculations.deliveryFee === 0 
-                      ? 'text-green-600' 
-                      : 'text-gray-700'
-                  }`}>
-                    {calculations.deliveryFee === 0 ? (
-                      <>
-                        <Shield className="h-4 w-4 inline mr-1" />
-                        Gratuite
-                      </>
-                    ) : (
-                      `€${calculations.deliveryFee}`
-                    )}
-                  </span>
+                  <span className="text-gray-600">Prix de base ({amount.toLocaleString('fr-FR')}L)</span>
+                  <span className="font-semibold">{basePrice.toFixed(2)}€</span>
+                </div>
+
+                <div className="flex justify-between items-center text-sm">
+                  {deliveryFee > 0 ? (
+                    <>
+                      <span className="text-gray-600">Livraison</span>
+                      <span className="font-semibold">{deliveryFee.toFixed(2)}€</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-green-600 font-medium">Livraison gratuite</span>
+                      <span className="font-semibold text-green-600">
+                        <span className="line-through text-gray-400">39,00€</span>
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <hr className="border-gray-200" />
+
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-900">Prix total</span>
+                  <span className="text-2xl font-bold text-red-600">{totalPrice.toFixed(2)}€</span>
                 </div>
               </div>
-            </motion.div>
 
-            {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.6 }}
-            >
-              <Button 
-                onClick={handleOrderClick}
+              {/* Trust Elements */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <CheckCircle className="text-green-500" size={16} />
+                  <span>Qualité certifiée française</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Clock className="text-red-500" size={16} />
+                  <span>Livraison en 24-48h</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Shield className="text-green-500" size={16} />
+                  <span>Prix garantis compétitifs</span>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <motion.button
+                whileHover={{ scale: isFormValid ? 1.02 : 1 }}
+                whileTap={{ scale: isFormValid ? 0.98 : 1 }}
                 disabled={!isFormValid}
-                className={`w-full font-bold py-5 px-6 rounded-xl text-lg shadow-xl transition-all duration-300 ${
+                onClick={handleOrderClick}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center space-x-2 ${
                   isFormValid
-                    ? 'bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:via-red-700 hover:to-red-800 text-white hover:scale-[1.02]'
-                    : 'bg-gradient-to-r from-red-300 to-red-400 text-red-600 cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                <div className="flex items-center justify-center">
-                  <Truck className="h-5 w-5 mr-2" />
-                  {isFormValid ? 'Commander maintenant' : 
-                   !quality ? 'Veuillez choisir la qualité' : 
-                   'Veuillez remplir tous les champs'}
-                </div>
-              </Button>
-              
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center justify-center">
-                  <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white px-6 py-2 rounded-full shadow-lg flex items-center space-x-3 text-sm">
-                    <Shield className="h-4 w-4" />
-                    <span className="font-semibold">Paiement sécurisé</span>
-                    <Lock className="h-4 w-4" />
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-center space-x-4 text-xs text-gray-700 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                    <div className="w-2 h-2 bg-white border border-gray-300 rounded-sm"></div>
-                    <div className="w-2 h-2 bg-red-600 rounded-sm"></div>
-                  </div>
-                  <span className="font-medium">100% qualité française</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </motion.div>
-    </TooltipProvider>
-  );
-});
+                <span>{isFormValid ? 'Commander maintenant' : 'Compléter les champs'}</span>
+                {isFormValid && <ArrowRight size={20} />}
+              </motion.button>
 
-PriceCalculator.displayName = 'PriceCalculator';
+              {/* Urgency Element */}
+              {isFormValid && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center"
+                >
+                  <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 text-orange-700 px-3 py-2 rounded-lg text-sm font-medium">
+                    <div className="flex items-center justify-center space-x-1">
+                      <TrendingDown size={16} />
+                      <span>Prix actuels du marché • Réservez maintenant</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Free Delivery Badge */}
+              {deliveryFee === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center"
+                >
+                  <div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 px-3 py-2 rounded-full text-sm font-medium">
+                    <CheckCircle size={16} />
+                    <span>Livraison gratuite débloquée !</span>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default PriceCalculator;

@@ -1,4 +1,3 @@
-
 import { useDomainShop, type ShopType } from '@/hooks/useDomainShop';
 
 export interface MetaData {
@@ -74,6 +73,58 @@ const austrianShopMetaConfig: ShopMetaConfig = {
   }
 };
 
+// French-specific configuration
+const frenchShopMetaConfig: ShopMetaConfig = {
+  name: "Fuel Express France",
+  brand: "Fioul FR",
+  phone: "+33 1 23 45 67 89",
+  email: "contact@fuel-france.fr",
+  baseUrl: window.location.origin,
+  pages: {
+    home: {
+      title: "Fuel Express France - Fioul de chauffage au meilleur prix en France",
+      description: "Livraison de fioul domestique dans toute la France métropolitaine. Qualité française premium, livraison express, prix compétitifs depuis 1995.",
+      keywords: "fioul domestique, livraison fioul, prix fioul, France, qualité française"
+    },
+    impressum: {
+      title: "Mentions Légales - Fuel Express France",
+      description: "Mentions légales et informations juridiques de Fuel Express France."
+    },
+    agb: {
+      title: "CGV - Fuel Express France",
+      description: "Conditions générales de vente de Fuel Express France."
+    },
+    widerrufsrecht: {
+      title: "Droit de Rétractation - Fuel Express France",
+      description: "Droit de rétractation et informations pour les consommateurs français."
+    },
+    datenschutz: {
+      title: "Confidentialité - Fuel Express France",
+      description: "Politique de confidentialité conforme au RGPD de Fuel Express France."
+    },
+    kontakt: {
+      title: "Contact - Fuel Express France | Conseil Personnel",
+      description: "Contactez-nous pour un conseil personnel. Service dans toute la France métropolitaine.",
+      keywords: "contact, conseil, fioul, France, support"
+    },
+    service: {
+      title: "À Propos - Fuel Express France | Service Fioul Premium",
+      description: "Depuis 1995, votre partenaire de confiance pour le fioul en France. Qualité française, prix équitables, service personnel.",
+      keywords: "service, fioul, France, premium, qualité, depuis 1995"
+    },
+    liefergebiet: {
+      title: "Zones de Livraison - Fuel Express France | Couverture Nationale",
+      description: "Livraison de fioul dans toute la France métropolitaine. Découvrez nos zones de livraison et nos partenaires locaux.",
+      keywords: "zone livraison, France, national, partenaires, régions"
+    },
+    produkte: {
+      title: "Produits Fioul - Fioul Domestique & Additifs Premium",
+      description: "Produits fioul de haute qualité : fioul domestique standard et premium, combustibles à faible teneur en soufre.",
+      keywords: "fioul domestique, premium, additifs, qualité, France"
+    }
+  }
+};
+
 // Generic configuration for other domain shops
 const genericShopMetaConfig: ShopMetaConfig = {
   name: "Heizöl-Service",
@@ -130,7 +181,8 @@ const shopMetaConfigs: Record<ShopType, ShopMetaConfig> = {
   root: genericShopMetaConfig,
   stanton: genericShopMetaConfig,
   greenoil: genericShopMetaConfig,
-  austria: austrianShopMetaConfig
+  austria: austrianShopMetaConfig,
+  france: frenchShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): ShopMetaConfig {
