@@ -35,7 +35,7 @@ const Service = () => {
     },
     {
       icon: Users,
-      title: '45.000+ clients',
+      title: '150.000+ clients',
       description: 'Particuliers et professionnels nous font confiance'
     },
     {
@@ -195,7 +195,7 @@ const Service = () => {
                 et une livraison rapide dans toute la France.
               </p>
               <p className="text-red-100 leading-relaxed">
-                Avec plus de 45.000 clients satisfaits et 28 ans d'expérience, 
+                Avec plus de 150.000 clients satisfaits et 28 ans d'expérience, 
                 nous continuons d'innover pour vous offrir le meilleur service possible.
               </p>
             </div>
@@ -206,7 +206,7 @@ const Service = () => {
                 <div className="text-red-200">Années d'expérience</div>
               </div>
               <div className="bg-white/20 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold mb-2">45K+</div>
+                <div className="text-3xl font-bold mb-2">150K+</div>
                 <div className="text-red-200">Clients satisfaits</div>
               </div>
               <div className="bg-white/20 rounded-xl p-6 text-center">
