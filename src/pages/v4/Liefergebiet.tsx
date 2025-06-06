@@ -219,8 +219,8 @@ const Liefergebiet = () => {
               <div className="text-red-200">Délai minimum</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold mb-2">50km</div>
-              <div className="text-red-200">Distance max pompage</div>
+              <div className="text-4xl font-bold mb-2">24/7</div>
+              <div className="text-red-200">Service client</div>
             </div>
           </div>
         </motion.section>
