@@ -6,7 +6,6 @@ import Footer from '@/components/v4/Footer';
 import PriceCalculator from '@/components/v4/PriceCalculator';
 import StatsSection from '@/components/v4/StatsSection';
 import WhyChooseUs from '@/components/v4/WhyChooseUs';
-import TrustElements from '@/components/v4/TrustElements';
 import CustomerReviews from '@/components/v4/CustomerReviews';
 import FrenchRegionsMap from '@/components/v4/FrenchRegionsMap';
 import { Zap, Award } from 'lucide-react';
@@ -90,7 +89,6 @@ const Home = () => {
       <StatsSection />
       <WhyChooseUs />
       <FrenchRegionsMap />
-      <TrustElements />
       <CustomerReviews />
       <Footer />
     </div>
