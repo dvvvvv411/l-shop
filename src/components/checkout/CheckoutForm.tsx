@@ -74,6 +74,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { toast } = useToast();
   const t = useCheckoutTranslations();
 
+  // Check if current checkout is French
+  const isFrenchCheckout = () => {
+    const orderReferrer = localStorage.getItem('orderReferrer');
+    return orderReferrer === '/4/home';
+  };
+
   // Create the schema inside the component where `t` is available
   const orderSchema = z.object({
     customerEmail: z.string().email(t.validation.emailRequired),
@@ -567,18 +573,28 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className="border border-gray-200 rounded-lg p-4">
+                        <div className={`border border-gray-200 rounded-lg p-4 ${isFrenchCheckout() ? 'bg-gray-100 opacity-60' : ''}`}>
                           <div className="flex items-center space-x-3">
-                            <RadioGroupItem value="rechnung" id="rechnung" />
-                            <Label htmlFor="rechnung" className="flex-1 cursor-pointer">
+                            <RadioGroupItem 
+                              value="rechnung" 
+                              id="rechnung" 
+                              disabled={isFrenchCheckout()}
+                              className={isFrenchCheckout() ? 'opacity-50 cursor-not-allowed' : ''}
+                            />
+                            <Label 
+                              htmlFor="rechnung" 
+                              className={`flex-1 ${isFrenchCheckout() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
+                            >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className="font-semibold text-gray-900">{t.paymentSection.rechnung.title}</div>
-                                  <div className="text-sm text-gray-600">
+                                  <div className={`font-semibold ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-900'}`}>
+                                    {t.paymentSection.rechnung.title}
+                                  </div>
+                                  <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {t.paymentSection.rechnung.description}
                                   </div>
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-500'}`}>
                                   {t.paymentSection.rechnung.existingCustomers}
                                 </div>
                               </div>
