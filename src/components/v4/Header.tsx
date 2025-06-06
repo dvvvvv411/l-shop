@@ -56,13 +56,13 @@ const Header = () => {
           {/* Logo */}
           <Link 
             to="/4/home" 
-            className="flex items-center hover:scale-105 transition-transform duration-300"
+            className="lg:flex lg:items-center lg:ml-8 flex justify-center w-full lg:w-auto hover:scale-105 transition-transform duration-300"
           >
             {logoConfig.useImage && logoConfig.imageUrl ? (
               <img 
                 src={logoConfig.imageUrl} 
                 alt={logoConfig.name}
-                className={logoConfig.className}
+                className="h-20 lg:h-18 w-auto"
               />
             ) : (
               <div className="bg-gradient-to-br from-red-600 to-red-700 text-white p-3 rounded-xl shadow-lg">
@@ -105,7 +105,7 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-gray-600 hover:text-red-600 transition-colors"
+            className="lg:hidden absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-gray-600 hover:text-red-600 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

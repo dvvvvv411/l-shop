@@ -34,28 +34,24 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Company Info */}
           <div className="lg:col-span-1">
-            <Link to="/4/home" className="flex items-center space-x-3 mb-6">
+            <Link to="/4/home" className="flex items-center mb-6">
               {logoConfig.footerImageUrl ? (
                 <img 
                   src={logoConfig.footerImageUrl} 
                   alt={logoConfig.name}
-                  className="h-12 w-auto"
+                  className="h-18 w-auto"
                 />
               ) : logoConfig.useImage && logoConfig.imageUrl ? (
                 <img 
                   src={logoConfig.imageUrl} 
                   alt={logoConfig.name}
-                  className="h-12 w-auto filter brightness-0 invert"
+                  className="h-18 w-auto filter brightness-0 invert"
                 />
               ) : (
                 <div className="bg-gradient-to-br from-red-600 to-red-700 text-white p-3 rounded-xl">
                   <span className="text-xl font-bold">{logoConfig.textContent}</span>
                 </div>
               )}
-              <div>
-                <h3 className="text-xl font-bold">{logoConfig.name}</h3>
-                <p className="text-gray-300 text-sm">Qualité française premium</p>
-              </div>
             </Link>
             
             <p className="text-gray-300 leading-relaxed mb-6">
