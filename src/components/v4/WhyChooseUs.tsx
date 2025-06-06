@@ -157,7 +157,7 @@ const WhyChooseUs = () => {
               transition={{ duration: 4, repeat: Infinity }}
               className="absolute -bottom-6 -left-6 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl p-4 shadow-xl"
             >
-              <div className="text-2xl font-bold">45k+</div>
+              <div className="text-2xl font-bold">1450k+</div>
               <div className="text-sm">Clients</div>
             </motion.div>
           </motion.div>
