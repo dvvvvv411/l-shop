@@ -51,16 +51,9 @@ const Kontakt = () => {
     }));
   };
   const contactCards = [{
-    icon: Phone,
-    title: 'Téléphone',
-    primary: '+33 1 23 45 67 89',
-    secondary: 'Lun-Ven 8h-18h',
-    color: 'from-red-500 to-red-600',
-    bgColor: 'bg-red-50'
-  }, {
     icon: Mail,
     title: 'Email',
-    primary: 'contact@fuel-france.fr',
+    primary: 'info@fioul-rapide.fr',
     secondary: 'Réponse sous 24h',
     color: 'from-blue-500 to-blue-600',
     bgColor: 'bg-blue-50'
@@ -127,7 +120,7 @@ const Kontakt = () => {
       }} transition={{
         duration: 0.8,
         delay: 0.2
-      }} className="grid md:grid-cols-3 gap-6 mb-16 -mt-10 relative z-10">
+      }} className="grid md:grid-cols-2 gap-6 mb-16 -mt-10 relative z-10">
           {contactCards.map((card, index) => {
           const Icon = card.icon;
           return <Card key={index} className={`${card.bgColor} border-0 shadow-lg hover:shadow-xl transition-all duration-300`}>
