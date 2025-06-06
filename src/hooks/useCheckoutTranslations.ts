@@ -119,6 +119,15 @@ export interface CheckoutTranslations {
     securePayment: string; // Added for "Sichere Zahlung"
     sslEncrypted: string; // Added for "SSL verschlüsselt"
   };
+  // Toast notifications
+  toasts: {
+    noOrderDataTitle: string;
+    noOrderDataDescription: string;
+    invalidOrderDataTitle: string;
+    invalidOrderDataDescription: string;
+    loadOrderDataErrorTitle: string;
+    loadOrderDataErrorDescription: string;
+  };
   // Validation messages
   validation: {
     emailRequired: string;
@@ -246,6 +255,14 @@ const translations = {
       securePayment: 'Sichere Zahlung',
       sslEncrypted: 'SSL verschlüsselt'
     },
+    toasts: {
+      noOrderDataTitle: 'Keine Bestelldaten gefunden',
+      noOrderDataDescription: 'Bitte führen Sie zuerst eine Preisberechnung durch.',
+      invalidOrderDataTitle: 'Ungültige Bestelldaten',
+      invalidOrderDataDescription: 'Bitte führen Sie eine neue Preisberechnung durch.',
+      loadOrderDataErrorTitle: 'Fehler beim Laden der Bestelldaten',
+      loadOrderDataErrorDescription: 'Bitte führen Sie eine neue Preisberechnung durch.'
+    },
     validation: {
       emailRequired: 'Gültige E-Mail-Adresse erforderlich',
       firstNameRequired: 'Vorname ist erforderlich',
@@ -369,6 +386,14 @@ const translations = {
     header: {
       securePayment: 'Paiement sécurisé',
       sslEncrypted: 'Chiffrement SSL'
+    },
+    toasts: {
+      noOrderDataTitle: 'Aucune donnée de commande trouvée',
+      noOrderDataDescription: 'Veuillez d\'abord effectuer un calcul de prix.',
+      invalidOrderDataTitle: 'Données de commande non valides',
+      invalidOrderDataDescription: 'Veuillez effectuer un nouveau calcul de prix.',
+      loadOrderDataErrorTitle: 'Erreur lors du chargement des données de commande',
+      loadOrderDataErrorDescription: 'Veuillez effectuer un nouveau calcul de prix.'
     },
     validation: {
       emailRequired: 'Adresse e-mail valide requise',

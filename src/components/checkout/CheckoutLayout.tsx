@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -62,8 +63,8 @@ const CheckoutLayout = () => {
     if (!storedOrderData) {
       console.log('No order data found in localStorage, redirecting to calculator');
       toast({
-        title: 'Keine Bestelldaten gefunden',
-        description: 'Bitte führen Sie zuerst eine Preisberechnung durch.',
+        title: t.toasts.noOrderDataTitle,
+        description: t.toasts.noOrderDataDescription,
         variant: 'destructive'
       });
       navigate('/');
@@ -78,8 +79,8 @@ const CheckoutLayout = () => {
       if (!parsedData.product || !parsedData.amount || !parsedData.basePrice) {
         console.log('Invalid order data structure, redirecting to calculator');
         toast({
-          title: 'Ungültige Bestelldaten',
-          description: 'Bitte führen Sie eine neue Preisberechnung durch.',
+          title: t.toasts.invalidOrderDataTitle,
+          description: t.toasts.invalidOrderDataDescription,
           variant: 'destructive'
         });
         navigate('/');
@@ -90,13 +91,13 @@ const CheckoutLayout = () => {
     } catch (error) {
       console.error('Error parsing order data:', error);
       toast({
-        title: 'Fehler beim Laden der Bestelldaten',
-        description: 'Bitte führen Sie eine neue Preisberechnung durch.',
+        title: t.toasts.loadOrderDataErrorTitle,
+        description: t.toasts.loadOrderDataErrorDescription,
         variant: 'destructive'
       });
       navigate('/');
     }
-  }, [navigate, toast]);
+  }, [navigate, toast, t.toasts]);
 
   const handleBack = () => {
     // Try to go back in history, fallback to homepage if no history
