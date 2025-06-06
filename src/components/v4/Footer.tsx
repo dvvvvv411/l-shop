@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Mail, MapPin, Clock } from 'lucide-react';
 import { getLogoConfigForV4 } from '@/config/logoConfig';
 
 const Footer = () => {
@@ -35,7 +35,13 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <Link to="/4/home" className="flex items-center space-x-3 mb-6">
-              {logoConfig.useImage && logoConfig.imageUrl ? (
+              {logoConfig.footerImageUrl ? (
+                <img 
+                  src={logoConfig.footerImageUrl} 
+                  alt={logoConfig.name}
+                  className="h-12 w-auto"
+                />
+              ) : logoConfig.useImage && logoConfig.imageUrl ? (
                 <img 
                   src={logoConfig.imageUrl} 
                   alt={logoConfig.name}
@@ -69,17 +75,9 @@ const Footer = () => {
             <h4 className="text-lg font-bold mb-6 text-red-400">Contact</h4>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-red-400" />
-                <div>
-                  <p className="font-semibold">+33 1 23 45 67 89</p>
-                  <p className="text-gray-400 text-sm">Lun-Ven 8h-18h</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-red-400" />
                 <div>
-                  <p className="font-semibold">contact@fuel-france.fr</p>
+                  <p className="font-semibold">info@fioul-rapide.fr</p>
                   <p className="text-gray-400 text-sm">Réponse sous 24h</p>
                 </div>
               </div>
@@ -87,10 +85,10 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-red-400 mt-1" />
                 <div>
-                  <p className="font-semibold">Fuel Express France</p>
+                  <p className="font-semibold">Energy OIL Company Sàrl</p>
                   <p className="text-gray-400 text-sm">
-                    123 Avenue de la République<br />
-                    75011 Paris, France
+                    95 rue Compans<br />
+                    75019 Paris, France
                   </p>
                 </div>
               </div>
@@ -145,19 +143,30 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Company Legal Info */}
         <div className="border-t border-gray-700 mt-12 pt-8">
-          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-            <div className="text-gray-400 text-sm">
-              © 2023 Fuel Express France. Tous droits réservés.
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+            <div>
+              <h5 className="font-semibold text-red-400 mb-3">Informations légales</h5>
+              <div className="text-gray-400 text-sm space-y-1">
+                <p>Energy OIL Company Sàrl</p>
+                <p>SIRET: 40538489200015</p>
+                <p>TVA intracommunautaire: FR03145160497</p>
+                <p>RCS Paris: 405 384 892</p>
+              </div>
             </div>
-            
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
+            <div className="flex items-center justify-end space-x-6 text-sm text-gray-400">
               <span>Paiement sécurisé SSL</span>
               <span>•</span>
               <span>Livraison assurée</span>
               <span>•</span>
               <span>Service client français</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+            <div className="text-gray-400 text-sm">
+              © 2023 Energy OIL Company Sàrl. Tous droits réservés.
             </div>
           </div>
         </div>

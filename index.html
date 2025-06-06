@@ -1,123 +1,26 @@
 
-<!DOCTYPE html>
-<html lang="de">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23dc2626'/><text x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-family='Arial, sans-serif' font-weight='bold'>F</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fioul domestique livré rapidement - Prix compétitifs en France</title>
+    <meta name="description" content="Commandez votre fioul domestique en ligne. Livraison rapide dans toute la France, prix transparents et service client de qualité. Devis gratuit en 2 minutes." />
+    <meta name="keywords" content="fioul domestique, livraison fioul, prix fioul, commande fioul en ligne, chauffage, énergie, France" />
     
-    <!-- Theme configuration -->
-    <meta name="theme-color" content="#dc2626" />
-    <meta name="msapplication-TileColor" content="#dc2626" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Fioul domestique livré rapidement - Prix compétitifs en France" />
+    <meta property="og:description" content="Commandez votre fioul domestique en ligne. Livraison rapide dans toute la France, prix transparents et service client de qualité." />
     
-    <!-- Early metadata initialization -->
-    <script>
-      // Early metadata detection and initialization
-      (function() {
-        const pathname = window.location.pathname;
-        
-        // Generic shop configuration
-        const genericShopConfig = {
-          name: "Heizöl-Service",
-          brand: "Heizöl",
-          phone: "",
-          email: "",
-          baseUrl: window.location.origin
-        };
-
-        // Generic page metadata configuration
-        const genericPageMetaConfig = {
-          home: {
-            title: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung deutschlandweit",
-            description: "Günstiges Heizöl online bestellen. Schnelle Lieferung, beste Qualität, faire Preise. Vergleichen Sie Heizölpreise und sparen Sie beim Heizöl-Kauf."
-          },
-          impressum: {
-            title: "Impressum - Heizöl-Service",
-            description: "Impressum und rechtliche Informationen."
-          },
-          agb: {
-            title: "AGB - Heizöl-Service",
-            description: "Allgemeine Geschäftsbedingungen."
-          },
-          widerrufsrecht: {
-            title: "Widerrufsrecht - Heizöl-Service", 
-            description: "Widerrufsrecht und Widerrufsbelehrung."
-          },
-          datenschutz: {
-            title: "Datenschutz - Heizöl-Service",
-            description: "Datenschutzerklärung und Informationen zum Datenschutz."
-          },
-          kontakt: {
-            title: "Kontakt - Heizöl-Service | Persönliche Beratung",
-            description: "Kontaktieren Sie uns für persönliche Beratung. Kompetente Fachberatung rund um Heizöl und Lieferung."
-          },
-          service: {
-            title: "Service - Heizöl-Service | Premium Heizöl-Service",
-            description: "Erstklassiger Heizöl-Service: Schnelle Lieferung, zertifizierte Partner, Premium-Qualität für Ihren Heizbedarf."
-          },
-          liefergebiet: {
-            title: "Liefergebiete - Heizöl-Service | Deutschlandweite Abdeckung",
-            description: "Heizöl-Lieferung deutschlandweit. Entdecken Sie unsere Liefergebiete und Partner-Standorte in ganz Deutschland."
-          },
-          produkte: {
-            title: "Heizöl-Produkte - Premium EL & Additive",
-            description: "Hochwertige Heizöl-Produkte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle für optimale Heizleistung."
-          }
-        };
-
-        // Detect page
-        function detectPage(pathname) {
-          const cleanPath = pathname.replace(/^\/[12]\//, '').replace(/\/$/, '');
-          if (!cleanPath || cleanPath === 'home') return 'home';
-          return cleanPath;
-        }
-
-        // Set metadata helper
-        function setMeta(name, content, property = false) {
-          const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-          let meta = document.querySelector(selector);
-          if (!meta) {
-            meta = document.createElement('meta');
-            if (property) {
-              meta.setAttribute('property', name);
-            } else {
-              meta.setAttribute('name', name);
-            }
-            document.head.appendChild(meta);
-          }
-          meta.setAttribute('content', content);
-        }
-
-        // Initialize metadata
-        const page = detectPage(pathname);
-        const pageMeta = genericPageMetaConfig[page] || genericPageMetaConfig.home;
-
-        // Set initial metadata
-        document.title = pageMeta.title;
-        setMeta('description', pageMeta.description);
-        setMeta('application-name', genericShopConfig.name);
-        setMeta('author', genericShopConfig.name);
-
-        // Set OpenGraph metadata
-        setMeta('og:title', pageMeta.title, true);
-        setMeta('og:description', pageMeta.description, true);
-        setMeta('og:site_name', genericShopConfig.name, true);
-        setMeta('og:type', 'website', true);
-        setMeta('og:locale', 'de_DE', true);
-
-        // Set Twitter metadata
-        setMeta('twitter:card', 'summary_large_image');
-        setMeta('twitter:title', pageMeta.title);
-        setMeta('twitter:description', pageMeta.description);
-
-        console.log(`Early metadata initialized for ${genericShopConfig.name} - ${page}`);
-      })();
-    </script>
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Fioul domestique livré rapidement - Prix compétitifs en France" />
+    <meta property="twitter:description" content="Commandez votre fioul domestique en ligne. Livraison rapide dans toute la France, prix transparents et service client de qualité." />
   </head>
-
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

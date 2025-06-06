@@ -5,6 +5,7 @@ export interface LogoConfig {
   textContent: string;
   imageUrl?: string;
   useImage?: boolean;
+  footerImageUrl?: string;
 }
 
 export const logoConfigs: Record<string, LogoConfig> = {
@@ -30,11 +31,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     useImage: true
   },
   '/4/home': {
-    name: 'Fuel Express France',
+    name: 'Fioul Rapide',
     className: 'h-16 w-auto',
     textContent: 'Fioul FR',
-    imageUrl: 'https://i.imgur.com/8j9KqWP.png',
-    useImage: true
+    imageUrl: 'https://i.imgur.com/TLLkTFB.png',
+    useImage: true,
+    footerImageUrl: 'https://i.imgur.com/ew2noHy.png'
   },
   // Domain-specific configurations
   'stanton': {
@@ -59,11 +61,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     useImage: true
   },
   'france': {
-    name: 'Fuel Express France',
+    name: 'Fioul Rapide',
     className: 'h-16 w-auto',
     textContent: 'Fioul FR',
-    imageUrl: 'https://i.imgur.com/8j9KqWP.png',
-    useImage: true
+    imageUrl: 'https://i.imgur.com/TLLkTFB.png',
+    useImage: true,
+    footerImageUrl: 'https://i.imgur.com/ew2noHy.png'
   },
   'root': {
     name: 'HeizölDirekt',

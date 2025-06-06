@@ -24,36 +24,40 @@ const Impressum = () => {
               <section>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Éditeur du site</h2>
                 <div className="bg-red-50/80 p-6 rounded-xl">
-                  <p><strong>Fuel Express France</strong></p>
-                  <p>SARL au capital de 50.000 €</p>
-                  <p>RCS Paris : 123 456 789</p>
-                  <p>SIRET : 123 456 789 00012</p>
-                  <p>TVA intracommunautaire : FR 12 123456789</p>
-                  <p>Code APE : 4671Z</p>
+                  <p><strong>Energy OIL Company Sàrl</strong></p>
+                  <p>95 rue Compans</p>
+                  <p>75019 Paris</p>
+                  <p>France</p>
                 </div>
               </section>
 
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Siège social</h2>
-                <p>
-                  123 Avenue de la République<br />
-                  75011 Paris<br />
-                  France
-                </p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Informations légales</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p><strong>SIRET :</strong> 40538489200015</p>
+                    <p><strong>TVA intracommunautaire :</strong> FR03145160497</p>
+                    <p><strong>RCS :</strong> Paris 405 384 892</p>
+                  </div>
+                  <div>
+                    <p><strong>Code APE :</strong> 4671Z</p>
+                    <p><strong>Forme juridique :</strong> SARL</p>
+                  </div>
+                </div>
               </section>
 
               <section>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact</h2>
                 <p>
-                  <strong>Téléphone :</strong> +33 1 23 45 67 89<br />
-                  <strong>Email :</strong> contact@fuel-france.fr<br />
+                  <strong>Email :</strong> info@fioul-rapide.fr<br />
+                  <strong>Site web :</strong> fioul-rapide.fr<br />
                   <strong>Horaires :</strong> Lundi - Vendredi : 8h00 - 18h00
                 </p>
               </section>
 
               <section>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Directeur de la publication</h2>
-                <p>Pierre Dubois, Gérant</p>
+                <p>Energy OIL Company Sàrl</p>
               </section>
 
               <section>

@@ -41,12 +41,12 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#7c3aed',
     faviconIcon: 'mountain'
   },
-  'fuel-france.fr': {
+  'fioul-rapide.fr': {
     shopType: 'france',
-    name: 'Fuel Express France',
+    name: 'Fioul Rapide',
     brand: 'Fioul FR',
-    phone: '+33 1 23 45 67 89',
-    email: 'contact@fuel-france.fr',
+    phone: '',
+    email: 'info@fioul-rapide.fr',
     faviconColor: '#dc2626',
     faviconIcon: 'flame'
   }

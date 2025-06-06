@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, Clock } from 'lucide-react';
+import { Menu, X, Mail, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
 import { getLogoConfigForV4 } from '@/config/logoConfig';
@@ -32,10 +32,6 @@ const Header = () => {
         <div className="container mx-auto flex justify-between items-center text-sm">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
-              <Phone className="h-4 w-4" />
-              <span>Conseil personnel 8h-18h</span>
-            </div>
-            <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
               <span>Livraison rapide en France</span>
             </div>
@@ -43,7 +39,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Mail className="h-4 w-4" />
-              <span>contact@fuel-france.fr</span>
+              <span>info@fioul-rapide.fr</span>
             </div>
             <div className="flex space-x-1">
               <div className="w-3 h-2 bg-blue-600"></div>
