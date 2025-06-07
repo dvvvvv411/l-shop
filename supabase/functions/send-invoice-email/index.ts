@@ -8,6 +8,253 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// French email template generator
+const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any, bankAccount: any) => {
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture ${invoiceNumber}</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:AllowPNG/>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb;">
+        <tr>
+            <td align="center" style="padding: 24px;">
+                <!-- Main Container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="640" style="max-width: 640px; width: 100%;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #2ed573; border-radius: 12px 12px 0 0; padding: 32px; text-align: center;">
+                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; font-family: Arial, sans-serif;">Votre facture est prête !</h1>
+                            <p style="color: #ffffff; font-size: 16px; margin: 0; font-family: Arial, sans-serif;">Merci pour votre commande chez ${shop.company_name}</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="background-color: #ffffff; padding: 32px; border-radius: 0 0 12px 12px;">
+                            
+                            <!-- Section Title -->
+                            <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">📋 Détails de la commande</h2>
+                            
+                            <!-- Order Details Grid -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Numéro de commande</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.order_number}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Numéro de facture</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${invoiceNumber}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Client</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.customer_name}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Produit</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.product || 'Fioul Standard'}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Quantité</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.liters.toLocaleString('fr-FR')} litres</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Adresse de livraison</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                        </td>
+                    </tr>
+                    
+                    <!-- Total Card -->
+                    <tr>
+                        <td style="padding: 12px 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #2ed573; border-radius: 12px;">
+                                <tr>
+                                    <td style="padding: 24px; text-align: center;">
+                                        <div style="color: #ffffff; font-size: 16px; font-weight: 500; margin-bottom: 8px; font-family: Arial, sans-serif;">Montant total</div>
+                                        <div style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; font-family: Arial, sans-serif;">${order.total_amount.toFixed(2)}€</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    ${bankAccount ? `
+                    <!-- Payment Information -->
+                    <tr>
+                        <td style="padding: 12px 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px;">
+                                <tr>
+                                    <td style="padding: 32px;">
+                                        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">💳 Informations de paiement</h2>
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                            <tr>
+                                                <td style="padding: 20px;">
+                                                    <h3 style="margin-top: 0; color: #1976d2; font-family: Arial, sans-serif;">Coordonnées bancaires pour virement</h3>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
+                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                                                    <tr>
+                                                                        <td style="padding: 16px;">
+                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Banque</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bank_name}</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
+                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                                                    <tr>
+                                                                        <td style="padding: 16px;">
+                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Titulaire du compte</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.account_holder}</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
+                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                                                    <tr>
+                                                                        <td style="padding: 16px;">
+                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.iban}</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
+                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                                                    <tr>
+                                                                        <td style="padding: 16px;">
+                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">${bankAccount.bic ? 'BIC' : 'Référence'}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bic || `<strong>${order.order_number}</strong>`}</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        ${bankAccount.bic ? `
+                                                        <tr>
+                                                            <td colspan="2" style="padding: 8px 0;">
+                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                                                    <tr>
+                                                                        <td style="padding: 16px;">
+                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Référence</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;"><strong>${order.order_number}</strong></div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        ` : ''}
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                                            <tr>
+                                                <td style="padding: 15px;">
+                                                    <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
+                                                        <strong>Note importante :</strong> Veuillez indiquer obligatoirement le numéro de commande <strong>${order.order_number}</strong> comme référence lors du virement afin que nous puissions identifier correctement votre paiement.
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    ` : ''}
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 12px 0 0 0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #1f2937; border-radius: 12px;">
+                                <tr>
+                                    <td style="padding: 32px; text-align: center;">
+                                        <div style="color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 16px; font-family: Arial, sans-serif;">${shop.company_name}</div>
+                                        ${shop.company_address ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">${shop.company_address}, ${shop.company_postcode} ${shop.company_city}</div>` : ''}
+                                        ${shop.company_phone ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Tél : ${shop.company_phone}</div>` : ''}
+                                        ${shop.company_email ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">E-mail : <a href="mailto:${shop.company_email}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_email}</a></div>` : ''}
+                                        ${shop.company_website ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Web : <a href="${shop.company_website}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_website}</a></div>` : ''}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+  `;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -35,6 +282,10 @@ serve(async (req) => {
       console.error('Order fetch error:', orderError);
       throw new Error('Order not found')
     }
+
+    // Detect language based on domain
+    const isFrench = order.origin_domain === 'fioul-rapide.fr';
+    console.log('Language detection:', { domain: order.origin_domain, isFrench });
 
     // Get SMTP configuration based on order domain
     let smtpConfig = null
@@ -141,11 +392,19 @@ serve(async (req) => {
     // Initialize Resend with the SMTP config's API key
     const resend = new Resend(smtpConfig.resend_api_key)
 
-    // Create email content
+    // Create email content based on language
     const shop = smtpConfig.shops || { company_name: 'Heizöl-Express GmbH', name: 'Heizöl-Express' }
-    const emailSubject = `Ihre Rechnung - Bestellung ${order.order_number}`
+    
+    let emailSubject: string;
+    let emailHtml: string;
 
-    const emailHtml = `
+    if (isFrench) {
+      emailSubject = `Votre facture - Commande ${order.order_number}`;
+      emailHtml = generateFrenchInvoiceEmail(order, invoiceNumber, shop, bankAccount);
+    } else {
+      // German email (existing template)
+      emailSubject = `Ihre Rechnung - Bestellung ${order.order_number}`;
+      emailHtml = `
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -387,7 +646,8 @@ serve(async (req) => {
     </table>
 </body>
 </html>
-    `
+      `;
+    }
 
     // Prepare email attachments
     const attachments = []
@@ -406,6 +666,7 @@ serve(async (req) => {
 
     console.log('Sending email to:', order.customer_email);
     console.log('From:', smtpConfig.sender_email);
+    console.log('Language:', isFrench ? 'French' : 'German');
     console.log('Attachments:', attachments.length);
 
     // Send email using Resend
