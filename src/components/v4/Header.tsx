@@ -22,6 +22,11 @@ const Header = () => {
     return isProductionFrenchShop ? path : `/4${path}`;
   };
 
+  // Logo should always go to root domain
+  const getLogoUrl = () => {
+    return '/';
+  };
+
   const isActive = (path: string) => {
     const dynamicPath = getUrl(path);
     if (path === '/home') {
@@ -32,11 +37,10 @@ const Header = () => {
   };
 
   const scrollToCalculator = () => {
-    // If we're already on the home page, just scroll
-    const homePath = getUrl('/home');
-    const rootPath = getUrl('/');
-    const isOnHome = location.pathname === homePath || location.pathname === rootPath || 
-                     (isProductionFrenchShop && location.pathname === '/');
+    // Check if we're on the home page (either root or with prefix)
+    const isOnRootHome = location.pathname === '/';
+    const isOnPrefixedHome = location.pathname === '/4/home' || location.pathname === '/4/';
+    const isOnHome = isOnRootHome || isOnPrefixedHome;
     
     if (isOnHome) {
       const calculatorElement = document.querySelector('#calculator');
@@ -47,8 +51,8 @@ const Header = () => {
         });
       }
     } else {
-      // If we're on a different page, navigate to home first then scroll
-      navigate(isProductionFrenchShop ? '/' : '/4/home');
+      // Navigate to root home and then scroll
+      navigate('/');
       setTimeout(() => {
         const calculatorElement = document.querySelector('#calculator');
         if (calculatorElement) {
@@ -98,9 +102,9 @@ const Header = () => {
       {/* Main Header */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo - Always goes to root domain */}
           <Link 
-            to={isProductionFrenchShop ? '/' : '/4/home'} 
+            to={getLogoUrl()} 
             className="lg:flex lg:items-center lg:ml-8 flex justify-center w-full lg:w-auto hover:scale-105 transition-transform duration-300"
           >
             {logoConfig.useImage && logoConfig.imageUrl ? (
