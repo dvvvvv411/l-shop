@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useOrderTranslations } from '@/hooks/useOrderTranslations';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'> & {
@@ -15,6 +16,7 @@ export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const t = useOrderTranslations();
 
   // Always fetch all orders (including hidden) - filtering happens in UI
   const fetchOrders = async () => {
@@ -55,7 +57,7 @@ export const useOrders = () => {
       console.error('Error fetching orders:', error);
       toast({
         title: 'Fehler',
-        description: 'Bestellungen konnten nicht geladen werden.',
+        description: t.errors.fetchOrders,
         variant: 'destructive',
       });
     } finally {
@@ -94,7 +96,7 @@ export const useOrders = () => {
           console.log('Duplicate request detected, ignoring...');
           toast({
             title: 'Information',
-            description: 'Diese Bestellung wurde bereits verarbeitet.',
+            description: t.info.orderProcessed,
           });
           return null;
         }
@@ -106,7 +108,7 @@ export const useOrders = () => {
 
       toast({
         title: 'Erfolg',
-        description: 'Bestellung wurde erfolgreich erstellt.',
+        description: t.success.orderCreated,
       });
 
       return data;
@@ -114,7 +116,7 @@ export const useOrders = () => {
       console.error('Error creating order:', error);
       toast({
         title: 'Fehler',
-        description: 'Bestellung konnte nicht erstellt werden.',
+        description: t.errors.createOrder,
         variant: 'destructive',
       });
       throw error;
@@ -141,7 +143,7 @@ export const useOrders = () => {
 
       toast({
         title: 'Erfolg',
-        description: 'Bestellstatus wurde aktualisiert.',
+        description: t.success.statusUpdated,
       });
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -149,7 +151,7 @@ export const useOrders = () => {
       fetchOrders();
       toast({
         title: 'Fehler',
-        description: 'Bestellstatus konnte nicht aktualisiert werden.',
+        description: t.errors.updateStatus,
         variant: 'destructive',
       });
       throw error;
@@ -176,7 +178,7 @@ export const useOrders = () => {
 
       toast({
         title: 'Erfolg',
-        description: 'Bestellung wurde ausgeblendet.',
+        description: t.success.orderHidden,
       });
     } catch (error) {
       console.error('Error hiding order:', error);
@@ -184,7 +186,7 @@ export const useOrders = () => {
       fetchOrders();
       toast({
         title: 'Fehler',
-        description: 'Bestellung konnte nicht ausgeblendet werden.',
+        description: t.errors.hideOrder,
         variant: 'destructive',
       });
       throw error;
@@ -211,7 +213,7 @@ export const useOrders = () => {
 
       toast({
         title: 'Erfolg',
-        description: 'Bestellung wurde wieder eingeblendet.',
+        description: t.success.orderUnhidden,
       });
     } catch (error) {
       console.error('Error unhiding order:', error);
@@ -219,7 +221,7 @@ export const useOrders = () => {
       fetchOrders();
       toast({
         title: 'Fehler',
-        description: 'Bestellung konnte nicht wieder eingeblendet werden.',
+        description: t.errors.unhideOrder,
         variant: 'destructive',
       });
       throw error;
