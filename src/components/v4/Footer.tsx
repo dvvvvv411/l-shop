@@ -3,22 +3,33 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Clock } from 'lucide-react';
 import { getLogoConfigForV4 } from '@/config/logoConfig';
+import { useDomainShop } from '@/hooks/useDomainShop';
 
 const Footer = () => {
   const logoConfig = getLogoConfigForV4();
+  const shopConfig = useDomainShop();
+  
+  // Determine if we should use root URLs (production French shop) or prefixed URLs (preview)
+  const isProductionFrenchShop = shopConfig.shopType === 'france' && 
+    typeof window !== 'undefined' && 
+    window.location.hostname === 'fioul-rapide.fr';
+  
+  const getUrl = (path: string) => {
+    return isProductionFrenchShop ? path : `/4${path}`;
+  };
 
   const footerLinks = {
     company: [
-      { label: 'Service', href: '/4/service' },
-      { label: 'Produits', href: '/4/produits' },
-      { label: 'Zones de livraison', href: '/4/livraison' },
-      { label: 'Contact', href: '/4/contact' }
+      { label: 'Service', href: getUrl('/service') },
+      { label: 'Produits', href: getUrl('/produits') },
+      { label: 'Zones de livraison', href: getUrl('/livraison') },
+      { label: 'Contact', href: getUrl('/contact') }
     ],
     legal: [
-      { label: 'Mentions légales', href: '/4/mentions-legales' },
-      { label: 'CGV', href: '/4/cgv' },
-      { label: 'Confidentialité', href: '/4/confidentialite' },
-      { label: 'Droit de rétractation', href: '/4/retractation' }
+      { label: 'Mentions légales', href: getUrl('/mentions-legales') },
+      { label: 'CGV', href: getUrl('/cgv') },
+      { label: 'Confidentialité', href: getUrl('/confidentialite') },
+      { label: 'Droit de rétractation', href: getUrl('/retractation') }
     ]
   };
 
@@ -34,7 +45,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Company Info */}
           <div className="lg:col-span-1">
-            <Link to="/4/home" className="flex items-center mb-6">
+            <Link to={getUrl('/home')} className="flex items-center mb-6">
               {logoConfig.footerImageUrl ? (
                 <img 
                   src={logoConfig.footerImageUrl} 
