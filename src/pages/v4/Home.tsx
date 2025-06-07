@@ -9,10 +9,10 @@ import WhyChooseUs from '@/components/v4/WhyChooseUs';
 import CustomerReviews from '@/components/v4/CustomerReviews';
 import FrenchRegionsMap from '@/components/v4/FrenchRegionsMap';
 import { Zap, Award } from 'lucide-react';
-import { usePageMeta } from '@/hooks/usePageMeta';
+import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 
 const Home = () => {
-  usePageMeta('home');
+  useDomainPageMeta('home');
   
   const scrollToCalculator = () => {
     const calculatorElement = document.querySelector('#calculator');

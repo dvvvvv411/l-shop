@@ -4,23 +4,41 @@ import { Menu, X, Mail, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getLogoConfigForV4 } from '@/config/logoConfig';
+import { useDomainShop } from '@/hooks/useDomainShop';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const logoConfig = getLogoConfigForV4();
+  const shopConfig = useDomainShop();
+
+  // Determine if we should use root URLs (production French shop) or prefixed URLs (preview)
+  const isProductionFrenchShop = shopConfig.shopType === 'france' && 
+    typeof window !== 'undefined' && 
+    window.location.hostname === 'fioul-rapide.fr';
+  
+  const getUrl = (path: string) => {
+    return isProductionFrenchShop ? path : `/4${path}`;
+  };
 
   const isActive = (path: string) => {
-    if (path === '/4/home') {
-      return location.pathname === '/4/home' || location.pathname === '/4/';
+    const dynamicPath = getUrl(path);
+    if (path === '/home') {
+      return location.pathname === dynamicPath || location.pathname === getUrl('/') || 
+             (isProductionFrenchShop && location.pathname === '/');
     }
-    return location.pathname === path;
+    return location.pathname === dynamicPath;
   };
 
   const scrollToCalculator = () => {
     // If we're already on the home page, just scroll
-    if (location.pathname === '/4/home' || location.pathname === '/4/') {
+    const homePath = getUrl('/home');
+    const rootPath = getUrl('/');
+    const isOnHome = location.pathname === homePath || location.pathname === rootPath || 
+                     (isProductionFrenchShop && location.pathname === '/');
+    
+    if (isOnHome) {
       const calculatorElement = document.querySelector('#calculator');
       if (calculatorElement) {
         calculatorElement.scrollIntoView({ 
@@ -30,7 +48,7 @@ const Header = () => {
       }
     } else {
       // If we're on a different page, navigate to home first then scroll
-      navigate('/4/home');
+      navigate(isProductionFrenchShop ? '/' : '/4/home');
       setTimeout(() => {
         const calculatorElement = document.querySelector('#calculator');
         if (calculatorElement) {
@@ -45,11 +63,11 @@ const Header = () => {
   };
 
   const navigationItems = [
-    { href: '/4/home', label: 'Accueil' },
-    { href: '/4/produits', label: 'Produits' },
-    { href: '/4/livraison', label: 'Zones de livraison' },
-    { href: '/4/service', label: 'Service' },
-    { href: '/4/contact', label: 'Contact' }
+    { href: '/home', label: 'Accueil' },
+    { href: '/produits', label: 'Produits' },
+    { href: '/livraison', label: 'Zones de livraison' },
+    { href: '/service', label: 'Service' },
+    { href: '/contact', label: 'Contact' }
   ];
 
   return (
@@ -82,7 +100,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link 
-            to="/4/home" 
+            to={isProductionFrenchShop ? '/' : '/4/home'} 
             className="lg:flex lg:items-center lg:ml-8 flex justify-center w-full lg:w-auto hover:scale-105 transition-transform duration-300"
           >
             {logoConfig.useImage && logoConfig.imageUrl ? (
@@ -103,7 +121,7 @@ const Header = () => {
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
-                to={item.href}
+                to={getUrl(item.href)}
                 className={`relative px-4 py-2 font-medium transition-all duration-300 ${
                   isActive(item.href)
                     ? 'text-red-600 bg-red-50 rounded-lg'
@@ -144,7 +162,7 @@ const Header = () => {
               {navigationItems.map((item) => (
                 <Link
                   key={item.href}
-                  to={item.href}
+                  to={getUrl(item.href)}
                   onClick={() => setIsMenuOpen(false)}
                   className={`px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
                     isActive(item.href)
