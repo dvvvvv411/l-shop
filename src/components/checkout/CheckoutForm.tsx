@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -134,8 +135,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     }
 
     toast({
-      title: 'Testdaten generiert',
-      description: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.'
+      title: t.system.testDataGenerated,
+      description: t.system.testDataDescription
     });
   };
 
@@ -164,8 +165,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       console.error('Failed to send order confirmation email:', error);
       // Don't throw the error - we don't want to fail the order process because of email issues
       toast({
-        title: 'E-Mail-Versand',
-        description: 'Die Bestellbestätigung konnte nicht versendet werden. Sie erhalten diese in Kürze.',
+        title: t.system.emailSendTitle,
+        description: t.system.emailSendDescription,
         variant: 'destructive'
       });
     }
@@ -222,8 +223,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       if (!createdOrder) {
         console.log('Order was already processed');
         toast({
-          title: 'Information',
-          description: 'Diese Bestellung wurde bereits verarbeitet.',
+          title: t.system.orderProcessedTitle,
+          description: t.system.orderProcessedDescription,
         });
         return;
       }
@@ -271,8 +272,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
-        title: 'Fehler',
-        description: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+        title: t.system.errorTitle,
+        description: t.system.errorDescription,
         variant: 'destructive'
       });
     } finally {

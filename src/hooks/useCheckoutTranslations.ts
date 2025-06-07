@@ -119,6 +119,18 @@ export interface CheckoutTranslations {
     securePayment: string; // Added for "Sichere Zahlung"
     sslEncrypted: string; // Added for "SSL verschlüsselt"
   };
+  // Loading and system messages
+  system: {
+    loadingOrderData: string;
+    testDataGenerated: string;
+    testDataDescription: string;
+    emailSendTitle: string;
+    emailSendDescription: string;
+    errorTitle: string;
+    errorDescription: string;
+    orderProcessedTitle: string;
+    orderProcessedDescription: string;
+  };
   // Toast notifications
   toasts: {
     noOrderDataTitle: string;
@@ -255,6 +267,17 @@ const translations = {
       securePayment: 'Sichere Zahlung',
       sslEncrypted: 'SSL verschlüsselt'
     },
+    system: {
+      loadingOrderData: 'Bestelldaten werden geladen...',
+      testDataGenerated: 'Testdaten generiert',
+      testDataDescription: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt.',
+      emailSendTitle: 'E-Mail-Versand',
+      emailSendDescription: 'Die Bestellbestätigung konnte nicht versendet werden. Sie erhalten diese in Kürze.',
+      errorTitle: 'Fehler',
+      errorDescription: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+      orderProcessedTitle: 'Information',
+      orderProcessedDescription: 'Diese Bestellung wurde bereits verarbeitet.'
+    },
     toasts: {
       noOrderDataTitle: 'Keine Bestelldaten gefunden',
       noOrderDataDescription: 'Bitte führen Sie zuerst eine Preisberechnung durch.',
@@ -386,6 +409,17 @@ const translations = {
     header: {
       securePayment: 'Paiement sécurisé',
       sslEncrypted: 'Chiffrement SSL'
+    },
+    system: {
+      loadingOrderData: 'Chargement des données de commande...',
+      testDataGenerated: 'Données de test générées',
+      testDataDescription: 'Le formulaire a été rempli avec des données de test aléatoires.',
+      emailSendTitle: 'Envoi d\'e-mail',
+      emailSendDescription: 'La confirmation de commande n\'a pas pu être envoyée. Vous la recevrez bientôt.',
+      errorTitle: 'Erreur',
+      errorDescription: 'Une erreur s\'est produite. Veuillez réessayer.',
+      orderProcessedTitle: 'Information',
+      orderProcessedDescription: 'Cette commande a déjà été traitée.'
     },
     toasts: {
       noOrderDataTitle: 'Aucune donnée de commande trouvée',

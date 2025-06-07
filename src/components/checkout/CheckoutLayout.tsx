@@ -127,7 +127,7 @@ const CheckoutLayout = () => {
   if (!orderData) {
     return (
       <div className="flex justify-center items-center min-h-96">
-        <div className="text-lg text-gray-600">Bestelldaten werden geladen...</div>
+        <div className="text-lg text-gray-600">{t.system.loadingOrderData}</div>
       </div>
     );
   }
