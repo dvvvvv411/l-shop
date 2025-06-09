@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { Resend } from 'npm:resend@4.0.0'
@@ -217,7 +216,7 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                             <tr>
                                                 <td style="padding: 15px;">
                                                     <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Note importante :</strong> Veuillez indiquer obligatoirement le numéro de commande <strong>${order.order_number}</strong> comme référence lors du virement afin que nous puissions identifier correctement votre paiement.
+                                                        <strong>Note très importante :</strong> Veuillez impérativement utiliser exactement le numéro de commande <strong>${order.order_number}</strong> comme référence de virement et vous assurer de transférer l'argent au bon destinataire <strong>${bankAccount.account_holder}</strong> afin que nous puissions identifier correctement votre paiement.
                                                     </div>
                                                 </td>
                                             </tr>
@@ -611,7 +610,7 @@ serve(async (req) => {
                                             <tr>
                                                 <td style="padding: 15px;">
                                                     <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Wichtiger Hinweis:</strong> Bitte geben Sie bei der Überweisung unbedingt die Bestellnummer <strong>${order.order_number}</strong> als Verwendungszweck an, damit wir Ihre Zahlung korrekt zuordnen können.
+                                                        <strong>Sehr wichtiger Hinweis:</strong> Bitte geben Sie bei der Überweisung unbedingt exakt die Bestellnummer <strong>${order.order_number}</strong> als Verwendungszweck an und stellen Sie sicher, dass Sie an den richtigen Empfänger <strong>${bankAccount.account_holder}</strong> überweisen, damit wir Ihre Zahlung korrekt zuordnen können.
                                                     </div>
                                                 </td>
                                             </tr>
