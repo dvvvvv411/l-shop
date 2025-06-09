@@ -367,6 +367,12 @@ serve(async (req) => {
 function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string): Uint8Array {
   const doc = new jsPDF()
   
+  // Determine if this is a French shop based on shop name or other identifier
+  const isFrenchShop = shop?.name?.toLowerCase().includes('france') || 
+                       shop?.name?.toLowerCase().includes('fioul') ||
+                       shop?.company_name?.toLowerCase().includes('france') ||
+                       shop?.company_name?.toLowerCase().includes('fioul')
+  
   // Define colors for the design - Changed primary color to green
   const primaryColor = [46, 213, 115] // Green (#2ed573)
   const accentColor = [229, 231, 235] // Light gray
@@ -377,13 +383,13 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFont('helvetica')
   
   // Company header with background
-  const companyName = shop?.company_name || 'Heizöl-Express GmbH'
-  const companyAddress = shop?.company_address || 'Musterstraße 123'
-  const companyPostcode = shop?.company_postcode || '12345'
-  const companyCity = shop?.company_city || 'Berlin'
-  const companyPhone = shop?.company_phone || '+49 30 12345678'
-  const companyEmail = shop?.company_email || 'info@heizoel-express.de'
-  const vatNumber = shop?.vat_number || 'DE123456789'
+  const companyName = shop?.company_name || (isFrenchShop ? 'Fioul Rapide SARL' : 'Heizöl-Express GmbH')
+  const companyAddress = shop?.company_address || (isFrenchShop ? 'Rue de la République 123' : 'Musterstraße 123')
+  const companyPostcode = shop?.company_postcode || (isFrenchShop ? '75001' : '12345')
+  const companyCity = shop?.company_city || (isFrenchShop ? 'Paris' : 'Berlin')
+  const companyPhone = shop?.company_phone || (isFrenchShop ? '+33 1 23 45 67 89' : '+49 30 12345678')
+  const companyEmail = shop?.company_email || (isFrenchShop ? 'info@fioul-rapide.fr' : 'info@heizoel-express.de')
+  const vatNumber = shop?.vat_number || (isFrenchShop ? 'FR12345678901' : 'DE123456789')
   
   // Header background
   doc.setFillColor(...primaryColor)
@@ -400,8 +406,8 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'normal')
   doc.text(`${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 32)
-  doc.text(`Tel: ${companyPhone} • E-Mail: ${companyEmail}`, 15, 37)
-  doc.text(`USt-IdNr: ${vatNumber}`, 15, 42)
+  doc.text(`${isFrenchShop ? 'Tél' : 'Tel'}: ${companyPhone} • E-Mail: ${companyEmail}`, 15, 37)
+  doc.text(`${isFrenchShop ? 'N° TVA' : 'USt-IdNr'}: ${vatNumber}`, 15, 42)
   
   // Invoice title with accent background
   doc.setFillColor(...accentColor)
@@ -409,7 +415,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFontSize(18)
   doc.setTextColor(...primaryColor)
   doc.setFont('helvetica', 'bold')
-  doc.text('RECHNUNG', 145, 37)
+  doc.text(isFrenchShop ? 'FACTURE' : 'RECHNUNG', 145, 37)
   
   // Invoice info box (removed invoice number, kept date and order number)
   doc.setFillColor(250, 250, 250)
@@ -420,14 +426,14 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFontSize(9)
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'bold')
-  const invoiceDate = new Date().toLocaleDateString('de-DE')
+  const invoiceDate = new Date().toLocaleDateString(isFrenchShop ? 'fr-FR' : 'de-DE')
   
-  doc.text('Rechnungsdatum:', 142, 54)
+  doc.text(isFrenchShop ? 'Date de facture:' : 'Rechnungsdatum:', 142, 54)
   doc.setFont('helvetica', 'normal')
   doc.text(invoiceDate, 142, 59)
   
   doc.setFont('helvetica', 'bold')
-  doc.text('Bestellnummer:', 142, 65)
+  doc.text(isFrenchShop ? 'Numéro de commande:' : 'Bestellnummer:', 142, 65)
   doc.setFont('helvetica', 'normal')
   doc.text(order.order_number, 142, 70)
   
@@ -435,7 +441,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFontSize(11)
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'bold')
-  doc.text('Rechnungsanschrift:', 15, 58)
+  doc.text(isFrenchShop ? 'Adresse de facturation:' : 'Rechnungsanschrift:', 15, 58)
   
   // Customer address box
   doc.setFillColor(255, 255, 255)
@@ -448,16 +454,16 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.text(order.delivery_street || order.customer_address, 18, 74)
   doc.text(`${order.delivery_postcode || ''} ${order.delivery_city || ''}`, 18, 80)
   
-  // Delivery details section - FORCE payment method to "Vorkasse"
+  // Delivery details section - FORCE payment method to appropriate term
   doc.setFontSize(11)
   doc.setFont('helvetica', 'bold')
-  doc.text('Lieferdetails:', 15, 98)
+  doc.text(isFrenchShop ? 'Détails de livraison:' : 'Lieferdetails:', 15, 98)
   
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Lieferadresse: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 15, 105)
-  // Always show "Vorkasse" regardless of the actual order payment method
-  doc.text(`Zahlungsart: Vorkasse`, 15, 110)
+  doc.text(`${isFrenchShop ? 'Adresse de livraison' : 'Lieferadresse'}: ${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}`, 15, 105)
+  // Always show appropriate prepayment term
+  doc.text(`${isFrenchShop ? 'Mode de paiement' : 'Zahlungsart'}: ${isFrenchShop ? 'Virement bancaire' : 'Vorkasse'}`, 15, 110)
   
   // Table header with improved styling
   let yPos = 125
@@ -467,12 +473,12 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFontSize(9)
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
-  doc.text('Pos.', 18, yPos + 7)
-  doc.text('Beschreibung', 35, yPos + 7)
-  doc.text('Menge', 90, yPos + 7)
-  doc.text('Einheit', 110, yPos + 7)
-  doc.text('Einzelpreis', 135, yPos + 7)
-  doc.text('Gesamtpreis', 165, yPos + 7)
+  doc.text(isFrenchShop ? 'Pos.' : 'Pos.', 18, yPos + 7)
+  doc.text(isFrenchShop ? 'Description' : 'Beschreibung', 35, yPos + 7)
+  doc.text(isFrenchShop ? 'Quantité' : 'Menge', 90, yPos + 7)
+  doc.text(isFrenchShop ? 'Unité' : 'Einheit', 110, yPos + 7)
+  doc.text(isFrenchShop ? 'Prix unitaire' : 'Einzelpreis', 135, yPos + 7)
+  doc.text(isFrenchShop ? 'Prix total' : 'Gesamtpreis', 165, yPos + 7)
   
   // Table rows with alternating background
   yPos += 10
@@ -488,9 +494,9 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'normal')
   doc.text('1', 18, yPos + 5)
-  doc.text(order.product || 'Heizöl Standard', 35, yPos + 5)
+  doc.text(order.product || (isFrenchShop ? 'Fioul Standard' : 'Heizöl Standard'), 35, yPos + 5)
   doc.text(order.liters.toLocaleString(), 90, yPos + 5)
-  doc.text('Liter', 110, yPos + 5)
+  doc.text(isFrenchShop ? 'Litre' : 'Liter', 110, yPos + 5)
   doc.text(`€${Number(order.price_per_liter).toFixed(2)}`, 135, yPos + 5)
   doc.text(`€${(order.liters * Number(order.price_per_liter)).toFixed(2)}`, 165, yPos + 5)
   
@@ -503,9 +509,9 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   }
   
   doc.text('2', 18, yPos + 5)
-  doc.text('Lieferkosten', 35, yPos + 5)
+  doc.text(isFrenchShop ? 'Frais de livraison' : 'Lieferkosten', 35, yPos + 5)
   doc.text('1', 90, yPos + 5)
-  doc.text('Stück', 110, yPos + 5)
+  doc.text(isFrenchShop ? 'Pièce' : 'Stück', 110, yPos + 5)
   doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 135, yPos + 5)
   doc.text(`€${Number(order.delivery_fee).toFixed(2)}`, 165, yPos + 5)
   
@@ -519,9 +525,9 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     }
     
     doc.text('3', 18, yPos + 5)
-    doc.text('Rabatt', 35, yPos + 5)
+    doc.text(isFrenchShop ? 'Remise' : 'Rabatt', 35, yPos + 5)
     doc.text('1', 90, yPos + 5)
-    doc.text('Stück', 110, yPos + 5)
+    doc.text(isFrenchShop ? 'Pièce' : 'Stück', 110, yPos + 5)
     doc.setTextColor(220, 38, 38) // Red for discount
     doc.text(`-€${Number(order.discount).toFixed(2)}`, 135, yPos + 5)
     doc.text(`-€${Number(order.discount).toFixed(2)}`, 165, yPos + 5)
@@ -541,17 +547,17 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
-  doc.text('Zwischensumme:', 125, yPos + 2)
+  doc.text(isFrenchShop ? 'Sous-total:' : 'Zwischensumme:', 125, yPos + 2)
   doc.text(`€${subtotal.toFixed(2)}`, 175, yPos + 2)
   
-  doc.text('MwSt. (19%):', 125, yPos + 8)
+  doc.text(isFrenchShop ? 'TVA (19%):' : 'MwSt. (19%):', 125, yPos + 8)
   doc.text(`€${vat.toFixed(2)}`, 175, yPos + 8)
   
   // Total amount with emphasis
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.setTextColor(...primaryColor)
-  doc.text('Gesamtbetrag:', 125, yPos + 16)
+  doc.text(isFrenchShop ? 'Montant total:' : 'Gesamtbetrag:', 125, yPos + 16)
   doc.text(`€${Number(order.total_amount).toFixed(2)}`, 175, yPos + 16)
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'normal')
@@ -564,18 +570,18 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     
     doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
-    doc.text('Bankverbindung:', 18, yPos + 3)
+    doc.text(isFrenchShop ? 'Coordonnées bancaires:' : 'Bankverbindung:', 18, yPos + 3)
     
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
-    doc.text(`Bank: ${bankAccount.bank_name}`, 18, yPos + 10)
-    doc.text(`Kontoinhaber: ${bankAccount.account_holder}`, 18, yPos + 15)
+    doc.text(`${isFrenchShop ? 'Banque' : 'Bank'}: ${bankAccount.bank_name}`, 18, yPos + 10)
+    doc.text(`${isFrenchShop ? 'Titulaire du compte' : 'Kontoinhaber'}: ${bankAccount.account_holder}`, 18, yPos + 15)
     doc.text(`IBAN: ${bankAccount.iban}`, 18, yPos + 20)
     if (bankAccount.bic) {
       doc.text(`BIC: ${bankAccount.bic}`, 18, yPos + 25)
     }
     doc.setFont('helvetica', 'bold')
-    doc.text(`Bestellnummer: ${order.order_number}`, 18, yPos + 30)
+    doc.text(`${isFrenchShop ? 'Référence de commande' : 'Bestellnummer'}: ${order.order_number}`, 18, yPos + 30)
     doc.setFont('helvetica', 'normal')
   }
   
@@ -584,7 +590,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     yPos += bankAccount ? 45 : 25
     doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
-    doc.text('Bemerkungen:', 15, yPos)
+    doc.text(isFrenchShop ? 'Remarques:' : 'Bemerkungen:', 15, yPos)
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
     doc.text(order.notes, 15, yPos + 6)
@@ -597,15 +603,20 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   
   doc.setFontSize(8)
   doc.setTextColor(...textMuted)
-  doc.text('Vielen Dank für Ihren Auftrag!', 15, 272)
+  doc.text(isFrenchShop ? 'Merci pour votre commande!' : 'Vielen Dank für Ihren Auftrag!', 15, 272)
   doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 277)
   
   // Dynamic footer information using shop data
-  const businessOwner = shop?.business_owner || 'Max Mustermann'
-  const courtName = shop?.court_name || 'Amtsgericht Berlin'
-  const registrationNumber = shop?.registration_number || 'HRB 12345'
+  const businessOwner = shop?.business_owner || (isFrenchShop ? 'Jean Dupont' : 'Max Mustermann')
+  const courtName = shop?.court_name || (isFrenchShop ? 'Tribunal de Commerce de Paris' : 'Amtsgericht Berlin')
+  const registrationNumber = shop?.registration_number || (isFrenchShop ? 'RCS Paris B 123 456 789' : 'HRB 12345')
   
-  doc.text(`Geschäftsführung: ${businessOwner} • ${courtName}: ${registrationNumber} • USt-IdNr: ${vatNumber}`, 15, 282)
+  doc.text(
+    isFrenchShop 
+      ? `Direction: ${businessOwner} • ${courtName}: ${registrationNumber} • N° TVA: ${vatNumber}`
+      : `Geschäftsführung: ${businessOwner} • ${courtName}: ${registrationNumber} • USt-IdNr: ${vatNumber}`, 
+    15, 282
+  )
   
   // Convert to Uint8Array
   const pdfOutput = doc.output('arraybuffer')
