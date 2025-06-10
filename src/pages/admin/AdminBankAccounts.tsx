@@ -15,7 +15,7 @@ import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialo
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import type { Tables } from '@/integrations/supabase/types';
 
-// Use the correct type from Supabase that includes is_default
+// Use the correct type from Supabase that includes anyname
 type BankAccount = Tables<'bank_accounts'>;
 
 const AdminBankAccounts = () => {

@@ -57,6 +57,7 @@ export type Database = {
       bank_accounts: {
         Row: {
           account_holder: string
+          anyname: boolean
           bank_name: string
           bic: string
           created_at: string
@@ -69,6 +70,7 @@ export type Database = {
         }
         Insert: {
           account_holder: string
+          anyname?: boolean
           bank_name: string
           bic: string
           created_at?: string
@@ -81,6 +83,7 @@ export type Database = {
         }
         Update: {
           account_holder?: string
+          anyname?: boolean
           bank_name?: string
           bic?: string
           created_at?: string
