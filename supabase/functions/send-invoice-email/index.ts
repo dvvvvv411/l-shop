@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { Resend } from 'npm:resend@4.0.0'
@@ -6,6 +5,22 @@ import { Resend } from 'npm:resend@4.0.0'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Helper function to format German IBANs
+function formatGermanIban(iban: string): string {
+  if (!iban) return iban;
+  
+  // Check if it's a German IBAN (starts with DE)
+  if (!iban.toUpperCase().startsWith('DE')) {
+    return iban;
+  }
+  
+  // Remove existing spaces and format with spaces after every 4 characters
+  const cleanIban = iban.replace(/\s/g, '');
+  const formatted = cleanIban.replace(/(.{4})/g, '$1 ').trim();
+  
+  return formatted;
 }
 
 // French email template generator
@@ -180,7 +195,7 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                                                     <tr>
                                                                         <td style="padding: 16px;">
                                                                             <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.iban}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${formatGermanIban(bankAccount.iban)}</div>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -576,7 +591,7 @@ serve(async (req) => {
                                                                     <tr>
                                                                         <td style="padding: 16px;">
                                                                             <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.iban}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${formatGermanIban(bankAccount.iban)}</div>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
