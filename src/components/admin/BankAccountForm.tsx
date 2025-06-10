@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { formatGermanIban } from '@/utils/ibanFormatter';
 import type { Tables } from '@/integrations/supabase/types';
 
 // Use the correct Supabase type
@@ -206,6 +206,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
                       placeholder="z.B. DE89370400440532013000" 
                       {...field}
                       onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                      value={formatGermanIban(field.value)}
                     />
                   </FormControl>
                   <FormMessage />

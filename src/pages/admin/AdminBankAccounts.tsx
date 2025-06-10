@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +12,7 @@ import BankAccountForm from '@/components/admin/BankAccountForm';
 import BankAccountDeleteDialog from '@/components/admin/BankAccountDeleteDialog';
 import BankAccountDetailsDialog from '@/components/admin/BankAccountDetailsDialog';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
+import { formatGermanIban } from '@/utils/ibanFormatter';
 import type { Tables } from '@/integrations/supabase/types';
 
 // Use the correct type from Supabase that includes anyname
@@ -233,7 +233,7 @@ const AdminBankAccounts = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">IBAN</p>
-                    <p className="font-medium font-mono">{account.iban}</p>
+                    <p className="font-medium font-mono">{formatGermanIban(account.iban)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">BIC</p>

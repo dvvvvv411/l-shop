@@ -7,6 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Helper function to format German IBANs
+function formatGermanIban(iban: string): string {
+  if (!iban) return iban;
+  
+  // Check if it's a German IBAN (starts with DE)
+  if (!iban.toUpperCase().startsWith('DE')) {
+    return iban;
+  }
+  
+  // Remove existing spaces and format with spaces after every 4 characters
+  const cleanIban = iban.replace(/\s/g, '');
+  const formatted = cleanIban.replace(/(.{4})/g, '$1 ').trim();
+  
+  return formatted;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -581,7 +597,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
       : bankAccount.account_holder;
     
     doc.text(`${isFrenchShop ? 'Titulaire du compte' : 'Kontoinhaber'}: ${accountHolderDisplay}`, 18, yPos + 15)
-    doc.text(`IBAN: ${bankAccount.iban}`, 18, yPos + 20)
+    doc.text(`IBAN: ${formatGermanIban(bankAccount.iban)}`, 18, yPos + 20)
     if (bankAccount.bic) {
       doc.text(`BIC: ${bankAccount.bic}`, 18, yPos + 25)
     }
