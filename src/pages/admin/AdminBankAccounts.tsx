@@ -173,6 +173,11 @@ const AdminBankAccounts = () => {
                         Inaktiv
                       </Badge>
                     )}
+                    {account.anyname && (
+                      <Badge variant="secondary">
+                        Anyname
+                      </Badge>
+                    )}
                   </CardTitle>
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <Button
@@ -233,6 +238,12 @@ const AdminBankAccounts = () => {
                   <div>
                     <p className="text-sm text-gray-500">BIC</p>
                     <p className="font-medium font-mono">{account.bic}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Anyname</p>
+                    <p className={`font-medium ${account.anyname ? 'text-blue-600' : 'text-gray-600'}`}>
+                      {account.anyname ? 'Aktiviert' : 'Deaktiviert'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Tageslimit</p>

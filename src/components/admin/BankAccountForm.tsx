@@ -40,6 +40,7 @@ interface FormData {
   is_active: boolean;
   daily_limit: number;
   system_name: string;
+  anyname: boolean;
 }
 
 const BankAccountForm: React.FC<BankAccountFormProps> = ({
@@ -59,6 +60,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
       is_active: account?.is_active || false,
       daily_limit: account?.daily_limit || 0,
       system_name: account?.system_name || '',
+      anyname: account?.anyname || false,
     },
   });
 
@@ -72,6 +74,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         is_active: account.is_active,
         daily_limit: account.daily_limit || 0,
         system_name: account.system_name,
+        anyname: account.anyname || false,
       });
     } else {
       form.reset({
@@ -82,6 +85,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
         is_active: false,
         daily_limit: 0,
         system_name: '',
+        anyname: false,
       });
     }
   }, [account, form]);
@@ -258,6 +262,27 @@ const BankAccountForm: React.FC<BankAccountFormProps> = ({
                   <p className="text-sm text-gray-500">
                     Setzen Sie das Tageslimit auf 0, um es zu deaktivieren
                   </p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="anyname"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Anyname</FormLabel>
+                    <p className="text-sm text-gray-500">
+                      Wenn aktiviert, wird der Firmenname des Shops anstelle des Kontoinhabers verwendet
+                    </p>
+                  </div>
                 </FormItem>
               )}
             />

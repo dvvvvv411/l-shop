@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -575,7 +574,13 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.setFontSize(9)
     doc.setFont('helvetica', 'normal')
     doc.text(`${isFrenchShop ? 'Banque' : 'Bank'}: ${bankAccount.bank_name}`, 18, yPos + 10)
-    doc.text(`${isFrenchShop ? 'Titulaire du compte' : 'Kontoinhaber'}: ${bankAccount.account_holder}`, 18, yPos + 15)
+    
+    // Use shop company name if anyname is enabled, otherwise use account holder
+    const accountHolderDisplay = bankAccount.anyname && shop?.company_name 
+      ? shop.company_name 
+      : bankAccount.account_holder;
+    
+    doc.text(`${isFrenchShop ? 'Titulaire du compte' : 'Kontoinhaber'}: ${accountHolderDisplay}`, 18, yPos + 15)
     doc.text(`IBAN: ${bankAccount.iban}`, 18, yPos + 20)
     if (bankAccount.bic) {
       doc.text(`BIC: ${bankAccount.bic}`, 18, yPos + 25)
