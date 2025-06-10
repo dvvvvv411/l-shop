@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { Resend } from 'npm:resend@4.0.0'
@@ -9,6 +10,8 @@ const corsHeaders = {
 
 // French email template generator
 const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any, bankAccount: any) => {
+  const accountHolderName = bankAccount.anyname ? shop.company_name : bankAccount.account_holder;
+  
   return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -165,7 +168,7 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                                                     <tr>
                                                                         <td style="padding: 16px;">
                                                                             <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Titulaire du compte</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.account_holder}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${accountHolderName}</div>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -216,7 +219,7 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                             <tr>
                                                 <td style="padding: 15px;">
                                                     <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Note très importante :</strong> Veuillez impérativement utiliser exactement le numéro de commande <strong>${order.order_number}</strong> comme référence de virement et vous assurer de transférer l'argent au bon destinataire <strong>${bankAccount.account_holder}</strong> afin que nous puissions identifier correctement votre paiement.
+                                                        <strong>Note très importante :</strong> Veuillez impérativement utiliser exactement le numéro de commande <strong>${order.order_number}</strong> comme référence de virement et vous assurer de transférer l'argent au bon destinataire <strong>${accountHolderName}</strong> afin que nous puissions identifier correctement votre paiement.
                                                     </div>
                                                 </td>
                                             </tr>
@@ -401,7 +404,9 @@ serve(async (req) => {
       emailSubject = `Votre facture - Commande ${order.order_number}`;
       emailHtml = generateFrenchInvoiceEmail(order, invoiceNumber, shop, bankAccount);
     } else {
-      // German email (existing template)
+      // German email (existing template with anyname support)
+      const accountHolderName = bankAccount?.anyname ? shop.company_name : bankAccount?.account_holder;
+      
       emailSubject = `Ihre Rechnung - Bestellung ${order.order_number}`;
       emailHtml = `
 <!DOCTYPE html>
@@ -559,7 +564,7 @@ serve(async (req) => {
                                                                     <tr>
                                                                         <td style="padding: 16px;">
                                                                             <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Kontoinhaber</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.account_holder}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${accountHolderName}</div>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -610,7 +615,7 @@ serve(async (req) => {
                                             <tr>
                                                 <td style="padding: 15px;">
                                                     <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Sehr wichtiger Hinweis:</strong> Bitte geben Sie bei der Überweisung unbedingt exakt die Bestellnummer <strong>${order.order_number}</strong> als Verwendungszweck an und stellen Sie sicher, dass Sie an den richtigen Empfänger <strong>${bankAccount.account_holder}</strong> überweisen, damit wir Ihre Zahlung korrekt zuordnen können.
+                                                        <strong>Sehr wichtiger Hinweis:</strong> Bitte geben Sie bei der Überweisung unbedingt exakt die Bestellnummer <strong>${order.order_number}</strong> als Verwendungszweck an und stellen Sie sicher, dass Sie an den richtigen Empfänger <strong>${accountHolderName}</strong> überweisen, damit wir Ihre Zahlung korrekt zuordnen können.
                                                     </div>
                                                 </td>
                                             </tr>
