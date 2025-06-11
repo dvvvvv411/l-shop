@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -402,7 +403,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   const companyAddress = shop?.company_address || (isFrenchShop ? 'Rue de la République 123' : 'Musterstraße 123')
   const companyPostcode = shop?.company_postcode || (isFrenchShop ? '75001' : '12345')
   const companyCity = shop?.company_city || (isFrenchShop ? 'Paris' : 'Berlin')
-  const companyPhone = shop?.company_phone || (isFrenchShop ? '+33 1 23 45 67 89' : '+49 30 12345678')
+  const companyPhone = shop?.company_phone || null // Don't use fallback if not set
   const companyEmail = shop?.company_email || (isFrenchShop ? 'info@fioul-rapide.fr' : 'info@heizoel-express.de')
   const vatNumber = shop?.vat_number || (isFrenchShop ? 'FR12345678901' : 'DE123456789')
   
@@ -416,12 +417,25 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.setFont('helvetica', 'bold')
   doc.text(companyName, 15, 17)
   
-  // Company details
+  // Company details - conditional phone display
   doc.setFontSize(9)
   doc.setTextColor(...textDark)
   doc.setFont('helvetica', 'normal')
   doc.text(`${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 32)
-  doc.text(`${isFrenchShop ? 'Tél' : 'Tel'}: ${companyPhone} • E-Mail: ${companyEmail}`, 15, 37)
+  
+  // Build contact line dynamically based on available information
+  let contactLine = ''
+  if (companyPhone) {
+    contactLine += `${isFrenchShop ? 'Tél' : 'Tel'}: ${companyPhone}`
+  }
+  if (companyEmail) {
+    if (contactLine) contactLine += ' • '
+    contactLine += `E-Mail: ${companyEmail}`
+  }
+  if (contactLine) {
+    doc.text(contactLine, 15, 37)
+  }
+  
   doc.text(`${isFrenchShop ? 'N° TVA' : 'USt-IdNr'}: ${vatNumber}`, 15, 42)
   
   // Invoice title with accent background
