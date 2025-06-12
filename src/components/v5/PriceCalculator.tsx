@@ -27,12 +27,12 @@ const PriceCalculator = React.memo(() => {
   const products = useMemo(() => ({
     standard: {
       name: 'Gasolio Standard',
-      price: 1.15,
+      price: 0.70,
       description: 'Qualità conforme EN 590'
     },
     premium: {
       name: 'Gasolio Premium',
-      price: 1.22,
+      price: 0.72,
       description: 'Gasolio premium con additivi'
     }
   }), []);

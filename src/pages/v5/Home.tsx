@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v5/Header';
@@ -207,7 +208,7 @@ const Home = () => {
                 <div className="text-green-200 font-medium">Regioni</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">35k+</div>
+                <div className="text-3xl font-bold text-white mb-2">150k+</div>
                 <div className="text-green-200 font-medium">Clienti soddisfatti</div>
               </div>
               <div className="text-center">
