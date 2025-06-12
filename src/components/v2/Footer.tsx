@@ -155,7 +155,7 @@ const Footer = () => {
               <span className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span>Persönliche Beratung verfügbar</span>
-              </div>
+              </span>
             </div>
           </div>
         </div>
