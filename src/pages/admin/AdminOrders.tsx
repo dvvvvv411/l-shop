@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt, Truck } from 'lucide-react';
@@ -356,10 +357,9 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead className="min-w-[140px]">Adresse</TableHead>
-                    <TableHead className="w-[60px]">
-                      <div className="flex items-center gap-1">
+                    <TableHead className="w-[40px]">
+                      <div className="flex items-center justify-center">
                         <Truck className="h-4 w-4" />
-                        Abw. Lieferadresse
                       </div>
                     </TableHead>
                     <TableHead className="min-w-[80px]">Produkt</TableHead>
@@ -459,7 +459,7 @@ const AdminOrders = () => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center w-[60px]">
+                        <TableCell className="text-center w-[40px]">
                           {hasDifferentDeliveryAddress(order) ? (
                             <div className="flex items-center justify-center">
                               <div className="w-2 h-2 bg-green-500 rounded-full" title="Abweichende Lieferadresse"></div>
