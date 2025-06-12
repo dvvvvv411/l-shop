@@ -164,13 +164,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trust Section with Italian Theme */}
-      <section className="py-12 bg-gradient-to-r from-green-600 via-red-600 to-green-700 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+      {/* Modern Trust Section with Clean Design */}
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+        {/* Modern Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, white 2px, transparent 2px)`,
-            backgroundSize: '50px 50px'
+            backgroundImage: `radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)`,
+            backgroundSize: '600px 600px'
           }} />
         </div>
         
@@ -179,37 +179,37 @@ const Home = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center text-white"
+            className="text-center"
           >
-            <div className="flex items-center justify-center mb-4">
-              <Mountain className="h-8 w-8 text-white mr-3" />
-              <h2 className="text-3xl lg:text-4xl font-bold">
+            <div className="flex items-center justify-center mb-6">
+              <Mountain className="h-8 w-8 text-blue-600 mr-3" />
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
                 Partner affidabile per il gasolio in Italia
               </h2>
-              <Mountain className="h-8 w-8 text-white ml-3" />
+              <Mountain className="h-8 w-8 text-blue-600 ml-3" />
             </div>
-            <p className="text-xl text-green-100 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-12">
               Da Milano a Palermo, da Roma a Venezia - serviamo tutte le regioni 
               con gasolio premium a prezzi equi. Affidatevi alla qualità e al servizio italiano.
             </p>
             
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">20</div>
-                <div className="text-green-200 font-medium">Regioni</div>
+            {/* Quick Stats with Modern Design */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md border border-gray-200/50">
+                <div className="text-3xl font-bold text-blue-600 mb-2">20</div>
+                <div className="text-gray-700 font-medium">Regioni</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">35k+</div>
-                <div className="text-green-200 font-medium">Clienti soddisfatti</div>
+              <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md border border-gray-200/50">
+                <div className="text-3xl font-bold text-blue-600 mb-2">35k+</div>
+                <div className="text-gray-700 font-medium">Clienti soddisfatti</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">15+</div>
-                <div className="text-green-200 font-medium">Anni esperienza</div>
+              <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md border border-gray-200/50">
+                <div className="text-3xl font-bold text-blue-600 mb-2">15+</div>
+                <div className="text-gray-700 font-medium">Anni esperienza</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">98%</div>
-                <div className="text-green-200 font-medium">Consegna puntuale</div>
+              <div className="text-center bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md border border-gray-200/50">
+                <div className="text-3xl font-bold text-blue-600 mb-2">98%</div>
+                <div className="text-gray-700 font-medium">Consegna puntuale</div>
               </div>
             </div>
           </motion.div>
