@@ -337,7 +337,7 @@ const AdminOrders = () => {
                       </div>
                     </TableHead>
                     <TableHead className="min-w-[140px]">Adresse</TableHead>
-                    <TableHead className="min-w-[90px]">
+                    <TableHead className="w-[60px]">
                       <div className="flex items-center gap-1">
                         <Truck className="h-4 w-4" />
                         Abw. Lieferadresse
@@ -440,14 +440,14 @@ const AdminOrders = () => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center w-[60px]">
                           {hasDifferentDeliveryAddress(order) ? (
                             <div className="flex items-center justify-center">
-                              <div className="w-2 h-2 bg-orange-500 rounded-full" title="Abweichende Lieferadresse"></div>
+                              <div className="w-2 h-2 bg-green-500 rounded-full" title="Abweichende Lieferadresse"></div>
                             </div>
                           ) : (
                             <div className="flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-300 rounded-full" title="Gleiche Adresse"></div>
+                              <div className="w-2 h-2 bg-red-500 rounded-full" title="Gleiche Adresse"></div>
                             </div>
                           )}
                         </TableCell>
