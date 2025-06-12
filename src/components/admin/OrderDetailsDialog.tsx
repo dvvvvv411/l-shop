@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown, Mail } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,7 @@ import OrderNotesSection from './OrderNotesSection';
 import OrderStatusHistorySection from './OrderStatusHistorySection';
 import EditableCard from './EditableCard';
 import EditableField from './EditableField';
+import CustomerContactEmailDialog from './CustomerContactEmailDialog';
 import { useOrderStatusHistory } from '@/hooks/useOrderStatusHistory';
 
 interface OrderDetailsDialogProps {
@@ -41,6 +42,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 }) => {
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const [isCustomerEmailDialogOpen, setIsCustomerEmailDialogOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -481,6 +483,18 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                   
                   {/* Action Buttons */}
                   <div className="space-y-2">
+                    {/* Customer Contact Email - Only when status is pending */}
+                    {order.status === 'pending' && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-orange-700 border-orange-200 hover:bg-orange-50"
+                        onClick={() => setIsCustomerEmailDialogOpen(true)}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Kunden kontaktieren
+                      </Button>
+                    )}
+                    
                     {/* Generate Invoice - Only when status is pending */}
                     {order.status === 'pending' && (
                       <Button
@@ -842,6 +856,13 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
         order={order}
         isOpen={isInvoiceViewerOpen}
         onClose={() => setIsInvoiceViewerOpen(false)}
+      />
+
+      {/* Customer Contact Email Dialog */}
+      <CustomerContactEmailDialog
+        order={order}
+        isOpen={isCustomerEmailDialogOpen}
+        onClose={() => setIsCustomerEmailDialogOpen(false)}
       />
     </>
   );
