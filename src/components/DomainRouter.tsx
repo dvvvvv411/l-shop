@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -8,6 +9,7 @@ import V1Home from '@/pages/v1/Home';
 import V2Home from '@/pages/v2/Home';
 import V3Home from '@/pages/v3/Home';
 import V4Home from '@/pages/v4/Home';
+import V5Home from '@/pages/v5/Home';
 import Order from '@/pages/Order';
 import Summary from '@/pages/Summary';
 import Confirmation from '@/pages/Confirmation';
@@ -61,6 +63,16 @@ import V4Kontakt from '@/pages/v4/Kontakt';
 import V4Service from '@/pages/v4/Service';
 import V4Produkte from '@/pages/v4/Produkte';
 import V4Liefergebiet from '@/pages/v4/Liefergebiet';
+
+// V5 pages (Italian)
+import V5Impressum from '@/pages/v5/Impressum';
+import V5AGB from '@/pages/v5/AGB';
+import V5Datenschutz from '@/pages/v5/Datenschutz';
+import V5Widerrufsrecht from '@/pages/v5/Widerrufsrecht';
+import V5Kontakt from '@/pages/v5/Kontakt';
+import V5Service from '@/pages/v5/Service';
+import V5Produkte from '@/pages/v5/Produkte';
+import V5Liefergebiet from '@/pages/v5/Liefergebiet';
 
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
@@ -153,6 +165,28 @@ const DomainRouter = () => {
     );
   }
 
+  // For Italian domain, route to V5 pages
+  if (shopConfig.shopType === 'italy') {
+    return (
+      <Routes>
+        <Route path="/" element={<V5Home />} />
+        <Route path="/bestellen" element={<Order />} />
+        <Route path="/zusammenfassung" element={<Summary />} />
+        <Route path="/bestaetigung" element={<Confirmation />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/note-legali" element={<V5Impressum />} />
+        <Route path="/termini" element={<V5AGB />} />
+        <Route path="/privacy" element={<V5Datenschutz />} />
+        <Route path="/recesso" element={<V5Widerrufsrecht />} />
+        <Route path="/contatto" element={<V5Kontakt />} />
+        <Route path="/servizio" element={<V5Service />} />
+        <Route path="/prodotti" element={<V5Produkte />} />
+        <Route path="/consegna" element={<V5Liefergebiet />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
   // Default routing for root domain (with all original routes preserved)
   return (
     <Routes>
@@ -226,6 +260,20 @@ const DomainRouter = () => {
       <Route path="/4/service" element={<V4Service />} />
       <Route path="/4/produits" element={<V4Produkte />} />
       <Route path="/4/livraison" element={<V4Liefergebiet />} />
+
+      <Route path="/5/home" element={<V5Home />} />
+      <Route path="/5/bestellen" element={<Order />} />
+      <Route path="/5/zusammenfassung" element={<Summary />} />
+      <Route path="/5/bestaetigung" element={<Confirmation />} />
+      <Route path="/5/checkout" element={<Checkout />} />
+      <Route path="/5/note-legali" element={<V5Impressum />} />
+      <Route path="/5/termini" element={<V5AGB />} />
+      <Route path="/5/privacy" element={<V5Datenschutz />} />
+      <Route path="/5/recesso" element={<V5Widerrufsrecht />} />
+      <Route path="/5/contatto" element={<V5Kontakt />} />
+      <Route path="/5/servizio" element={<V5Service />} />
+      <Route path="/5/prodotti" element={<V5Produkte />} />
+      <Route path="/5/consegna" element={<V5Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

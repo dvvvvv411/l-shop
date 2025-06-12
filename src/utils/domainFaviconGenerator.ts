@@ -25,6 +25,15 @@ const getIconSVG = (iconType: string, color: string): string => {
           <line x1="16" y1="16" x2="24" y2="8" stroke="${color}" stroke-width="1" opacity="0.5"/>
         </svg>
       `;
+    case 'flame-italia':
+      return `
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 2c-2 4-4 8-2 12 1 2 3 3 5 2 1-1 1-3 0-4-1-1-2-1-2-2 0-1 1-2 2-1 3 2 5 6 3 10-1 2-3 4-6 4s-6-2-7-5c-2-4 0-9 3-12 1-1 2-3 4-4z" fill="${color}"/>
+          <circle cx="16" cy="22" r="2" fill="${color}" opacity="0.7"/>
+          <rect x="8" y="28" width="16" height="2" fill="#dc2626"/>
+          <rect x="8" y="30" width="16" height="2" fill="#ffffff"/>
+        </svg>
+      `;
     default:
       return getIconSVG('flame', color);
   }
