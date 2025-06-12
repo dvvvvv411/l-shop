@@ -1,8 +1,7 @@
-
 import React from 'react';
 import Header from '@/components/v5/Header';
 import Footer from '@/components/v5/Footer';
-import { MapPin, Truck, Clock, Euro, Shield, CheckCircle, Phone, Calendar } from 'lucide-react';
+import { MapPin, Truck, Clock, Euro, Shield, CheckCircle, Phone, Calendar, TrendingUp, Users, Fuel, AlertCircle } from 'lucide-react';
 import { useDomainFavicon } from '@/hooks/useDomainFavicon';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 
@@ -85,6 +84,49 @@ const Liefergebiet = () => {
     }
   ];
 
+  // Real-time delivery stats (simulated data)
+  const deliveryStats = [
+    {
+      icon: Truck,
+      title: "Consegne oggi",
+      value: "127",
+      trend: "+12%",
+      color: "text-green-600",
+      bgColor: "bg-green-100"
+    },
+    {
+      icon: Users,
+      title: "Clienti serviti",
+      value: "89",
+      trend: "+8%",
+      color: "text-blue-600",
+      bgColor: "bg-blue-100"
+    },
+    {
+      icon: Fuel,
+      title: "Litri consegnati",
+      value: "45.320",
+      trend: "+15%",
+      color: "text-purple-600",
+      bgColor: "bg-purple-100"
+    },
+    {
+      icon: Clock,
+      title: "Tempo medio",
+      value: "36h",
+      trend: "-5%",
+      color: "text-orange-600",
+      bgColor: "bg-orange-100"
+    }
+  ];
+
+  const activeDeliveries = [
+    { id: "GV001", destination: "Milano Centro", status: "In consegna", eta: "14:30", progress: 85 },
+    { id: "GV002", destination: "Roma EUR", status: "In transito", eta: "16:45", progress: 60 },
+    { id: "GV003", destination: "Napoli Vomero", status: "Partita", eta: "Domani 09:00", progress: 25 },
+    { id: "GV004", destination: "Torino Mirafiori", status: "In consegna", eta: "15:15", progress: 90 }
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -104,6 +146,86 @@ const Liefergebiet = () => {
               Gasolio Veloce copre tutto il territorio italiano con una rete logistica capillare 
               per garantire consegne rapide e affidabili in ogni regione.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Real-time Delivery Dashboard */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Dashboard consegne in tempo reale</h2>
+              <p className="text-lg text-gray-600">
+                Monitorate le nostre operazioni di consegna live su tutto il territorio italiano
+              </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {deliveryStats.map((stat, index) => (
+                <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                      <stat.icon className={stat.color} size={24} />
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <TrendingUp size={14} className="mr-1 text-green-500" />
+                      <span className="text-green-600 font-medium">{stat.trend}</span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+                  <p className="text-gray-600 text-sm">{stat.title}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Active Deliveries */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Truck className="mr-3 text-green-600" size={28} />
+                Consegne attive in questo momento
+              </h3>
+              
+              <div className="space-y-4">
+                {activeDeliveries.map((delivery, index) => (
+                  <div key={index} className="bg-white rounded-xl p-6 shadow-md">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="bg-green-100 p-2 rounded-lg">
+                          <span className="text-green-700 font-bold text-sm">{delivery.id}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{delivery.destination}</h4>
+                          <p className="text-gray-600 text-sm">{delivery.status}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-gray-900 font-semibold">ETA: {delivery.eta}</p>
+                        <p className="text-gray-600 text-sm">{delivery.progress}% completato</p>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${delivery.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="flex items-center text-blue-700">
+                  <AlertCircle size={20} className="mr-2" />
+                  <span className="font-medium">Aggiornamento automatico ogni 5 minuti</span>
+                </div>
+                <p className="text-blue-600 text-sm mt-1">
+                  Tutti i nostri autotrasportatori sono dotati di GPS per il tracking in tempo reale
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
