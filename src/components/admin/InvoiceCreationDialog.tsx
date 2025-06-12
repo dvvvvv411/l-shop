@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FileText, Building2, CreditCard, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { useShops } from '@/hooks/useShops';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useOrders, type Order } from '@/hooks/useOrders';
@@ -42,6 +43,8 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
   const [dailyUsage, setDailyUsage] = useState<number>(0);
   const [limitExceeded, setLimitExceeded] = useState<boolean>(false);
   const [bankAccountUsages, setBankAccountUsages] = useState<BankAccountUsage[]>([]);
+  const [enableAdditionalNotes, setEnableAdditionalNotes] = useState<boolean>(false);
+  const [additionalNotes, setAdditionalNotes] = useState<string>('');
 
   // Get all shops (since is_active field no longer exists)
   const availableShops = shops;
@@ -64,6 +67,14 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
       setSelectedBankAccountId(defaultBankAccount.id);
     }
   }, [isOpen, defaultBankAccount]);
+
+  // Reset additional notes when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setEnableAdditionalNotes(false);
+      setAdditionalNotes('');
+    }
+  }, [isOpen]);
 
   // Fetch daily usage for all active bank accounts when dialog opens
   useEffect(() => {
@@ -112,8 +123,13 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     if (!order || !selectedShopId) return;
 
     try {
-      // Generate the invoice with selected shop and bank account
-      const result = await generateInvoice(order.id, selectedShopId, selectedBankAccountId);
+      // Generate the invoice with selected shop, bank account, and additional notes
+      const result = await generateInvoice(
+        order.id, 
+        selectedShopId, 
+        selectedBankAccountId, 
+        enableAdditionalNotes ? additionalNotes : undefined
+      );
       
       // Update local state if onOrderUpdate is provided
       if (result && result.updatedOrder && onOrderUpdate) {
@@ -235,6 +251,33 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                   <p className="text-sm text-red-600">
                     Keine aktiven Bankkonten verfügbar. Bitte aktivieren Sie mindestens ein Bankkonto.
                   </p>
+                )}
+              </div>
+
+              {/* Additional Notes Section */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="enable-notes" 
+                    checked={enableAdditionalNotes}
+                    onCheckedChange={setEnableAdditionalNotes}
+                  />
+                  <Label htmlFor="enable-notes" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Zusätzliche Anmerkungen hinzufügen
+                  </Label>
+                </div>
+                
+                {enableAdditionalNotes && (
+                  <div className="space-y-2">
+                    <Label htmlFor="additional-notes">Anmerkungen</Label>
+                    <Textarea
+                      id="additional-notes"
+                      placeholder="Geben Sie hier zusätzliche Anmerkungen ein (z.B. Anzahlung, besondere Hinweise, etc.)"
+                      value={additionalNotes}
+                      onChange={(e) => setAdditionalNotes(e.target.value)}
+                      className="min-h-[80px]"
+                    />
+                  </div>
                 )}
               </div>
             </CardContent>

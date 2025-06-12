@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -36,9 +35,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { orderId, shopId, bankAccountId } = await req.json()
+    const { orderId, shopId, bankAccountId, additionalNotes } = await req.json()
     
-    console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId);
+    console.log('Generating invoice for order:', orderId, 'with shop:', shopId, 'and bank account:', bankAccountId, 'and additional notes:', additionalNotes);
 
     // Fetch order details
     const { data: order, error: orderError } = await supabaseClient
@@ -176,7 +175,7 @@ serve(async (req) => {
     console.log('Using invoice number:', invoiceNumber);
 
     // Generate PDF using jsPDF
-    const pdfBuffer = generateInvoicePDF(order, shop, bankAccount, invoiceNumber)
+    const pdfBuffer = generateInvoicePDF(order, shop, bankAccount, invoiceNumber, additionalNotes)
 
     // Store PDF in Supabase Storage - updated filename generation
     const sanitizedOrderNumber = order.order_number.replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -380,7 +379,7 @@ serve(async (req) => {
   }
 })
 
-function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string): Uint8Array {
+function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumber: string, additionalNotes?: string): Uint8Array {
   const doc = new jsPDF()
   
   // Determine if this is a French shop based on shop name or other identifier
@@ -620,9 +619,27 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.setFont('helvetica', 'normal')
   }
   
-  // Notes section if available
-  if (order.notes) {
+  // Additional Notes section if provided
+  if (additionalNotes && additionalNotes.trim()) {
     yPos += bankAccount ? 45 : 25
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text(isFrenchShop ? 'Remarques supplémentaires:' : 'Zusätzliche Anmerkungen:', 15, yPos)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    
+    // Handle line breaks in additional notes
+    const lines = doc.splitTextToSize(additionalNotes, 180)
+    let lineHeight = 5
+    for (let i = 0; i < lines.length; i++) {
+      doc.text(lines[i], 15, yPos + 6 + (i * lineHeight))
+    }
+    yPos += 6 + (lines.length * lineHeight)
+  }
+  
+  // Notes section if available (existing order notes)
+  if (order.notes) {
+    yPos += additionalNotes ? 10 : (bankAccount ? 45 : 25)
     doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
     doc.text(isFrenchShop ? 'Remarques:' : 'Bemerkungen:', 15, yPos)
