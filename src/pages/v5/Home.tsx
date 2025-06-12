@@ -170,40 +170,33 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Enhanced Trust Section with Elegant Italian Design */}
+      {/* Redesigned Trust Section with Better Readability */}
       <section className="relative py-16 overflow-hidden">
-        {/* New Elegant Background */}
+        {/* New Background Design for Better Text Readability */}
         <div className="absolute inset-0">
-          {/* Main Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-white to-red-600" />
+          {/* Solid Dark Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-800 via-green-700 to-green-900" />
           
-          {/* Overlay with Italian Flag Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 via-white/95 to-red-700/90" />
+          {/* Subtle Italian-inspired overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-green-800/95 via-green-700/90 to-red-800/95" />
           
-          {/* Decorative Elements */}
+          {/* Decorative Elements that don't interfere with text */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {/* Large decorative circles */}
-            <div className="absolute -top-32 -left-32 w-96 h-96 bg-green-200/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-200/20 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/10 rounded-full blur-3xl" />
+            {/* Subtle decorative circles */}
+            <div className="absolute -top-32 -left-32 w-96 h-96 bg-green-600/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-600/10 rounded-full blur-3xl" />
             
-            {/* Mountain silhouettes */}
-            <svg className="absolute bottom-0 left-0 w-full h-32 opacity-10" viewBox="0 0 1200 200" fill="none">
-              <path d="M0 200L150 80L300 120L450 40L600 100L750 60L900 140L1050 80L1200 120V200H0Z" fill="currentColor" className="text-green-800"/>
+            {/* Mountain silhouettes for Italian theme */}
+            <svg className="absolute bottom-0 left-0 w-full h-32 opacity-5" viewBox="0 0 1200 200" fill="none">
+              <path d="M0 200L150 80L300 120L450 40L600 100L750 60L900 140L1050 80L1200 120V200H0Z" fill="currentColor" className="text-green-600"/>
             </svg>
             
-            {/* Subtle geometric patterns */}
-            <div className="absolute inset-0 opacity-5" style={{
-              backgroundImage: `
-                radial-gradient(circle at 25% 25%, rgba(0,100,0,0.3) 2px, transparent 2px),
-                radial-gradient(circle at 75% 75%, rgba(200,0,0,0.3) 2px, transparent 2px)
-              `,
-              backgroundSize: '60px 60px, 80px 80px'
+            {/* Very subtle geometric pattern */}
+            <div className="absolute inset-0 opacity-3" style={{
+              backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+              backgroundSize: '80px 80px'
             }} />
           </div>
-          
-          {/* Elegant overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-transparent" />
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
