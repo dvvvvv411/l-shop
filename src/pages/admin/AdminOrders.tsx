@@ -5,11 +5,9 @@ import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt, Truck } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import StatusBadge from '@/components/admin/StatusBadge';
 import OrderFilters from '@/components/admin/OrderFilters';
-import BulkActions from '@/components/admin/BulkActions';
 import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
 import InvoiceCreationDialog from '@/components/admin/InvoiceCreationDialog';
 import InvoiceViewerDialog from '@/components/admin/InvoiceViewerDialog';
@@ -25,7 +23,6 @@ const AdminOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [showHidden, setShowHidden] = useState(false);
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -110,41 +107,9 @@ const AdminOrders = () => {
     return deliveryAddress !== billingAddress;
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedOrders(paginatedOrders.map(order => order.id));
-    } else {
-      setSelectedOrders([]);
-    }
-  };
-
-  const handleSelectOrder = (orderId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedOrders(prev => [...prev, orderId]);
-    } else {
-      setSelectedOrders(prev => prev.filter(id => id !== orderId));
-    }
-  };
-
-  const handleBulkAction = async (action: string) => {
-    console.log(`Bulk action: ${action} for orders:`, selectedOrders);
-    
-    if (action === 'mark-paid') {
-      // Update selected orders to "confirmed" status (instead of "Bezahlt")
-      try {
-        await Promise.all(
-          selectedOrders.map(orderId => updateOrderStatus(orderId, 'confirmed'))
-        );
-        setSelectedOrders([]);
-      } catch (error) {
-        console.error('Error updating orders:', error);
-      }
-    }
-  };
-
   const exportToCSV = () => {
-    // Updated headers to include "Zahlungsmethode" column
-    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'Adresse', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Zahlungsmethode', 'Abw. Lieferadresse', 'Letztes Update', 'Status'];
+    // Updated headers to include "Zahlung" column
+    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'Adresse', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Zahlung', 'Abw. Lieferadresse', 'Letztes Update', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(order => {
@@ -310,12 +275,6 @@ const AdminOrders = () => {
         </CardContent>
       </Card>
 
-      {/* Bulk Actions */}
-      <BulkActions
-        selectedCount={selectedOrders.length}
-        onBulkAction={handleBulkAction}
-      />
-
       {/* Orders Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -335,12 +294,6 @@ const AdminOrders = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12 pl-4">
-                      <Checkbox
-                        checked={selectedOrders.length === paginatedOrders.length && paginatedOrders.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </TableHead>
                     <TableHead className="min-w-[100px]">
                       Datum
                     </TableHead>
@@ -384,7 +337,7 @@ const AdminOrders = () => {
                     <TableHead className="min-w-[110px]">
                       <div className="flex items-center gap-1">
                         <Receipt className="h-4 w-4" />
-                        Zahlungsmethode
+                        Zahlung
                       </div>
                     </TableHead>
                     <TableHead className="min-w-[120px]">
@@ -410,12 +363,6 @@ const AdminOrders = () => {
                         key={order.id} 
                         className={`hover:bg-gray-50 ${order.is_hidden ? 'opacity-60 bg-gray-100' : ''}`}
                       >
-                        <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
-                          <Checkbox
-                            checked={selectedOrders.includes(order.id)}
-                            onCheckedChange={(checked) => handleSelectOrder(order.id, checked as boolean)}
-                          />
-                        </TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <div>{new Date(order.created_at).toLocaleDateString('de-DE')}</div>
