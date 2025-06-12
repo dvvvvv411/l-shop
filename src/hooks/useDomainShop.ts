@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -10,7 +10,7 @@ export interface DomainShopConfig {
   phone: string;
   email: string;
   faviconColor: string;
-  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain';
+  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'sun';
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -49,6 +49,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@fioul-rapide.fr',
     faviconColor: '#dc2626',
     faviconIcon: 'flame'
+  },
+  'gasolio-express.it': {
+    shopType: 'italy',
+    name: 'Gasolio Express',
+    brand: 'Gasolio IT',
+    phone: '+39 02 1234 5678',
+    email: 'info@gasolio-express.it',
+    faviconColor: '#16a34a',
+    faviconIcon: 'sun'
   }
 };
 
@@ -83,6 +92,8 @@ const getDomainShopConfig = (): DomainShopConfig => {
     localStorage.setItem('orderReferrer', '/1/home');
   } else if (config.shopType === 'france') {
     localStorage.setItem('orderReferrer', '/4/home');
+  } else if (config.shopType === 'italy') {
+    localStorage.setItem('orderReferrer', '/5/home');
   }
   
   return config;
