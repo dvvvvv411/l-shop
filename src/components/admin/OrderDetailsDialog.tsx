@@ -71,6 +71,18 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     city: '',
   });
 
+  // Order basic data states
+  const [orderBasicData, setOrderBasicData] = useState({
+    orderNumber: '',
+  });
+
+  // Product data states
+  const [productData, setProductData] = useState({
+    liters: 0,
+    pricePerLiter: 0,
+    totalAmount: 0,
+  });
+
   // Initialize data when order changes
   React.useEffect(() => {
     if (order) {
@@ -96,6 +108,16 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
         street: order.billing_street || '',
         postcode: order.billing_postcode || '',
         city: order.billing_city || '',
+      });
+
+      setOrderBasicData({
+        orderNumber: order.order_number || '',
+      });
+
+      setProductData({
+        liters: order.liters || 0,
+        pricePerLiter: order.price_per_liter || 0,
+        totalAmount: order.total_amount || 0,
       });
     }
   }, [order]);
@@ -199,6 +221,16 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     if (onOrderUpdate) {
       onOrderUpdate(orderId, updatedData);
     }
+  };
+
+  // Recalculate total amount when liters change
+  const handleLitersChange = (newLiters: number) => {
+    const newTotalAmount = newLiters * productData.pricePerLiter;
+    setProductData(prev => ({
+      ...prev,
+      liters: newLiters,
+      totalAmount: newTotalAmount,
+    }));
   };
 
   const saveCustomerData = async () => {
@@ -309,6 +341,64 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     }
   };
 
+  const saveOrderBasicData = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          order_number: orderBasicData.orderNumber,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      if (onOrderUpdate) {
+        onOrderUpdate(order.id, {
+          order_number: orderBasicData.orderNumber,
+        });
+      }
+
+      setEditingCard(null);
+    } catch (error) {
+      console.error('Error updating order basic data:', error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveProductData = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          liters: productData.liters,
+          total_amount: productData.totalAmount,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) throw error;
+
+      if (onOrderUpdate) {
+        onOrderUpdate(order.id, {
+          liters: productData.liters,
+          total_amount: productData.totalAmount,
+        });
+      }
+
+      setEditingCard(null);
+    } catch (error) {
+      console.error('Error updating product data:', error);
+      throw error;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleCancelEdit = () => {
     // Reset data to original values
     if (order) {
@@ -334,6 +424,16 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
         street: order.billing_street || '',
         postcode: order.billing_postcode || '',
         city: order.billing_city || '',
+      });
+
+      setOrderBasicData({
+        orderNumber: order.order_number || '',
+      });
+
+      setProductData({
+        liters: order.liters || 0,
+        pricePerLiter: order.price_per_liter || 0,
+        totalAmount: order.total_amount || 0,
       });
     }
     setEditingCard(null);
@@ -446,59 +546,65 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
             <div className="lg:col-span-3 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Order Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Bestellinformationen</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                <EditableCard
+                  title="Bestellinformationen"
+                  isEditing={editingCard === 'order'}
+                  onEditToggle={() => setEditingCard('order')}
+                  onSave={saveOrderBasicData}
+                  onCancel={handleCancelEdit}
+                  isSaving={isSaving}
+                >
+                  <EditableField
+                    label="Bestellnummer"
+                    value={orderBasicData.orderNumber}
+                    isEditing={editingCard === 'order'}
+                    onSave={(value) => setOrderBasicData(prev => ({ ...prev, orderNumber: value }))}
+                    onCancel={() => {}}
+                    required
+                  />
+                  <div>
+                    <span className="font-medium">Erstellt am:</span>
+                    <span className="ml-2">{formatDate(order.created_at)}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Status:</span>
+                    <span className="ml-2">
+                      <StatusBadge status={order.status} />
+                    </span>
+                  </div>
+                  {order.delivery_date && (
                     <div>
-                      <span className="font-medium">Bestellnummer:</span>
-                      <span className="ml-2">{order.order_number}</span>
+                      <span className="font-medium">Lieferdatum:</span>
+                      <span className="ml-2">{new Date(order.delivery_date).toLocaleDateString('de-DE')}</span>
                     </div>
+                  )}
+                  {order.origin_domain && (
                     <div>
-                      <span className="font-medium">Erstellt am:</span>
-                      <span className="ml-2">{formatDate(order.created_at)}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Status:</span>
-                      <span className="ml-2">
-                        <StatusBadge status={order.status} />
+                      <span className="font-medium">Domain:</span>
+                      <span className="ml-2 flex items-center gap-1">
+                        <Globe className="h-3 w-3 text-gray-400" />
+                        {isValidUrl(order.origin_domain) ? (
+                          <a
+                            href={formatDomainUrl(order.origin_domain)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {order.origin_domain}
+                          </a>
+                        ) : (
+                          <span className="text-gray-600">{order.origin_domain}</span>
+                        )}
                       </span>
                     </div>
-                    {order.delivery_date && (
-                      <div>
-                        <span className="font-medium">Lieferdatum:</span>
-                        <span className="ml-2">{new Date(order.delivery_date).toLocaleDateString('de-DE')}</span>
-                      </div>
-                    )}
-                    {order.origin_domain && (
-                      <div>
-                        <span className="font-medium">Domain:</span>
-                        <span className="ml-2 flex items-center gap-1">
-                          <Globe className="h-3 w-3 text-gray-400" />
-                          {isValidUrl(order.origin_domain) ? (
-                            <a
-                              href={formatDomainUrl(order.origin_domain)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 hover:underline"
-                            >
-                              {order.origin_domain}
-                            </a>
-                          ) : (
-                            <span className="text-gray-600">{order.origin_domain}</span>
-                          )}
-                        </span>
-                      </div>
-                    )}
-                    {order.notes && (
-                      <div>
-                        <span className="font-medium">Notizen:</span>
-                        <span className="ml-2">{order.notes}</span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                  )}
+                  {order.notes && (
+                    <div>
+                      <span className="font-medium">Notizen:</span>
+                      <span className="ml-2">{order.notes}</span>
+                    </div>
+                  )}
+                </EditableCard>
 
                 {/* Customer Information */}
                 <EditableCard
@@ -647,63 +753,74 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
               </div>
 
               {/* Product Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Produktdetails</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                      <span className="font-medium">Produkt:</span>
-                      <div className="mt-1">
-                        <Badge variant="secondary">{order.product || 'Standard Heizöl'}</Badge>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Menge:</span>
-                      <div className="mt-1 text-lg font-semibold">{order.liters.toLocaleString()} L</div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Preis pro Liter:</span>
-                      <div className="mt-1">{formatCurrency(order.price_per_liter)}</div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Gesamtpreis:</span>
-                      <div className="mt-1 text-lg font-semibold text-green-600">{formatCurrency(order.total_amount)}</div>
+              <EditableCard
+                title="Produktdetails"
+                isEditing={editingCard === 'product'}
+                onEditToggle={() => setEditingCard('product')}
+                onSave={saveProductData}
+                onCancel={handleCancelEdit}
+                isSaving={isSaving}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <span className="font-medium">Produkt:</span>
+                    <div className="mt-1">
+                      <Badge variant="secondary">{order.product || 'Standard Heizöl'}</Badge>
                     </div>
                   </div>
-
-                  <Separator className="my-4" />
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {order.base_price && (
-                      <div>
-                        <span className="font-medium">Grundpreis:</span>
-                        <div className="mt-1">{formatCurrency(order.base_price)}</div>
-                      </div>
-                    )}
-                    {order.delivery_fee && (
-                      <div>
-                        <span className="font-medium">Liefergebühr:</span>
-                        <div className="mt-1">{formatCurrency(order.delivery_fee)}</div>
-                      </div>
-                    )}
-                    {order.discount && (
-                      <div>
-                        <span className="font-medium">Rabatt:</span>
-                        <div className="mt-1 text-red-600">-{formatCurrency(order.discount)}</div>
-                      </div>
+                  <div>
+                    <span className="font-medium">Menge:</span>
+                    {editingCard === 'product' ? (
+                      <input
+                        type="number"
+                        value={productData.liters}
+                        onChange={(e) => handleLitersChange(Number(e.target.value))}
+                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    ) : (
+                      <div className="mt-1 text-lg font-semibold">{productData.liters.toLocaleString()} L</div>
                     )}
                   </div>
+                  <div>
+                    <span className="font-medium">Preis pro Liter:</span>
+                    <div className="mt-1">{formatCurrency(productData.pricePerLiter)}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Gesamtpreis:</span>
+                    <div className="mt-1 text-lg font-semibold text-green-600">{formatCurrency(productData.totalAmount)}</div>
+                  </div>
+                </div>
 
-                  {order.payment_method && (
-                    <div className="mt-4">
-                      <span className="font-medium">Zahlungsmethode:</span>
-                      <span className="ml-2">{order.payment_method}</span>
+                <Separator className="my-4" />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {order.base_price && (
+                    <div>
+                      <span className="font-medium">Grundpreis:</span>
+                      <div className="mt-1">{formatCurrency(order.base_price)}</div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                  {order.delivery_fee && (
+                    <div>
+                      <span className="font-medium">Liefergebühr:</span>
+                      <div className="mt-1">{formatCurrency(order.delivery_fee)}</div>
+                    </div>
+                  )}
+                  {order.discount && (
+                    <div>
+                      <span className="font-medium">Rabatt:</span>
+                      <div className="mt-1 text-red-600">-{formatCurrency(order.discount)}</div>
+                    </div>
+                  )}
+                </div>
+
+                {order.payment_method && (
+                  <div className="mt-4">
+                    <span className="font-medium">Zahlungsmethode:</span>
+                    <span className="ml-2">{order.payment_method}</span>
+                  </div>
+                )}
+              </EditableCard>
 
               {/* Order Notes Section */}
               <OrderNotesSection orderId={order.id} />
