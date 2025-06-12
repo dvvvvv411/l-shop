@@ -140,14 +140,75 @@ const frenchShopMetaConfig: DomainShopMetaConfig = {
   }
 };
 
-type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france';
+// Italian configuration for the Italian shop
+const italianShopMetaConfig: DomainShopMetaConfig = {
+  name: "Gasolio Veloce",
+  brand: "Gasolio IT",
+  phone: "+39 02 1234 5678",
+  email: "info@gasolio-veloce.it",
+  baseUrl: "https://gasolio-veloce.it",
+  pages: {
+    home: {
+      title: "Gasolio al miglior prezzo - Consegna rapida gasolio da riscaldamento in Italia",
+      description: "Ordinate il vostro gasolio da riscaldamento online al miglior prezzo. Consegna rapida, qualità premium, prezzi equi. Confrontate i prezzi del gasolio e risparmiate.",
+      keywords: "gasolio, riscaldamento, economico, consegna, prezzi, online",
+      ogTitle: "Gasolio al miglior prezzo - Consegna rapida gasolio",
+      ogDescription: "Ordinate il vostro gasolio da riscaldamento online con consegna rapida",
+      twitterTitle: "Gasolio al miglior prezzo - Consegna rapida gasolio",
+      twitterDescription: "Ordinate il vostro gasolio da riscaldamento online con consegna rapida"
+    },
+    impressum: {
+      title: "Note legali - Gasolio Veloce",
+      description: "Note legali e informazioni legali."
+    },
+    agb: {
+      title: "Termini e condizioni - Gasolio Veloce",
+      description: "Termini e condizioni generali."
+    },
+    widerrufsrecht: {
+      title: "Diritto di recesso - Gasolio Veloce",
+      description: "Diritto di recesso e informazioni sul recesso."
+    },
+    datenschutz: {
+      title: "Privacy - Gasolio Veloce",
+      description: "Informativa sulla privacy e protezione dei dati."
+    },
+    kontakt: {
+      title: "Contatto - Gasolio Veloce | Consulenza personalizzata",
+      description: "Contattateci per una consulenza personalizzata. Competenza professionale per gasolio e consegna.",
+      keywords: "contatto, consulenza, gasolio, supporto"
+    },
+    service: {
+      title: "Servizio - Gasolio Veloce | Servizio gasolio premium",
+      description: "Servizio gasolio di prima classe: consegna rapida, partner certificati, qualità premium per le vostre esigenze di riscaldamento.",
+      keywords: "servizio, gasolio, consegna, premium, qualità"
+    },
+    liefergebiet: {
+      title: "Zone di consegna - Gasolio Veloce | Copertura Italia",
+      description: "Consegna gasolio in tutta Italia. Scoprite le nostre zone di consegna e punti partner in tutta Italia.",
+      keywords: "zona consegna, Italia, nazionale, partner, punti"
+    },
+    produkte: {
+      title: "Prodotti gasolio - Gasolio Premium & Additivi",
+      description: "Prodotti gasolio di alta qualità: gasolio premium, combustibili a basso contenuto di zolfo, gasolio additivato per riscaldamento ottimale.",
+      keywords: "gasolio, premium, basso zolfo, additivi, qualità"
+    },
+    checkout: {
+      title: "Finalizza il tuo ordine - Gasolio Veloce",
+      description: "Finalizzate il vostro ordine di gasolio. Pagamento sicuro e consegna rapida garantita."
+    }
+  }
+};
+
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy';
 
 const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   root: germanShopMetaConfig,
   stanton: germanShopMetaConfig,
   greenoil: germanShopMetaConfig,
   austria: germanShopMetaConfig, // Austrian shop uses German for now
-  france: frenchShopMetaConfig
+  france: frenchShopMetaConfig,
+  italy: italianShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {
