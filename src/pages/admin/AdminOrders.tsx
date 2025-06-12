@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt } from 'lucide-react';
+import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt, ArrowRight, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -73,6 +74,25 @@ const AdminOrders = () => {
       default:
         return 'Vorkasse'; // Default to Vorkasse if not specified
     }
+  };
+
+  // Helper function to check if delivery address is different from billing address
+  const hasDifferentDeliveryAddress = (order: Order) => {
+    // If no delivery address fields are set, assume same address
+    if (!order.delivery_street && !order.delivery_postcode && !order.delivery_city) {
+      return false;
+    }
+    
+    // Compare delivery and billing addresses
+    const deliveryAddress = `${order.delivery_street || ''} ${order.delivery_postcode || ''} ${order.delivery_city || ''}`.trim();
+    const billingAddress = `${order.billing_street || ''} ${order.billing_postcode || ''} ${order.billing_city || ''}`.trim();
+    
+    // If both are empty, consider them the same
+    if (!deliveryAddress && !billingAddress) {
+      return false;
+    }
+    
+    return deliveryAddress !== billingAddress;
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -321,6 +341,8 @@ const AdminOrders = () => {
                         Telefon
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[120px]">Adresse</TableHead>
+                    <TableHead className="min-w-[60px]">Lieferung</TableHead>
                     <TableHead className="min-w-[90px]">PLZ / Stadt</TableHead>
                     <TableHead className="min-w-[80px]">Produkt</TableHead>
                     <TableHead className="min-w-[80px]">
@@ -365,6 +387,8 @@ const AdminOrders = () => {
                       ? new Date(order.latest_status_change)
                       : new Date(order.created_at);
                     
+                    const isDifferentDeliveryAddress = hasDifferentDeliveryAddress(order);
+                    
                     return (
                       <TableRow 
                         key={order.id} 
@@ -406,6 +430,20 @@ const AdminOrders = () => {
                               </div>
                             ) : (
                               <span className="text-gray-400">-</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="font-medium">{order.billing_street || '-'}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-center">
+                            {isDifferentDeliveryAddress ? (
+                              <ArrowRight className="h-4 w-4 text-green-600" title="Abweichende Lieferanschrift" />
+                            ) : (
+                              <X className="h-4 w-4 text-red-600" title="Gleiche Lieferanschrift" />
                             )}
                           </div>
                         </TableCell>
