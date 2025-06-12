@@ -7,7 +7,7 @@ import { getLogoConfig } from '../../config/logoConfig';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const logoConfig = getLogoConfig('/2/home');
+  const logoConfig = getLogoConfig('/');
 
   const companyInfo = [
     {
@@ -33,17 +33,17 @@ const Footer = () => {
   ];
 
   const quickLinks = [
-    { label: "Heizöl-Produkte", path: "/2/produkte" },
-    { label: "Liefergebiete", path: "/2/liefergebiet" },
-    { label: "Service & Support", path: "/2/service" },
-    { label: "Kontakt & Beratung", path: "/2/kontakt" }
+    { label: "Heizöl-Produkte", path: "/produkte" },
+    { label: "Liefergebiete", path: "/liefergebiet" },
+    { label: "Service & Support", path: "/service" },
+    { label: "Kontakt & Beratung", path: "/kontakt" }
   ];
 
   const legalLinks = [
-    { label: "Impressum", path: "/2/impressum" },
-    { label: "Datenschutzerklärung", path: "/2/datenschutz" },
-    { label: "Allgemeine Geschäftsbedingungen", path: "/2/agb" },
-    { label: "Widerrufsrecht", path: "/2/widerrufsrecht" }
+    { label: "Impressum", path: "/impressum" },
+    { label: "Datenschutzerklärung", path: "/datenschutz" },
+    { label: "Allgemeine Geschäftsbedingungen", path: "/agb" },
+    { label: "Widerrufsrecht", path: "/widerrufsrecht" }
   ];
 
   return (
@@ -60,7 +60,7 @@ const Footer = () => {
             className="lg:col-span-2"
           >
             <div className="mb-6">
-              <Link to="/2/home" className="flex items-center mb-4">
+              <Link to="/" className="flex items-center mb-4">
                 {logoConfig.useImage && logoConfig.imageUrl ? (
                   <img 
                     src={logoConfig.imageUrl} 
@@ -155,7 +155,7 @@ const Footer = () => {
               <span className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span>Persönliche Beratung verfügbar</span>
-              </span>
+              </div>
             </div>
           </div>
         </div>

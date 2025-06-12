@@ -15,7 +15,7 @@ const Footer = () => {
     window.location.hostname === 'fioul-rapide.fr';
   
   const getUrl = (path: string) => {
-    return isProductionFrenchShop ? path : `/4${path}`;
+    return isProductionFrenchShop ? path : path;
   };
 
   const footerLinks = {
@@ -45,7 +45,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Company Info */}
           <div className="lg:col-span-1">
-            <Link to={getUrl('/home')} className="flex items-center mb-6">
+            <Link to={getUrl('/')} className="flex items-center mb-6">
               {logoConfig.footerImageUrl ? (
                 <img 
                   src={logoConfig.footerImageUrl} 

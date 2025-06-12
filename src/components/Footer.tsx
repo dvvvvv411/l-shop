@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <Link to="/1/home" className="inline-block">
+            <Link to="/" className="inline-block">
               <img src="https://i.imgur.com/vX78e29.png" alt="HeizölDirekt" className="h-12 w-auto mb-4" />
             </Link>
             <p className="text-gray-300 mb-4">
@@ -23,17 +23,17 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Produkte & Service</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/1/produkte" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/produkte" className="text-gray-300 hover:text-white transition-colors">
                   Heizöl-Produkte
                 </Link>
               </li>
               <li>
-                <Link to="/1/liefergebiet" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/liefergebiet" className="text-gray-300 hover:text-white transition-colors">
                   Liefergebiete
                 </Link>
               </li>
               <li>
-                <Link to="/1/home" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
                   Preisrechner
                 </Link>
               </li>
@@ -45,22 +45,22 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Kundenservice</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/1/kontakt" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/kontakt" className="text-gray-300 hover:text-white transition-colors">
                   Kontakt
                 </Link>
               </li>
               <li>
-                <a href="/1/home#faq" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/#faq" className="text-gray-300 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
               <li>
-                <Link to="/1/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
                   Widerrufsrecht
                 </Link>
               </li>
               <li>
-                <Link to="/1/service" className="text-gray-300 hover:text-white transition-colors">
+                <Link to="/service" className="text-gray-300 hover:text-white transition-colors">
                   Service
                 </Link>
               </li>
@@ -95,13 +95,13 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">© 2025 STANTON GmbH. Alle Rechte vorbehalten.</div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/1/impressum" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/impressum" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Impressum
               </Link>
-              <Link to="/1/datenschutz" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/datenschutz" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Datenschutz
               </Link>
-              <Link to="/1/agb" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/agb" className="text-gray-400 hover:text-white text-sm transition-colors">
                 AGB
               </Link>
             </div>
