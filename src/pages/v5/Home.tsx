@@ -170,14 +170,40 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trust Section with Italian Theme */}
-      <section className="py-12 bg-gradient-to-r from-green-600 via-red-600 to-green-700 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, white 2px, transparent 2px)`,
-            backgroundSize: '50px 50px'
-          }} />
+      {/* Enhanced Trust Section with Elegant Italian Design */}
+      <section className="relative py-16 overflow-hidden">
+        {/* New Elegant Background */}
+        <div className="absolute inset-0">
+          {/* Main Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-white to-red-600" />
+          
+          {/* Overlay with Italian Flag Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 via-white/95 to-red-700/90" />
+          
+          {/* Decorative Elements */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+            {/* Large decorative circles */}
+            <div className="absolute -top-32 -left-32 w-96 h-96 bg-green-200/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-200/20 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/10 rounded-full blur-3xl" />
+            
+            {/* Mountain silhouettes */}
+            <svg className="absolute bottom-0 left-0 w-full h-32 opacity-10" viewBox="0 0 1200 200" fill="none">
+              <path d="M0 200L150 80L300 120L450 40L600 100L750 60L900 140L1050 80L1200 120V200H0Z" fill="currentColor" className="text-green-800"/>
+            </svg>
+            
+            {/* Subtle geometric patterns */}
+            <div className="absolute inset-0 opacity-5" style={{
+              backgroundImage: `
+                radial-gradient(circle at 25% 25%, rgba(0,100,0,0.3) 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, rgba(200,0,0,0.3) 2px, transparent 2px)
+              `,
+              backgroundSize: '60px 60px, 80px 80px'
+            }} />
+          </div>
+          
+          {/* Elegant overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-transparent" />
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
