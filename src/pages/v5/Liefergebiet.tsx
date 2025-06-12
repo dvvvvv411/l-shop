@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/v5/Header';
 import Footer from '@/components/v5/Footer';
@@ -103,34 +104,6 @@ const Liefergebiet = () => {
               Gasolio Veloce copre tutto il territorio italiano con una rete logistica capillare 
               per garantire consegne rapide e affidabili in ogni regione.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Italy Map Placeholder */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">Mappa delle zone di consegna</h2>
-              <p className="text-lg text-gray-600">
-                Cliccate sulla vostra regione per scoprire i dettagli della consegna nella vostra zona
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl h-96 flex items-center justify-center mb-12 border border-gray-300">
-              <div className="text-center text-gray-600">
-                <MapPin size={64} className="mx-auto mb-4 text-green-600" />
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Mappa Interattiva Italia</h3>
-                <p className="text-lg">Copertura nazionale dal Nord alle Isole</p>
-                <div className="mt-4 text-sm">
-                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full mr-2">Nord: 24-48h</span>
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full mr-2">Centro: 48-72h</span>
-                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full mr-2">Sud: 72-96h</span>
-                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full">Isole: 5-7 giorni</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
