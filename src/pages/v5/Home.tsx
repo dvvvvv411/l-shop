@@ -20,30 +20,24 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50">
       <Header />
       
-      {/* Redesigned Hero Section with Integrated Price Calculator */}
+      {/* Simplified Hero Section with Clean Background */}
       <section className="relative overflow-hidden py-16">
-        {/* Enhanced Background with Italian Theme */}
+        {/* Clean Italian-themed Background */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-600/8 to-red-800/8" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-bl from-red-300/10 to-transparent" />
+          {/* Simple gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-white/90 to-red-500/5" />
           
-          {/* Floating Elements */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-green-400/15 to-red-600/15 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-red-400/10 to-green-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-red-300/8 to-green-500/8 rounded-full blur-3xl animate-pulse delay-500" />
+          {/* Subtle geometric pattern */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-0 left-0 w-full h-full" style={{
+              backgroundImage: `radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(239, 68, 68, 0.1) 0%, transparent 50%)`,
+              backgroundSize: '800px 800px'
+            }} />
+          </div>
           
-          {/* Geometric Elements */}
-          <motion.div
-            animate={{ y: [-20, 20, -20], rotate: [0, 180, 360] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/4 left-1/6 w-4 h-4 bg-gradient-to-br from-green-400 to-red-600 rounded transform rotate-45 opacity-20"
-          />
-          <motion.div
-            animate={{ y: [30, -30, 30], rotate: [360, 180, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute top-3/4 right-1/4 w-6 h-6 bg-gradient-to-br from-red-400 to-green-600 rounded-full opacity-15"
-          />
+          {/* Minimal floating elements */}
+          <div className="absolute top-1/4 right-1/4 w-2 h-2 bg-green-400/40 rounded-full animate-pulse" />
+          <div className="absolute bottom-1/3 left-1/3 w-3 h-3 bg-red-400/30 rounded-full animate-pulse delay-1000" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -60,7 +54,7 @@ const Home = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
-                className="inline-flex items-center bg-gradient-to-r from-green-100 via-red-50 to-green-100 border border-green-200/50 px-6 py-3 rounded-full shadow-lg backdrop-blur-sm"
+                className="inline-flex items-center bg-white/80 backdrop-blur-sm border border-green-200/60 px-6 py-3 rounded-full shadow-md"
               >
                 <Mountain className="h-5 w-5 text-green-600 mr-3" />
                 <span className="text-green-800 font-semibold">Gasolio Premium per l'Italia</span>
@@ -93,7 +87,7 @@ const Home = () => {
                 transition={{ delay: 0.4, duration: 0.6 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4"
               >
-                <div className="flex items-center space-x-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-green-200/30 shadow-lg">
+                <div className="flex items-center space-x-3 p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-green-200/40 shadow-sm">
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-red-600 rounded-lg flex items-center justify-center">
                     <Shield className="h-5 w-5 text-white" />
                   </div>
@@ -103,7 +97,7 @@ const Home = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200/30 shadow-lg">
+                <div className="flex items-center space-x-3 p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-red-200/40 shadow-sm">
                   <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-green-500 rounded-lg flex items-center justify-center">
                     <Clock className="h-5 w-5 text-white" />
                   </div>
@@ -113,7 +107,7 @@ const Home = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-green-200/30 shadow-lg">
+                <div className="flex items-center space-x-3 p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-green-200/40 shadow-sm">
                   <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-green-600 rounded-lg flex items-center justify-center">
                     <Award className="h-5 w-5 text-white" />
                   </div>
@@ -123,7 +117,7 @@ const Home = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200/30 shadow-lg">
+                <div className="flex items-center space-x-3 p-4 bg-white/70 backdrop-blur-sm rounded-xl border border-red-200/40 shadow-sm">
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-red-600 rounded-lg flex items-center justify-center">
                     <Star className="h-5 w-5 text-white fill-current" />
                   </div>
@@ -141,7 +135,7 @@ const Home = () => {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="flex items-center space-x-4 pt-4"
               >
-                <div className="flex space-x-1 shadow-lg rounded-md overflow-hidden">
+                <div className="flex space-x-1 shadow-md rounded-md overflow-hidden">
                   <div className="w-8 h-6 bg-green-600"></div>
                   <div className="w-8 h-6 bg-white border-x border-gray-200"></div>
                   <div className="w-8 h-6 bg-red-600"></div>
@@ -162,9 +156,9 @@ const Home = () => {
             >
               <PriceCalculator />
               
-              {/* Decorative elements around calculator */}
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-gradient-to-br from-green-200 to-red-300 rounded-full opacity-40 blur-xl" />
-              <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-gradient-to-tl from-red-200 to-green-300 rounded-full opacity-30 blur-xl" />
+              {/* Subtle decorative elements around calculator */}
+              <div className="absolute -top-4 -left-4 w-16 h-16 bg-green-200/30 rounded-full blur-lg" />
+              <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-red-200/20 rounded-full blur-lg" />
             </motion.div>
           </div>
         </div>
