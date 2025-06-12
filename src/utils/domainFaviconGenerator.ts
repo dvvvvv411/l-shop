@@ -25,20 +25,6 @@ const getIconSVG = (iconType: string, color: string): string => {
           <line x1="16" y1="16" x2="24" y2="8" stroke="${color}" stroke-width="1" opacity="0.5"/>
         </svg>
       `;
-    case 'mountain':
-      return `
-        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 4L8 24h16L16 4z" fill="${color}"/>
-          <path d="M10 20L16 10l6 10H10z" fill="${color}" opacity="0.7"/>
-        </svg>
-      `;
-    case 'sun':
-      return `
-        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="6" fill="${color}"/>
-          <path d="M16 2v4M16 26v4M30 16h-4M6 16H2M26.5 5.5l-2.8 2.8M8.3 23.7l-2.8 2.8M26.5 26.5l-2.8-2.8M8.3 8.3L5.5 5.5" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      `;
     default:
       return getIconSVG('flame', color);
   }
