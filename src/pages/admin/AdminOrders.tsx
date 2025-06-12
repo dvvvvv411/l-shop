@@ -80,14 +80,33 @@ const AdminOrders = () => {
     // If use_same_address is explicitly false, then they have different addresses
     if (order.use_same_address === false) return true;
     
-    // If delivery fields exist and differ from billing, consider it different
-    if (order.delivery_street && order.delivery_postcode && order.delivery_city) {
-      const deliveryAddress = `${order.delivery_street} ${order.delivery_postcode} ${order.delivery_city}`.toLowerCase();
-      const billingAddress = `${order.customer_address} ${order.billing_postcode || ''} ${order.billing_city || ''}`.toLowerCase();
-      return deliveryAddress !== billingAddress;
+    // If use_same_address is true, then they should be the same
+    if (order.use_same_address === true) return false;
+    
+    // If use_same_address is null/undefined, we need to compare the actual addresses
+    // Check if delivery fields exist and are filled
+    if (!order.delivery_street || !order.delivery_postcode || !order.delivery_city) {
+      // No delivery address specified, so they're using billing address
+      return false;
     }
     
-    return false;
+    // Compare delivery address with billing address
+    const deliveryAddress = `${order.delivery_street.trim().toLowerCase()} ${order.delivery_postcode.trim()} ${order.delivery_city.trim().toLowerCase()}`;
+    
+    // Build billing address from available fields
+    const billingStreet = order.billing_street || order.customer_address || '';
+    const billingPostcode = order.billing_postcode || '';
+    const billingCity = order.billing_city || '';
+    
+    const billingAddress = `${billingStreet.trim().toLowerCase()} ${billingPostcode.trim()} ${billingCity.trim().toLowerCase()}`;
+    
+    // If billing address is empty, compare with customer_address (fallback)
+    if (!billingStreet && !billingPostcode && !billingCity) {
+      const customerAddress = order.customer_address.trim().toLowerCase();
+      return deliveryAddress !== customerAddress;
+    }
+    
+    return deliveryAddress !== billingAddress;
   };
 
   const handleSelectAll = (checked: boolean) => {
