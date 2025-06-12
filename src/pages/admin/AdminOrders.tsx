@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt } from 'lucide-react';
+import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt, Truck } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -75,6 +75,21 @@ const AdminOrders = () => {
     }
   };
 
+  // Helper function to check if delivery address differs from billing
+  const hasDifferentDeliveryAddress = (order: Order) => {
+    // If use_same_address is explicitly false, then they have different addresses
+    if (order.use_same_address === false) return true;
+    
+    // If delivery fields exist and differ from billing, consider it different
+    if (order.delivery_street && order.delivery_postcode && order.delivery_city) {
+      const deliveryAddress = `${order.delivery_street} ${order.delivery_postcode} ${order.delivery_city}`.toLowerCase();
+      const billingAddress = `${order.customer_address} ${order.billing_postcode || ''} ${order.billing_city || ''}`.toLowerCase();
+      return deliveryAddress !== billingAddress;
+    }
+    
+    return false;
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedOrders(paginatedOrders.map(order => order.id));
@@ -109,7 +124,7 @@ const AdminOrders = () => {
 
   const exportToCSV = () => {
     // Updated headers to include "Zahlungsmethode" column
-    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'PLZ', 'Stadt', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Zahlungsmethode', 'Letztes Update', 'Status'];
+    const headers = ['Datum', 'Bestellnummer', 'Kunde', 'Telefon', 'Adresse', 'Produkt', 'Menge (L)', 'Gesamtpreis', 'Bankkonto', 'Domain', 'Zahlungsmethode', 'Abw. Lieferadresse', 'Letztes Update', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(order => {
@@ -122,14 +137,14 @@ const AdminOrders = () => {
           order.order_number,
           order.customer_name,
           order.customer_phone || '',
-          order.delivery_postcode || '',
-          order.delivery_city || '',
+          `${order.delivery_street || order.customer_address} ${order.delivery_postcode || ''} ${order.delivery_city || ''}`,
           order.product || 'Standard Heizöl',
           order.liters,
           order.total_amount,
           getBankAccountSystemName(order.bank_account_id),
           order.origin_domain || '',
           getPaymentMethodLabel(order.payment_method),
+          hasDifferentDeliveryAddress(order) ? 'Ja' : 'Nein',
           lastUpdate,
           order.status
         ].join(',');
@@ -321,7 +336,13 @@ const AdminOrders = () => {
                         Telefon
                       </div>
                     </TableHead>
-                    <TableHead className="min-w-[90px]">PLZ / Stadt</TableHead>
+                    <TableHead className="min-w-[140px]">Adresse</TableHead>
+                    <TableHead className="min-w-[90px]">
+                      <div className="flex items-center gap-1">
+                        <Truck className="h-4 w-4" />
+                        Abw. Lieferadresse
+                      </div>
+                    </TableHead>
                     <TableHead className="min-w-[80px]">Produkt</TableHead>
                     <TableHead className="min-w-[80px]">
                       Menge (L)
@@ -411,9 +432,24 @@ const AdminOrders = () => {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <div>{order.delivery_postcode}</div>
-                            <div className="text-gray-500">{order.delivery_city}</div>
+                            <div className="font-medium">
+                              {order.delivery_street || order.customer_address}
+                            </div>
+                            <div className="text-gray-500">
+                              {order.delivery_postcode || ''} {order.delivery_city || ''}
+                            </div>
                           </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {hasDifferentDeliveryAddress(order) ? (
+                            <div className="flex items-center justify-center">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full" title="Abweichende Lieferadresse"></div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center">
+                              <div className="w-2 h-2 bg-gray-300 rounded-full" title="Gleiche Adresse"></div>
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell className="text-sm">{order.product || 'Standard Heizöl'}</TableCell>
                         <TableCell className="font-medium">{order.liters.toLocaleString()}</TableCell>
