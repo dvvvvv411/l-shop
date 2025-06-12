@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/v5/Header';
@@ -170,33 +169,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Redesigned Trust Section with Better Readability */}
+      {/* Trust Section with Footer-matching Background */}
       <section className="relative py-16 overflow-hidden">
-        {/* New Background Design for Better Text Readability */}
+        {/* Footer-matching Background */}
         <div className="absolute inset-0">
-          {/* Solid Dark Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-800 via-green-700 to-green-900" />
+          {/* Main gradient matching footer */}
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-green-900" />
           
-          {/* Subtle Italian-inspired overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-green-800/95 via-green-700/90 to-red-800/95" />
-          
-          {/* Decorative Elements that don't interfere with text */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {/* Subtle decorative circles */}
-            <div className="absolute -top-32 -left-32 w-96 h-96 bg-green-600/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-600/10 rounded-full blur-3xl" />
-            
-            {/* Mountain silhouettes for Italian theme */}
-            <svg className="absolute bottom-0 left-0 w-full h-32 opacity-5" viewBox="0 0 1200 200" fill="none">
-              <path d="M0 200L150 80L300 120L450 40L600 100L750 60L900 140L1050 80L1200 120V200H0Z" fill="currentColor" className="text-green-600"/>
-            </svg>
-            
-            {/* Very subtle geometric pattern */}
-            <div className="absolute inset-0 opacity-3" style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-              backgroundSize: '80px 80px'
-            }} />
-          </div>
+          {/* Decorative elements */}
+          <div className="absolute top-20 left-20 w-40 h-40 bg-green-600/20 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-20 right-20 w-32 h-32 bg-red-600/20 rounded-full blur-2xl"></div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
