@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FileText, Building2, CreditCard, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -153,6 +154,11 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
     return account.system_name;
   };
 
+  // Handler for checkbox change that converts CheckedState to boolean
+  const handleNotesCheckboxChange = (checked: boolean | "indeterminate") => {
+    setEnableAdditionalNotes(checked === true);
+  };
+
   if (!order) return null;
 
   const selectedBankAccount = activeBankAccounts.find(account => account.id === selectedBankAccountId);
@@ -260,7 +266,7 @@ const InvoiceCreationDialog: React.FC<InvoiceCreationDialogProps> = ({
                   <Checkbox 
                     id="enable-notes" 
                     checked={enableAdditionalNotes}
-                    onCheckedChange={setEnableAdditionalNotes}
+                    onCheckedChange={handleNotesCheckboxChange}
                   />
                   <Label htmlFor="enable-notes" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     Zusätzliche Anmerkungen hinzufügen
