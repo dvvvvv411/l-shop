@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -50,6 +49,8 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
   const data = orderData || fallbackData;
   const finalPrice = data.totalPrice;
 
+  console.log('OrderSummary - Bank account details received:', bankAccountDetails);
+
   return (
     <div className="space-y-6">
       {/* Bank Account Details for French Shop - Show prominently at top */}
@@ -76,6 +77,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
                 <div className="text-green-900 font-bold">{bankAccountDetails.account_holder}</div>
               </div>
+              
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
                 <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>

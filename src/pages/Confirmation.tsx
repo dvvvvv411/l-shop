@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -58,6 +57,10 @@ const Confirmation = () => {
         const italienChampionAccount = bankAccounts.find(
           account => account.system_name === 'Italien Champion'
         );
+        
+        console.log('Confirmation - Found Italien Champion account:', italienChampionAccount);
+        console.log('Confirmation - Available shops:', shops);
+        
         if (italienChampionAccount) {
           setBankAccountDetails(italienChampionAccount);
           
@@ -65,13 +68,22 @@ const Confirmation = () => {
           if (italienChampionAccount.anyname) {
             // Use French shop's company name
             const frenchShop = shops.find(shop => shop.name === 'France');
-            const accountHolderName = frenchShop?.company_name || italienChampionAccount.account_holder;
-            setDisplayAccountHolder(accountHolderName);
+            console.log('Confirmation - French shop found:', frenchShop);
+            
+            if (frenchShop?.company_name) {
+              setDisplayAccountHolder(frenchShop.company_name);
+              console.log('Confirmation - Using French shop company name:', frenchShop.company_name);
+            } else {
+              // Fallback to original account holder if French shop not found
+              setDisplayAccountHolder(italienChampionAccount.account_holder);
+              console.log('Confirmation - Fallback to original account holder:', italienChampionAccount.account_holder);
+            }
           } else {
             setDisplayAccountHolder(italienChampionAccount.account_holder);
+            console.log('Confirmation - Using original account holder (not anyname):', italienChampionAccount.account_holder);
           }
           
-          console.log('Found Italien Champion bank account for French shop');
+          console.log('Confirmation - Final display account holder:', displayAccountHolder);
         }
       }
     };
@@ -179,8 +191,9 @@ const Confirmation = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">Titulaire du compte</div>
-                          <div className="text-green-900 font-semibold">{displayAccountHolder}</div>
+                          <div className="text-green-900 font-semibold">{displayAccountHolder || bankAccountDetails.account_holder}</div>
                         </div>
+                        
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">Banque</div>
                           <div className="text-green-900 font-semibold">{bankAccountDetails.bank_name}</div>
@@ -415,7 +428,7 @@ const Confirmation = () => {
                   }}
                   bankAccountDetails={bankAccountDetails ? {
                     ...bankAccountDetails,
-                    account_holder: displayAccountHolder
+                    account_holder: displayAccountHolder || bankAccountDetails.account_holder
                   } : null}
                   orderNumber={orderNumber}
                 />

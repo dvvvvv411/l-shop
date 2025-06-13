@@ -51,6 +51,10 @@ const CheckoutConfirmation = ({
       const italienChampionAccount = bankAccounts.find(
         account => account.system_name === 'Italien Champion'
       );
+      
+      console.log('Found Italien Champion account:', italienChampionAccount);
+      console.log('Available shops:', shops);
+      
       if (italienChampionAccount) {
         setBankAccountDetails(italienChampionAccount);
         
@@ -58,13 +62,22 @@ const CheckoutConfirmation = ({
         if (italienChampionAccount.anyname) {
           // Use French shop's company name
           const frenchShop = shops.find(shop => shop.name === 'France');
-          const accountHolderName = frenchShop?.company_name || italienChampionAccount.account_holder;
-          setDisplayAccountHolder(accountHolderName);
+          console.log('French shop found:', frenchShop);
+          
+          if (frenchShop?.company_name) {
+            setDisplayAccountHolder(frenchShop.company_name);
+            console.log('Using French shop company name:', frenchShop.company_name);
+          } else {
+            // Fallback to original account holder if French shop not found
+            setDisplayAccountHolder(italienChampionAccount.account_holder);
+            console.log('Fallback to original account holder:', italienChampionAccount.account_holder);
+          }
         } else {
           setDisplayAccountHolder(italienChampionAccount.account_holder);
+          console.log('Using original account holder (not anyname):', italienChampionAccount.account_holder);
         }
         
-        console.log('Found Italien Champion bank account for French checkout');
+        console.log('Final display account holder:', displayAccountHolder);
       }
     }
   }, [isFrenchShop, bankAccounts, shops]);
@@ -135,8 +148,9 @@ const CheckoutConfirmation = ({
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
+                  <div className="text-green-900 font-bold">{displayAccountHolder || bankAccountDetails.account_holder}</div>
                 </div>
+                
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
                   <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
