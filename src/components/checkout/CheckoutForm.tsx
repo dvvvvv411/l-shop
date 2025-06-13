@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -13,6 +14,7 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
+import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -73,8 +75,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
   const { toast } = useToast();
-  const t = useCheckoutTranslations();
   const shopConfig = useDomainShop();
+  
+  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  const germanFrenchTranslations = useCheckoutTranslations();
+  const italianTranslations = useItalianCheckoutTranslations();
+  const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
   // Check if current checkout is French
   const isFrenchCheckout = () => {
