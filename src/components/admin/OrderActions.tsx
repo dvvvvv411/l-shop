@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -113,26 +114,85 @@ const OrderActions: React.FC<OrderActionsProps> = ({
     setIsDeleting(true);
     
     try {
-      // First delete email sending logs
+      console.log('Starting order deletion process for order:', order.id);
+
+      // Step 1: Delete order notes first
+      const { error: notesError } = await supabase
+        .from('order_notes')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (notesError) {
+        console.error('Error deleting order notes:', notesError);
+        // Continue with deletion even if notes deletion fails
+      } else {
+        console.log('Successfully deleted order notes');
+      }
+
+      // Step 2: Delete order status history
+      const { error: historyError } = await supabase
+        .from('order_status_history')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (historyError) {
+        console.error('Error deleting order status history:', historyError);
+        // Continue with deletion even if history deletion fails
+      } else {
+        console.log('Successfully deleted order status history');
+      }
+
+      // Step 3: Delete email sending logs
       const { error: emailError } = await supabase
         .from('email_sending_logs')
         .delete()
         .eq('order_id', order.id);
 
       if (emailError) {
-        console.error('Error deleting email logs:', emailError);
-        // Continue with order deletion even if email log deletion fails
+        console.error('Error deleting email sending logs:', emailError);
+        throw new Error('Fehler beim Löschen der E-Mail-Logs: ' + emailError.message);
+      } else {
+        console.log('Successfully deleted email sending logs');
       }
 
-      // Then delete the order
+      // Step 4: Delete bank account transactions if any
+      const { error: transactionError } = await supabase
+        .from('bank_account_transactions')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (transactionError) {
+        console.error('Error deleting bank account transactions:', transactionError);
+        // Continue with deletion even if transaction deletion fails
+      } else {
+        console.log('Successfully deleted bank account transactions');
+      }
+
+      // Step 5: Delete invoices if any
+      const { error: invoiceError } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (invoiceError) {
+        console.error('Error deleting invoices:', invoiceError);
+        // Continue with deletion even if invoice deletion fails
+      } else {
+        console.log('Successfully deleted invoices');
+      }
+
+      // Step 6: Finally delete the order itself
       const { error: orderError } = await supabase
         .from('orders')
         .delete()
         .eq('id', order.id);
 
       if (orderError) {
-        throw orderError;
+        console.error('Error deleting order:', orderError);
+        throw new Error('Fehler beim Löschen der Bestellung: ' + orderError.message);
       }
+
+      console.log('Successfully deleted order');
 
       toast({
         title: 'Erfolg',
@@ -145,10 +205,10 @@ const OrderActions: React.FC<OrderActionsProps> = ({
       }
 
     } catch (error) {
-      console.error('Error deleting order:', error);
+      console.error('Error in order deletion process:', error);
       toast({
         title: 'Fehler',
-        description: 'Fehler beim Löschen der Bestellung.',
+        description: error instanceof Error ? error.message : 'Fehler beim Löschen der Bestellung.',
         variant: 'destructive',
       });
     } finally {
