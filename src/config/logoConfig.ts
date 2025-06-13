@@ -1,3 +1,4 @@
+
 export interface LogoConfig {
   name: string;
   className: string;
@@ -39,7 +40,7 @@ export const logoConfigs: Record<string, LogoConfig> = {
   },
   '/5/home': {
     name: 'Gasolio Veloce',
-    className: 'h-16 w-auto',
+    className: 'h-24 w-auto',
     textContent: 'Gasolio IT',
     imageUrl: 'https://i.imgur.com/jqTOPp6.png',
     useImage: true,
@@ -77,7 +78,7 @@ export const logoConfigs: Record<string, LogoConfig> = {
   },
   'italy': {
     name: 'Gasolio Veloce',
-    className: 'h-16 w-auto',
+    className: 'h-24 w-auto',
     textContent: 'Gasolio IT',
     imageUrl: 'https://i.imgur.com/jqTOPp6.png',
     useImage: true,
