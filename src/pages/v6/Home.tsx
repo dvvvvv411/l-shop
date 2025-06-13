@@ -2,12 +2,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v6/Header';
-import PriceCalculator from '../../components/v6/PriceCalculator';
-import TrustElements from '../../components/v6/TrustElements';
-import StatsSection from '../../components/v6/StatsSection';
-import WhyChooseUs from '../../components/v6/WhyChooseUs';
-import HowItWorks from '../../components/v6/HowItWorks';
-import FAQ from '../../components/v6/FAQ';
+import PriceCalculator from '../../components/PriceCalculator';
+import TrustElements from '../../components/TrustElements';
+import StatsSection from '../../components/StatsSection';
+import ProductComparison from '../../components/ProductComparison';
+import WhyChooseUs from '../../components/WhyChooseUs';
+import HowItWorks from '../../components/HowItWorks';
+import FAQ from '../../components/FAQ';
 import Footer from '../../components/Footer';
 import { Sun, Star } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
@@ -20,18 +21,18 @@ const Home = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 py-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-amber-50 via-white to-red-50 py-24 overflow-hidden">
         {/* Enhanced Background Pattern with Malta-themed Animation */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-32 h-32 bg-amber-600 rounded-full blur-3xl malta-sun-animation"></div>
-          <div className="absolute bottom-20 right-10 w-48 h-48 bg-orange-400 rounded-full blur-3xl malta-sun-animation-delayed"></div>
+          <div className="absolute bottom-20 right-10 w-48 h-48 bg-red-400 rounded-full blur-3xl malta-sun-animation-delayed"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-300 rounded-full blur-3xl wave-animation"></div>
         </div>
 
         {/* Floating elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-amber-400 rounded-full opacity-30 malta-float-1"></div>
-          <div className="absolute top-3/4 right-1/4 w-6 h-6 bg-orange-500 rounded-full opacity-20 malta-float-2"></div>
+          <div className="absolute top-3/4 right-1/4 w-6 h-6 bg-red-500 rounded-full opacity-20 malta-float-2"></div>
           <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-amber-600 rounded-full opacity-25 malta-float-3"></div>
         </div>
 
@@ -94,9 +95,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* All Other Sections with Malta-specific components */}
+      {/* New Trust Elements Section */}
       <TrustElements />
+
+      {/* All Other Sections */}
       <StatsSection />
+      <ProductComparison />
       <WhyChooseUs />
       <HowItWorks />
       <FAQ />
