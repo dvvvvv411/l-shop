@@ -1,4 +1,3 @@
-
 export interface LogoConfig {
   name: string;
   className: string;
@@ -42,9 +41,9 @@ export const logoConfigs: Record<string, LogoConfig> = {
     name: 'Gasolio Veloce',
     className: 'h-16 w-auto',
     textContent: 'Gasolio IT',
-    imageUrl: 'https://i.imgur.com/8XqJ9mK.png',
+    imageUrl: 'https://i.imgur.com/jqTOPp6.png',
     useImage: true,
-    footerImageUrl: 'https://i.imgur.com/7PqL3nM.png'
+    footerImageUrl: 'https://i.imgur.com/jqTOPp6.png'
   },
   // Domain-specific configurations
   'stanton': {
@@ -80,9 +79,9 @@ export const logoConfigs: Record<string, LogoConfig> = {
     name: 'Gasolio Veloce',
     className: 'h-16 w-auto',
     textContent: 'Gasolio IT',
-    imageUrl: 'https://i.imgur.com/8XqJ9mK.png',
+    imageUrl: 'https://i.imgur.com/jqTOPp6.png',
     useImage: true,
-    footerImageUrl: 'https://i.imgur.com/7PqL3nM.png'
+    footerImageUrl: 'https://i.imgur.com/jqTOPp6.png'
   },
   'root': {
     name: 'HeizölDirekt',
