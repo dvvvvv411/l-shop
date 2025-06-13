@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown, EyeOff } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Receipt, Eye, ExternalLink, CheckCircle, ArrowUpDown, ArrowDown, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import { useOrders } from '@/hooks/useOrders';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import InvoiceCreationDialog from './InvoiceCreationDialog';
 import InvoiceViewerDialog from './InvoiceViewerDialog';
 import OrderStatusHistorySection from './OrderStatusHistorySection';
@@ -22,6 +23,7 @@ interface OrderActionsProps {
   hasPrevious: boolean;
   hasNext: boolean;
   onOrderUpdate?: (updatedOrder: Partial<Order>) => void;
+  onOrderDeleted?: () => void;
 }
 
 const OrderActions: React.FC<OrderActionsProps> = ({
@@ -33,13 +35,16 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   onNavigateOrder,
   hasPrevious,
   hasNext,
-  onOrderUpdate
+  onOrderUpdate,
+  onOrderDeleted
 }) => {
   const { generateInvoice, isGenerating } = useInvoiceGeneration();
   const { hideOrder, unhideOrder } = useOrders();
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { addStatusChange, refetch: refetchHistory } = useOrderStatusHistory(order.id);
+  const { toast } = useToast();
 
   const handleGenerateInvoice = async () => {
     try {
@@ -97,6 +102,57 @@ const OrderActions: React.FC<OrderActionsProps> = ({
       }
     } catch (error) {
       console.error('Failed to unhide order:', error);
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    if (!confirm('Sind Sie sicher, dass Sie diese Bestellung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      // First delete email sending logs
+      const { error: emailError } = await supabase
+        .from('email_sending_logs')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (emailError) {
+        console.error('Error deleting email logs:', emailError);
+        // Continue with order deletion even if email log deletion fails
+      }
+
+      // Then delete the order
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id);
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      toast({
+        title: 'Erfolg',
+        description: 'Bestellung wurde erfolgreich gelöscht.',
+      });
+
+      // Notify parent component that order was deleted
+      if (onOrderDeleted) {
+        onOrderDeleted();
+      }
+
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Fehler beim Löschen der Bestellung.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -269,6 +325,19 @@ const OrderActions: React.FC<OrderActionsProps> = ({
                 Bestellung ausblenden
               </Button>
             )
+          )}
+
+          {/* Delete Order - Only show for pending orders */}
+          {currentStatus === 'pending' && (
+            <Button
+              variant="outline"
+              className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
+              onClick={handleDeleteOrder}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {isDeleting ? 'Wird gelöscht...' : 'Bestellung löschen'}
+            </Button>
           )}
         </CardContent>
       </Card>

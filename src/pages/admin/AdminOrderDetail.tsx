@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -238,6 +237,14 @@ const AdminOrderDetail = () => {
     }
   };
 
+  const handleOrderDeleted = () => {
+    toast({
+      title: 'Bestellung gelöscht',
+      description: 'Die Bestellung wurde erfolgreich gelöscht.',
+    });
+    navigate('/admin/orders');
+  };
+
   const subtotal = currentOrder.liters * Number(currentOrder.price_per_liter);
 
   return (
@@ -446,6 +453,7 @@ const AdminOrderDetail = () => {
               hasPrevious={hasPrevious}
               hasNext={hasNext}
               onOrderUpdate={handleOrderUpdate}
+              onOrderDeleted={handleOrderDeleted}
             />
           </motion.div>
 

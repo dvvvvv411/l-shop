@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -11,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown, Mail } from 'lucide-react';
+import { Receipt, Eye, CheckCircle, Globe, ArrowUpDown, ArrowDown, Mail, Trash2 } from 'lucide-react';
 import { Order } from '@/hooks/useOrders';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +30,7 @@ interface OrderDetailsDialogProps {
   onClose: () => void;
   onOrderUpdate?: (orderId: string, updatedData: Partial<Order>) => void;
   onStatusChange?: (orderId: string, status: string) => void;
+  onOrderDeleted?: (orderId: string) => void;
 }
 
 const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
@@ -39,12 +39,14 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
   onClose,
   onOrderUpdate,
   onStatusChange,
+  onOrderDeleted,
 }) => {
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isInvoiceViewerOpen, setIsInvoiceViewerOpen] = useState(false);
   const [isCustomerEmailDialogOpen, setIsCustomerEmailDialogOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const { addStatusChange } = useOrderStatusHistory(order?.id || '');
 
@@ -441,6 +443,62 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
     setEditingCard(null);
   };
 
+  const handleDeleteOrder = async () => {
+    if (!order) return;
+
+    if (!confirm('Sind Sie sicher, dass Sie diese Bestellung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      // First delete email sending logs
+      const { error: emailError } = await supabase
+        .from('email_sending_logs')
+        .delete()
+        .eq('order_id', order.id);
+
+      if (emailError) {
+        console.error('Error deleting email logs:', emailError);
+        // Continue with order deletion even if email log deletion fails
+      }
+
+      // Then delete the order
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id);
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      toast({
+        title: 'Erfolg',
+        description: 'Bestellung wurde erfolgreich gelöscht.',
+      });
+
+      // Notify parent component that order was deleted
+      if (onOrderDeleted) {
+        onOrderDeleted(order.id);
+      }
+
+      // Close the dialog
+      onClose();
+
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Fehler beim Löschen der Bestellung.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -544,6 +602,19 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Rechnung anzeigen
+                      </Button>
+                    )}
+
+                    {/* Delete Order - Only show for pending orders */}
+                    {order.status === 'pending' && (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50"
+                        onClick={handleDeleteOrder}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {isDeleting ? 'Wird gelöscht...' : 'Bestellung löschen'}
                       </Button>
                     )}
                   </div>
