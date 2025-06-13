@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Calendar, Truck, Package, Phone, Mail } from 'lucide-react';
+import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useOrder } from '@/contexts/OrderContext';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 
 interface PriceCalculatorData {
   product: {
@@ -39,6 +40,21 @@ const CheckoutConfirmation = ({
   const t = useCheckoutTranslations();
   const shopConfig = useDomainShop();
   const isFrenchShop = shopConfig.shopType === 'france';
+  const { bankAccounts } = useBankAccounts();
+  const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
+
+  // Fetch bank account details for French shop
+  useEffect(() => {
+    if (isFrenchShop) {
+      const italienChampionAccount = bankAccounts.find(
+        account => account.system_name === 'Italien Champion'
+      );
+      if (italienChampionAccount) {
+        setBankAccountDetails(italienChampionAccount);
+        console.log('Found Italien Champion bank account for French checkout');
+      }
+    }
+  }, [isFrenchShop, bankAccounts]);
 
   if (!contextOrderData) {
     return (
@@ -83,6 +99,57 @@ const CheckoutConfirmation = ({
             <div className="text-2xl font-bold text-red-700">{orderNumber}</div>
           </div>
         </motion.div>
+
+        {/* Bank Account Details for French Shop - Show prominently */}
+        {isFrenchShop && bankAccountDetails && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="bg-green-50 border-2 border-green-300 rounded-xl p-6 shadow-lg"
+          >
+            <div className="flex items-center mb-4">
+              <div className="bg-green-100 p-3 rounded-full mr-4">
+                <Building2 className="text-green-600" size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-green-900">Coordonnées bancaires</h3>
+                <p className="text-green-700">Pour votre virement</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
+                  <div className="text-green-900 font-bold">{bankAccountDetails.account_holder}</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
+                  <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
+                  <div className="text-green-900 font-mono font-bold">{bankAccountDetails.bic}</div>
+                </div>
+                
+                <div className="bg-green-100 p-3 rounded-lg border border-green-200">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Référence</div>
+                  <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
+                </div>
+                
+                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Montant à virer</div>
+                  <div className="text-red-900 font-bold text-xl">{contextOrderData.total.toFixed(2)}€</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Payment Instructions */}
         <motion.div
