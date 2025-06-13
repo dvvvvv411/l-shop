@@ -3,29 +3,75 @@ import { useMemo } from 'react';
 import { useDomainShop } from './useDomainShop';
 
 export interface ItalianCheckoutTranslations {
-  navigation: {
-    back: string;
-    cart: string;
-    information: string;
-    shipping: string;
-    payment: string;
-    secureEncryption: string;
+  // Form sections - matching CheckoutTranslations structure
+  emailSection: {
+    title: string;
+    subtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
   };
+  deliverySection: {
+    title: string;
+    subtitle: string;
+    firstNameLabel: string;
+    lastNameLabel: string;
+    streetLabel: string;
+    postcodeLabel: string;
+    cityLabel: string;
+    phoneLabel: string;
+    firstNamePlaceholder: string;
+    lastNamePlaceholder: string;
+    streetPlaceholder: string;
+    postcodePlaceholder: string;
+    cityPlaceholder: string;
+    phonePlaceholder: string;
+  };
+  billingSection: {
+    title: string;
+    subtitle: string;
+    sameAddressLabel: string;
+  };
+  paymentSection: {
+    title: string;
+    subtitle: string;
+    vorkasse: {
+      title: string;
+      description: string;
+      recommended: string;
+    };
+    rechnung: {
+      title: string;
+      description: string;
+      existingCustomers: string;
+    };
+  };
+  termsSection: {
+    title: string;
+    subtitle: string;
+    withdrawalTitle: string;
+    withdrawalText: string;
+    acceptTermsText: string;
+    submitButton: string;
+    submittingButton: string;
+  };
+  // Summary section
   summary: {
+    orderSummary: string;
     showOrder: string;
-    inclVat: string;
-    pricePerLiter: string;
+    product: string;
     quantity: string;
-    discountPlaceholder: string;
-    checkingButton: string;
-    applyButton: string;
+    pricePerLiter: string;
     subtotal: string;
     shipping: string;
     free: string;
     net: string;
     vat: string;
     total: string;
+    inclVat: string;
     ofWhichVat: string;
+    discountPlaceholder: string;
+    applyButton: string;
+    checkingButton: string;
     deliveryInfo: string;
     workdays: string;
     afterPayment: string;
@@ -34,47 +80,59 @@ export interface ItalianCheckoutTranslations {
     securePayment: string;
     timelyDelivery: string;
     fairPrices: string;
+    confirmedOrder: string;
   };
-  form: {
-    contactInformation: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    shippingAddress: string;
-    street: string;
-    postcode: string;
-    city: string;
-    billingAddress: string;
-    useSameAddress: string;
-    paymentMethod: string;
-    bankTransfer: string;
-    submitOrder: string;
-  };
+  // Confirmation section
   confirmation: {
     title: string;
     subtitle: string;
     orderNumber: string;
-    thankYou: string;
+    orderSuccess: string;
+    paymentInstructions: string;
+    howToPay: string;
     nextSteps: string;
-    transferInfo: string;
-    bankDetails: string;
-    invoiceGenerated: string;
-    newOrder: string;
+    phoneContact: string;
+    phoneContactDesc: string;
+    bankTransfer: string;
+    bankTransferDesc: string;
+    delivery: string;
+    deliveryDesc: string;
+    deliveryInformation: string;
+    deliveryDetails: string;
+    deliveryTerm: string;
+    deliveryAddress: string;
+    importantNote: string;
+    importantNoteDesc: string;
+    basePrice: string;
+    deliveryLabel: string;
   };
-  validation: {
-    emailRequired: string;
-    emailInvalid: string;
-    firstNameRequired: string;
-    lastNameRequired: string;
-    phoneRequired: string;
-    phoneInvalid: string;
-    streetRequired: string;
-    postcodeRequired: string;
-    postcodeInvalid: string;
-    cityRequired: string;
-    termsRequired: string;
+  // Navigation
+  navigation: {
+    back: string;
+    cart: string;
+    information: string;
+    shipping: string;
+    payment: string;
+    secureEncryption: string;
   };
+  // Header
+  header: {
+    securePayment: string;
+    sslEncrypted: string;
+  };
+  // Loading and system messages
+  system: {
+    loadingOrderData: string;
+    testDataGenerated: string;
+    testDataDescription: string;
+    emailSendTitle: string;
+    emailSendDescription: string;
+    errorTitle: string;
+    errorDescription: string;
+    orderProcessedTitle: string;
+    orderProcessedDescription: string;
+  };
+  // Toast notifications
   toasts: {
     noOrderDataTitle: string;
     noOrderDataDescription: string;
@@ -82,41 +140,88 @@ export interface ItalianCheckoutTranslations {
     invalidOrderDataDescription: string;
     loadOrderDataErrorTitle: string;
     loadOrderDataErrorDescription: string;
-    orderSuccessTitle: string;
-    orderSuccessDescription: string;
-    orderErrorTitle: string;
-    orderErrorDescription: string;
   };
-  system: {
-    loadingOrderData: string;
-    processing: string;
+  // Validation messages
+  validation: {
+    emailRequired: string;
+    firstNameRequired: string;
+    lastNameRequired: string;
+    streetRequired: string;
+    postcodeRequired: string;
+    cityRequired: string;
+    phoneRequired: string;
+    termsRequired: string;
   };
 }
 
 const italianTranslations: ItalianCheckoutTranslations = {
-  navigation: {
-    back: 'Indietro',
-    cart: 'Carrello',
-    information: 'Informazioni',
-    shipping: 'Spedizione',
-    payment: 'Pagamento',
-    secureEncryption: 'Pagamento sicuro con crittografia SSL'
+  emailSection: {
+    title: 'Indirizzo e-mail',
+    subtitle: 'Per la conferma dell\'ordine e la comunicazione',
+    emailLabel: 'Indirizzo e-mail *',
+    emailPlaceholder: 'la.tua.email@esempio.it'
+  },
+  deliverySection: {
+    title: 'Indirizzo di consegna',
+    subtitle: 'Dove deve essere consegnato il gasolio?',
+    firstNameLabel: 'Nome *',
+    lastNameLabel: 'Cognome *',
+    streetLabel: 'Via e numero civico *',
+    postcodeLabel: 'CAP *',
+    cityLabel: 'Città *',
+    phoneLabel: 'Numero di telefono *',
+    firstNamePlaceholder: 'Nome',
+    lastNamePlaceholder: 'Cognome',
+    streetPlaceholder: 'Via e numero civico',
+    postcodePlaceholder: 'CAP',
+    cityPlaceholder: 'Città',
+    phonePlaceholder: 'Numero di telefono'
+  },
+  billingSection: {
+    title: 'Indirizzo di fatturazione',
+    subtitle: 'Dove deve essere inviata la fattura?',
+    sameAddressLabel: 'L\'indirizzo di fatturazione è identico all\'indirizzo di consegna'
+  },
+  paymentSection: {
+    title: 'Metodo di pagamento',
+    subtitle: 'Pagamento sicuro e conveniente',
+    vorkasse: {
+      title: 'Bonifico bancario',
+      description: 'Bonifico prima della consegna',
+      recommended: 'Consigliato'
+    },
+    rechnung: {
+      title: 'Fattura',
+      description: 'Pagamento dopo la consegna',
+      existingCustomers: 'Solo per clienti esistenti'
+    }
+  },
+  termsSection: {
+    title: 'Termini e condizioni e diritto di recesso',
+    subtitle: 'Si prega di confermare i termini e condizioni',
+    withdrawalTitle: 'Diritto di recesso',
+    withdrawalText: 'Hai il diritto di recedere da questo contratto entro quattordici giorni senza fornire alcuna motivazione. Il periodo di recesso è di quattordici giorni dalla data di conclusione del contratto.',
+    acceptTermsText: 'Accetto i termini e condizioni generali e il diritto di recesso. So che perdo il mio diritto di recesso quando ordino gasolio non appena inizia la consegna. *',
+    submitButton: 'Ordina con obbligo di pagamento',
+    submittingButton: 'Creazione ordine in corso...'
   },
   summary: {
+    orderSummary: 'Riepilogo ordine',
     showOrder: 'Mostra ordine',
-    inclVat: 'incl. IVA {amount}€',
-    pricePerLiter: 'al litro',
+    product: 'Prodotto',
     quantity: 'Quantità',
-    discountPlaceholder: 'Codice sconto',
-    checkingButton: 'Verifica...',
-    applyButton: 'Applica',
+    pricePerLiter: 'Prezzo per litro',
     subtotal: 'Subtotale',
     shipping: 'Spedizione',
     free: 'Gratuita',
     net: 'Netto',
     vat: 'IVA (22%)',
     total: 'Totale',
-    ofWhichVat: 'di cui IVA {amount}€',
+    inclVat: 'IVA inclusa',
+    ofWhichVat: 'di cui {amount}€ IVA',
+    discountPlaceholder: 'Inserisci codice sconto',
+    applyButton: 'Applica',
+    checkingButton: 'Verifica...',
     deliveryInfo: 'Informazioni sulla consegna',
     workdays: '3-5 giorni lavorativi',
     afterPayment: 'dopo il ricevimento del pagamento',
@@ -124,63 +229,72 @@ const italianTranslations: ItalianCheckoutTranslations = {
     sslEncrypted: 'Crittografato SSL',
     securePayment: 'Pagamento sicuro',
     timelyDelivery: 'Consegna puntuale',
-    fairPrices: 'Prezzi equi'
-  },
-  form: {
-    contactInformation: 'Informazioni di contatto',
-    email: 'Email',
-    firstName: 'Nome',
-    lastName: 'Cognome',
-    phone: 'Telefono',
-    shippingAddress: 'Indirizzo di consegna',
-    street: 'Via e numero civico',
-    postcode: 'CAP',
-    city: 'Città',
-    billingAddress: 'Indirizzo di fatturazione',
-    useSameAddress: 'Usa lo stesso indirizzo per la fatturazione',
-    paymentMethod: 'Metodo di pagamento',
-    bankTransfer: 'Bonifico bancario',
-    submitOrder: 'Conferma ordine'
+    fairPrices: 'Prezzi equi',
+    confirmedOrder: 'Il tuo ordine confermato'
   },
   confirmation: {
     title: 'Ordine confermato!',
-    subtitle: 'Il tuo ordine è stato ricevuto con successo',
-    orderNumber: 'Numero ordine',
-    thankYou: 'Grazie per il tuo ordine!',
+    subtitle: 'Grazie per il tuo ordine di gasolio',
+    orderNumber: 'Il tuo numero d\'ordine',
+    orderSuccess: 'Il tuo ordine è stato registrato con successo!',
+    paymentInstructions: 'Istruzioni di pagamento',
+    howToPay: 'Come pagare il tuo ordine',
     nextSteps: 'Prossimi passi',
-    transferInfo: 'Si prega di effettuare il bonifico bancario utilizzando i dati sottostanti',
-    bankDetails: 'Dati bancari',
-    invoiceGenerated: 'La fattura è stata generata automaticamente',
-    newOrder: 'Nuovo ordine'
+    phoneContact: '1. Contatto telefonico',
+    phoneContactDesc: 'Ti chiameremo nelle prossime 24 ore per confermare il tuo ordine.',
+    bankTransfer: '2. Bonifico bancario',
+    bankTransferDesc: 'Dopo la nostra chiamata, trasferisci l\'importo di {amount}€ sul nostro conto.',
+    delivery: '3. Consegna',
+    deliveryDesc: 'Dopo il ricevimento del pagamento, la consegna avviene in 3-5 giorni lavorativi.',
+    deliveryInformation: 'Informazioni sulla consegna',
+    deliveryDetails: 'Dettagli importanti sulla tua consegna',
+    deliveryTerm: 'Data di consegna',
+    deliveryAddress: 'Indirizzo di consegna',
+    importantNote: '📞 Nota importante sulla consegna',
+    importantNoteDesc: 'Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile al {phone}.',
+    basePrice: 'Prezzo base',
+    deliveryLabel: 'Consegna'
   },
-  validation: {
-    emailRequired: 'Email è obbligatoria',
-    emailInvalid: 'Email non valida',
-    firstNameRequired: 'Nome è obbligatorio',
-    lastNameRequired: 'Cognome è obbligatorio',
-    phoneRequired: 'Telefono è obbligatorio',
-    phoneInvalid: 'Numero di telefono non valido',
-    streetRequired: 'Via è obbligatoria',
-    postcodeRequired: 'CAP è obbligatorio',
-    postcodeInvalid: 'CAP non valido',
-    cityRequired: 'Città è obbligatoria',
-    termsRequired: 'Devi accettare i termini e condizioni'
+  navigation: {
+    back: 'Indietro',
+    cart: 'Carrello',
+    information: 'Informazioni',
+    shipping: 'Spedizione',
+    payment: 'Pagamento',
+    secureEncryption: 'Crittografia SSL sicura per i tuoi dati'
   },
-  toasts: {
-    noOrderDataTitle: 'Nessun dato ordine',
-    noOrderDataDescription: 'Non sono stati trovati dati dell\'ordine. Verrai reindirizzato al calcolatore prezzi.',
-    invalidOrderDataTitle: 'Dati ordine non validi',
-    invalidOrderDataDescription: 'I dati dell\'ordine non sono validi. Verrai reindirizzato al calcolatore prezzi.',
-    loadOrderDataErrorTitle: 'Errore nel caricamento',
-    loadOrderDataErrorDescription: 'Errore nel caricamento dei dati dell\'ordine.',
-    orderSuccessTitle: 'Ordine inviato!',
-    orderSuccessDescription: 'Il tuo ordine è stato elaborato con successo.',
-    orderErrorTitle: 'Errore ordine',
-    orderErrorDescription: 'Si è verificato un errore durante l\'elaborazione dell\'ordine.'
+  header: {
+    securePayment: 'Pagamento sicuro',
+    sslEncrypted: 'Crittografato SSL'
   },
   system: {
     loadingOrderData: 'Caricamento dati ordine...',
-    processing: 'Elaborazione in corso...'
+    testDataGenerated: 'Dati di test generati',
+    testDataDescription: 'Il modulo è stato compilato con dati di test casuali.',
+    emailSendTitle: 'Invio e-mail',
+    emailSendDescription: 'La conferma dell\'ordine non è stata inviata. La riceverai a breve.',
+    errorTitle: 'Errore',
+    errorDescription: 'Si è verificato un errore. Riprova.',
+    orderProcessedTitle: 'Informazione',
+    orderProcessedDescription: 'Questo ordine è già stato elaborato.'
+  },
+  toasts: {
+    noOrderDataTitle: 'Nessun dato ordine trovato',
+    noOrderDataDescription: 'Esegui prima un calcolo del prezzo.',
+    invalidOrderDataTitle: 'Dati ordine non validi',
+    invalidOrderDataDescription: 'Esegui un nuovo calcolo del prezzo.',
+    loadOrderDataErrorTitle: 'Errore nel caricamento dei dati ordine',
+    loadOrderDataErrorDescription: 'Esegui un nuovo calcolo del prezzo.'
+  },
+  validation: {
+    emailRequired: 'Indirizzo e-mail valido richiesto',
+    firstNameRequired: 'Nome richiesto',
+    lastNameRequired: 'Cognome richiesto',
+    streetRequired: 'Via richiesta',
+    postcodeRequired: 'CAP richiesto',
+    cityRequired: 'Città richiesta',
+    phoneRequired: 'Numero di telefono richiesto',
+    termsRequired: 'Devi accettare i termini e condizioni'
   }
 };
 
@@ -188,12 +302,12 @@ export const useItalianCheckoutTranslations = (): ItalianCheckoutTranslations =>
   const shopConfig = useDomainShop();
   
   return useMemo(() => {
-    // Nur für italienische Shops die italienischen Übersetzungen verwenden
+    // Solo per i negozi italiani utilizzare le traduzioni italiane
     if (shopConfig.shopType === 'italy') {
       return italianTranslations;
     }
     
-    // Fallback für andere Shops (sollte nicht verwendet werden)
+    // Fallback per altri negozi (non dovrebbe essere utilizzato)
     return italianTranslations;
   }, [shopConfig.shopType]);
 };
