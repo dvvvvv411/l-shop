@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -10,6 +9,7 @@ import V2Home from '@/pages/v2/Home';
 import V3Home from '@/pages/v3/Home';
 import V4Home from '@/pages/v4/Home';
 import V5Home from '@/pages/v5/Home';
+import V6Home from '@/pages/v6/Home';
 import Order from '@/pages/Order';
 import Summary from '@/pages/Summary';
 import Confirmation from '@/pages/Confirmation';
@@ -73,6 +73,16 @@ import V5Kontakt from '@/pages/v5/Kontakt';
 import V5Service from '@/pages/v5/Service';
 import V5Produkte from '@/pages/v5/Produkte';
 import V5Liefergebiet from '@/pages/v5/Liefergebiet';
+
+// V6 pages (Malta)
+import V6Impressum from '@/pages/v6/Impressum';
+import V6AGB from '@/pages/v6/AGB';
+import V6Datenschutz from '@/pages/v6/Datenschutz';
+import V6Widerrufsrecht from '@/pages/v6/Widerrufsrecht';
+import V6Kontakt from '@/pages/v6/Kontakt';
+import V6Service from '@/pages/v6/Service';
+import V6Produkte from '@/pages/v6/Produkte';
+import V6Liefergebiet from '@/pages/v6/Liefergebiet';
 
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
@@ -187,6 +197,28 @@ const DomainRouter = () => {
     );
   }
 
+  // For Malta domain, route to V6 pages
+  if (shopConfig.shopType === 'malta') {
+    return (
+      <Routes>
+        <Route path="/" element={<V6Home />} />
+        <Route path="/bestellen" element={<Order />} />
+        <Route path="/zusammenfassung" element={<Summary />} />
+        <Route path="/bestaetigung" element={<Confirmation />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/legal" element={<V6Impressum />} />
+        <Route path="/terms" element={<V6AGB />} />
+        <Route path="/privacy" element={<V6Datenschutz />} />
+        <Route path="/withdrawal" element={<V6Widerrufsrecht />} />
+        <Route path="/contact" element={<V6Kontakt />} />
+        <Route path="/service" element={<V6Service />} />
+        <Route path="/products" element={<V6Produkte />} />
+        <Route path="/delivery" element={<V6Liefergebiet />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    );
+  }
+
   // Default routing for root domain (with all original routes preserved)
   return (
     <Routes>
@@ -274,6 +306,20 @@ const DomainRouter = () => {
       <Route path="/5/servizio" element={<V5Service />} />
       <Route path="/5/prodotti" element={<V5Produkte />} />
       <Route path="/5/consegna" element={<V5Liefergebiet />} />
+
+      <Route path="/6/home" element={<V6Home />} />
+      <Route path="/6/bestellen" element={<Order />} />
+      <Route path="/6/zusammenfassung" element={<Summary />} />
+      <Route path="/6/bestaetigung" element={<Confirmation />} />
+      <Route path="/6/checkout" element={<Checkout />} />
+      <Route path="/6/legal" element={<V6Impressum />} />
+      <Route path="/6/terms" element={<V6AGB />} />
+      <Route path="/6/privacy" element={<V6Datenschutz />} />
+      <Route path="/6/withdrawal" element={<V6Widerrufsrecht />} />
+      <Route path="/6/contact" element={<V6Kontakt />} />
+      <Route path="/6/service" element={<V6Service />} />
+      <Route path="/6/products" element={<V6Produkte />} />
+      <Route path="/6/delivery" element={<V6Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

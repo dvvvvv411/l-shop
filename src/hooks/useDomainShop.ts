@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -10,7 +10,7 @@ export interface DomainShopConfig {
   phone: string;
   email: string;
   faviconColor: string;
-  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia';
+  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'flame-malta';
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -55,7 +55,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     name: 'Gasolio Veloce',
     brand: 'Gasolio IT',
     phone: '',
-    email: 'info@gasoliocasa.it',
+    email: 'info@gasolio-veloce.it',
     faviconColor: '#16a34a',
     faviconIcon: 'flame-italia'
   },
@@ -67,6 +67,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@gasoliocasa.it',
     faviconColor: '#16a34a',
     faviconIcon: 'flame-italia'
+  },
+  'maltaheat.com': {
+    shopType: 'malta',
+    name: 'Malta Heating Oil',
+    brand: 'Malta Heat',
+    phone: '+356 2123 4567',
+    email: 'info@maltaheat.com',
+    faviconColor: '#1e40af',
+    faviconIcon: 'flame-malta'
   }
 };
 
@@ -103,6 +112,8 @@ const getDomainShopConfig = (): DomainShopConfig => {
     localStorage.setItem('orderReferrer', '/4/home');
   } else if (config.shopType === 'italy') {
     localStorage.setItem('orderReferrer', '/5/home');
+  } else if (config.shopType === 'malta') {
+    localStorage.setItem('orderReferrer', '/6/home');
   }
   
   return config;

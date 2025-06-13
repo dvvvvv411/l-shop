@@ -1,0 +1,170 @@
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { getLogoConfigForV6 } from '@/config/logoConfig';
+import { useDomainShop } from '@/hooks/useDomainShop';
+
+const Footer = () => {
+  const logoConfig = getLogoConfigForV6();
+  const shopConfig = useDomainShop();
+  
+  // Determine if we should use root URLs (production Malta shop) or prefixed URLs (preview)
+  const isProductionMaltaShop = shopConfig.shopType === 'malta' && 
+    typeof window !== 'undefined' && 
+    window.location.hostname === 'maltaheat.com';
+  
+  const getUrl = (path: string) => {
+    return isProductionMaltaShop ? path : path;
+  };
+
+  const footerLinks = {
+    company: [
+      { label: 'Service', href: getUrl('/service') },
+      { label: 'Products', href: getUrl('/products') },
+      { label: 'Delivery Areas', href: getUrl('/delivery') },
+      { label: 'Contact', href: getUrl('/contact') }
+    ],
+    legal: [
+      { label: 'Legal Information', href: getUrl('/legal') },
+      { label: 'Terms & Conditions', href: getUrl('/terms') },
+      { label: 'Privacy Policy', href: getUrl('/privacy') },
+      { label: 'Right of Withdrawal', href: getUrl('/withdrawal') }
+    ]
+  };
+
+  return (
+    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 text-white relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-40 h-40 bg-blue-600/20 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 right-20 w-32 h-32 bg-red-600/20 rounded-full blur-2xl"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-16 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+          {/* Company Info */}
+          <div className="lg:col-span-1">
+            <Link to={getUrl('/')} className="flex items-center mb-6">
+              {logoConfig.footerImageUrl ? (
+                <img 
+                  src={logoConfig.footerImageUrl} 
+                  alt={logoConfig.name}
+                  className="h-16 w-auto"
+                />
+              ) : logoConfig.useImage && logoConfig.imageUrl ? (
+                <img 
+                  src={logoConfig.imageUrl} 
+                  alt={logoConfig.name}
+                  className="h-16 w-auto filter brightness-0 invert"
+                />
+              ) : (
+                <div className="bg-gradient-to-br from-blue-600 to-red-600 text-white p-3 rounded-xl">
+                  <span className="text-xl font-bold">{logoConfig.textContent}</span>
+                </div>
+              )}
+            </Link>
+            
+            <div className="flex space-x-1 mb-4">
+              <div className="w-6 h-4 bg-gray-400 rounded-sm"></div>
+              <div className="w-6 h-4 bg-white rounded-sm"></div>
+              <div className="w-6 h-4 bg-gray-400 rounded-sm"></div>
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="lg:col-span-1">
+            <h4 className="text-lg font-bold mb-6 text-blue-400">Contact</h4>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-blue-400" />
+                <div>
+                  <p className="font-semibold">+356 2123 4567</p>
+                  <p className="text-gray-400 text-sm">Mon-Fri: 8:00-18:00</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-blue-400" />
+                <div>
+                  <p className="font-semibold">info@maltaheat.com</p>
+                  <p className="text-gray-400 text-sm">Response within 24h</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <MapPin className="h-5 w-5 text-blue-400 mt-1" />
+                <div>
+                  <p className="font-semibold">Malta Energy Solutions Ltd</p>
+                  <p className="text-gray-400 text-sm">
+                    Triq il-Mediterran, 45<br />
+                    Valletta VLT 1234<br />
+                    Malta
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Clock className="h-5 w-5 text-blue-400" />
+                <div>
+                  <p className="font-semibold">Opening Hours</p>
+                  <p className="text-gray-400 text-sm">Mon-Fri: 8:00-18:00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="lg:col-span-1">
+            <h4 className="text-lg font-bold mb-6 text-blue-400">Quick Links</h4>
+            <div className="space-y-3">
+              {footerLinks.company.map((link, index) => (
+                <Link
+                  key={index}
+                  to={link.href}
+                  className="block text-gray-300 hover:text-white hover:text-blue-400 transition-colors duration-300"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Legal Links */}
+          <div className="lg:col-span-1">
+            <h4 className="text-lg font-bold mb-6 text-blue-400">Legal Information</h4>
+            <div className="space-y-3">
+              {footerLinks.legal.map((link, index) => (
+                <Link
+                  key={index}
+                  to={link.href}
+                  className="block text-gray-300 hover:text-white hover:text-blue-400 transition-colors duration-300"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Company Legal Info - Bottom Section Only */}
+        <div className="border-t border-gray-700 mt-12 pt-8">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+            <div className="text-gray-400 text-sm">
+              © 2025 Malta Energy Solutions Ltd. All rights reserved.
+            </div>
+            <div className="flex items-center justify-end space-x-6 text-sm text-gray-400">
+              <span>Secure SSL Payment</span>
+              <span>•</span>
+              <span>Insured Delivery</span>
+              <span>•</span>
+              <span>Local Customer Service</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

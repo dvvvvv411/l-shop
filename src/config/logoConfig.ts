@@ -1,4 +1,3 @@
-
 export interface LogoConfig {
   name: string;
   className: string;
@@ -46,6 +45,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     useImage: true,
     footerImageUrl: 'https://i.imgur.com/jqTOPp6.png'
   },
+  '/6/home': {
+    name: 'Malta Heating Oil',
+    className: 'h-20 w-auto',
+    textContent: 'Malta Heat',
+    useImage: false
+  },
   // Domain-specific configurations
   'stanton': {
     name: 'HeizölDirekt',
@@ -83,6 +88,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
     imageUrl: 'https://i.imgur.com/jqTOPp6.png',
     useImage: true,
     footerImageUrl: 'https://i.imgur.com/jqTOPp6.png'
+  },
+  'malta': {
+    name: 'Malta Heating Oil',
+    className: 'h-20 w-auto',
+    textContent: 'Malta Heat',
+    useImage: false
   },
   'root': {
     name: 'HeizölDirekt',
@@ -132,7 +143,7 @@ export const getLogoConfig = (referrer?: string): LogoConfig => {
 };
 
 // New function to get logo config by domain shop type
-export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy'): LogoConfig => {
+export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta'): LogoConfig => {
   return logoConfigs[shopType] || logoConfigs['root'];
 };
 
@@ -149,4 +160,9 @@ export const getLogoConfigForV4 = (): LogoConfig => {
 // New function to get logo config for V5 routes specifically
 export const getLogoConfigForV5 = (): LogoConfig => {
   return logoConfigs['/5/home'];
+};
+
+// New function to get logo config for V6 routes specifically
+export const getLogoConfigForV6 = (): LogoConfig => {
+  return logoConfigs['/6/home'];
 };
