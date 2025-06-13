@@ -12,17 +12,20 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useDomainShop } from '@/hooks/useDomainShop';
+import { useShops } from '@/hooks/useShops';
 import { Button } from '@/components/ui/button';
 
 const Confirmation = () => {
   const [supplier, setSupplier] = useState<SupplierByPostcode | null>(null);
   const [isLoadingSupplier, setIsLoadingSupplier] = useState(false);
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
+  const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
   const { orderData, clearOrderData } = useOrder();
   const { getSupplierByPostcode } = useSuppliers();
   const { bankAccounts } = useBankAccounts();
+  const { shops } = useShops();
   const shopConfig = useDomainShop();
   const orderNumber = location.state?.orderNumber || 'HÖ12345678';
 
@@ -57,6 +60,17 @@ const Confirmation = () => {
         );
         if (italienChampionAccount) {
           setBankAccountDetails(italienChampionAccount);
+          
+          // Determine the account holder name to display
+          if (italienChampionAccount.anyname) {
+            // Use French shop's company name
+            const frenchShop = shops.find(shop => shop.name === 'France');
+            const accountHolderName = frenchShop?.company_name || italienChampionAccount.account_holder;
+            setDisplayAccountHolder(accountHolderName);
+          } else {
+            setDisplayAccountHolder(italienChampionAccount.account_holder);
+          }
+          
           console.log('Found Italien Champion bank account for French shop');
         }
       }
@@ -64,7 +78,7 @@ const Confirmation = () => {
 
     fetchSupplier();
     fetchBankAccountDetails();
-  }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, bankAccounts]);
+  }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, bankAccounts, shops]);
 
   const handleNewOrder = () => {
     clearOrderData();
@@ -165,7 +179,7 @@ const Confirmation = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">Titulaire du compte</div>
-                          <div className="text-green-900 font-semibold">{bankAccountDetails.account_holder}</div>
+                          <div className="text-green-900 font-semibold">{displayAccountHolder}</div>
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">Banque</div>
@@ -399,7 +413,10 @@ const Confirmation = () => {
                     totalPrice: orderData.total,
                     savings: orderData.discount
                   }}
-                  bankAccountDetails={bankAccountDetails}
+                  bankAccountDetails={bankAccountDetails ? {
+                    ...bankAccountDetails,
+                    account_holder: displayAccountHolder
+                  } : null}
                   orderNumber={orderNumber}
                 />
               </div>

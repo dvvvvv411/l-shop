@@ -6,6 +6,7 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
+import { useShops } from '@/hooks/useShops';
 
 interface PriceCalculatorData {
   product: {
@@ -40,7 +41,9 @@ const CheckoutConfirmation = ({
   const shopConfig = useDomainShop();
   const isFrenchShop = shopConfig.shopType === 'france';
   const { bankAccounts } = useBankAccounts();
+  const { shops } = useShops();
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
+  const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
   // Fetch bank account details for French shop
   useEffect(() => {
@@ -50,10 +53,21 @@ const CheckoutConfirmation = ({
       );
       if (italienChampionAccount) {
         setBankAccountDetails(italienChampionAccount);
+        
+        // Determine the account holder name to display
+        if (italienChampionAccount.anyname) {
+          // Use French shop's company name
+          const frenchShop = shops.find(shop => shop.name === 'France');
+          const accountHolderName = frenchShop?.company_name || italienChampionAccount.account_holder;
+          setDisplayAccountHolder(accountHolderName);
+        } else {
+          setDisplayAccountHolder(italienChampionAccount.account_holder);
+        }
+        
         console.log('Found Italien Champion bank account for French checkout');
       }
     }
-  }, [isFrenchShop, bankAccounts]);
+  }, [isFrenchShop, bankAccounts, shops]);
 
   if (!contextOrderData) {
     return (
@@ -121,7 +135,7 @@ const CheckoutConfirmation = ({
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">{bankAccountDetails.account_holder}</div>
+                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
