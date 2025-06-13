@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -14,6 +13,7 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
+import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
 
 // Test data arrays for random generation
@@ -74,11 +74,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const t = useCheckoutTranslations();
+  const shopConfig = useDomainShop();
 
   // Check if current checkout is French
   const isFrenchCheckout = () => {
     const orderReferrer = localStorage.getItem('orderReferrer');
-    return orderReferrer === '/4/home';
+    return orderReferrer === '/4/home' || shopConfig.shopType === 'france';
   };
 
   // Create the schema inside the component where `t` is available
@@ -181,6 +182,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     try {
       const finalPrice = orderData.totalPrice;
       const originDomain = window.location.hostname;
+      const isFrenchShop = isFrenchCheckout();
 
       // Create order data for database
       const dbOrderData = {
@@ -231,8 +233,13 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Send order confirmation email
-      await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
+      // Only send order confirmation email for non-French shops
+      // French shop orders get invoice directly (handled in useOrders hook)
+      if (!isFrenchShop) {
+        await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
+      } else {
+        console.log('Skipping order confirmation email for French shop - invoice will be sent instead');
+      }
 
       // Set order data for context
       const contextOrderData = {

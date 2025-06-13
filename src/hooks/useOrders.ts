@@ -1,8 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useOrderTranslations } from '@/hooks/useOrderTranslations';
+import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'> & {
@@ -17,6 +18,8 @@ export const useOrders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const t = useOrderTranslations();
+  const { generateInvoice } = useInvoiceGeneration();
+  const { bankAccounts } = useBankAccounts();
 
   // Always fetch all orders (including hidden) - filtering happens in UI
   const fetchOrders = async () => {
@@ -65,6 +68,31 @@ export const useOrders = () => {
     }
   };
 
+  // Get the "Italien Champion" bank account ID
+  const getItalienChampionBankAccountId = () => {
+    const italienChampionAccount = bankAccounts.find(
+      account => account.system_name === 'Italien Champion'
+    );
+    return italienChampionAccount?.id || null;
+  };
+
+  // Get shop ID for Fioul Rapide
+  const getFioulRapideShopId = async () => {
+    try {
+      const { data: shops, error } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('name', 'Fioul Rapide')
+        .limit(1);
+
+      if (error) throw error;
+      return shops?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching Fioul Rapide shop:', error);
+      return null;
+    }
+  };
+
   // Create new order with request deduplication
   const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
@@ -73,9 +101,30 @@ export const useOrders = () => {
       // Generate a unique request ID for deduplication
       const requestId = crypto.randomUUID();
       
+      // Check if this is a French shop order (fioul-rapide.fr)
+      const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
+      
+      let finalOrderData = { ...orderData };
+      
+      // For French shop orders, automatically assign Italien Champion bank account and shop
+      if (isFrenchShop) {
+        const italienChampionBankAccountId = getItalienChampionBankAccountId();
+        const fioulRapideShopId = await getFioulRapideShopId();
+        
+        if (italienChampionBankAccountId) {
+          finalOrderData.bank_account_id = italienChampionBankAccountId;
+          console.log('Automatically assigned Italien Champion bank account for French shop order');
+        }
+        
+        if (fioulRapideShopId) {
+          finalOrderData.shop_id = fioulRapideShopId;
+          console.log('Automatically assigned Fioul Rapide shop ID');
+        }
+      }
+      
       // Add order data with request_id and temporary order_number
       const orderWithMetadata: OrderInsert = {
-        ...orderData,
+        ...finalOrderData,
         request_id: requestId,
         order_number: 'TEMP', // This will be overwritten by the database trigger
       };
@@ -106,10 +155,27 @@ export const useOrders = () => {
 
       console.log('Order created successfully:', data);
 
-      toast({
-        title: 'Erfolg',
-        description: t.success.orderCreated,
-      });
+      // For French shop orders, automatically generate and send invoice
+      if (isFrenchShop && data.bank_account_id && data.shop_id) {
+        try {
+          console.log('Automatically generating invoice for French shop order...');
+          await generateInvoice(data.id, data.shop_id, data.bank_account_id);
+          console.log('Invoice automatically generated and sent for French shop order');
+        } catch (invoiceError) {
+          console.error('Error automatically generating invoice:', invoiceError);
+          // Don't fail the order creation if invoice generation fails
+          toast({
+            title: 'Hinweis',
+            description: 'Bestellung erfolgreich erstellt. Rechnung wird nachträglich versendet.',
+          });
+        }
+      } else {
+        // For non-French shops, show normal success message
+        toast({
+          title: 'Erfolg',
+          description: t.success.orderCreated,
+        });
+      }
 
       return data;
     } catch (error) {
