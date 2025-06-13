@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from '@/components/v5/Header';
 import Footer from '@/components/v5/Footer';
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Mail, MapPin, Clock } from 'lucide-react';
 import { useDomainFavicon } from '@/hooks/useDomainFavicon';
 import { useDomainPageMeta } from '@/hooks/useDomainPageMeta';
 
@@ -26,22 +26,11 @@ const Kontakt = () => {
                 <div className="space-y-6">
                   <div className="flex items-start space-x-4">
                     <div className="bg-green-100 p-3 rounded-full">
-                      <Phone className="text-green-600" size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Telefono</h3>
-                      <p className="text-gray-600">+39 02 1234 5678</p>
-                      <p className="text-sm text-gray-500">Lun-Ven: 8:00-18:00</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-green-100 p-3 rounded-full">
                       <Mail className="text-green-600" size={20} />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">info@gasolio-veloce.it</p>
+                      <p className="text-gray-600">info@gasoliocasa.it</p>
                       <p className="text-sm text-gray-500">Risposta entro 24h</p>
                     </div>
                   </div>
@@ -53,8 +42,9 @@ const Kontakt = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900">Indirizzo</h3>
                       <p className="text-gray-600">
-                        Via Roma 123<br />
-                        20121 Milano, Italia
+                        Via delle Terme, 13<br />
+                        Falerone (FM), 63837<br />
+                        Marche, Italia
                       </p>
                     </div>
                   </div>
