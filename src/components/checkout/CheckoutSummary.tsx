@@ -5,6 +5,8 @@ import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
+import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useDomainShop } from '@/hooks/useDomainShop';
 
 interface PriceCalculatorData {
   product: {
@@ -31,18 +33,23 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const { toast } = useToast();
-  const t = useCheckoutTranslations();
+  const shopConfig = useDomainShop();
+  
+  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  const germanFrenchTranslations = useCheckoutTranslations();
+  const italianTranslations = useItalianCheckoutTranslations();
+  const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
   const finalPrice = orderData.totalPrice;
 
-  // VAT calculations (19% VAT)
-  const vatRate = 0.19;
+  // VAT calculations - Italienische IVA ist 22%, andere 19%
+  const vatRate = shopConfig.shopType === 'italy' ? 0.22 : 0.19;
   const netPrice = finalPrice / (1 + vatRate);
   const vatAmount = finalPrice - netPrice;
 
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) {
-      setCouponError(t.validation.termsRequired); // Using existing validation text as placeholder
+      setCouponError(t.validation.termsRequired);
       return;
     }
     setIsApplying(true);
@@ -50,13 +57,23 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
 
     // Simulate API call delay
     setTimeout(() => {
-      // Always show invalid code error - using English for now as this is just a demo feature
-      setCouponError('Ungültiger Rabattcode. Bitte überprüfen Sie Ihren Code.');
+      // Fehlermeldung in der entsprechenden Sprache
+      let errorMessage = 'Ungültiger Rabattcode. Bitte überprüfen Sie Ihren Code.';
+      let toastTitle = 'Rabattcode ungültig';
+      let toastDescription = 'Der eingegebene Rabattcode ist nicht gültig oder abgelaufen.';
+      
+      if (shopConfig.shopType === 'italy') {
+        errorMessage = 'Codice sconto non valido. Controlla il codice inserito.';
+        toastTitle = 'Codice sconto non valido';
+        toastDescription = 'Il codice sconto inserito non è valido o è scaduto.';
+      }
+      
+      setCouponError(errorMessage);
 
       // Show toast notification
       toast({
-        title: 'Rabattcode ungültig',
-        description: 'Der eingegebene Rabattcode ist nicht gültig oder abgelaufen.',
+        title: toastTitle,
+        description: toastDescription,
         variant: 'destructive'
       });
       setIsApplying(false);
@@ -105,7 +122,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
                   {orderData.product.name}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {orderData.amount.toLocaleString('de-DE')} Liter
+                  {orderData.amount.toLocaleString(shopConfig.shopType === 'italy' ? 'it-IT' : 'de-DE')} Liter
                 </p>
                 <p className="text-sm text-gray-500">
                   {orderData.product.price.toFixed(2)}€ {t.summary.pricePerLiter.toLowerCase()}
@@ -126,8 +143,19 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
           {/* Discount Code Input */}
           <div className="space-y-3">
             <div className="flex space-x-2">
-              <input type="text" placeholder={t.summary.discountPlaceholder} value={couponCode} onChange={e => setCouponCode(e.target.value)} onKeyPress={handleKeyPress} className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${couponError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}`} />
-              <button onClick={handleCouponSubmit} disabled={isApplying} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <input 
+                type="text" 
+                placeholder={t.summary.discountPlaceholder} 
+                value={couponCode} 
+                onChange={e => setCouponCode(e.target.value)} 
+                onKeyPress={handleKeyPress} 
+                className={`flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${couponError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'}`} 
+              />
+              <button 
+                onClick={handleCouponSubmit} 
+                disabled={isApplying} 
+                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isApplying ? t.summary.checkingButton : t.summary.applyButton}
               </button>
             </div>

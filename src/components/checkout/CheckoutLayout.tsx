@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -9,6 +8,8 @@ import CheckoutConfirmation from './CheckoutConfirmation';
 import CheckoutHeader from './CheckoutHeader';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
+import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useDomainShop } from '@/hooks/useDomainShop';
 import { Button } from '@/components/ui/button';
 import {
   Breadcrumb,
@@ -41,17 +42,28 @@ const CheckoutLayout = () => {
   const [orderNumber, setOrderNumber] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
-  const t = useCheckoutTranslations();
+  const shopConfig = useDomainShop();
+  
+  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  const germanFrenchTranslations = useCheckoutTranslations();
+  const italianTranslations = useItalianCheckoutTranslations();
+  const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
   // Function to get legal link paths based on order referrer
   const getLegalLinkPaths = () => {
     const referrer = localStorage.getItem('orderReferrer');
-    const basePath = referrer === '/4/home' ? '/4' : '/1';
+    let basePath = '/1';
+    
+    if (referrer === '/4/home') {
+      basePath = '/4';
+    } else if (referrer === '/5/home') {
+      basePath = '/5';
+    }
     
     return {
-      datenschutz: `${basePath}/datenschutz`,
-      agb: `${basePath}/agb`, 
-      impressum: `${basePath}/impressum`
+      datenschutz: `${basePath}/privacy`,
+      agb: `${basePath}/termini`, 
+      impressum: `${basePath}/note-legali`
     };
   };
 
@@ -104,7 +116,12 @@ const CheckoutLayout = () => {
     if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate('/1/home');
+      // Navigate based on shop type
+      if (shopConfig.shopType === 'italy') {
+        navigate('/5/home');
+      } else {
+        navigate('/1/home');
+      }
     }
   };
 

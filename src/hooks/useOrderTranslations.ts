@@ -56,15 +56,40 @@ const translations = {
     info: {
       orderProcessed: 'Cette commande a déjà été traitée.'
     }
+  },
+  it: {
+    success: {
+      orderCreated: 'Ordine creato con successo.',
+      statusUpdated: 'Stato dell\'ordine aggiornato.',
+      orderHidden: 'Ordine nascosto.',
+      orderUnhidden: 'Ordine mostrato di nuovo.'
+    },
+    errors: {
+      fetchOrders: 'Impossibile caricare gli ordini.',
+      createOrder: 'Impossibile creare l\'ordine.',
+      updateStatus: 'Impossibile aggiornare lo stato dell\'ordine.',
+      hideOrder: 'Impossibile nascondere l\'ordine.',
+      unhideOrder: 'Impossibile mostrare di nuovo l\'ordine.'
+    },
+    info: {
+      orderProcessed: 'Questo ordine è già stato elaborato.'
+    }
   }
 } as const;
 
 export const useOrderTranslations = (): OrderTranslations => {
   return useMemo(() => {
-    // Check if user came from French version
+    // Check if user came from Italian, French or German version
     const orderReferrer = localStorage.getItem('orderReferrer');
+    const isItalian = orderReferrer === '/5/home';
     const isFrench = orderReferrer === '/4/home';
     
-    return translations[isFrench ? 'fr' : 'de'];
+    if (isItalian) {
+      return translations.it;
+    } else if (isFrench) {
+      return translations.fr;
+    }
+    
+    return translations.de;
   }, []);
 };

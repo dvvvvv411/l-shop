@@ -58,6 +58,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@gasolio-veloce.it',
     faviconColor: '#16a34a',
     faviconIcon: 'flame-italia'
+  },
+  'gasoliocasa.it': {
+    shopType: 'italy',
+    name: 'Gasolio Veloce',
+    brand: 'Gasolio IT',
+    phone: '+39 02 1234 5678',
+    email: 'info@gasoliocasa.it',
+    faviconColor: '#16a34a',
+    faviconIcon: 'flame-italia'
   }
 };
 
