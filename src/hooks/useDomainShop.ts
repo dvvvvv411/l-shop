@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
@@ -49,15 +48,6 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@fioul-rapide.fr',
     faviconColor: '#dc2626',
     faviconIcon: 'flame'
-  },
-  'gasolio-veloce.it': {
-    shopType: 'italy',
-    name: 'Gasolio Veloce',
-    brand: 'Gasolio IT',
-    phone: '',
-    email: 'info@gasoliocasa.it',
-    faviconColor: '#16a34a',
-    faviconIcon: 'flame-italia'
   },
   'gasoliocasa.it': {
     shopType: 'italy',
