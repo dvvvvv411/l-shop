@@ -109,13 +109,10 @@ const CheckoutConfirmation = ({
           className="bg-white rounded-xl p-8 shadow-lg text-center"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {isFrenchShop ? 'Commande confirmée !' : 'Bestellung bestätigt!'}
+            {t.confirmation.title}
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            {isFrenchShop 
-              ? 'Merci pour votre commande de fioul'
-              : 'Vielen Dank für Ihre Heizöl-Bestellung'
-            }
+            {t.confirmation.subtitle}
           </p>
           
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
