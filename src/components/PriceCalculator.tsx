@@ -115,8 +115,8 @@ const PriceCalculator = () => {
     >
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <div className="bg-amber-100 p-3 rounded-full">
-            <Calculator className="text-amber-600" size={32} />
+          <div className="bg-red-100 p-3 rounded-full">
+            <Calculator className="text-red-600" size={32} />
           </div>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -141,10 +141,10 @@ const PriceCalculator = () => {
                 value={postcode}
                 onChange={handlePostcodeChange}
                 placeholder="e.g. VLT 1234"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 text-lg font-semibold transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
                   !isValidPostcode && postcode.replace(/\s/g, '').length === 7
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-amber-500'
+                    : 'border-gray-300 focus:border-red-500'
                 }`}
                 maxLength={8}
               />
@@ -179,10 +179,10 @@ const PriceCalculator = () => {
                 type="number"
                 value={amount}
                 onChange={(e) => handleAmountChange(Number(e.target.value))}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 text-lg font-semibold transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
                   !isValidAmount
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-amber-500'
+                    : 'border-gray-300 focus:border-red-500'
                 }`}
                 min="1500"
                 max="32000"
@@ -229,7 +229,7 @@ const PriceCalculator = () => {
                     whileHover={{ scale: 1.02 }}
                     className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedProduct === product.id
-                        ? 'border-amber-500 bg-amber-50'
+                        ? 'border-red-500 bg-red-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setSelectedProduct(product.id)}
@@ -243,7 +243,7 @@ const PriceCalculator = () => {
                             <div className="text-sm text-gray-600">{product.description}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-amber-600">€{product.price.toFixed(2)}</div>
+                            <div className="font-bold text-red-600">€{product.price.toFixed(2)}</div>
                             <div className="text-sm text-gray-500">per litre</div>
                           </div>
                         </div>
@@ -291,7 +291,7 @@ const PriceCalculator = () => {
               
               <div className="flex justify-between text-xl font-bold">
                 <span>Total price</span>
-                <span className="text-amber-600">€{totalPrice.toFixed(2)}</span>
+                <span className="text-red-600">€{totalPrice.toFixed(2)}</span>
               </div>
             </div>
 
@@ -302,7 +302,7 @@ const PriceCalculator = () => {
               onClick={handleOrderClick}
               className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
                 isFormValid
-                  ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-lg hover:shadow-xl'
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

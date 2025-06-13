@@ -132,8 +132,8 @@ html {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Oil Drop Animations */
-@keyframes oilDrop {
+/* Malta Sun Animations */
+@keyframes maltaSunDrop {
   0%, 100% { 
     transform: translateY(0px) scale(1);
     opacity: 0.5;
@@ -144,7 +144,7 @@ html {
   }
 }
 
-@keyframes oilDropDelayed {
+@keyframes maltaSunDropDelayed {
   0%, 100% { 
     transform: translateY(0px) scale(1) rotate(0deg);
     opacity: 0.4;
@@ -178,8 +178,8 @@ html {
   }
 }
 
-/* Floating Oil Drops */
-@keyframes oilFloat1 {
+/* Floating Malta Elements */
+@keyframes maltaFloat1 {
   0%, 100% { 
     transform: translateY(0px) translateX(0px);
     opacity: 0.3;
@@ -198,7 +198,7 @@ html {
   }
 }
 
-@keyframes oilFloat2 {
+@keyframes maltaFloat2 {
   0%, 100% { 
     transform: translateY(0px) translateX(0px) scale(1);
     opacity: 0.2;
@@ -213,7 +213,7 @@ html {
   }
 }
 
-@keyframes oilFloat3 {
+@keyframes maltaFloat3 {
   0%, 100% { 
     transform: translateY(0px) translateX(0px) rotate(0deg);
     opacity: 0.25;
@@ -225,28 +225,28 @@ html {
 }
 
 /* Apply animations */
-.oil-drop-animation {
-  animation: oilDrop 8s ease-in-out infinite;
+.malta-sun-animation {
+  animation: maltaSunDrop 8s ease-in-out infinite;
 }
 
-.oil-drop-animation-delayed {
-  animation: oilDropDelayed 10s ease-in-out infinite;
+.malta-sun-animation-delayed {
+  animation: maltaSunDropDelayed 10s ease-in-out infinite;
 }
 
 .wave-animation {
   animation: waveMotion 12s ease-in-out infinite;
 }
 
-.oil-float-1 {
-  animation: oilFloat1 15s ease-in-out infinite;
+.malta-float-1 {
+  animation: maltaFloat1 15s ease-in-out infinite;
 }
 
-.oil-float-2 {
-  animation: oilFloat2 18s ease-in-out infinite;
+.malta-float-2 {
+  animation: maltaFloat2 18s ease-in-out infinite;
 }
 
-.oil-float-3 {
-  animation: oilFloat3 20s ease-in-out infinite;
+.malta-float-3 {
+  animation: maltaFloat3 20s ease-in-out infinite;
 }
 
 /* Focus styles */

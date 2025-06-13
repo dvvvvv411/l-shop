@@ -55,7 +55,7 @@ const FAQ = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center bg-amber-100 text-amber-700 px-6 py-3 rounded-full text-sm font-semibold mb-8">
+          <div className="inline-flex items-center bg-red-100 text-red-700 px-6 py-3 rounded-full text-sm font-semibold mb-8">
             <HelpCircle size={18} className="mr-2" />
             Frequently Asked Questions
           </div>
@@ -106,7 +106,7 @@ const FAQ = () => {
           <p className="text-gray-600 mb-6">
             Still have questions? Our customer service team is here to help.
           </p>
-          <button className="bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-amber-700 transition-colors shadow-lg hover:shadow-xl">
+          <button className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
             Contact Us
           </button>
         </motion.div>

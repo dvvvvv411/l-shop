@@ -60,11 +60,11 @@ const StatsSection = () => {
               className="text-center bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-amber-100 p-4 rounded-full">
-                  <stat.icon className="text-amber-600" size={32} />
+                <div className="bg-red-100 p-4 rounded-full">
+                  <stat.icon className="text-red-600" size={32} />
                 </div>
               </div>
-              <div className="text-3xl md:text-4xl font-bold text-amber-600 mb-2">
+              <div className="text-3xl md:text-4xl font-bold text-red-600 mb-2">
                 {stat.number}
               </div>
               <div className="text-lg font-semibold text-gray-900 mb-2">

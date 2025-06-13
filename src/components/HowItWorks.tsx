@@ -72,7 +72,7 @@ const HowItWorks = () => {
               <div className="flex-1 lg:px-8 mb-8 lg:mb-0">
                 <div className="bg-white rounded-2xl p-8 shadow-lg">
                   <div className="flex items-center mb-4">
-                    <div className="bg-amber-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                    <div className="bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
                       {step.step}
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900">
@@ -87,8 +87,8 @@ const HowItWorks = () => {
 
               {/* Icon */}
               <div className="flex-shrink-0">
-                <div className="bg-amber-100 p-8 rounded-full">
-                  <step.icon className="text-amber-600" size={64} />
+                <div className="bg-red-100 p-8 rounded-full">
+                  <step.icon className="text-red-600" size={64} />
                 </div>
               </div>
 
@@ -109,7 +109,7 @@ const HowItWorks = () => {
         >
           <button 
             onClick={scrollToPriceCalculator}
-            className="bg-amber-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-amber-700 transition-colors shadow-lg hover:shadow-xl"
+            className="bg-red-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
           >
             Get Started Now
           </button>

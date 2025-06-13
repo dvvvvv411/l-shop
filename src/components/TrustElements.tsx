@@ -79,7 +79,7 @@ const TrustElements = () => {
                 >
                   <element.icon size={28} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-600 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
                   {element.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-sm">
@@ -106,7 +106,7 @@ const TrustElements = () => {
             <span className="font-semibold">Free Consultation</span>
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
             <span className="font-semibold">Fair Prices Guaranteed</span>
           </div>
         </motion.div>
