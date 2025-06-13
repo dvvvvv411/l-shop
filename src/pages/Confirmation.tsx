@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -98,7 +99,7 @@ const Confirmation = () => {
                   </div>
                   
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    {isFrenchShop ? 'Merci pour votre commande!' : 'Vielen Dank für Ihre Bestellung!'}
+                    {isFrenchShop ? 'Commande confirmée !' : 'Vielen Dank für Ihre Bestellung!'}
                   </h1>
                   
                   <p className="text-gray-600 text-lg mb-6">
@@ -229,29 +230,28 @@ const Confirmation = () => {
                         {isFrenchShop ? 'Prochaines étapes' : 'Nächste Schritte'}
                       </h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex items-start space-x-3">
-                          <Phone className="text-blue-600 mt-1" size={16} />
-                          <div>
-                            <div className="font-semibold text-blue-900">
-                              {isFrenchShop ? '1. Contact téléphonique' : '1. Telefonischer Kontakt'}
-                            </div>
-                            <div className="text-blue-700">
-                              {isFrenchShop 
-                                ? 'Nous vous appellerons dans les prochaines 24 heures pour confirmer votre commande et vous communiquer nos coordonnées bancaires.'
-                                : 'Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen und Ihnen unsere Bankverbindung mitzuteilen.'
-                              }
+                        {!isFrenchShop && (
+                          <div className="flex items-start space-x-3">
+                            <Phone className="text-blue-600 mt-1" size={16} />
+                            <div>
+                              <div className="font-semibold text-blue-900">
+                                1. Telefonischer Kontakt
+                              </div>
+                              <div className="text-blue-700">
+                                Wir rufen Sie in den nächsten 24 Stunden an, um Ihre Bestellung zu bestätigen und Ihnen unsere Bankverbindung mitzuteilen.
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        )}
                         <div className="flex items-start space-x-3">
                           <CreditCard className="text-blue-600 mt-1" size={16} />
                           <div>
                             <div className="font-semibold text-blue-900">
-                              {isFrenchShop ? '2. Virement' : '2. Überweisung'}
+                              {isFrenchShop ? '1. Virement bancaire' : '2. Überweisung'}
                             </div>
                             <div className="text-blue-700">
                               {isFrenchShop 
-                                ? `Après notre appel, veuillez virer le montant de ${orderData.total.toFixed(2)}€ sur notre compte.`
+                                ? `Veuillez virer le montant de ${orderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
                                 : `Nach unserem Anruf überweisen Sie den Betrag von ${orderData.total.toFixed(2)}€ auf unser Konto.`
                               }
                             </div>
@@ -261,11 +261,11 @@ const Confirmation = () => {
                           <Truck className="text-blue-600 mt-1" size={16} />
                           <div>
                             <div className="font-semibold text-blue-900">
-                              {isFrenchShop ? '3. Livraison' : '3. Lieferung'}
+                              {isFrenchShop ? '2. Livraison' : '3. Lieferung'}
                             </div>
                             <div className="text-blue-700">
                               {isFrenchShop 
-                                ? 'Après réception du paiement, la livraison s\'effectue en 4-7 jours ouvrables.'
+                                ? 'Après réception du paiement, la livraison s\'effectue en 2-4 jours ouvrables.'
                                 : 'Nach Zahlungseingang erfolgt die Lieferung in 4-7 Werktagen.'
                               }
                             </div>
@@ -305,7 +305,9 @@ const Confirmation = () => {
                           {isFrenchShop ? 'Date de livraison' : 'Liefertermin'}
                         </span>
                       </div>
-                      <div className="text-orange-800 font-bold">{orderData.deliveryDate}</div>
+                      <div className="text-orange-800 font-bold">
+                        {isFrenchShop ? '2-4 jours ouvrables' : orderData.deliveryDate}
+                      </div>
                       <div className="text-orange-700 text-sm">
                         {isFrenchShop ? 'Après réception du paiement' : 'Nach Zahlungseingang'}
                       </div>

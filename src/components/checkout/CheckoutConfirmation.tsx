@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -178,25 +177,24 @@ const CheckoutConfirmation = ({
                 {isFrenchShop ? 'Prochaines étapes' : t.confirmation.nextSteps}
               </h4>
               <div className="space-y-2 text-sm">
-                <div className="flex items-start space-x-3">
-                  <Phone className="text-blue-600 mt-1" size={16} />
-                  <div>
-                    <div className="font-semibold text-blue-900">
-                      {isFrenchShop ? '1. Contact téléphonique' : t.confirmation.phoneContact}
-                    </div>
-                    <div className="text-blue-700">
-                      {isFrenchShop 
-                        ? 'Nous vous appellerons dans les prochaines 24 heures pour confirmer votre commande.'
-                        : t.confirmation.phoneContactDesc
-                      }
+                {!isFrenchShop && (
+                  <div className="flex items-start space-x-3">
+                    <Phone className="text-blue-600 mt-1" size={16} />
+                    <div>
+                      <div className="font-semibold text-blue-900">
+                        {t.confirmation.phoneContact}
+                      </div>
+                      <div className="text-blue-700">
+                        {t.confirmation.phoneContactDesc}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="flex items-start space-x-3">
                   <CreditCard className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isFrenchShop ? '2. Virement bancaire' : t.confirmation.bankTransfer}
+                      {isFrenchShop ? '1. Virement bancaire' : '2. Überweisung'}
                     </div>
                     <div className="text-blue-700">
                       {isFrenchShop 
@@ -210,11 +208,11 @@ const CheckoutConfirmation = ({
                   <Truck className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isFrenchShop ? '3. Livraison' : t.confirmation.delivery}
+                      {isFrenchShop ? '2. Livraison' : '3. Lieferung'}
                     </div>
                     <div className="text-blue-700">
                       {isFrenchShop 
-                        ? 'Après réception du paiement, la livraison s\'effectue en 4-7 jours ouvrables.'
+                        ? 'Après réception du paiement, la livraison s\'effectue en 2-4 jours ouvrables.'
                         : t.confirmation.deliveryDesc
                       }
                     </div>
@@ -255,7 +253,7 @@ const CheckoutConfirmation = ({
                 </span>
               </div>
               <div className="text-orange-800 font-bold">
-                {isFrenchShop ? '4-7 jours ouvrables' : t.summary.workdays}
+                {isFrenchShop ? '2-4 jours ouvrables' : t.summary.workdays}
               </div>
               <div className="text-orange-700 text-sm">
                 {isFrenchShop ? 'Après réception du paiement' : t.summary.afterPayment}
