@@ -382,7 +382,24 @@ const Confirmation = () => {
 
               {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
-                <OrderSummary />
+                <OrderSummary 
+                  orderData={{
+                    product: {
+                      id: 'standard',
+                      name: orderData.product,
+                      price: orderData.pricePerLiter,
+                      description: isFrenchShop ? 'Fioul de qualité selon norme DIN 51603-1' : 'Qualitäts-Heizöl nach DIN 51603-1'
+                    },
+                    amount: orderData.amount,
+                    postcode: orderData.deliveryPostcode,
+                    basePrice: orderData.basePrice,
+                    deliveryFee: orderData.deliveryFee,
+                    totalPrice: orderData.total,
+                    savings: orderData.discount
+                  }}
+                  bankAccountDetails={bankAccountDetails}
+                  orderNumber={orderNumber}
+                />
               </div>
             </div>
           </motion.div>
