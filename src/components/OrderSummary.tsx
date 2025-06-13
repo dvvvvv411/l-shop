@@ -52,6 +52,59 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
 
   return (
     <div className="space-y-6">
+      {/* Bank Account Details for French Shop - Show prominently at top */}
+      {isFrenchShop && bankAccountDetails && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-green-50 border-2 border-green-300 rounded-xl p-6 shadow-lg"
+        >
+          <div className="flex items-center mb-4">
+            <div className="bg-green-100 p-3 rounded-full mr-4">
+              <Building2 className="text-green-600" size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-green-900">Coordonnées bancaires</h3>
+              <p className="text-green-700">Pour votre virement</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 text-sm">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="bg-white p-3 rounded-lg">
+                <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
+                <div className="text-green-900 font-bold">{bankAccountDetails.account_holder}</div>
+              </div>
+              <div className="bg-white p-3 rounded-lg">
+                <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
+                <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
+              </div>
+              <div className="bg-white p-3 rounded-lg">
+                <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
+                <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+              </div>
+              <div className="bg-white p-3 rounded-lg">
+                <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
+                <div className="text-green-900 font-mono font-bold">{bankAccountDetails.bic}</div>
+              </div>
+              
+              {orderNumber && (
+                <div className="bg-green-100 p-3 rounded-lg border border-green-200">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Référence</div>
+                  <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
+                </div>
+              )}
+              
+              <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Montant à virer</div>
+                <div className="text-red-900 font-bold text-xl">{finalPrice.toFixed(2)}€</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Order Summary */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -118,46 +171,6 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <span className="text-red-600">{finalPrice.toFixed(2)}€</span>
           </div>
         </div>
-
-        {/* Bank Account Details for French Shop */}
-        {isFrenchShop && bankAccountDetails && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center mb-4">
-              <div className="bg-green-100 p-2 rounded-full mr-3">
-                <Building2 className="text-green-600" size={20} />
-              </div>
-              <div>
-                <h4 className="font-semibold text-green-900">Coordonnées bancaires</h4>
-                <p className="text-sm text-green-700">Pour votre virement</p>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-sm">
-              <div>
-                <div className="text-green-800 font-medium">Titulaire</div>
-                <div className="text-green-900">{bankAccountDetails.account_holder}</div>
-              </div>
-              <div>
-                <div className="text-green-800 font-medium">Banque</div>
-                <div className="text-green-900">{bankAccountDetails.bank_name}</div>
-              </div>
-              <div>
-                <div className="text-green-800 font-medium">IBAN</div>
-                <div className="text-green-900 font-mono text-xs">{bankAccountDetails.iban}</div>
-              </div>
-              <div>
-                <div className="text-green-800 font-medium">BIC</div>
-                <div className="text-green-900 font-mono">{bankAccountDetails.bic}</div>
-              </div>
-              {orderNumber && (
-                <div className="mt-3 p-2 bg-green-100 rounded">
-                  <div className="text-green-800 font-medium text-xs">Référence</div>
-                  <div className="text-green-900 font-semibold">{orderNumber}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Delivery Info */}
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
