@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -58,26 +59,9 @@ const CheckoutConfirmation = ({
       if (italienChampionAccount) {
         setBankAccountDetails(italienChampionAccount);
         
-        // Determine the account holder name to display
-        if (italienChampionAccount.anyname) {
-          // Use French shop's company name
-          const frenchShop = shops.find(shop => shop.name === 'France');
-          console.log('French shop found:', frenchShop);
-          
-          if (frenchShop?.company_name) {
-            setDisplayAccountHolder(frenchShop.company_name);
-            console.log('Using French shop company name:', frenchShop.company_name);
-          } else {
-            // Fallback to original account holder if French shop not found
-            setDisplayAccountHolder(italienChampionAccount.account_holder);
-            console.log('Fallback to original account holder:', italienChampionAccount.account_holder);
-          }
-        } else {
-          setDisplayAccountHolder(italienChampionAccount.account_holder);
-          console.log('Using original account holder (not anyname):', italienChampionAccount.account_holder);
-        }
-        
-        console.log('Final display account holder:', displayAccountHolder);
+        // For French shop, always use "Fioul Rapide" as account holder
+        setDisplayAccountHolder('Fioul Rapide');
+        console.log('Using hardcoded French account holder: Fioul Rapide');
       }
     }
   }, [isFrenchShop, bankAccounts, shops]);
@@ -109,10 +93,10 @@ const CheckoutConfirmation = ({
           className="bg-white rounded-xl p-8 shadow-lg text-center"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            {t.confirmation.title}
+            {isFrenchShop ? 'Commande confirmée !' : t.confirmation.title}
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            {t.confirmation.subtitle}
+            {isFrenchShop ? 'Merci pour votre commande de fioul' : t.confirmation.subtitle}
           </p>
           
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
@@ -145,7 +129,7 @@ const CheckoutConfirmation = ({
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">{displayAccountHolder || bankAccountDetails.account_holder}</div>
+                  <div className="text-green-900 font-bold">Fioul Rapide</div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">

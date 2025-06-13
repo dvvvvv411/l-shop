@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -75,7 +76,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <div className="grid grid-cols-1 gap-3">
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                <div className="text-green-900 font-bold">{bankAccountDetails.account_holder}</div>
+                <div className="text-green-900 font-bold">Fioul Rapide</div>
               </div>
               
               <div className="bg-white p-3 rounded-lg">

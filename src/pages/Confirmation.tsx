@@ -64,26 +64,9 @@ const Confirmation = () => {
         if (italienChampionAccount) {
           setBankAccountDetails(italienChampionAccount);
           
-          // Determine the account holder name to display
-          if (italienChampionAccount.anyname) {
-            // Use French shop's company name
-            const frenchShop = shops.find(shop => shop.name === 'France');
-            console.log('Confirmation - French shop found:', frenchShop);
-            
-            if (frenchShop?.company_name) {
-              setDisplayAccountHolder(frenchShop.company_name);
-              console.log('Confirmation - Using French shop company name:', frenchShop.company_name);
-            } else {
-              // Fallback to original account holder if French shop not found
-              setDisplayAccountHolder(italienChampionAccount.account_holder);
-              console.log('Confirmation - Fallback to original account holder:', italienChampionAccount.account_holder);
-            }
-          } else {
-            setDisplayAccountHolder(italienChampionAccount.account_holder);
-            console.log('Confirmation - Using original account holder (not anyname):', italienChampionAccount.account_holder);
-          }
-          
-          console.log('Confirmation - Final display account holder:', displayAccountHolder);
+          // For French shop, always use "Fioul Rapide" as account holder
+          setDisplayAccountHolder('Fioul Rapide');
+          console.log('Confirmation - Using hardcoded French account holder: Fioul Rapide');
         }
       }
     };
@@ -191,7 +174,7 @@ const Confirmation = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">Titulaire du compte</div>
-                          <div className="text-green-900 font-semibold">{displayAccountHolder || bankAccountDetails.account_holder}</div>
+                          <div className="text-green-900 font-semibold">Fioul Rapide</div>
                         </div>
                         
                         <div>
@@ -428,7 +411,7 @@ const Confirmation = () => {
                   }}
                   bankAccountDetails={bankAccountDetails ? {
                     ...bankAccountDetails,
-                    account_holder: displayAccountHolder || bankAccountDetails.account_holder
+                    account_holder: 'Fioul Rapide'
                   } : null}
                   orderNumber={orderNumber}
                 />
