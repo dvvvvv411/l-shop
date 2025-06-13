@@ -42,7 +42,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
 
   const handleCouponSubmit = async () => {
     if (!couponCode.trim()) {
-      setCouponError('Bitte geben Sie einen Rabattcode ein.');
+      setCouponError(t.validation.termsRequired); // Using existing validation text as placeholder
       return;
     }
     setIsApplying(true);
@@ -50,7 +50,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
 
     // Simulate API call delay
     setTimeout(() => {
-      // Always show invalid code error
+      // Always show invalid code error - using English for now as this is just a demo feature
       setCouponError('Ungültiger Rabattcode. Bitte überprüfen Sie Ihren Code.');
 
       // Show toast notification

@@ -1,5 +1,6 @@
 
 import { useMemo } from 'react';
+import { useDomainShop } from '@/hooks/useDomainShop';
 
 export interface CheckoutTranslations {
   // Form sections
@@ -79,7 +80,7 @@ export interface CheckoutTranslations {
     securePayment: string;
     timelyDelivery: string;
     fairPrices: string;
-    confirmedOrder: string; // Added for "Ihre bestätigte Bestellung"
+    confirmedOrder: string;
   };
   // Confirmation section
   confirmation: {
@@ -88,7 +89,7 @@ export interface CheckoutTranslations {
     orderNumber: string;
     orderSuccess: string;
     paymentInstructions: string;
-    howToPay: string; // Added for "So zahlen Sie Ihre Bestellung"
+    howToPay: string;
     nextSteps: string;
     phoneContact: string;
     phoneContactDesc: string;
@@ -116,8 +117,8 @@ export interface CheckoutTranslations {
   };
   // Header
   header: {
-    securePayment: string; // Added for "Sichere Zahlung"
-    sslEncrypted: string; // Added for "SSL verschlüsselt"
+    securePayment: string;
+    sslEncrypted: string;
   };
   // Loading and system messages
   system: {
@@ -443,11 +444,12 @@ const translations = {
 } as const;
 
 export const useCheckoutTranslations = (): CheckoutTranslations => {
+  const shopConfig = useDomainShop();
+  
   return useMemo(() => {
-    // Check if user came from French version
-    const orderReferrer = localStorage.getItem('orderReferrer');
-    const isFrench = orderReferrer === '/4/home';
+    // Use domain-based detection instead of route-based
+    const isFrench = shopConfig.shopType === 'france';
     
     return translations[isFrench ? 'fr' : 'de'];
-  }, []);
+  }, [shopConfig.shopType]);
 };
