@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { Resend } from 'npm:resend@4.0.0'
@@ -300,10 +301,6 @@ serve(async (req) => {
       throw new Error('Order not found')
     }
 
-    // Detect language based on domain
-    const isFrench = order.origin_domain === 'fioul-rapide.fr';
-    console.log('Language detection:', { domain: order.origin_domain, isFrench });
-
     // Get SMTP configuration based on order domain
     let smtpConfig = null
     if (order.origin_domain) {
@@ -369,6 +366,12 @@ serve(async (req) => {
 
     console.log('Using SMTP config:', smtpConfig.sender_email);
 
+    // Determine language based on shop name instead of domain
+    // Only Fioul Rapide should generate French invoices, all others should be German
+    const shop = smtpConfig.shops || { company_name: 'Heizöl-Express GmbH', name: 'Heizöl-Express' }
+    const isFrench = shop.name === 'Fioul Rapide' || shop.company_name === 'Fioul Rapide';
+    console.log('Language detection:', { shopName: shop.name, companyName: shop.company_name, isFrench });
+
     // Get bank account information
     let bankAccount = null
     if (order.bank_account_id) {
@@ -410,8 +413,6 @@ serve(async (req) => {
     const resend = new Resend(smtpConfig.resend_api_key)
 
     // Create email content based on language
-    const shop = smtpConfig.shops || { company_name: 'Heizöl-Express GmbH', name: 'Heizöl-Express' }
-    
     let emailSubject: string;
     let emailHtml: string;
 
