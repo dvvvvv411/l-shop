@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Phone, Mail } from 'lucide-react';
+import { Menu, X, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLogoConfigForV5 } from '@/config/logoConfig';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -67,12 +67,8 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Contact Info */}
+            {/* Contact Info - Only Email */}
             <div className="hidden lg:flex items-center space-x-6">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Phone size={16} />
-                <span className="text-sm font-medium">+39 02 1234 5678</span>
-              </div>
               <div className="flex items-center space-x-2 text-gray-600">
                 <Mail size={16} />
                 <span className="text-sm font-medium">info@gasolio-veloce.it</span>
@@ -112,12 +108,8 @@ const Header = () => {
                   ))}
                 </nav>
                 
-                {/* Mobile Contact Info */}
+                {/* Mobile Contact Info - Only Email */}
                 <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Phone size={16} />
-                    <span className="text-sm font-medium">+39 02 1234 5678</span>
-                  </div>
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Mail size={16} />
                     <span className="text-sm font-medium">info@gasolio-veloce.it</span>
