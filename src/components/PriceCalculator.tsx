@@ -16,15 +16,15 @@ interface Product {
 const products: Product[] = [
   {
     id: 'standard',
-    name: 'Standard Heizöl',
-    price: 0.70,
-    description: 'Qualitäts-Heizöl nach DIN 51603-1'
+    name: 'Standard Heating Oil',
+    price: 0.85,
+    description: 'Quality heating oil according to EN 590'
   },
   {
     id: 'premium',
-    name: 'Premium Heizöl',
-    price: 0.75,
-    description: 'Schwefelarmes Premium-Heizöl mit Additiven'
+    name: 'Premium Heating Oil',
+    price: 0.90,
+    description: 'Low-sulfur premium heating oil with additives'
   }
 ];
 
@@ -52,7 +52,7 @@ const PriceCalculator = () => {
 
   // Validation functions
   const validatePostcode = (value: string) => {
-    const isValid = /^\d{5}$/.test(value);
+    const isValid = /^[A-Z]{3}\s?\d{4}$/.test(value.toUpperCase());
     setIsValidPostcode(isValid);
     return isValid;
   };
@@ -64,10 +64,14 @@ const PriceCalculator = () => {
   };
 
   const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-    setPostcode(value);
-    if (value.length === 5) {
-      validatePostcode(value);
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    let formatted = value;
+    if (value.length > 3) {
+      formatted = value.slice(0, 3) + ' ' + value.slice(3, 7);
+    }
+    setPostcode(formatted);
+    if (formatted.replace(/\s/g, '').length === 7) {
+      validatePostcode(formatted);
     } else {
       setIsValidPostcode(true); // Don't show error while typing
     }
@@ -100,7 +104,7 @@ const PriceCalculator = () => {
     }
   };
 
-  const isFormValid = postcode.length === 5 && isValidPostcode && isValidAmount;
+  const isFormValid = postcode.replace(/\s/g, '').length === 7 && isValidPostcode && isValidAmount;
 
   return (
     <motion.div 
@@ -111,40 +115,40 @@ const PriceCalculator = () => {
     >
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <div className="bg-red-100 p-3 rounded-full">
-            <Calculator className="text-red-600" size={32} />
+          <div className="bg-amber-100 p-3 rounded-full">
+            <Calculator className="text-amber-600" size={32} />
           </div>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Heizöl-Preisrechner
+          Heating Oil Price Calculator
         </h2>
         <p className="text-gray-600">
-          Berechnen Sie jetzt Ihren Preis und bestellen Sie zum Bestpreis
+          Calculate your price now and order at the best price
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Inputs */}
         <div className="space-y-6">
-          {/* PLZ Input */}
+          {/* Postcode Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Postleitzahl *
+              Postal Code *
             </label>
             <div className="relative">
               <input
                 type="text"
                 value={postcode}
                 onChange={handlePostcodeChange}
-                placeholder="z.B. 12345"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
-                  !isValidPostcode && postcode.length === 5
+                placeholder="e.g. VLT 1234"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 text-lg font-semibold transition-colors ${
+                  !isValidPostcode && postcode.replace(/\s/g, '').length === 7
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-red-500'
+                    : 'border-gray-300 focus:border-amber-500'
                 }`}
-                maxLength={5}
+                maxLength={8}
               />
-              {!isValidPostcode && postcode.length === 5 && (
+              {!isValidPostcode && postcode.replace(/\s/g, '').length === 7 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -154,13 +158,13 @@ const PriceCalculator = () => {
                 </motion.div>
               )}
             </div>
-            {!isValidPostcode && postcode.length === 5 && (
+            {!isValidPostcode && postcode.replace(/\s/g, '').length === 7 && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-red-500 text-sm mt-1"
               >
-                Bitte geben Sie eine gültige 5-stellige PLZ ein
+                Please enter a valid Malta postal code (e.g. VLT 1234)
               </motion.p>
             )}
           </div>
@@ -168,17 +172,17 @@ const PriceCalculator = () => {
           {/* Amount Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Gewünschte Menge: {amount.toLocaleString('de-DE')} Liter
+              Desired quantity: {amount.toLocaleString('en-US')} Litres
             </label>
             <div className="relative mb-4">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => handleAmountChange(Number(e.target.value))}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 text-lg font-semibold transition-colors ${
                   !isValidAmount
                     ? 'border-red-500 bg-red-50'
-                    : 'border-gray-300 focus:border-red-500'
+                    : 'border-gray-300 focus:border-amber-500'
                 }`}
                 min="1500"
                 max="32000"
@@ -198,8 +202,8 @@ const PriceCalculator = () => {
               />
             </div>
             <div className="flex justify-between text-sm text-gray-500">
-              <span>1.500L</span>
-              <span>32.000L</span>
+              <span>1,500L</span>
+              <span>32,000L</span>
             </div>
             {!isValidAmount && (
               <motion.p
@@ -207,7 +211,7 @@ const PriceCalculator = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-red-500 text-sm mt-1"
               >
-                Menge muss zwischen 1.500L und 32.000L liegen
+                Quantity must be between 1,500L and 32,000L
               </motion.p>
             )}
           </div>
@@ -215,7 +219,7 @@ const PriceCalculator = () => {
           {/* Product Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-4">
-              Produktauswahl
+              Product Selection
             </label>
             <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
               <div className="space-y-3">
@@ -225,7 +229,7 @@ const PriceCalculator = () => {
                     whileHover={{ scale: 1.02 }}
                     className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedProduct === product.id
-                        ? 'border-red-500 bg-red-50'
+                        ? 'border-amber-500 bg-amber-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setSelectedProduct(product.id)}
@@ -239,8 +243,8 @@ const PriceCalculator = () => {
                             <div className="text-sm text-gray-600">{product.description}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-red-600">{product.price.toFixed(2)}€</div>
-                            <div className="text-sm text-gray-500">pro Liter</div>
+                            <div className="font-bold text-amber-600">€{product.price.toFixed(2)}</div>
+                            <div className="text-sm text-gray-500">per litre</div>
                           </div>
                         </div>
                       </Label>
@@ -261,33 +265,33 @@ const PriceCalculator = () => {
             transition={{ duration: 0.3 }}
             className="bg-gray-50 rounded-xl p-6"
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Preisübersicht</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Price Overview</h3>
             
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
-                <span className="text-gray-600">Grundpreis ({amount.toLocaleString('de-DE')}L × {currentProduct.price.toFixed(2)}€)</span>
-                <span className="font-semibold">{basePrice.toFixed(2)}€</span>
+                <span className="text-gray-600">Base price ({amount.toLocaleString('en-US')}L × €{currentProduct.price.toFixed(2)})</span>
+                <span className="font-semibold">€{basePrice.toFixed(2)}</span>
               </div>
               
               {deliveryFee > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Lieferung</span>
-                  <span className="font-semibold">{deliveryFee.toFixed(2)}€</span>
+                  <span className="text-gray-600">Delivery</span>
+                  <span className="font-semibold">€{deliveryFee.toFixed(2)}</span>
                 </div>
               )}
               
               {deliveryFee === 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Kostenlose Lieferung</span>
-                  <span className="font-semibold">0,00€</span>
+                  <span>Free delivery</span>
+                  <span className="font-semibold">€0.00</span>
                 </div>
               )}
               
               <hr className="border-gray-300" />
               
               <div className="flex justify-between text-xl font-bold">
-                <span>Gesamtpreis</span>
-                <span className="text-red-600">{totalPrice.toFixed(2)}€</span>
+                <span>Total price</span>
+                <span className="text-amber-600">€{totalPrice.toFixed(2)}</span>
               </div>
             </div>
 
@@ -298,11 +302,11 @@ const PriceCalculator = () => {
               onClick={handleOrderClick}
               className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
                 isFormValid
-                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
+                  ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-lg hover:shadow-xl'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              {isFormValid ? 'Jetzt zum Bestpreis bestellen' : 'Bitte alle Felder ausfüllen'}
+              {isFormValid ? 'Order now at best price' : 'Please fill all fields'}
             </motion.button>
           </motion.div>
 
@@ -311,9 +315,9 @@ const PriceCalculator = () => {
             <div className="flex items-start space-x-3">
               <Clock className="text-blue-600 mt-1" size={20} />
               <div>
-                <h4 className="font-semibold text-blue-900">Schnelle Lieferung</h4>
+                <h4 className="font-semibold text-blue-900">Fast Delivery</h4>
                 <p className="text-sm text-blue-700">
-                  Lieferung in 4-7 Werktagen • Kostenlos ab 3.000L • Faire Preise
+                  Delivery in 4-7 working days • Free from 3,000L • Fair prices
                 </p>
               </div>
             </div>

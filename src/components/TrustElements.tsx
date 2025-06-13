@@ -6,29 +6,29 @@ import { Truck, Award, CreditCard, Map } from 'lucide-react';
 const trustElements = [
   {
     icon: Truck,
-    title: "Schnelle Lieferung",
-    description: "Zuverlässige Lieferung in 4-7 Werktagen deutschlandweit",
+    title: "Fast Delivery",
+    description: "Reliable delivery in 4-7 working days across Malta",
     color: "bg-blue-100 text-blue-600",
     delay: 0.1
   },
   {
     icon: Award,
-    title: "Geprüfte Qualität",
-    description: "DIN-zertifiziertes Premium-Heizöl nach höchsten Standards",
+    title: "Certified Quality",
+    description: "EN 590 certified premium heating oil to the highest standards",
     color: "bg-green-100 text-green-600",
     delay: 0.2
   },
   {
     icon: CreditCard,
-    title: "Sichere Zahlung",
-    description: "Flexible Zahlungsoptionen mit SSL-verschlüsselter Abwicklung",
+    title: "Secure Payment",
+    description: "Flexible payment options with SSL-encrypted processing",
     color: "bg-purple-100 text-purple-600",
     delay: 0.3
   },
   {
     icon: Map,
-    title: "Deutschland-weit",
-    description: "Flächendeckende Lieferung in alle deutschen Postleitzahlengebiete",
+    title: "Malta-wide",
+    description: "Island-wide delivery to all postal code areas in Malta",
     color: "bg-orange-100 text-orange-600",
     delay: 0.4
   }
@@ -45,10 +45,10 @@ const TrustElements = () => {
           className="text-center mb-10"
         >
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Vertrauen Sie auf unsere Expertise
+            Trust Our Expertise
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Über 25 Jahre Erfahrung im Heizölhandel - Ihre Zufriedenheit ist unser Erfolg
+            Over 15 years of experience in heating oil trade - Your satisfaction is our success
           </p>
         </motion.div>
 
@@ -79,7 +79,7 @@ const TrustElements = () => {
                 >
                   <element.icon size={28} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-600 transition-colors duration-300">
                   {element.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-sm">
@@ -103,11 +103,11 @@ const TrustElements = () => {
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
             <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="font-semibold">Kostenlose Beratung</span>
+            <span className="font-semibold">Free Consultation</span>
           </div>
           <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="font-semibold">Faire Preise garantiert</span>
+            <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
+            <span className="font-semibold">Fair Prices Guaranteed</span>
           </div>
         </motion.div>
       </div>

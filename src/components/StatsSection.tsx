@@ -7,27 +7,27 @@ const StatsSection = () => {
   const stats = [
     {
       icon: TrendingUp,
-      number: "2,5 Mio.",
-      label: "Liter jährlich",
-      description: "Heizöl erfolgreich geliefert"
+      number: "1.2 Mio.",
+      label: "Litres annually",
+      description: "Heating oil successfully delivered"
     },
     {
       icon: Users,
-      number: "150.000+",
-      label: "Zufriedene Kunden",
-      description: "Vertrauen auf unseren Service"
+      number: "5,000+",
+      label: "Satisfied customers",
+      description: "Trust our service"
     },
     {
       icon: Award,
-      number: "25+",
-      label: "Jahre Erfahrung",
-      description: "In der Heizölbranche"
+      number: "15+",
+      label: "Years experience",
+      description: "In the heating oil industry"
     },
     {
       icon: Clock,
       number: "4-7",
-      label: "Werktage Lieferzeit",
-      description: "Schnell und zuverlässig"
+      label: "Working days delivery",
+      description: "Fast and reliable"
     }
   ];
 
@@ -42,10 +42,10 @@ const StatsSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Zahlen & Fakten
+            Facts & Figures
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Vertrauen Sie auf unsere bewährte Expertise und werden Sie Teil unserer wachsenden Kundenfamilie
+            Trust our proven expertise and become part of our growing customer family
           </p>
         </motion.div>
 
@@ -60,11 +60,11 @@ const StatsSection = () => {
               className="text-center bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
             >
               <div className="flex justify-center mb-6">
-                <div className="bg-red-100 p-4 rounded-full">
-                  <stat.icon className="text-red-600" size={32} />
+                <div className="bg-amber-100 p-4 rounded-full">
+                  <stat.icon className="text-amber-600" size={32} />
                 </div>
               </div>
-              <div className="text-3xl md:text-4xl font-bold text-red-600 mb-2">
+              <div className="text-3xl md:text-4xl font-bold text-amber-600 mb-2">
                 {stat.number}
               </div>
               <div className="text-lg font-semibold text-gray-900 mb-2">
