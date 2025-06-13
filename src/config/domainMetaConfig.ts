@@ -200,7 +200,67 @@ const italianShopMetaConfig: DomainShopMetaConfig = {
   }
 };
 
-type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy';
+// Malta configuration for the Malta shop (English)
+const maltaShopMetaConfig: DomainShopMetaConfig = {
+  name: "Malta Heating Oil",
+  brand: "Malta Energy",
+  phone: "+356 2123 4567",
+  email: "info@malta-heating-oil.com",
+  baseUrl: "https://malta-heating-oil.com",
+  pages: {
+    home: {
+      title: "Heating Oil at Best Prices - Fast Delivery Across Malta",
+      description: "Order premium heating oil online at the best prices in Malta. Fast delivery, top quality, fair prices. Compare heating oil prices and save on your purchase.",
+      keywords: "heating oil, Malta, delivery, prices, online, best price",
+      ogTitle: "Heating Oil at Best Prices - Fast Delivery Malta",
+      ogDescription: "Order premium heating oil online with fast delivery across Malta",
+      twitterTitle: "Heating Oil at Best Prices - Fast Delivery Malta",
+      twitterDescription: "Order premium heating oil online with fast delivery across Malta"
+    },
+    impressum: {
+      title: "Legal Information - Malta Heating Oil",
+      description: "Legal information and company details."
+    },
+    agb: {
+      title: "Terms & Conditions - Malta Heating Oil",
+      description: "Terms and conditions of service."
+    },
+    widerrufsrecht: {
+      title: "Right of Withdrawal - Malta Heating Oil",
+      description: "Right of withdrawal and cancellation policy."
+    },
+    datenschutz: {
+      title: "Privacy Policy - Malta Heating Oil",
+      description: "Privacy policy and data protection information."
+    },
+    kontakt: {
+      title: "Contact - Malta Heating Oil | Personal Consultation",
+      description: "Contact us for personal consultation. Expert advice on heating oil and delivery services.",
+      keywords: "contact, consultation, heating oil, support, Malta"
+    },
+    service: {
+      title: "Service - Malta Heating Oil | Premium Heating Oil Service",
+      description: "First-class heating oil service: Fast delivery, certified partners, premium quality for your heating needs.",
+      keywords: "service, heating oil, delivery, premium, quality, Malta"
+    },
+    liefergebiet: {
+      title: "Delivery Areas - Malta Heating Oil | Malta-wide Coverage",
+      description: "Heating oil delivery across Malta. Discover our delivery areas and partner locations throughout Malta.",
+      keywords: "delivery areas, Malta, nationwide, partners, locations"
+    },
+    produkte: {
+      title: "Heating Oil Products - Premium Grade & Additives",
+      description: "High-quality heating oil products: Premium grade, low-sulfur fuels, additive heating oils for optimal heating performance.",
+      keywords: "heating oil, premium grade, low sulfur, additives, quality"
+    },
+    checkout: {
+      title: "Complete Your Order - Malta Heating Oil",
+      description: "Complete your heating oil order. Secure payment and fast delivery guaranteed."
+    }
+  }
+};
+
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
 
 const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   root: germanShopMetaConfig,
@@ -208,7 +268,8 @@ const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   greenoil: germanShopMetaConfig,
   austria: germanShopMetaConfig, // Austrian shop uses German for now
   france: frenchShopMetaConfig,
-  italy: italianShopMetaConfig
+  italy: italianShopMetaConfig,
+  malta: maltaShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {

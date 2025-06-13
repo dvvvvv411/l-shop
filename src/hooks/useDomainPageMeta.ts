@@ -45,7 +45,9 @@ export function useDomainPageMeta(pageName: string) {
     updateMetaTag('og:type', 'website', 'property');
     
     // Set locale based on shop type
-    const locale = shopConfig.shopType === 'france' ? 'fr_FR' : 'de_DE';
+    const locale = shopConfig.shopType === 'france' ? 'fr_FR' : 
+                   shopConfig.shopType === 'italy' ? 'it_IT' :
+                   shopConfig.shopType === 'malta' ? 'en_MT' : 'de_DE';
     updateMetaTag('og:locale', locale, 'property');
     
     // Update Twitter Card meta tags
@@ -66,8 +68,12 @@ export function useDomainPageMeta(pageName: string) {
       "email": shopMetaConfig.email,
       "url": shopMetaConfig.baseUrl,
       "description": pageMeta.description,
-      "serviceType": shopConfig.shopType === 'france' ? "Livraison de fioul" : "Heizöl-Lieferung",
-      "areaServed": shopConfig.shopType === 'france' ? "France" : "Deutschland"
+      "serviceType": shopConfig.shopType === 'france' ? "Livraison de fioul" : 
+                    shopConfig.shopType === 'italy' ? "Consegna gasolio" :
+                    shopConfig.shopType === 'malta' ? "Heating Oil Delivery" : "Heizöl-Lieferung",
+      "areaServed": shopConfig.shopType === 'france' ? "France" : 
+                    shopConfig.shopType === 'italy' ? "Italia" :
+                    shopConfig.shopType === 'malta' ? "Malta" : "Deutschland"
     };
     
     updateStructuredData(structuredData);
