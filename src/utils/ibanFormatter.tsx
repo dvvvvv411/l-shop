@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 /**
  * Formats IBANs with spaces after every 4 characters and bold styling for display
  */
@@ -30,7 +32,7 @@ export const formatGermanIban = (iban: string): string => {
 /**
  * Returns JSX with formatted and styled IBAN
  */
-export const formatIbanForDisplay = (iban: string) => {
+export const formatIbanForDisplay = (iban: string): React.JSX.Element => {
   const formatted = formatIban(iban);
   
   return (
