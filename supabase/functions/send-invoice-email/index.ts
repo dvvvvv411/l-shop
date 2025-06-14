@@ -8,17 +8,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Helper function to format German IBANs
-function formatGermanIban(iban: string): string {
-  if (!iban) return iban;
+// Helper function to format IBANs with spaces after every 4 characters
+function formatIban(iban: string): string {
+  if (!iban) return '';
   
-  // Check if it's a German IBAN (starts with DE)
-  if (!iban.toUpperCase().startsWith('DE')) {
-    return iban;
-  }
+  // Remove existing spaces and convert to uppercase
+  const cleanIban = iban.replace(/\s/g, '').toUpperCase();
   
-  // Remove existing spaces and format with spaces after every 4 characters
-  const cleanIban = iban.replace(/\s/g, '');
+  // Add spaces after every 4 characters
   const formatted = cleanIban.replace(/(.{4})/g, '$1 ').trim();
   
   return formatted;
@@ -26,7 +23,14 @@ function formatGermanIban(iban: string): string {
 
 // French email template generator
 const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any, bankAccount: any) => {
-  const accountHolderName = bankAccount.anyname ? shop.company_name : bankAccount.account_holder;
+  const accountHolderName = 'Fioul Rapide'; // Always show "Fioul Rapide" for French orders
+  
+  // Format the order creation date
+  const orderDate = new Date(order.created_at).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
   
   return `
 <!DOCTYPE html>
@@ -85,8 +89,8 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
                                             <tr>
                                                 <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Numéro de facture</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${invoiceNumber}</div>
+                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Date de la commande</div>
+                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${orderDate}</div>
                                                 </td>
                                             </tr>
                                         </table>
@@ -196,7 +200,7 @@ const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any
                                                                     <tr>
                                                                         <td style="padding: 16px;">
                                                                             <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${formatGermanIban(bankAccount.iban)}</div>
+                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;"><strong>${formatIban(bankAccount.iban)}</strong></div>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
