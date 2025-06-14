@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -9,6 +8,7 @@ import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTransl
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useShops } from '@/hooks/useShops';
+import { formatIban } from '@/utils/ibanFormatter';
 
 interface PriceCalculatorData {
   product: {
@@ -53,7 +53,7 @@ const CheckoutConfirmation = ({
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
-  // Fetch bank account details for French shop
+  // Fetch bank account details for French and Italian shops
   useEffect(() => {
     if (isFrenchShop) {
       const italienChampionAccount = bankAccounts.find(
@@ -70,8 +70,24 @@ const CheckoutConfirmation = ({
         setDisplayAccountHolder('Fioul Rapide');
         console.log('Using hardcoded French account holder: Fioul Rapide');
       }
+    } else if (isItalianShop) {
+      // For Italian shop, find the appropriate bank account
+      const italianAccount = bankAccounts.find(
+        account => account.system_name === 'OIL & OIL SRL' || account.system_name?.toLowerCase().includes('oil')
+      );
+      
+      console.log('Found Italian account:', italianAccount);
+      console.log('Available shops:', shops);
+      
+      if (italianAccount) {
+        setBankAccountDetails(italianAccount);
+        
+        // For Italian shop, use "OIL & OIL SRL" as account holder
+        setDisplayAccountHolder('OIL & OIL SRL');
+        console.log('Using Italian account holder: OIL & OIL SRL');
+      }
     }
-  }, [isFrenchShop, bankAccounts, shops]);
+  }, [isFrenchShop, isItalianShop, bankAccounts, shops]);
 
   if (!contextOrderData) {
     return (
@@ -116,52 +132,76 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Bank Account Details for French Shop - Show prominently */}
-        {isFrenchShop && bankAccountDetails && (
+        {/* Bank Account Details for French and Italian Shops */}
+        {(isFrenchShop || isItalianShop) && bankAccountDetails && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="bg-green-50 border-2 border-green-300 rounded-xl p-6 shadow-lg"
+            className={`${isItalianShop ? 'bg-green-50 border-2 border-green-300' : 'bg-green-50 border-2 border-green-300'} rounded-xl p-6 shadow-lg`}
           >
             <div className="flex items-center mb-4">
-              <div className="bg-green-100 p-3 rounded-full mr-4">
-                <Building2 className="text-green-600" size={24} />
+              <div className={`${isItalianShop ? 'bg-green-100' : 'bg-green-100'} p-3 rounded-full mr-4`}>
+                <Building2 className={`${isItalianShop ? 'text-green-600' : 'text-green-600'}`} size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-green-900">Coordonnées bancaires</h3>
-                <p className="text-green-700">Pour votre virement</p>
+                <h3 className={`text-xl font-bold ${isItalianShop ? 'text-green-900' : 'text-green-900'}`}>
+                  {isItalianShop ? 'Coordinate bancarie' : 'Coordonnées bancaires'}
+                </h3>
+                <p className={`${isItalianShop ? 'text-green-700' : 'text-green-700'}`}>
+                  {isItalianShop ? 'Per il tuo bonifico' : 'Pour votre virement'}
+                </p>
               </div>
             </div>
 
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">Fioul Rapide</div>
+                  <div className={`${isItalianShop ? 'text-green-800' : 'text-green-800'} font-semibold text-xs uppercase tracking-wide`}>
+                    {isItalianShop ? 'Intestatario' : 'Titulaire'}
+                  </div>
+                  <div className={`${isItalianShop ? 'text-green-900' : 'text-green-900'} font-bold`}>
+                    {displayAccountHolder}
+                  </div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
-                  <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
+                  <div className={`${isItalianShop ? 'text-green-800' : 'text-green-800'} font-semibold text-xs uppercase tracking-wide`}>
+                    {isItalianShop ? 'Banca' : 'Banque'}
+                  </div>
+                  <div className={`${isItalianShop ? 'text-green-900' : 'text-green-900'} font-bold`}>
+                    {bankAccountDetails.bank_name}
+                  </div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                  <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                  <div className={`${isItalianShop ? 'text-green-800' : 'text-green-800'} font-semibold text-xs uppercase tracking-wide`}>IBAN</div>
+                  <div className={`${isItalianShop ? 'text-green-900' : 'text-green-900'} font-mono text-sm font-bold break-all`}>
+                    {formatIban(bankAccountDetails.iban)}
+                  </div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
-                  <div className="text-green-900 font-mono font-bold">{bankAccountDetails.bic}</div>
+                  <div className={`${isItalianShop ? 'text-green-800' : 'text-green-800'} font-semibold text-xs uppercase tracking-wide`}>BIC</div>
+                  <div className={`${isItalianShop ? 'text-green-900' : 'text-green-900'} font-mono font-bold`}>
+                    {bankAccountDetails.bic}
+                  </div>
                 </div>
                 
-                <div className="bg-green-100 p-3 rounded-lg border border-green-200">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Référence</div>
-                  <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
+                <div className={`${isItalianShop ? 'bg-green-100 border-green-200' : 'bg-green-100 border-green-200'} p-3 rounded-lg border`}>
+                  <div className={`${isItalianShop ? 'text-green-800' : 'text-green-800'} font-semibold text-xs uppercase tracking-wide`}>
+                    {isItalianShop ? 'Causale' : 'Référence'}
+                  </div>
+                  <div className={`${isItalianShop ? 'text-green-900' : 'text-green-900'} font-bold text-lg`}>
+                    {orderNumber}
+                  </div>
                 </div>
                 
                 <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Montant à virer</div>
-                  <div className="text-red-900 font-bold text-xl">{contextOrderData.total.toFixed(2)}€</div>
+                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">
+                    {isItalianShop ? 'Importo da bonificare' : 'Montant à virer'}
+                  </div>
+                  <div className="text-red-900 font-bold text-xl">
+                    {contextOrderData.total.toFixed(2)}€
+                  </div>
                 </div>
               </div>
             </div>

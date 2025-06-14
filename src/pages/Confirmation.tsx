@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useShops } from '@/hooks/useShops';
 import { Button } from '@/components/ui/button';
+import { formatIban } from '@/utils/ibanFormatter';
 
 const Confirmation = () => {
   const [supplier, setSupplier] = useState<SupplierByPostcode | null>(null);
@@ -29,6 +31,7 @@ const Confirmation = () => {
   const orderNumber = location.state?.orderNumber || 'HÖ12345678';
 
   const isFrenchShop = shopConfig.shopType === 'france';
+  const isItalianShop = shopConfig.shopType === 'italy';
 
   if (!orderData) {
     navigate('/');
@@ -51,7 +54,7 @@ const Confirmation = () => {
       }
     };
 
-    // For French shop, get Italien Champion bank account details
+    // For French and Italian shops, get bank account details
     const fetchBankAccountDetails = () => {
       if (isFrenchShop) {
         const italienChampionAccount = bankAccounts.find(
@@ -68,12 +71,28 @@ const Confirmation = () => {
           setDisplayAccountHolder('Fioul Rapide');
           console.log('Confirmation - Using hardcoded French account holder: Fioul Rapide');
         }
+      } else if (isItalianShop) {
+        // For Italian shop, find the appropriate bank account
+        const italianAccount = bankAccounts.find(
+          account => account.system_name === 'OIL & OIL SRL' || account.system_name?.toLowerCase().includes('oil')
+        );
+        
+        console.log('Confirmation - Found Italian account:', italianAccount);
+        console.log('Confirmation - Available shops:', shops);
+        
+        if (italianAccount) {
+          setBankAccountDetails(italianAccount);
+          
+          // For Italian shop, use "OIL & OIL SRL" as account holder
+          setDisplayAccountHolder('OIL & OIL SRL');
+          console.log('Confirmation - Using Italian account holder: OIL & OIL SRL');
+        }
       }
     };
 
     fetchSupplier();
     fetchBankAccountDetails();
-  }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, bankAccounts, shops]);
+  }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, isItalianShop, bankAccounts, shops]);
 
   const handleNewOrder = () => {
     clearOrderData();
@@ -108,11 +127,15 @@ const Confirmation = () => {
                   </div>
                   
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    {isFrenchShop ? 'Commande confirmée !' : 'Vielen Dank für Ihre Bestellung!'}
+                    {isItalianShop ? 'Ordine confermato!' : 
+                     isFrenchShop ? 'Commande confirmée !' : 
+                     'Vielen Dank für Ihre Bestellung!'}
                   </h1>
                   
                   <p className="text-gray-600 text-lg mb-6">
-                    {isFrenchShop 
+                    {isItalianShop 
+                      ? 'Il tuo ordine di gasolio è stato registrato con successo ed è in elaborazione.'
+                      : isFrenchShop 
                       ? 'Votre commande de fioul a été enregistrée avec succès et est en cours de traitement.'
                       : 'Ihre Heizölbestellung wurde erfolgreich aufgenommen und wird bearbeitet.'
                     }
@@ -120,13 +143,15 @@ const Confirmation = () => {
                   
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
                     <div className="text-sm text-red-600 font-medium">
-                      {isFrenchShop ? 'Votre numéro de commande' : 'Ihre Bestellnummer'}
+                      {isItalianShop ? 'Il tuo numero d\'ordine' :
+                       isFrenchShop ? 'Votre numéro de commande' : 
+                       'Ihre Bestellnummer'}
                     </div>
                     <div className="text-2xl font-bold text-red-700">{orderNumber}</div>
                   </div>
 
                   {/* Email confirmation notice */}
-                  {orderData.customerEmail && !isFrenchShop && (
+                  {orderData.customerEmail && !isFrenchShop && !isItalianShop && (
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-center space-x-2 text-blue-700">
                         <Mail size={20} />
@@ -138,22 +163,27 @@ const Confirmation = () => {
                     </div>
                   )}
 
-                  {/* Invoice notice for French shop */}
-                  {isFrenchShop && orderData.customerEmail && (
+                  {/* Invoice notice for French and Italian shops */}
+                  {(isFrenchShop || isItalianShop) && orderData.customerEmail && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center justify-center space-x-2 text-green-700">
                         <Mail size={20} />
-                        <span className="font-medium">Facture envoyée</span>
+                        <span className="font-medium">
+                          {isItalianShop ? 'Fattura inviata' : 'Facture envoyée'}
+                        </span>
                       </div>
                       <p className="text-green-600 text-sm mt-2">
-                        Votre facture a été automatiquement envoyée à <strong>{orderData.customerEmail}</strong> avec les coordonnées bancaires.
+                        {isItalianShop 
+                          ? <>La tua fattura è stata automaticamente inviata a <strong>{orderData.customerEmail}</strong> con le coordinate bancarie.</>
+                          : <>Votre facture a été automatiquement envoyée à <strong>{orderData.customerEmail}</strong> avec les coordonnées bancaires.</>
+                        }
                       </p>
                     </div>
                   )}
                 </motion.div>
 
-                {/* Bank Account Details for French Shop */}
-                {isFrenchShop && bankAccountDetails && (
+                {/* Bank Account Details for French and Italian Shops */}
+                {(isFrenchShop || isItalianShop) && bankAccountDetails && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -165,36 +195,50 @@ const Confirmation = () => {
                         <Building2 className="text-green-600" size={24} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900">Coordonnées bancaires</h3>
-                        <p className="text-gray-600">Effectuez votre virement avec ces informations</p>
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {isItalianShop ? 'Coordinate bancarie' : 'Coordonnées bancaires'}
+                        </h3>
+                        <p className="text-gray-600">
+                          {isItalianShop ? 'Effettua il bonifico con queste informazioni' : 'Effectuez votre virement avec ces informations'}
+                        </p>
                       </div>
                     </div>
 
                     <div className="bg-green-50 rounded-lg p-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <div className="text-sm font-medium text-green-800 mb-1">Titulaire du compte</div>
-                          <div className="text-green-900 font-semibold">Fioul Rapide</div>
+                          <div className="text-sm font-medium text-green-800 mb-1">
+                            {isItalianShop ? 'Intestatario del conto' : 'Titulaire du compte'}
+                          </div>
+                          <div className="text-green-900 font-semibold">{displayAccountHolder}</div>
                         </div>
                         
                         <div>
-                          <div className="text-sm font-medium text-green-800 mb-1">Banque</div>
+                          <div className="text-sm font-medium text-green-800 mb-1">
+                            {isItalianShop ? 'Banca' : 'Banque'}
+                          </div>
                           <div className="text-green-900 font-semibold">{bankAccountDetails.bank_name}</div>
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">IBAN</div>
-                          <div className="text-green-900 font-mono text-lg">{bankAccountDetails.iban}</div>
+                          <div className="text-green-900 font-mono text-lg font-bold">
+                            {formatIban(bankAccountDetails.iban)}
+                          </div>
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">BIC</div>
-                          <div className="text-green-900 font-mono text-lg">{bankAccountDetails.bic}</div>
+                          <div className="text-green-900 font-mono text-lg font-bold">{bankAccountDetails.bic}</div>
                         </div>
                       </div>
                       
                       <div className="mt-4 p-3 bg-green-100 rounded-lg">
-                        <div className="text-sm font-medium text-green-800 mb-1">Montant à virer</div>
+                        <div className="text-sm font-medium text-green-800 mb-1">
+                          {isItalianShop ? 'Importo da bonificare' : 'Montant à virer'}
+                        </div>
                         <div className="text-2xl font-bold text-green-900">{orderData.total.toFixed(2)}€</div>
-                        <div className="text-sm text-green-700 mt-1">Référence: {orderNumber}</div>
+                        <div className="text-sm text-green-700 mt-1">
+                          {isItalianShop ? 'Causale' : 'Référence'}: {orderNumber}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -208,7 +252,9 @@ const Confirmation = () => {
                   className="bg-white rounded-xl p-6 shadow-lg"
                 >
                   <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    {isFrenchShop ? 'Votre fournisseur' : 'Ihr Lieferant'}
+                    {isItalianShop ? 'Il tuo fornitore' :
+                     isFrenchShop ? 'Votre fournisseur' : 
+                     'Ihr Lieferant'}
                   </h3>
                   <SupplierInfo supplier={supplier} isLoading={isLoadingSupplier} />
                 </motion.div>
@@ -226,10 +272,14 @@ const Confirmation = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">
-                        {isFrenchShop ? 'Instructions de paiement' : 'Zahlungshinweise'}
+                        {isItalianShop ? 'Istruzioni per il pagamento' :
+                         isFrenchShop ? 'Instructions de paiement' : 
+                         'Zahlungshinweise'}
                       </h3>
                       <p className="text-gray-600">
-                        {isFrenchShop ? 'Comment payer votre commande' : 'So zahlen Sie Ihre Bestellung'}
+                        {isItalianShop ? 'Come pagare il tuo ordine' :
+                         isFrenchShop ? 'Comment payer votre commande' : 
+                         'So zahlen Sie Ihre Bestellung'}
                       </p>
                     </div>
                   </div>
@@ -237,10 +287,12 @@ const Confirmation = () => {
                   <div className="space-y-4">
                     <div className="bg-blue-50 rounded-lg p-4">
                       <h4 className="font-semibold text-blue-900 mb-3">
-                        {isFrenchShop ? 'Prochaines étapes' : 'Nächste Schritte'}
+                        {isItalianShop ? 'Prossimi passi' :
+                         isFrenchShop ? 'Prochaines étapes' : 
+                         'Nächste Schritte'}
                       </h4>
                       <div className="space-y-2 text-sm">
-                        {!isFrenchShop && (
+                        {!isFrenchShop && !isItalianShop && (
                           <div className="flex items-start space-x-3">
                             <Phone className="text-blue-600 mt-1" size={16} />
                             <div>
@@ -257,10 +309,14 @@ const Confirmation = () => {
                           <CreditCard className="text-blue-600 mt-1" size={16} />
                           <div>
                             <div className="font-semibold text-blue-900">
-                              {isFrenchShop ? '1. Virement bancaire' : '2. Überweisung'}
+                              {isItalianShop ? '1. Bonifico bancario' :
+                               isFrenchShop ? '1. Virement bancaire' : 
+                               '2. Überweisung'}
                             </div>
                             <div className="text-blue-700">
-                              {isFrenchShop 
+                              {isItalianShop 
+                                ? `Ti preghiamo di bonificare l'importo di ${orderData.total.toFixed(2)}€ con causale ${orderNumber}.`
+                                : isFrenchShop 
                                 ? `Veuillez virer le montant de ${orderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
                                 : `Nach unserem Anruf überweisen Sie den Betrag von ${orderData.total.toFixed(2)}€ auf unser Konto.`
                               }
@@ -271,10 +327,14 @@ const Confirmation = () => {
                           <Truck className="text-blue-600 mt-1" size={16} />
                           <div>
                             <div className="font-semibold text-blue-900">
-                              {isFrenchShop ? '2. Livraison' : '3. Lieferung'}
+                              {isItalianShop ? '2. Consegna' :
+                               isFrenchShop ? '2. Livraison' : 
+                               '3. Lieferung'}
                             </div>
                             <div className="text-blue-700">
-                              {isFrenchShop 
+                              {isItalianShop 
+                                ? 'Dopo aver ricevuto il pagamento, la consegna avviene in 2-4 giorni lavorativi.'
+                                : isFrenchShop 
                                 ? 'Après réception du paiement, la livraison s\'effectue en 2-4 jours ouvrables.'
                                 : 'Nach Zahlungseingang erfolgt die Lieferung in 4-7 Werktagen.'
                               }
@@ -400,7 +460,9 @@ const Confirmation = () => {
                       id: 'standard',
                       name: orderData.product,
                       price: orderData.pricePerLiter,
-                      description: isFrenchShop ? 'Fioul de qualité selon norme DIN 51603-1' : 'Qualitäts-Heizöl nach DIN 51603-1'
+                      description: isItalianShop ? 'Gasolio di qualità secondo norma DIN 51603-1' :
+                                   isFrenchShop ? 'Fioul de qualité selon norme DIN 51603-1' : 
+                                   'Qualitäts-Heizöl nach DIN 51603-1'
                     },
                     amount: orderData.amount,
                     postcode: orderData.deliveryPostcode,
@@ -411,7 +473,7 @@ const Confirmation = () => {
                   }}
                   bankAccountDetails={bankAccountDetails ? {
                     ...bankAccountDetails,
-                    account_holder: 'Fioul Rapide'
+                    account_holder: displayAccountHolder
                   } : null}
                   orderNumber={orderNumber}
                 />
