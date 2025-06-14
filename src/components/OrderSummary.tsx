@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
 import { useDomainShop } from '@/hooks/useDomainShop';
+import { formatIban } from '@/utils/ibanFormatter';
 
 interface PriceCalculatorData {
   product: {
@@ -30,12 +31,27 @@ interface OrderSummaryProps {
   orderData?: PriceCalculatorData | null;
   bankAccountDetails?: BankAccountDetails | null;
   orderNumber?: string;
+  autoScrollToBankDetails?: boolean;
 }
 
-const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSummaryProps) => {
+const OrderSummary = ({ orderData, bankAccountDetails, orderNumber, autoScrollToBankDetails }: OrderSummaryProps) => {
   const shopConfig = useDomainShop();
   const isFrenchShop = shopConfig.shopType === 'france';
   const isItalianShop = shopConfig.shopType === 'italy';
+  const bankDetailsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bank details for French shop orders
+  useEffect(() => {
+    if (autoScrollToBankDetails && isFrenchShop && bankAccountDetails && bankDetailsRef.current) {
+      const timer = setTimeout(() => {
+        bankDetailsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [autoScrollToBankDetails, isFrenchShop, bankAccountDetails]);
 
   // Fallback to mock data if no orderData is provided (for backwards compatibility)
   const fallbackData = {
@@ -53,11 +69,23 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
 
   console.log('OrderSummary - Bank account details received:', bankAccountDetails);
 
+  // Get the appropriate account holder name
+  const getAccountHolderName = () => {
+    if (isFrenchShop) {
+      return 'Fioul Rapide';
+    }
+    if (isItalianShop) {
+      return 'Gasolio Veloce';
+    }
+    return bankAccountDetails?.account_holder || '';
+  };
+
   return (
     <div className="space-y-6">
       {/* Bank Account Details for French Shop and Italian Shop - Show prominently at top */}
       {(isFrenchShop || isItalianShop) && bankAccountDetails && (
         <motion.div
+          ref={bankDetailsRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -84,7 +112,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
                   {isItalianShop ? 'Intestatario' : 'Titulaire'}
                 </div>
                 <div className="text-green-900 font-bold">
-                  {isItalianShop ? 'Gasolio Veloce' : 'Fioul Rapide'}
+                  {getAccountHolderName()}
                 </div>
               </div>
               
@@ -96,7 +124,9 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               </div>
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                <div className="text-green-900 font-mono text-sm font-bold break-all">
+                  {formatIban(bankAccountDetails.iban)}
+                </div>
               </div>
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>

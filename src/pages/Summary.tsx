@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,8 @@ import OrderSummary from '@/components/OrderSummary';
 import SupplierInfo from '@/components/SupplierInfo';
 import { useOrder } from '@/contexts/OrderContext';
 import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
+import { useDomainShop } from '@/hooks/useDomainShop';
+import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { Button } from '@/components/ui/button';
 
 const Summary = () => {
@@ -17,6 +20,8 @@ const Summary = () => {
   const [isLoadingSupplier, setIsLoadingSupplier] = useState(false);
   const { orderData } = useOrder();
   const { getSupplierByPostcode } = useSuppliers();
+  const { bankAccounts } = useBankAccounts();
+  const shopConfig = useDomainShop();
   const navigate = useNavigate();
 
   if (!orderData) {
@@ -42,6 +47,19 @@ const Summary = () => {
 
     fetchSupplier();
   }, [orderData.deliveryPostcode, getSupplierByPostcode]);
+
+  // Get bank account details for French shop
+  const getBankAccountDetails = () => {
+    if (shopConfig.shopType === 'france') {
+      const italienChampionAccount = bankAccounts.find(
+        account => account.system_name === 'Italien Champion'
+      );
+      return italienChampionAccount || null;
+    }
+    return null;
+  };
+
+  const bankAccountDetails = getBankAccountDetails();
 
   const handlePlaceOrder = () => {
     if (!acceptTerms) {
@@ -244,6 +262,9 @@ const Summary = () => {
                     totalPrice: orderData.total,
                     savings: orderData.discount
                   }}
+                  bankAccountDetails={bankAccountDetails}
+                  orderNumber={orderData.orderNumber}
+                  autoScrollToBankDetails={shopConfig.shopType === 'france'}
                 />
               </div>
             </div>
