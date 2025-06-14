@@ -48,13 +48,20 @@ const Summary = () => {
     fetchSupplier();
   }, [orderData.deliveryPostcode, getSupplierByPostcode]);
 
-  // Get bank account details for French shop
+  // Get bank account details for French shop - always use Italien Champion account
   const getBankAccountDetails = () => {
     if (shopConfig.shopType === 'france') {
       const italienChampionAccount = bankAccounts.find(
         account => account.system_name === 'Italien Champion'
       );
-      return italienChampionAccount || null;
+      
+      // Override account holder to always show "Fioul Rapide" for French orders
+      if (italienChampionAccount) {
+        return {
+          ...italienChampionAccount,
+          account_holder: 'Fioul Rapide'
+        };
+      }
     }
     return null;
   };

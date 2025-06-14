@@ -69,7 +69,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber, autoScrollTo
 
   console.log('OrderSummary - Bank account details received:', bankAccountDetails);
 
-  // Get the appropriate account holder name
+  // Get the appropriate account holder name - ALWAYS show "Fioul Rapide" for French shop
   const getAccountHolderName = () => {
     if (isFrenchShop) {
       return 'Fioul Rapide';

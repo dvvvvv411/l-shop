@@ -5,10 +5,12 @@
  * Example: IT43J0760115900001074705730 -> IT43 J076 0115 9000 0107 4705 730
  */
 export const formatIban = (iban: string): string => {
-  if (!iban) return iban;
+  if (!iban) return '';
   
-  // Remove existing spaces and format with spaces after every 4 characters
-  const cleanIban = iban.replace(/\s/g, '');
+  // Remove existing spaces and convert to uppercase
+  const cleanIban = iban.replace(/\s/g, '').toUpperCase();
+  
+  // Add spaces after every 4 characters
   const formatted = cleanIban.replace(/(.{4})/g, '$1 ').trim();
   
   return formatted;
