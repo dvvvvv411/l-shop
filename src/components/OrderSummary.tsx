@@ -24,7 +24,6 @@ interface BankAccountDetails {
   bank_name: string;
   iban: string;
   bic: string;
-  anyname?: boolean;
 }
 
 interface OrderSummaryProps {
@@ -85,7 +84,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
                   {isItalianShop ? 'Intestatario' : 'Titulaire'}
                 </div>
                 <div className="text-green-900 font-bold">
-                  {bankAccountDetails.anyname && shopConfig.name ? shopConfig.name : bankAccountDetails.account_holder}
+                  {isItalianShop ? 'Gasolio Veloce' : 'Fioul Rapide'}
                 </div>
               </div>
               

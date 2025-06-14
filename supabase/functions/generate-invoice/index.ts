@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import jsPDF from 'https://esm.sh/jspdf@2.5.1'
@@ -408,7 +409,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   
   // Language-specific text
   const texts = isItalian ? {
-    companyName: shop?.name || 'OIL & OIL',
+    companyName: shop?.company_name || 'OIL & OIL',
     invoice: 'FATTURA',
     invoiceDate: 'Data fattura:',
     orderNumber: 'Numero ordine:',
@@ -443,50 +444,50 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     phone: 'Tel',
     email: 'E-Mail'
   } : {
-    companyName: shop?.name || 'Fioul Rapide',
-    invoice: 'FACTURE',
-    invoiceDate: 'Date facture:',
-    orderNumber: 'Numéro commande:',
-    billingAddress: 'Adresse de facturation:',
-    deliveryDetails: 'Détails de livraison:',
-    deliveryAddress: 'Adresse de livraison',
-    paymentMethod: 'Mode de paiement',
-    prepayment: 'Virement bancaire',
+    companyName: shop?.company_name || 'Heizöl-Express GmbH',
+    invoice: 'RECHNUNG',
+    invoiceDate: 'Rechnungsdatum:',
+    orderNumber: 'Bestellnummer:',
+    billingAddress: 'Rechnungsanschrift:',
+    deliveryDetails: 'Lieferdetails:',
+    deliveryAddress: 'Lieferadresse',
+    paymentMethod: 'Zahlungsart',
+    prepayment: 'Vorkasse',
     pos: 'Pos.',
-    description: 'Description',
-    quantity: 'Quantité',
-    unit: 'Unité',
-    unitPrice: 'Prix unitaire',
-    totalPrice: 'Prix total',
-    standardOil: 'Fioul Standard',
-    deliveryCost: 'Frais de livraison',
-    discount: 'Remise',
-    liter: 'Litre',
-    piece: 'Pièce',
-    subtotal: 'Sous-total:',
-    vat: 'TVA (20%):',
-    totalAmount: 'Montant total:',
-    bankDetails: 'Coordonnées bancaires:',
-    bank: 'Banque',
-    accountHolder: 'Titulaire du compte',
-    orderRef: 'Référence commande',
-    additionalNotes: 'Notes supplémentaires:',
-    notes: 'Remarques:',
-    thankYou: 'Merci pour votre commande!',
-    vatNumber: 'N° TVA',
-    management: 'Direction',
-    phone: 'Tél',
+    description: 'Beschreibung',
+    quantity: 'Menge',
+    unit: 'Einheit',
+    unitPrice: 'Einzelpreis',
+    totalPrice: 'Gesamtpreis',
+    standardOil: 'Heizöl Standard',
+    deliveryCost: 'Lieferkosten',
+    discount: 'Rabatt',
+    liter: 'Liter',
+    piece: 'Stück',
+    subtotal: 'Zwischensumme:',
+    vat: 'MwSt. (19%):',
+    totalAmount: 'Gesamtbetrag:',
+    bankDetails: 'Bankverbindung:',
+    bank: 'Bank',
+    accountHolder: 'Kontoinhaber',
+    orderRef: 'Bestellnummer',
+    additionalNotes: 'Zusätzliche Anmerkungen:',
+    notes: 'Bemerkungen:',
+    thankYou: 'Vielen Dank für Ihren Auftrag!',
+    vatNumber: 'USt-IdNr',
+    management: 'Geschäftsführung',
+    phone: 'Tel',
     email: 'E-Mail'
   };
   
-  // Company details with shop name priority
+  // Company details with Italian defaults
   const companyName = texts.companyName
-  const companyAddress = shop?.company_address || (isItalian ? 'Via Roma 123' : 'Rue de la République 123')
-  const companyPostcode = shop?.company_postcode || (isItalian ? '00100' : '75001')
-  const companyCity = shop?.company_city || (isItalian ? 'Roma' : 'Paris')
+  const companyAddress = shop?.company_address || (isItalian ? 'Via Roma 123' : 'Musterstraße 123')
+  const companyPostcode = shop?.company_postcode || (isItalian ? '00100' : '12345')
+  const companyCity = shop?.company_city || (isItalian ? 'Roma' : 'Berlin')
   const companyPhone = shop?.company_phone || null
-  const companyEmail = shop?.company_email || (isItalian ? 'info@gasoliocasa.com' : 'info@fioul-rapide.fr')
-  const vatNumber = shop?.vat_number || (isItalian ? 'IT12345678901' : 'FR12345678901')
+  const companyEmail = shop?.company_email || (isItalian ? 'info@gasoliocasa.com' : 'info@heizoel-express.de')
+  const vatNumber = shop?.vat_number || (isItalian ? 'IT12345678901' : 'DE123456789')
   
   // Header background with Italian flag colors for Italian shops
   if (isItalian) {
@@ -701,9 +702,9 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.setFont('helvetica', 'normal')
     doc.text(`${texts.bank}: ${bankAccount.bank_name}`, 18, yPos + 10)
     
-    // Use shop name for bank account holder when anyname is enabled
-    const accountHolderDisplay = bankAccount.anyname && shop?.name 
-      ? shop.name 
+    // Use shop company name if anyname is enabled, otherwise use account holder
+    const accountHolderDisplay = bankAccount.anyname && shop?.company_name 
+      ? shop.company_name 
       : bankAccount.account_holder;
     
     doc.text(`${texts.accountHolder}: ${accountHolderDisplay}`, 18, yPos + 15)
@@ -745,7 +746,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.text(order.notes, 15, yPos + 6)
   }
   
-  // Footer with line separator and dynamic shop information using shop name
+  // Footer with line separator and dynamic shop information
   doc.setDrawColor(...primaryColor)
   doc.setLineWidth(0.5)
   doc.line(15, 265, 195, 265)
@@ -756,9 +757,9 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   doc.text(`${companyName} • ${companyAddress} • ${companyPostcode} ${companyCity}`, 15, 277)
   
   // Dynamic footer information using shop data
-  const businessOwner = shop?.business_owner || (isItalian ? 'Marco Rossi' : 'Jean Dupont')
-  const courtName = shop?.court_name || (isItalian ? 'Tribunale di Roma' : 'Tribunal de Paris')
-  const registrationNumber = shop?.registration_number || (isItalian ? 'REA RM 123456' : 'RCS Paris 123456')
+  const businessOwner = shop?.business_owner || (isItalian ? 'Marco Rossi' : 'Max Mustermann')
+  const courtName = shop?.court_name || (isItalian ? 'Tribunale di Roma' : 'Amtsgericht Berlin')
+  const registrationNumber = shop?.registration_number || (isItalian ? 'REA RM 123456' : 'HRB 12345')
   
   doc.text(
     `${texts.management}: ${businessOwner} • ${courtName}: ${registrationNumber} • ${texts.vatNumber}: ${vatNumber}`, 
