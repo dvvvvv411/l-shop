@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -8,6 +7,7 @@ import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useShops } from '@/hooks/useShops';
+import { formatIban } from '@/utils/ibanFormatter';
 
 interface PriceCalculatorData {
   product: {
@@ -138,7 +138,7 @@ const CheckoutConfirmation = ({
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                  <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(bankAccountDetails.iban)}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
