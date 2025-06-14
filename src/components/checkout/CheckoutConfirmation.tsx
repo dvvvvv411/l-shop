@@ -53,7 +53,7 @@ const CheckoutConfirmation = ({
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
-  // Fetch bank account details for French shop
+  // Fetch bank account details for French and Italian shops
   useEffect(() => {
     if (isFrenchShop) {
       const italienChampionAccount = bankAccounts.find(
@@ -61,17 +61,28 @@ const CheckoutConfirmation = ({
       );
       
       console.log('Found Italien Champion account:', italienChampionAccount);
-      console.log('Available shops:', shops);
       
       if (italienChampionAccount) {
         setBankAccountDetails(italienChampionAccount);
-        
         // For French shop, always use "Fioul Rapide" as account holder
         setDisplayAccountHolder('Fioul Rapide');
         console.log('Using hardcoded French account holder: Fioul Rapide');
       }
+    } else if (isItalianShop) {
+      const gasolioCasaAccount = bankAccounts.find(
+        account => account.system_name === 'GasolioCasa'
+      );
+      
+      console.log('Found GasolioCasa account:', gasolioCasaAccount);
+      
+      if (gasolioCasaAccount) {
+        setBankAccountDetails(gasolioCasaAccount);
+        // For Italian shop, use "OIL & OIL SRL" as account holder
+        setDisplayAccountHolder('OIL & OIL SRL');
+        console.log('Using hardcoded Italian account holder: OIL & OIL SRL');
+      }
     }
-  }, [isFrenchShop, bankAccounts, shops]);
+  }, [isFrenchShop, isItalianShop, bankAccounts, shops]);
 
   if (!contextOrderData) {
     return (
@@ -116,8 +127,8 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Bank Account Details for French Shop - Show prominently */}
-        {isFrenchShop && bankAccountDetails && (
+        {/* Bank Account Details for French and Italian Shops - Show prominently */}
+        {(isFrenchShop || isItalianShop) && bankAccountDetails && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -129,20 +140,28 @@ const CheckoutConfirmation = ({
                 <Building2 className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-green-900">Coordonnées bancaires</h3>
-                <p className="text-green-700">Pour votre virement</p>
+                <h3 className="text-xl font-bold text-green-900">
+                  {isItalianShop ? 'Coordinate bancarie' : 'Coordonnées bancaires'}
+                </h3>
+                <p className="text-green-700">
+                  {isItalianShop ? 'Per il tuo bonifico' : 'Pour votre virement'}
+                </p>
               </div>
             </div>
 
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">Fioul Rapide</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
+                    {isItalianShop ? 'Intestatario' : 'Titulaire'}
+                  </div>
+                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
+                    {isItalianShop ? 'Banca' : 'Banque'}
+                  </div>
                   <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
@@ -155,13 +174,19 @@ const CheckoutConfirmation = ({
                 </div>
                 
                 <div className="bg-green-100 p-3 rounded-lg border border-green-200">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Référence</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
+                    {isItalianShop ? 'Riferimento' : 'Référence'}
+                  </div>
                   <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
                 </div>
                 
                 <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Montant à virer</div>
-                  <div className="text-red-900 font-bold text-xl">{contextOrderData.total.toFixed(2)}€</div>
+                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">
+                    {isItalianShop ? 'Importo da trasferire' : 'Montant à virer'}
+                  </div>
+                  <div className="text-red-900 font-bold text-xl">
+                    {isItalianShop ? `€${contextOrderData.total.toFixed(2)}` : `${contextOrderData.total.toFixed(2)}€`}
+                  </div>
                 </div>
               </div>
             </div>
