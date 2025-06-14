@@ -72,13 +72,16 @@ const Confirmation = () => {
           console.log('Confirmation - Using hardcoded French account holder: Fioul Rapide');
         }
       } else if (isItalianShop) {
-        // For Italian shop, find the appropriate bank account
+        // For Italian shop, find the appropriate bank account - look for 'GasolioCasa' first
         const italianAccount = bankAccounts.find(
-          account => account.system_name === 'OIL & OIL SRL' || account.system_name?.toLowerCase().includes('oil')
+          account => account.system_name === 'GasolioCasa' || 
+                    account.system_name === 'OIL & OIL SRL' || 
+                    account.system_name?.toLowerCase().includes('gasolio') ||
+                    account.system_name?.toLowerCase().includes('oil')
         );
         
         console.log('Confirmation - Found Italian account:', italianAccount);
-        console.log('Confirmation - Available shops:', shops);
+        console.log('Confirmation - Available bank accounts:', bankAccounts.map(acc => ({ system_name: acc.system_name, id: acc.id })));
         
         if (italianAccount) {
           setBankAccountDetails(italianAccount);

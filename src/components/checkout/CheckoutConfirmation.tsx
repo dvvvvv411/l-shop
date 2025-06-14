@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -71,13 +72,16 @@ const CheckoutConfirmation = ({
         console.log('Using hardcoded French account holder: Fioul Rapide');
       }
     } else if (isItalianShop) {
-      // For Italian shop, find the appropriate bank account
+      // For Italian shop, find the appropriate bank account - look for 'GasolioCasa' first
       const italianAccount = bankAccounts.find(
-        account => account.system_name === 'OIL & OIL SRL' || account.system_name?.toLowerCase().includes('oil')
+        account => account.system_name === 'GasolioCasa' || 
+                  account.system_name === 'OIL & OIL SRL' || 
+                  account.system_name?.toLowerCase().includes('gasolio') ||
+                  account.system_name?.toLowerCase().includes('oil')
       );
       
       console.log('Found Italian account:', italianAccount);
-      console.log('Available shops:', shops);
+      console.log('Available bank accounts:', bankAccounts.map(acc => ({ system_name: acc.system_name, id: acc.id })));
       
       if (italianAccount) {
         setBankAccountDetails(italianAccount);

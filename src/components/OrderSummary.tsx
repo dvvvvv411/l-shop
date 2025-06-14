@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -84,7 +83,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
                   {isItalianShop ? 'Intestatario' : 'Titulaire'}
                 </div>
                 <div className="text-green-900 font-bold">
-                  {isItalianShop ? 'Gasolio Veloce' : 'Fioul Rapide'}
+                  {bankAccountDetails.account_holder}
                 </div>
               </div>
               
