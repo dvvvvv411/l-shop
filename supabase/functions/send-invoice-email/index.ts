@@ -58,7 +58,7 @@ serve(async (req) => {
 
     console.log('Language detection:', languageData);
 
-    // Get SMTP configuration based on language - FIXED QUERY
+    // Get SMTP configuration based on language
     let smtpEmailQuery = supabaseClient
       .from('smtp_configurations')
       .select('*')
@@ -86,14 +86,29 @@ serve(async (req) => {
       senderName: smtpConfig.sender_name
     });
 
+    // FIXED: Use order number for PDF filename instead of invoice number
+    const pdfFilename = `${order.order_number}.pdf`;
+    console.log('Attempting to download PDF with filename:', pdfFilename);
+
     // Download PDF from storage
     const { data: pdfData, error: downloadError } = await supabaseClient.storage
       .from('invoices')
-      .download(`${invoiceNumber}.pdf`);
+      .download(pdfFilename);
 
     if (downloadError || !pdfData) {
       console.error('PDF download error:', downloadError);
-      throw new Error(`PDF download failed: ${downloadError?.message}`);
+      console.log('Attempted filename:', pdfFilename);
+      
+      // List files in the bucket to see what's actually available
+      const { data: files, error: listError } = await supabaseClient.storage
+        .from('invoices')
+        .list();
+      
+      if (!listError && files) {
+        console.log('Available files in invoices bucket:', files.map(f => f.name));
+      }
+      
+      throw new Error(`PDF download failed: ${downloadError?.message}. Attempted to download: ${pdfFilename}`);
     }
 
     console.log('PDF downloaded successfully, size:', pdfData.size);
@@ -348,7 +363,7 @@ serve(async (req) => {
       html: emailContent.html,
       attachments: [
         {
-          filename: `${invoiceNumber}.pdf`,
+          filename: pdfFilename,
           content: pdfBase64,
           encoding: 'base64',
           contentType: 'application/pdf'
@@ -359,6 +374,7 @@ serve(async (req) => {
     console.log('Sending email to:', order.customer_email);
     console.log('From:', `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`);
     console.log('Language:', languageData.isItalian ? 'Italian' : languageData.isFrench ? 'French' : 'German');
+    console.log('PDF attachment filename:', pdfFilename);
     console.log('Attachments:', emailData.attachments.length);
 
     // Check if we have the required Resend API key
@@ -414,7 +430,9 @@ serve(async (req) => {
     
     // Log the failed email attempt if we have order info
     try {
-      const { orderId } = await req.json();
+      const requestBody = await req.clone().json();
+      const orderId = requestBody?.orderId;
+      
       if (orderId) {
         const supabaseClient = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
