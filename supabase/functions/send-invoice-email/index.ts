@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -128,7 +127,7 @@ serve(async (req) => {
     const pdfBuffer = await pdfData.arrayBuffer();
     const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
 
-    // Email templates
+    // Email templates with shop name instead of company name
     const getEmailContent = () => {
       if (languageData.isFrench) {
         return {
@@ -146,7 +145,7 @@ serve(async (req) => {
                 
                 <!-- Header -->
                 <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 30px 20px; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Fioul Rapide</h1>
+                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">${order.shops?.name || 'Fioul Rapide'}</h1>
                   <p style="color: #fee2e2; margin: 10px 0 0 0; font-size: 16px;">Votre facture est prête</p>
                 </div>
 
@@ -227,7 +226,7 @@ serve(async (req) => {
 
                   <p style="margin: 25px 0 0 0; font-size: 16px; color: #4b5563;">
                     Merci de votre confiance,<br>
-                    <strong>L'équipe Fioul Rapide</strong>
+                    <strong>L'équipe ${order.shops?.name || 'Fioul Rapide'}</strong>
                   </p>
 
                 </div>
@@ -261,7 +260,7 @@ serve(async (req) => {
                 
                 <!-- Header -->
                 <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 30px 20px; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">GasolioCasa</h1>
+                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">${order.shops?.name || 'GasolioCasa'}</h1>
                   <p style="color: #fee2e2; margin: 10px 0 0 0; font-size: 16px;">La tua fattura è pronta</p>
                 </div>
 
@@ -342,7 +341,7 @@ serve(async (req) => {
 
                   <p style="margin: 25px 0 0 0; font-size: 16px; color: #4b5563;">
                     Grazie per la tua fiducia,<br>
-                    <strong>Il team GasolioCasa</strong>
+                    <strong>Il team ${order.shops?.name || 'GasolioCasa'}</strong>
                   </p>
 
                 </div>

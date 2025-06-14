@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -23,6 +24,7 @@ interface BankAccountDetails {
   bank_name: string;
   iban: string;
   bic: string;
+  anyname?: boolean;
 }
 
 interface OrderSummaryProps {
@@ -83,7 +85,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
                   {isItalianShop ? 'Intestatario' : 'Titulaire'}
                 </div>
                 <div className="text-green-900 font-bold">
-                  {bankAccountDetails.account_holder}
+                  {bankAccountDetails.anyname && shopConfig.name ? shopConfig.name : bankAccountDetails.account_holder}
                 </div>
               </div>
               
