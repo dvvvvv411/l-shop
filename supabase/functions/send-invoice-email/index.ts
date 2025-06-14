@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -28,16 +29,24 @@ serve(async (req) => {
         shops (
           id,
           name,
-          company_name,
-          bank_account_id
+          company_name
         )
       `)
       .eq('id', orderId)
       .single();
 
     if (orderError || !order) {
+      console.error('Order fetch error:', orderError);
       throw new Error(`Order not found: ${orderError?.message}`);
     }
+
+    console.log('Order found:', {
+      id: order.id,
+      number: order.order_number,
+      shop: order.shops?.name,
+      companyName: order.shops?.company_name,
+      customerEmail: order.customer_email
+    });
 
     // Language detection based on shop name
     const languageData = {
@@ -49,26 +58,33 @@ serve(async (req) => {
 
     console.log('Language detection:', languageData);
 
-    // Get SMTP configuration based on language
+    // Get SMTP configuration based on language - FIXED QUERY
     let smtpEmailQuery = supabaseClient
       .from('smtp_configurations')
-      .select('*');
+      .select('*')
+      .eq('is_active', true);
 
     if (languageData.isFrench) {
-      smtpEmailQuery = smtpEmailQuery.eq('email', 'info@fioul-rapide.fr');
+      smtpEmailQuery = smtpEmailQuery.eq('sender_email', 'info@fioul-rapide.fr');
     } else if (languageData.isItalian) {
-      smtpEmailQuery = smtpEmailQuery.eq('email', 'info@gasoliocasa.com');
+      smtpEmailQuery = smtpEmailQuery.eq('sender_email', 'info@gasoliocasa.com');
     } else {
-      smtpEmailQuery = smtpEmailQuery.eq('email', 'info@heizoeldirekt.de');
+      smtpEmailQuery = smtpEmailQuery.eq('sender_email', 'info@heizoeldirekt.de');
     }
 
     const { data: smtpConfig, error: smtpError } = await smtpEmailQuery.single();
 
     if (smtpError || !smtpConfig) {
-      throw new Error(`SMTP configuration not found: ${smtpError?.message}`);
+      console.error('SMTP configuration error:', smtpError);
+      console.log('Available SMTP configurations:', await supabaseClient.from('smtp_configurations').select('*'));
+      throw new Error(`SMTP configuration not found for language: ${languageData.isItalian ? 'Italian' : languageData.isFrench ? 'French' : 'German'}. Error: ${smtpError?.message}`);
     }
 
-    console.log('Using SMTP config:', smtpConfig.email);
+    console.log('Using SMTP config:', {
+      id: smtpConfig.id,
+      senderEmail: smtpConfig.sender_email,
+      senderName: smtpConfig.sender_name
+    });
 
     // Download PDF from storage
     const { data: pdfData, error: downloadError } = await supabaseClient.storage
@@ -76,6 +92,7 @@ serve(async (req) => {
       .download(`${invoiceNumber}.pdf`);
 
     if (downloadError || !pdfData) {
+      console.error('PDF download error:', downloadError);
       throw new Error(`PDF download failed: ${downloadError?.message}`);
     }
 
@@ -111,7 +128,7 @@ serve(async (req) => {
                 <div style="padding: 40px 30px;">
                   
                   <!-- Greeting -->
-                  <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Bonjour ${order.customer_first_name || ''} ${order.customer_last_name || ''},</h2>
+                  <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Bonjour ${order.customer_name || ''},</h2>
                   
                   <p style="margin: 0 0 25px 0; font-size: 16px; color: #4b5563;">
                     Votre facture pour la commande <strong>${order.order_number}</strong> est maintenant disponible.
@@ -135,11 +152,11 @@ serve(async (req) => {
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Quantité:</td>
-                        <td style="padding: 8px 0; font-weight: bold; text-align: right;">${order.amount ? order.amount.toLocaleString('fr-FR') : ''} litres</td>
+                        <td style="padding: 8px 0; font-weight: bold; text-align: right;">${order.liters ? order.liters.toLocaleString('fr-FR') : ''} litres</td>
                       </tr>
                       <tr style="border-top: 2px solid #e2e8f0;">
                         <td style="padding: 15px 0 8px 0; color: #1f2937; font-size: 16px; font-weight: bold;">Montant total:</td>
-                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #dc2626;">${order.total ? order.total.toFixed(2) : '0.00'}€</td>
+                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #dc2626;">${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}€</td>
                       </tr>
                     </table>
                   </div>
@@ -218,7 +235,7 @@ serve(async (req) => {
                 <div style="padding: 40px 30px;">
                   
                   <!-- Greeting -->
-                  <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Ciao ${order.customer_first_name || ''} ${order.customer_last_name || ''},</h2>
+                  <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">Ciao ${order.customer_name || ''},</h2>
                   
                   <p style="margin: 0 0 25px 0; font-size: 16px; color: #4b5563;">
                     La tua fattura per l'ordine <strong>${order.order_number}</strong> è ora disponibile.
@@ -242,11 +259,11 @@ serve(async (req) => {
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Quantità:</td>
-                        <td style="padding: 8px 0; font-weight: bold; text-align: right;">${order.amount ? order.amount.toLocaleString('it-IT') : ''} litri</td>
+                        <td style="padding: 8px 0; font-weight: bold; text-align: right;">${order.liters ? order.liters.toLocaleString('it-IT') : ''} litri</td>
                       </tr>
                       <tr style="border-top: 2px solid #e2e8f0;">
                         <td style="padding: 15px 0 8px 0; color: #1f2937; font-size: 16px; font-weight: bold;">Importo totale:</td>
-                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #16a34a;">${order.total ? order.total.toFixed(2) : '0.00'}€</td>
+                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #16a34a;">${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}€</td>
                       </tr>
                     </table>
                   </div>
@@ -307,13 +324,13 @@ serve(async (req) => {
           subject: `Rechnung ${invoiceNumber} - Ihre Heizölbestellung`,
           html: `
             <h1>Ihre Rechnung ist bereit</h1>
-            <p>Sehr geehrte/r ${order.customer_first_name || ''} ${order.customer_last_name || ''},</p>
+            <p>Sehr geehrte/r ${order.customer_name || ''},</p>
             <p>Ihre Rechnung für die Bestellung ${order.order_number} steht nun zur Verfügung.</p>
             <p>Rechnungsnummer: ${invoiceNumber}</p>
             <p>Bestellnummer: ${order.order_number}</p>
             <p>Produkt: ${order.product || 'Heizöl Standard'}</p>
-            <p>Menge: ${order.amount ? order.amount.toLocaleString('de-DE') : ''} Liter</p>
-            <p>Gesamtbetrag: ${order.total ? order.total.toFixed(2) : '0.00'}€</p>
+            <p>Menge: ${order.liters ? order.liters.toLocaleString('de-DE') : ''} Liter</p>
+            <p>Gesamtbetrag: ${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}€</p>
             <p>Bitte überweisen Sie den Betrag mit der Referenz ${order.order_number}.</p>
             <p>Mit freundlichen Grüßen,<br>Ihr Heizöl-Team</p>
           `
@@ -325,7 +342,7 @@ serve(async (req) => {
 
     // Send email using SMTP configuration
     const emailData = {
-      from: smtpConfig.email,
+      from: `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`,
       to: order.customer_email,
       subject: emailContent.subject,
       html: emailContent.html,
@@ -340,28 +357,52 @@ serve(async (req) => {
     };
 
     console.log('Sending email to:', order.customer_email);
-    console.log('From:', smtpConfig.email);
+    console.log('From:', `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`);
     console.log('Language:', languageData.isItalian ? 'Italian' : languageData.isFrench ? 'French' : 'German');
     console.log('Attachments:', emailData.attachments.length);
 
-    // Send via SMTP (using the nodemailer-like API that your SMTP config supports)
-    const nodemailer = await import('npm:nodemailer@6.9.7');
-    
-    const transporter = nodemailer.createTransport({
-      host: smtpConfig.smtp_host,
-      port: smtpConfig.smtp_port,
-      secure: smtpConfig.smtp_port === 465,
-      auth: {
-        user: smtpConfig.email,
-        pass: smtpConfig.password
-      }
+    // Check if we have the required Resend API key
+    if (!smtpConfig.resend_api_key) {
+      throw new Error('Resend API key not found in SMTP configuration');
+    }
+
+    // Send via Resend
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${smtpConfig.resend_api_key}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
     });
 
-    const result = await transporter.sendMail(emailData);
-    console.log('Email sent successfully:', result.messageId);
+    if (!resendResponse.ok) {
+      const errorText = await resendResponse.text();
+      console.error('Resend API error:', errorText);
+      throw new Error(`Failed to send email via Resend: ${resendResponse.status} ${errorText}`);
+    }
+
+    const result = await resendResponse.json();
+    console.log('Email sent successfully:', result.id);
+
+    // Log the email sending attempt
+    const { error: logError } = await supabaseClient
+      .from('email_sending_logs')
+      .insert({
+        order_id: orderId,
+        smtp_config_id: smtpConfig.id,
+        recipient_email: order.customer_email,
+        subject: emailContent.subject,
+        status: 'sent',
+        sent_at: new Date().toISOString()
+      });
+
+    if (logError) {
+      console.error('Failed to log email sending:', logError);
+    }
 
     return new Response(
-      JSON.stringify({ success: true, messageId: result.messageId }),
+      JSON.stringify({ success: true, messageId: result.id }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -370,6 +411,30 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error sending invoice email:', error);
+    
+    // Log the failed email attempt if we have order info
+    try {
+      const { orderId } = await req.json();
+      if (orderId) {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        await supabaseClient
+          .from('email_sending_logs')
+          .insert({
+            order_id: orderId,
+            recipient_email: 'unknown',
+            subject: 'Invoice Email',
+            status: 'failed',
+            error_message: error.message
+          });
+      }
+    } catch (logError) {
+      console.error('Failed to log email error:', logError);
+    }
+
     return new Response(
       JSON.stringify({ error: error.message }),
       {
