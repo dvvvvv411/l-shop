@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,6 +53,9 @@ const CheckoutConfirmation = ({
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
+  // Ref for auto-scrolling to IBAN section
+  const ibanSectionRef = useRef<HTMLDivElement>(null);
+
   // Fetch bank account details for French and Italian shops
   useEffect(() => {
     if (isFrenchShop) {
@@ -92,6 +94,20 @@ const CheckoutConfirmation = ({
       }
     }
   }, [isFrenchShop, isItalianShop, bankAccounts, shops]);
+
+  // Auto-scroll to IBAN section when bank account details are available
+  useEffect(() => {
+    if ((isFrenchShop || isItalianShop) && bankAccountDetails && ibanSectionRef.current) {
+      const timer = setTimeout(() => {
+        ibanSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 500); // Small delay to ensure component is fully rendered
+
+      return () => clearTimeout(timer);
+    }
+  }, [bankAccountDetails, isFrenchShop, isItalianShop]);
 
   if (!contextOrderData) {
     return (
@@ -139,6 +155,7 @@ const CheckoutConfirmation = ({
         {/* Bank Account Details for French and Italian Shops */}
         {(isFrenchShop || isItalianShop) && bankAccountDetails && (
           <motion.div
+            ref={ibanSectionRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}

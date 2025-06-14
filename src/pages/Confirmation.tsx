@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, CreditCard, Calendar, Truck, Phone, Mail, Building2 } from 'lucide-react';
@@ -32,6 +31,9 @@ const Confirmation = () => {
 
   const isFrenchShop = shopConfig.shopType === 'france';
   const isItalianShop = shopConfig.shopType === 'italy';
+
+  // Ref for auto-scrolling to bank details section
+  const bankDetailsSectionRef = useRef<HTMLDivElement>(null);
 
   if (!orderData) {
     navigate('/');
@@ -96,6 +98,20 @@ const Confirmation = () => {
     fetchSupplier();
     fetchBankAccountDetails();
   }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, isItalianShop, bankAccounts, shops]);
+
+  // Auto-scroll to bank details section when bank account details are available
+  useEffect(() => {
+    if ((isFrenchShop || isItalianShop) && bankAccountDetails && bankDetailsSectionRef.current) {
+      const timer = setTimeout(() => {
+        bankDetailsSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 500); // Small delay to ensure component is fully rendered
+
+      return () => clearTimeout(timer);
+    }
+  }, [bankAccountDetails, isFrenchShop, isItalianShop]);
 
   const handleNewOrder = () => {
     clearOrderData();
@@ -188,6 +204,7 @@ const Confirmation = () => {
                 {/* Bank Account Details for French and Italian Shops */}
                 {(isFrenchShop || isItalianShop) && bankAccountDetails && (
                   <motion.div
+                    ref={bankDetailsSectionRef}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15 }}
