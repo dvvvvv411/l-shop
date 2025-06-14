@@ -504,9 +504,13 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
     doc.rect(0, 0, 210, 25, 'F')
   }
   
-  // Company name in header
+  // Company name in header - Fixed the syntax error here
   doc.setFontSize(20)
-  doc.setTextColor(isItalian ? 0, 146, 70 : 255, 255, 255) // Green for Italian, white for others
+  if (isItalian) {
+    doc.setTextColor(0, 146, 70) // Green for Italian
+  } else {
+    doc.setTextColor(255, 255, 255) // White for others
+  }
   doc.setFont('helvetica', 'bold')
   doc.text(companyName, 15, 17)
   
