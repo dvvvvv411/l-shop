@@ -86,6 +86,17 @@ serve(async (req) => {
       senderName: smtpConfig.sender_name
     });
 
+    // Get bank account information for the order
+    const { data: bankAccount, error: bankError } = await supabaseClient
+      .from('bank_accounts')
+      .select('*')
+      .eq('id', order.bank_account_id)
+      .single();
+
+    if (bankError) {
+      console.error('Bank account fetch error:', bankError);
+    }
+
     // FIXED: Use order number for PDF filename instead of invoice number
     const pdfFilename = `${order.order_number}.pdf`;
     console.log('Attempting to download PDF with filename:', pdfFilename);
@@ -185,6 +196,14 @@ serve(async (req) => {
                     <p style="margin: 0; font-size: 14px; color: #78350f;">
                       <strong>Référence à indiquer:</strong> ${order.order_number}
                     </p>
+                    ${bankAccount ? `
+                    <div style="margin-top: 15px; padding: 15px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;">
+                      <h4 style="margin: 0 0 10px 0; color: #1f2937; font-size: 14px;">Coordonnées bancaires:</h4>
+                      <p style="margin: 0 0 5px 0; font-size: 13px; color: #4b5563;"><strong>Titulaire:</strong> ${bankAccount.account_holder}</p>
+                      <p style="margin: 0 0 5px 0; font-size: 13px; color: #4b5563;"><strong>IBAN:</strong> ${bankAccount.iban}</p>
+                      <p style="margin: 0; font-size: 13px; color: #4b5563;"><strong>BIC:</strong> ${bankAccount.bic}</p>
+                    </div>
+                    ` : ''}
                   </div>
 
                   <!-- Next Steps -->
@@ -241,9 +260,9 @@ serve(async (req) => {
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
                 
                 <!-- Header -->
-                <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 30px 20px; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">OIL & OIL</h1>
-                  <p style="color: #dcfce7; margin: 10px 0 0 0; font-size: 16px;">La tua fattura è pronta</p>
+                <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 30px 20px; text-align: center;">
+                  <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">GasolioCasa</h1>
+                  <p style="color: #fee2e2; margin: 10px 0 0 0; font-size: 16px;">La tua fattura è pronta</p>
                 </div>
 
                 <!-- Content -->
@@ -278,7 +297,7 @@ serve(async (req) => {
                       </tr>
                       <tr style="border-top: 2px solid #e2e8f0;">
                         <td style="padding: 15px 0 8px 0; color: #1f2937; font-size: 16px; font-weight: bold;">Importo totale:</td>
-                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #16a34a;">${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}€</td>
+                        <td style="padding: 15px 0 8px 0; font-weight: bold; text-align: right; font-size: 18px; color: #dc2626;">${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}€</td>
                       </tr>
                     </table>
                   </div>
@@ -292,6 +311,14 @@ serve(async (req) => {
                     <p style="margin: 0; font-size: 14px; color: #78350f;">
                       <strong>Causale da indicare:</strong> ${order.order_number}
                     </p>
+                    ${bankAccount ? `
+                    <div style="margin-top: 15px; padding: 15px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;">
+                      <h4 style="margin: 0 0 10px 0; color: #1f2937; font-size: 14px;">Coordinate bancarie:</h4>
+                      <p style="margin: 0 0 5px 0; font-size: 13px; color: #4b5563;"><strong>Intestatario:</strong> ${bankAccount.account_holder}</p>
+                      <p style="margin: 0 0 5px 0; font-size: 13px; color: #4b5563;"><strong>IBAN:</strong> ${bankAccount.iban}</p>
+                      <p style="margin: 0; font-size: 13px; color: #4b5563;"><strong>BIC:</strong> ${bankAccount.bic}</p>
+                    </div>
+                    ` : ''}
                   </div>
 
                   <!-- Next Steps -->
@@ -315,7 +342,7 @@ serve(async (req) => {
 
                   <p style="margin: 25px 0 0 0; font-size: 16px; color: #4b5563;">
                     Grazie per la tua fiducia,<br>
-                    <strong>Il team OIL & OIL</strong>
+                    <strong>Il team GasolioCasa</strong>
                   </p>
 
                 </div>
@@ -323,7 +350,7 @@ serve(async (req) => {
                 <!-- Footer -->
                 <div style="background-color: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
                   <p style="margin: 0; font-size: 12px; color: #6b7280;">
-                    OIL & OIL - Consegna di gasolio domestico in Italia<br>
+                    GasolioCasa - Consegna di gasolio domestico in Italia<br>
                     Questa email è stata inviata automaticamente, si prega di non rispondere direttamente.
                   </p>
                 </div>
