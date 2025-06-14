@@ -48,16 +48,22 @@ export const useInvoiceGeneration = () => {
         }
       }
 
-      // Show different toast messages based on email status
+      // Show different toast messages based on context - detect if it's Italian
+      const isItalian = window.location.hostname === 'gasoliocasa.com';
+      
       if (data.emailSent) {
         toast({
-          title: 'Erfolg',
-          description: `Rechnung ${data.invoiceNumber} wurde erfolgreich generiert und per E-Mail versendet.`,
+          title: isItalian ? 'Successo' : 'Erfolg',
+          description: isItalian 
+            ? `Fattura ${data.invoiceNumber} è stata generata con successo e inviata via email.`
+            : `Rechnung ${data.invoiceNumber} wurde erfolgreich generiert und per E-Mail versendet.`,
         });
       } else {
         toast({
-          title: 'Rechnung erstellt',
-          description: `Rechnung ${data.invoiceNumber} wurde generiert, aber E-Mail konnte nicht versendet werden.`,
+          title: isItalian ? 'Fattura creata' : 'Rechnung erstellt',
+          description: isItalian 
+            ? `Fattura ${data.invoiceNumber} è stata generata, ma l'email non è stata inviata.`
+            : `Rechnung ${data.invoiceNumber} wurde generiert, aber E-Mail konnte nicht versendet werden.`,
           variant: 'default',
         });
       }
@@ -65,9 +71,13 @@ export const useInvoiceGeneration = () => {
       return data;
     } catch (error) {
       console.error('Error generating invoice:', error);
+      
+      const isItalian = window.location.hostname === 'gasoliocasa.com';
       toast({
-        title: 'Fehler',
-        description: 'Rechnung konnte nicht generiert werden. Bitte versuchen Sie es erneut.',
+        title: isItalian ? 'Errore' : 'Fehler',
+        description: isItalian 
+          ? 'La fattura non è stata generata. Riprova più tardi.'
+          : 'Rechnung konnte nicht generiert werden. Bitte versuchen Sie es erneut.',
         variant: 'destructive',
       });
       throw error;

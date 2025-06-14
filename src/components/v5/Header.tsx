@@ -67,11 +67,11 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Contact Info - Only Email */}
+            {/* Contact Info - Use shop config email */}
             <div className="hidden lg:flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Mail size={16} />
-                <span className="text-sm font-medium">info@gasoliocasa.com</span>
+                <span className="text-sm font-medium">{shopConfig.email}</span>
               </div>
             </div>
 
@@ -108,11 +108,11 @@ const Header = () => {
                   ))}
                 </nav>
                 
-                {/* Mobile Contact Info - Only Email */}
+                {/* Mobile Contact Info - Use shop config email */}
                 <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Mail size={16} />
-                    <span className="text-sm font-medium">info@gasoliocasa.com</span>
+                    <span className="text-sm font-medium">{shopConfig.email}</span>
                   </div>
                 </div>
               </div>
