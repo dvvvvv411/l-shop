@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,9 @@ const CheckoutConfirmation = ({
   const { shops } = useShops();
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
+  
+  // Ref for smooth scrolling to IBAN section
+  const ibanSectionRef = useRef<HTMLDivElement>(null);
 
   // Fetch bank account details for French shop
   useEffect(() => {
@@ -65,6 +68,21 @@ const CheckoutConfirmation = ({
       }
     }
   }, [isFrenchShop, bankAccounts, shops]);
+
+  // Smooth scroll to IBAN section for French shop
+  useEffect(() => {
+    if (isFrenchShop && bankAccountDetails && ibanSectionRef.current) {
+      // Wait for animations to complete (1 second delay)
+      const timer = setTimeout(() => {
+        ibanSectionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isFrenchShop, bankAccountDetails]);
 
   if (!contextOrderData) {
     return (
@@ -110,6 +128,7 @@ const CheckoutConfirmation = ({
         {/* Bank Account Details for French Shop - Show prominently */}
         {isFrenchShop && bankAccountDetails && (
           <motion.div
+            ref={ibanSectionRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
