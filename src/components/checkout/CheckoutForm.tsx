@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, TestTube, FileText, Mail } from 'lucide-react';
+import { Truck, CreditCard, Shield, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -17,38 +17,6 @@ import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
-
-// Test data arrays for random generation
-const testData = {
-  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
-  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
-  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
-  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
-  emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
-};
-
-const generateRandomTestData = () => {
-  const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
-  const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-  
-  return {
-    deliveryFirstName: getRandomItem(testData.firstNames),
-    deliveryLastName: getRandomItem(testData.lastNames),
-    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    deliveryPostcode: getRandomItem(testData.postcodes),
-    deliveryCity: getRandomItem(testData.cities),
-    deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
-    customerEmail: getRandomItem(testData.emails),
-    useSameAddress: Math.random() > 0.3,
-    billingFirstName: getRandomItem(testData.firstNames),
-    billingLastName: getRandomItem(testData.lastNames),
-    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    billingPostcode: getRandomItem(testData.postcodes),
-    billingCity: getRandomItem(testData.cities),
-    paymentMethod: 'vorkasse' as const
-  };
-};
 
 interface PriceCalculatorData {
   product: {
@@ -122,35 +90,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       acceptTerms: false
     }
   });
-
-  const handleGenerateTestData = () => {
-    const testDataValues = generateRandomTestData();
-
-    form.setValue('customerEmail', testDataValues.customerEmail);
-    form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
-    form.setValue('deliveryLastName', testDataValues.deliveryLastName);
-    form.setValue('deliveryStreet', testDataValues.deliveryStreet);
-    form.setValue('deliveryPostcode', testDataValues.deliveryPostcode);
-    form.setValue('deliveryCity', testDataValues.deliveryCity);
-    form.setValue('deliveryPhone', testDataValues.deliveryPhone);
-    form.setValue('useSameAddress', testDataValues.useSameAddress);
-    form.setValue('paymentMethod', testDataValues.paymentMethod);
-
-    setUseSameAddress(testDataValues.useSameAddress);
-
-    if (!testDataValues.useSameAddress) {
-      form.setValue('billingFirstName', testDataValues.billingFirstName);
-      form.setValue('billingLastName', testDataValues.billingLastName);
-      form.setValue('billingStreet', testDataValues.billingStreet);
-      form.setValue('billingPostcode', testDataValues.billingPostcode);
-      form.setValue('billingCity', testDataValues.billingCity);
-    }
-
-    toast({
-      title: t.system.testDataGenerated,
-      description: t.system.testDataDescription
-    });
-  };
 
   const sendOrderConfirmationEmail = async (orderId: string, customerEmail: string) => {
     try {
@@ -662,18 +601,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               )}
             />
 
-            <div className="mt-8 space-y-4">
-              {/* Test Data Button */}
-              <Button
-                type="button"
-                onClick={handleGenerateTestData}
-                variant="outline"
-                className="w-full bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
-              >
-                <TestTube className="mr-2" size={18} />
-                {t.system.testDataGenerated}
-              </Button>
-
+            <div className="mt-8">
               {/* Submit Button */}
               <Button
                 type="submit"
