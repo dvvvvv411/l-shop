@@ -4,15 +4,10 @@ import { Link } from 'react-router-dom';
 import { getLogoConfig } from '../../config/logoConfig';
 import { useDomainShop } from '../../hooks/useDomainShop';
 import { useCheckoutTranslations } from '../../hooks/useCheckoutTranslations';
-import { useItalianCheckoutTranslations } from '../../hooks/useItalianCheckoutTranslations';
 
 const CheckoutHeader = () => {
   const shopConfig = useDomainShop();
-  
-  // Choose the correct translations based on shop type
-  const germanFrenchTranslations = useCheckoutTranslations();
-  const italianTranslations = useItalianCheckoutTranslations();
-  const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
+  const t = useCheckoutTranslations();
   
   // Enhanced logo selection logic for checkout
   const getCheckoutLogoConfig = () => {

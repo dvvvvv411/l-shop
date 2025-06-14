@@ -11,9 +11,6 @@ export interface DomainShopConfig {
   email: string;
   faviconColor: string;
   faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'sun';
-  language?: string;
-  currency?: string;
-  vatRate?: number;
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -24,10 +21,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     phone: '',
     email: '',
     faviconColor: '#dc2626',
-    faviconIcon: 'drop',
-    language: 'de',
-    currency: 'EUR',
-    vatRate: 19
+    faviconIcon: 'drop'
   },
   'greenoil-lieferung.de': {
     shopType: 'greenoil',
@@ -36,10 +30,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     phone: '',
     email: '',
     faviconColor: '#059669',
-    faviconIcon: 'leaf',
-    language: 'de',
-    currency: 'EUR',
-    vatRate: 19
+    faviconIcon: 'leaf'
   },
   'heizoel-austria.com': {
     shopType: 'austria',
@@ -48,10 +39,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     phone: '+43 1 234 5678',
     email: 'info@heizoel-austria.com',
     faviconColor: '#7c3aed',
-    faviconIcon: 'mountain',
-    language: 'de',
-    currency: 'EUR',
-    vatRate: 20
+    faviconIcon: 'mountain'
   },
   'fioul-rapide.fr': {
     shopType: 'france',
@@ -60,22 +48,16 @@ const domainMappings: Record<string, DomainShopConfig> = {
     phone: '',
     email: 'info@fioul-rapide.fr',
     faviconColor: '#dc2626',
-    faviconIcon: 'flame',
-    language: 'fr',
-    currency: 'EUR',
-    vatRate: 20
+    faviconIcon: 'flame'
   },
   'gasoliocasa.com': {
     shopType: 'italy',
     name: 'OIL & OIL',
     brand: 'Gasolio IT',
-    phone: '+39 06 1234 5678',
+    phone: '',
     email: 'info@gasoliocasa.com',
     faviconColor: '#16a34a',
-    faviconIcon: 'flame-italia',
-    language: 'it',
-    currency: 'EUR',
-    vatRate: 22
+    faviconIcon: 'flame-italia'
   },
   'malta-heating-oil.com': {
     shopType: 'malta',
@@ -84,10 +66,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     phone: '+356 2123 4567',
     email: 'info@malta-heating-oil.com',
     faviconColor: '#f59e0b',
-    faviconIcon: 'sun',
-    language: 'en',
-    currency: 'EUR',
-    vatRate: 18
+    faviconIcon: 'sun'
   }
 };
 
@@ -98,10 +77,7 @@ const defaultConfig: DomainShopConfig = {
   phone: '',
   email: '',
   faviconColor: '#dc2626',
-  faviconIcon: 'flame',
-  language: 'de',
-  currency: 'EUR',
-  vatRate: 19
+  faviconIcon: 'flame'
 };
 
 // Helper function to get the correct shop config synchronously

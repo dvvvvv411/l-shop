@@ -76,32 +76,25 @@ const handler = async (req: Request): Promise<Response> => {
     const shop = smtpConfig.shops;
     console.log('Using SMTP config:', smtpConfig.id, 'for shop:', shop?.name);
 
-    // Determine language based on domain
+    // Determine if this is a French domain
     const isFrenchDomain = originDomain === 'fioul-rapide.fr';
-    const isItalianDomain = originDomain === 'gasoliocasa.com';
-    console.log('Domain language detection:', { isFrenchDomain, isItalianDomain, originDomain });
+    console.log('Is French domain:', isFrenchDomain);
 
     // Initialize Resend with the API key from SMTP config
     const resend = new Resend(smtpConfig.resend_api_key);
 
     // Generate email content based on language
-    let emailHtml: string;
-    let emailText: string;
-    let emailSubject: string;
+    const emailHtml = isFrenchDomain 
+      ? generateFrenchOrderConfirmationEmail(order, shop)
+      : generateOrderConfirmationEmail(order, shop);
+    
+    const emailText = isFrenchDomain 
+      ? generateFrenchOrderConfirmationText(order, shop)
+      : generateOrderConfirmationText(order, shop);
 
-    if (isItalianDomain) {
-      emailHtml = generateItalianOrderConfirmationEmail(order, shop);
-      emailText = generateItalianOrderConfirmationText(order, shop);
-      emailSubject = `Conferma ordine ${order.order_number}`;
-    } else if (isFrenchDomain) {
-      emailHtml = generateFrenchOrderConfirmationEmail(order, shop);
-      emailText = generateFrenchOrderConfirmationText(order, shop);
-      emailSubject = `Confirmation de commande ${order.order_number}`;
-    } else {
-      emailHtml = generateOrderConfirmationEmail(order, shop);
-      emailText = generateOrderConfirmationText(order, shop);
-      emailSubject = `Bestellbestätigung ${order.order_number}`;
-    }
+    const emailSubject = isFrenchDomain 
+      ? `Confirmation de commande ${order.order_number}`
+      : `Bestellbestätigung ${order.order_number}`;
 
     // Send the email
     console.log('Sending email to:', customerEmail);
@@ -167,314 +160,6 @@ const handler = async (req: Request): Promise<Response> => {
     );
   }
 };
-
-// Italian email template
-function generateItalianOrderConfirmationEmail(order: any, shop: any): string {
-  const companyName = shop?.company_name || 'OIL & OIL';
-  const companyAddress = shop?.company_address || '';
-  const companyPostcode = shop?.company_postcode || '';
-  const companyCity = shop?.company_city || '';
-  const companyPhone = shop?.company_phone || '';
-  const companyEmail = shop?.company_email || '';
-  const companyWebsite = shop?.company_website || '';
-
-  return `
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conferma ordine ${order.order_number}</title>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb;">
-        <tr>
-            <td align="center" style="padding: 24px;">
-                <!-- Main Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="640" style="max-width: 640px; width: 100%;">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background-color: #16a34a; border-radius: 12px 12px 0 0; padding: 32px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; font-family: Arial, sans-serif;">Conferma ordine</h1>
-                            <p style="color: #ffffff; font-size: 16px; margin: 0; font-family: Arial, sans-serif;">Grazie per il tuo ordine!</p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="background-color: #ffffff; padding: 32px; border-radius: 0 0 12px 12px;">
-                            
-                            <!-- Greeting -->
-                            <div style="font-size: 18px; color: #1f2937; margin-bottom: 20px; font-weight: 500; font-family: Arial, sans-serif;">
-                                Gentile ${order.delivery_first_name} ${order.delivery_last_name},
-                            </div>
-                            
-                            <!-- Intro Text -->
-                            <div style="color: #6b7280; margin-bottom: 24px; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                Grazie per il tuo ordine presso ${companyName}. Abbiamo ricevuto con successo il tuo ordine e lo elaboreremo il prima possibile.
-                            </div>
-                            
-                            <!-- Section Title -->
-                            <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #16a34a; padding-left: 12px;">Dettagli del tuo ordine</h2>
-                            
-                            <!-- Order Details Grid -->
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Numero ordine</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.order_number}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Data ordine</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${new Date(order.created_at).toLocaleDateString('it-IT')}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Prodotto</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.product}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Quantità</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.liters.toLocaleString('it-IT')} litri</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Prezzo per litro</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${Number(order.price_per_liter).toFixed(2)} €</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Spese di spedizione</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.delivery_fee === 0 ? 'Gratuito' : `${Number(order.delivery_fee).toFixed(2)} €`}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                        </td>
-                    </tr>
-                    
-                    <!-- Total Card -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #16a34a; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 24px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 16px; font-weight: 500; margin-bottom: 8px; font-family: Arial, sans-serif;">Importo totale</div>
-                                        <div style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; font-family: Arial, sans-serif;">${Number(order.total_amount).toFixed(2)} €</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Delivery Address -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px;">
-                                        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #16a34a; padding-left: 12px;">Indirizzo di consegna</h2>
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 20px;">
-                                                    <div style="color: #1f2937; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
-                                                        <strong>${order.delivery_first_name} ${order.delivery_last_name}</strong><br>
-                                                        ${order.delivery_street}<br>
-                                                        ${order.delivery_postcode} ${order.delivery_city}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Important Notice -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f59e0b; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 24px;">
-                                        <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1f2937; font-family: Arial, sans-serif;">📞 Informazione importante sulla consegna</div>
-                                        <div style="font-size: 16px; font-weight: 500; margin-bottom: 12px; line-height: 1.5; color: #1f2937; font-family: Arial, sans-serif;">
-                                            <strong>Ti contatteremo telefonicamente entro le prossime 24 ore</strong> per discutere i dettagli della tua consegna e concordare un orario di consegna.
-                                        </div>
-                                        <div style="font-size: 16px; font-weight: 500; margin-bottom: 8px; color: #1f2937; font-family: Arial, sans-serif;">Tieni a portata di mano il tuo numero di telefono:</div>
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                            <tr>
-                                                <td style="background-color: #ffffff; padding: 12px 16px; border-radius: 8px; font-weight: 700; color: #1f2937; font-family: Arial, sans-serif; margin-top: 8px;">
-                                                    ${order.delivery_phone}
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Contact Information -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px;">
-                                        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #16a34a; padding-left: 12px;">I tuoi dati di contatto</h2>
-                                        
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                            <tr>
-                                                <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                        <tr>
-                                                            <td style="padding: 16px;">
-                                                                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">E-mail</div>
-                                                                <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.customer_email_actual}</div>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                                <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                        <tr>
-                                                            <td style="padding: 16px;">
-                                                                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Telefono</div>
-                                                                <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.delivery_phone}</div>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        
-                                        <!-- Closing Section -->
-                                        <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e5e7eb;">
-                                            <div style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 20px; font-family: Arial, sans-serif;">
-                                                Se hai domande, non esitare a contattarci. Non vediamo l'ora di consegnarti presto!
-                                            </div>
-                                            
-                                            <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                Cordiali saluti<br>
-                                                <strong>Il team ${companyName}</strong>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 12px 0 0 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #1f2937; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 16px; font-family: Arial, sans-serif;">${companyName}</div>
-                                        ${companyAddress ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">${companyAddress}, ${companyPostcode} ${companyCity}</div>` : ''}
-                                        ${companyPhone ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Tel: ${companyPhone}</div>` : ''}
-                                        ${companyEmail ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">E-mail: <a href="mailto:${companyEmail}" style="color: #16a34a; text-decoration: none; font-weight: 500;">${companyEmail}</a></div>` : ''}
-                                        ${companyWebsite ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Web: <a href="${companyWebsite}" style="color: #16a34a; text-decoration: none; font-weight: 500;">${companyWebsite}</a></div>` : ''}
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>`;
-}
-
-function generateItalianOrderConfirmationText(order: any, shop: any): string {
-  const companyName = shop?.company_name || 'OIL & OIL';
-  
-  return `
-Conferma ordine ${order.order_number}
-
-Gentile ${order.delivery_first_name} ${order.delivery_last_name},
-
-Grazie per il tuo ordine presso ${companyName}. Abbiamo ricevuto con successo il tuo ordine.
-
-DETTAGLI DELL'ORDINE:
-- Numero ordine: ${order.order_number}
-- Data ordine: ${new Date(order.created_at).toLocaleDateString('it-IT')}
-- Prodotto: ${order.product}
-- Quantità: ${order.liters.toLocaleString('it-IT')} litri
-- Prezzo per litro: ${Number(order.price_per_liter).toFixed(2)} €
-- Spese di spedizione: ${Number(order.delivery_fee).toFixed(2)} €
-- Importo totale: ${Number(order.total_amount).toFixed(2)} €
-
-INDIRIZZO DI CONSEGNA:
-${order.delivery_first_name} ${order.delivery_last_name}
-${order.delivery_street}
-${order.delivery_postcode} ${order.delivery_city}
-
-INFORMAZIONE IMPORTANTE:
-Ti contatteremo telefonicamente entro le prossime 24 ore al ${order.delivery_phone} per discutere i dettagli della consegna.
-
-I TUOI DATI DI CONTATTO:
-E-mail: ${order.customer_email_actual}
-Telefono: ${order.delivery_phone}
-
-Se hai domande, non esitare a contattarci.
-
-Cordiali saluti
-Il team ${companyName}
-`;
-}
 
 // French email template
 function generateFrenchOrderConfirmationEmail(order: any, shop: any): string {
@@ -784,7 +469,7 @@ L'équipe ${companyName}
 `;
 }
 
-// German email template
+// ... keep existing code (German email templates)
 function generateOrderConfirmationEmail(order: any, shop: any): string {
   const companyName = shop?.company_name || 'Heizöl Team';
   const companyAddress = shop?.company_address || '';

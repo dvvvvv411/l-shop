@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -76,7 +77,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { toast } = useToast();
   const shopConfig = useDomainShop();
   
-  // Choose the correct translations based on shop type
+  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
   const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
@@ -85,12 +86,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const isFrenchCheckout = () => {
     const orderReferrer = localStorage.getItem('orderReferrer');
     return orderReferrer === '/4/home' || shopConfig.shopType === 'france';
-  };
-
-  // Check if current checkout is Italian
-  const isItalianCheckout = () => {
-    const orderReferrer = localStorage.getItem('orderReferrer');
-    return orderReferrer === '/5/home' || shopConfig.shopType === 'italy';
   };
 
   // Create the schema inside the component where `t` is available
@@ -194,7 +189,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       const finalPrice = orderData.totalPrice;
       const originDomain = window.location.hostname;
       const isFrenchShop = isFrenchCheckout();
-      const isItalianShop = isItalianCheckout();
 
       // Create order data for database
       const dbOrderData = {
@@ -245,12 +239,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Only send order confirmation email for non-French and non-Italian shops
-      // French and Italian shop orders get invoice directly (handled in useOrders hook)
-      if (!isFrenchShop && !isItalianShop) {
+      // Only send order confirmation email for non-French shops
+      // French shop orders get invoice directly (handled in useOrders hook)
+      if (!isFrenchShop) {
         await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
       } else {
-        console.log('Skipping order confirmation email for French and Italian shop - invoice will be sent instead');
+        console.log('Skipping order confirmation email for French shop - invoice will be sent instead');
       }
 
       // Set order data for context
@@ -593,28 +587,28 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className={`border border-gray-200 rounded-lg p-4 ${(isFrenchCheckout() || isItalianCheckout()) ? 'bg-gray-100 opacity-60' : ''}`}>
+                        <div className={`border border-gray-200 rounded-lg p-4 ${isFrenchCheckout() ? 'bg-gray-100 opacity-60' : ''}`}>
                           <div className="flex items-center space-x-3">
                             <RadioGroupItem 
                               value="rechnung" 
                               id="rechnung" 
-                              disabled={isFrenchCheckout() || isItalianCheckout()}
-                              className={(isFrenchCheckout() || isItalianCheckout()) ? 'opacity-50 cursor-not-allowed' : ''}
+                              disabled={isFrenchCheckout()}
+                              className={isFrenchCheckout() ? 'opacity-50 cursor-not-allowed' : ''}
                             />
                             <Label 
                               htmlFor="rechnung" 
-                              className={`flex-1 ${(isFrenchCheckout() || isItalianCheckout()) ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
+                              className={`flex-1 ${isFrenchCheckout() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
                             >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className={`font-semibold ${(isFrenchCheckout() || isItalianCheckout()) ? 'text-gray-400' : 'text-gray-900'}`}>
+                                  <div className={`font-semibold ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-900'}`}>
                                     {t.paymentSection.rechnung.title}
                                   </div>
-                                  <div className={`text-sm ${(isFrenchCheckout() || isItalianCheckout()) ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {t.paymentSection.rechnung.description}
                                   </div>
                                 </div>
-                                <div className={`text-sm ${(isFrenchCheckout() || isItalianCheckout()) ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-500'}`}>
                                   {t.paymentSection.rechnung.existingCustomers}
                                 </div>
                               </div>
