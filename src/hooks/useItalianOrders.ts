@@ -67,6 +67,9 @@ export const useItalianOrders = () => {
         finalOrderData.shop_id = gasolioCasaShopId;
         console.log('Automatically assigned GasolioCasa shop ID');
       }
+
+      // Set the language for Italian orders
+      finalOrderData.customer_language = 'it';
       
       // Add order data with request_id and temporary order_number
       const orderWithMetadata: OrderInsert = {

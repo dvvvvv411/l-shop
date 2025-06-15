@@ -25,7 +25,14 @@ const Summary = () => {
   const navigate = useNavigate();
 
   if (!orderData) {
-    navigate('/order');
+    // Navigate to the correct order page based on shop type
+    if (shopConfig.shopType === 'italy') {
+      navigate('/ordina');
+    } else if (shopConfig.shopType === 'france') {
+      navigate('/commande');
+    } else {
+      navigate('/bestellen');
+    }
     return null;
   }
 
@@ -85,12 +92,26 @@ const Summary = () => {
       return;
     }
 
-    // Navigate to confirmation with the existing order number
-    navigate('/confirmation', {
-      state: {
-        orderNumber: orderData.orderNumber
-      }
-    });
+    // Navigate to confirmation with the existing order number using the correct route
+    if (shopConfig.shopType === 'italy') {
+      navigate('/conferma', {
+        state: {
+          orderNumber: orderData.orderNumber
+        }
+      });
+    } else if (shopConfig.shopType === 'france') {
+      navigate('/confirmation', {
+        state: {
+          orderNumber: orderData.orderNumber
+        }
+      });
+    } else {
+      navigate('/bestaetigung', {
+        state: {
+          orderNumber: orderData.orderNumber
+        }
+      });
+    }
   };
 
   // Get translations based on shop type
