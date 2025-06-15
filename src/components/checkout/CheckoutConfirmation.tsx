@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -9,6 +8,7 @@ import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTransl
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useShops } from '@/hooks/useShops';
+import { formatIban } from '@/utils/ibanFormatter';
 
 interface PriceCalculatorData {
   product: {
@@ -110,8 +110,8 @@ const CheckoutConfirmation = ({
       
       if (italianAccount) {
         setBankAccountDetails(italianAccount);
-        setDisplayAccountHolder('OIL & OIL');
-        console.log('CheckoutConfirmation - Using Italian account holder: OIL & OIL');
+        setDisplayAccountHolder('Gasolio Casa');
+        console.log('CheckoutConfirmation - Using Italian account holder: Gasolio Casa');
       } else {
         console.warn('CheckoutConfirmation - No active Italian bank account found. Available accounts:', 
           bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
@@ -192,7 +192,7 @@ const CheckoutConfirmation = ({
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                  <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(bankAccountDetails.iban)}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
@@ -362,46 +362,48 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Contact Support */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="bg-white rounded-xl p-6 shadow-lg"
-        >
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            {t.confirmation.questionsAboutOrder}
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <Phone className="text-red-600" size={20} />
-              <div>
-                <div className="font-semibold text-gray-900">
-                  {t.confirmation.phone}
+        {/* Contact Support - Only show for non-Italian orders */}
+        {!isItalianShop && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-white rounded-xl p-6 shadow-lg"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              {t.confirmation.questionsAboutOrder}
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <Phone className="text-red-600" size={20} />
+                <div>
+                  <div className="font-semibold text-gray-900">
+                    {t.confirmation.phone}
+                  </div>
+                  <div className="text-gray-600 text-sm">+39 02 1234 5678</div>
                 </div>
-                <div className="text-gray-600 text-sm">+39 02 1234 5678</div>
+              </div>
+              
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <Mail className="text-red-600" size={20} />
+                <div>
+                  <div className="font-semibold text-gray-900">{t.confirmation.email}</div>
+                  <div className="text-gray-600 text-sm">info@gasoliocasa.com</div>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-              <Mail className="text-red-600" size={20} />
-              <div>
-                <div className="font-semibold text-gray-900">{t.confirmation.email}</div>
-                <div className="text-gray-600 text-sm">info@gasoliocasa.com</div>
-              </div>
+            <div className="mt-4 text-center">
+              <Button
+                onClick={onNewOrder}
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold"
+              >
+                {t.confirmation.newOrder}
+              </Button>
             </div>
-          </div>
-          
-          <div className="mt-4 text-center">
-            <Button
-              onClick={onNewOrder}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold"
-            >
-              {t.confirmation.newOrder}
-            </Button>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       {/* Order Summary Sidebar */}
