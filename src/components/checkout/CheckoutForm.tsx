@@ -80,15 +80,33 @@ const generateRandomTestData = (isItalian: boolean = false) => {
   };
 };
 
-interface CheckoutFormProps {
-  orderData: any;
-  onSubmit: (data: any) => void;
-  isSubmitting: boolean;
+interface PriceCalculatorData {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
+  };
+  amount: number;
+  postcode: string;
+  basePrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  savings: number;
 }
 
-const CheckoutForm = ({ orderData, onSubmit, isSubmitting }: CheckoutFormProps) => {
+interface CheckoutFormProps {
+  orderData: PriceCalculatorData;
+  onOrderSuccess: (orderNumber: string) => void;
+}
+
+const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { setOrderData } = useOrder();
+  const { createOrder } = useOrders();
   const shopConfig = useDomainShop();
   const { toast } = useToast();
   
@@ -157,7 +175,7 @@ const CheckoutForm = ({ orderData, onSubmit, isSubmitting }: CheckoutFormProps) 
     });
   };
 
-  const handleFormSubmit = (data: OrderFormData) => {
+  const handleFormSubmit = async (data: OrderFormData) => {
     if (!acceptedTerms) {
       toast({
         title: 'Fehler',
@@ -166,7 +184,50 @@ const CheckoutForm = ({ orderData, onSubmit, isSubmitting }: CheckoutFormProps) 
       });
       return;
     }
-    onSubmit(data);
+
+    setIsSubmitting(true);
+
+    try {
+      // Prepare order data
+      const orderSubmissionData = {
+        ...data,
+        ...orderData,
+        total: orderData.totalPrice,
+        status: 'confirmed' as const,
+        shopType: shopConfig.shopType
+      };
+
+      // Set order data in context
+      setOrderData(orderSubmissionData);
+
+      // Create order in database
+      const order = await createOrder(orderSubmissionData);
+      
+      if (order?.order_number) {
+        // Clear form data
+        localStorage.removeItem('orderData');
+        
+        // Call success callback with order number
+        onOrderSuccess(order.order_number);
+      } else {
+        throw new Error('Failed to create order');
+      }
+    } catch (error) {
+      console.error('Order submission error:', error);
+      toast({
+        title: t.toasts.orderErrorTitle,
+        description: t.toasts.orderErrorDescription,
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle checkbox change properly for CheckedState type
+  const handleTermsChange = (checked: boolean | "indeterminate") => {
+    // Convert indeterminate to false for our boolean state
+    setAcceptedTerms(checked === true);
   };
 
   return (
@@ -554,7 +615,7 @@ const CheckoutForm = ({ orderData, onSubmit, isSubmitting }: CheckoutFormProps) 
             <div className="flex items-start space-x-3">
               <Checkbox
                 checked={acceptedTerms}
-                onCheckedChange={setAcceptedTerms}
+                onCheckedChange={handleTermsChange}
                 className="mt-1"
               />
               <label className="text-sm text-gray-700 cursor-pointer" onClick={() => setAcceptedTerms(!acceptedTerms)}>
