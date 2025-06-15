@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -14,7 +13,6 @@ import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useShops } from '@/hooks/useShops';
 import { Button } from '@/components/ui/button';
-import { formatIban } from '@/utils/ibanFormatter';
 
 const Confirmation = () => {
   const [supplier, setSupplier] = useState<SupplierByPostcode | null>(null);
@@ -185,7 +183,7 @@ const Confirmation = () => {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">IBAN</div>
-                          <div className="text-green-900 font-mono text-lg">{formatIban(bankAccountDetails.iban)}</div>
+                          <div className="text-green-900 font-mono text-lg">{bankAccountDetails.iban}</div>
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">BIC</div>

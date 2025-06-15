@@ -12,12 +12,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
-import { useItalianOrders } from '@/hooks/useItalianOrders';
 import OrderSummary from '@/components/OrderSummary';
-import ItalianOrderSummary from '@/components/italian/ItalianOrderSummary';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useDomainShop } from '@/hooks/useDomainShop';
 
 // Test data arrays for random generation
 const testData = {
@@ -95,10 +92,8 @@ const OrderForm = () => {
   const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
-  const { createOrder: createItalianOrder } = useItalianOrders(); // Italian order hook
   const { toast } = useToast();
   const navigate = useNavigate();
-  const shopConfig = useDomainShop();
 
   // Load order data from localStorage on component mount
   useEffect(() => {
@@ -225,7 +220,6 @@ const OrderForm = () => {
     }
     console.log('Order form submitted:', data);
     console.log('Using order data:', orderData);
-    console.log('Shop config:', shopConfig);
     setIsSubmitting(true);
     try {
       // Calculate final price
@@ -266,15 +260,8 @@ const OrderForm = () => {
       };
       console.log('Sending order data to database:', dbOrderData);
 
-      // Use Italian order creation for Italian shops, regular for others
-      let createdOrder;
-      if (shopConfig.shopType === 'italy') {
-        console.log('Using Italian order creation flow for Italian shop');
-        createdOrder = await createItalianOrder(dbOrderData);
-      } else {
-        console.log('Using regular order creation flow for non-Italian shop');
-        createdOrder = await createOrder(dbOrderData);
-      }
+      // Create order in database
+      const createdOrder = await createOrder(dbOrderData);
 
       // Handle case where order was already processed (duplicate request)
       if (!createdOrder) {
@@ -283,15 +270,9 @@ const OrderForm = () => {
         return;
       }
       console.log('Order created with order number:', createdOrder.order_number);
-      console.log('Order created with customer language:', createdOrder.customer_language);
 
-      // Send order confirmation email only for non-Italian shops
-      if (shopConfig.shopType !== 'italy') {
-        console.log('Sending order confirmation email for non-Italian shop');
-        await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
-      } else {
-        console.log('Skipping order confirmation email for Italian shop - invoice will be sent instead');
-      }
+      // Send order confirmation email
+      await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
 
       // Set order data for context (for summary page) - now includes customerEmail
       const contextOrderData = {
@@ -341,35 +322,33 @@ const OrderForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Form */}
       <div className="lg:col-span-2">
-        {/* Test Data Generator Button - Hidden for Italian shops */}
-        {shopConfig.shopType !== 'italy' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-amber-100 p-2 rounded-lg">
-                  <TestTube className="text-amber-600" size={20} />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
-                  <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
-                </div>
+        {/* Test Data Generator Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <TestTube className="text-amber-600" size={20} />
               </div>
-              <Button
-                type="button"
-                onClick={handleGenerateTestData}
-                variant="outline"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-              >
-                Testdaten generieren
-              </Button>
+              <div>
+                <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
+                <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
+              </div>
             </div>
-          </motion.div>
-        )}
+            <Button
+              type="button"
+              onClick={handleGenerateTestData}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Testdaten generieren
+            </Button>
+          </div>
+        </motion.div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -609,29 +588,27 @@ const OrderForm = () => {
                             </div>
                           </div>
 
-                          {shopConfig.shopType !== 'italy' && (
-                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
-                              <div className="flex items-center space-x-3">
-                                <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                                <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
-                                  <div className="flex justify-between items-center">
-                                    <div>
-                                      <div className="font-semibold text-gray-600 flex items-center space-x-2">
-                                        <FileText size={16} />
-                                        <span>Rechnung</span>
-                                      </div>
-                                      <div className="text-sm text-gray-500">
-                                        Zahlung nach Lieferung (derzeit nicht verfügbar)
-                                      </div>
+                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
+                            <div className="flex items-center space-x-3">
+                              <RadioGroupItem value="rechnung" id="rechnung" disabled />
+                              <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <div className="font-semibold text-gray-600 flex items-center space-x-2">
+                                      <FileText size={16} />
+                                      <span>Rechnung</span>
                                     </div>
                                     <div className="text-sm text-gray-500">
-                                      Nur für Bestandskunden verfügbar
+                                      Zahlung nach Lieferung (derzeit nicht verfügbar)
                                     </div>
                                   </div>
-                                </Label>
-                              </div>
+                                  <div className="text-sm text-gray-500">
+                                    Nur für Bestandskunden verfügbar
+                                  </div>
+                                </div>
+                              </Label>
                             </div>
-                          )}
+                          </div>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -641,7 +618,7 @@ const OrderForm = () => {
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-semibold text-gray-900 mb-2">Zahlungsdetails</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Sie werden nach Bestellung telefonisch von unserem Kundendienst kontaktiert</li>
+                  <li>• Sie werden nach Bestellung telefonisch von unserem Kundesn</li>
                   <li>• Lieferung erfolgt nach Zahlungseingang</li>
                   <li>• Sichere und schnelle Abwicklung</li>
                 </ul>
@@ -669,11 +646,7 @@ const OrderForm = () => {
 
       {/* Order Summary Sidebar */}
       <div className="lg:col-span-1">
-        {shopConfig.shopType === 'italy' ? (
-          <ItalianOrderSummary orderData={orderData} />
-        ) : (
-          <OrderSummary orderData={orderData} />
-        )}
+        <OrderSummary orderData={orderData} />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
-import PriceCalculator from '../../components/v1/PriceCalculator';
+import PriceCalculator from '../../components/PriceCalculator';
 import TrustElements from '../../components/TrustElements';
 import StatsSection from '../../components/StatsSection';
 import ProductComparison from '../../components/ProductComparison';

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
@@ -50,12 +49,12 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#dc2626',
     faviconIcon: 'flame'
   },
-  'gasoliocasa.com': {
+  'gasoliocasa.it': {
     shopType: 'italy',
     name: 'OIL & OIL',
     brand: 'Gasolio IT',
     phone: '',
-    email: 'info@gasoliocasa.com',
+    email: 'info@gasoliocasa.it',
     faviconColor: '#16a34a',
     faviconIcon: 'flame-italia'
   },

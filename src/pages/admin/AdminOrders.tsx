@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Phone, CreditCard, Globe, Copy, Clock, Receipt, Truck } from 'lucide-react';
@@ -22,7 +23,6 @@ const AdminOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
   const [showHidden, setShowHidden] = useState(false);
-  const [domainFilter, setDomainFilter] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -33,22 +33,7 @@ const AdminOrders = () => {
   const { toast } = useToast();
   const ordersPerPage = 20;
 
-  // Get unique domains from orders
-  const availableDomains = useMemo(() => {
-    const domains = orders
-      .map(order => order.origin_domain)
-      .filter((domain, index, array) => array.indexOf(domain) === index)
-      .sort((a, b) => {
-        // Sort so that null/undefined domains come last
-        if (!a && !b) return 0;
-        if (!a) return 1;
-        if (!b) return -1;
-        return a.localeCompare(b);
-      });
-    return domains;
-  }, [orders]);
-
-  // Filter orders based on search, status, domain, and hidden visibility
+  // Filter orders based on search, status, and hidden visibility
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       const matchesSearch = 
@@ -59,15 +44,12 @@ const AdminOrders = () => {
       
       const matchesStatus = statusFilter === 'alle' || order.status === statusFilter;
       
-      // Domain filter logic
-      const matchesDomain = domainFilter.length === 0 || domainFilter.includes(order.origin_domain);
-      
       // If showHidden is false, exclude hidden orders; if true, include all orders
       const matchesHiddenFilter = showHidden || !order.is_hidden;
       
-      return matchesSearch && matchesStatus && matchesDomain && matchesHiddenFilter;
+      return matchesSearch && matchesStatus && matchesHiddenFilter;
     });
-  }, [orders, searchTerm, statusFilter, domainFilter, showHidden]);
+  }, [orders, searchTerm, statusFilter, showHidden]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
@@ -289,9 +271,6 @@ const AdminOrders = () => {
             setStatusFilter={setStatusFilter}
             showHidden={showHidden}
             setShowHidden={setShowHidden}
-            domainFilter={domainFilter}
-            setDomainFilter={setDomainFilter}
-            availableDomains={availableDomains}
           />
         </CardContent>
       </Card>

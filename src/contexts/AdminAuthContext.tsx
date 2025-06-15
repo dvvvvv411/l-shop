@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AdminAuthContextType {
   isAuthenticated: boolean;
@@ -16,27 +16,18 @@ const ADMIN_CREDENTIALS = {
   password: 'admin123'
 };
 
-interface AdminAuthProviderProps {
-  children: ReactNode;
-}
-
-export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if admin is already logged in
     const adminSession = localStorage.getItem('adminSession');
     if (adminSession) {
-      try {
-        const sessionData = JSON.parse(adminSession);
-        if (sessionData.expires > Date.now()) {
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem('adminSession');
-        }
-      } catch (error) {
-        console.error('Error parsing admin session:', error);
+      const sessionData = JSON.parse(adminSession);
+      if (sessionData.expires > Date.now()) {
+        setIsAuthenticated(true);
+      } else {
         localStorage.removeItem('adminSession');
       }
     }
