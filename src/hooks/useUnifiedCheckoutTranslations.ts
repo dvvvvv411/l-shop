@@ -84,6 +84,77 @@ export const useUnifiedCheckoutTranslations = () => {
     };
   }
 
-  // Return standard translations with proper structure
-  return standardTranslations;
+  // Return standard translations with proper structure that includes the form property
+  return {
+    form: {
+      title: 'Checkout',
+      deliveryAddress: 'Lieferadresse',
+      firstName: 'Vorname',
+      lastName: 'Nachname',
+      street: 'Straße',
+      postcode: 'Postleitzahl',
+      city: 'Stadt',
+      phone: 'Telefon',
+      email: 'E-Mail',
+      sameAsBilling: 'Gleich wie Lieferadresse',
+      billingAddress: 'Rechnungsadresse',
+      acceptTerms: 'Ich akzeptiere die AGB',
+      submitting: 'Wird übermittelt...',
+      submitOrder: 'Bestellung aufgeben'
+    },
+    emailSection: standardTranslations.emailSection || {
+      title: 'E-Mail-Adresse',
+      subtitle: 'Für Bestellbestätigung und Kommunikation',
+      emailLabel: 'E-Mail-Adresse',
+      emailPlaceholder: 'max.mustermann@email.de'
+    },
+    deliverySection: standardTranslations.deliverySection || {
+      title: 'Lieferadresse',
+      subtitle: 'Wohin soll das Heizöl geliefert werden?',
+      firstNameLabel: 'Vorname',
+      firstNamePlaceholder: 'Max',
+      lastNameLabel: 'Nachname',
+      lastNamePlaceholder: 'Mustermann',
+      streetLabel: 'Straße und Hausnummer',
+      streetPlaceholder: 'Musterstraße 123',
+      postcodeLabel: 'Postleitzahl',
+      postcodePlaceholder: '12345',
+      cityLabel: 'Stadt',
+      cityPlaceholder: 'Musterstadt',
+      phoneLabel: 'Telefonnummer',
+      phonePlaceholder: '+49 123 456789'
+    },
+    billingSection: standardTranslations.billingSection || {
+      title: 'Rechnungsadresse',
+      subtitle: 'Wohin soll die Rechnung gesendet werden?',
+      sameAddressLabel: 'Rechnungsadresse ist identisch mit Lieferadresse'
+    },
+    paymentSection: standardTranslations.paymentSection || {
+      title: 'Zahlungsart',
+      subtitle: 'Sichere und bequeme Zahlung',
+      vorkasse: {
+        title: 'Vorkasse',
+        description: 'Überweisung vor Lieferung',
+        recommended: 'Empfohlen'
+      },
+      rechnung: {
+        title: 'Rechnung',
+        description: 'Zahlung nach Lieferung',
+        existingCustomers: 'Nur für Bestandskunden'
+      }
+    },
+    termsSection: standardTranslations.termsSection || {
+      title: 'Allgemeine Geschäftsbedingungen',
+      subtitle: 'Bitte bestätigen Sie die AGB',
+      withdrawalTitle: 'Widerrufsrecht',
+      withdrawalText: 'Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.',
+      acceptTermsText: 'Ich akzeptiere die AGB und Datenschutzerklärung.',
+      submitButton: 'Bestellung aufgeben',
+      submittingButton: 'Wird übermittelt...'
+    },
+    system: standardTranslations.system || {
+      testDataGenerated: 'Testdaten generiert',
+      testDataDescription: 'Das Formular wurde mit zufälligen Testdaten ausgefüllt'
+    }
+  };
 };
