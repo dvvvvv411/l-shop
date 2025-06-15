@@ -1,94 +1,103 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, TestTube, FileText, Mail } from 'lucide-react';
+import { CreditCard, Truck, Shield, TestTube, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
-import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 // Test data arrays for random generation
 const testData = {
-  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
-  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
-  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
-  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
-  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
-  emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
+  firstNames: ['Marco', 'Giulia', 'Francesco', 'Chiara', 'Alessandro', 'Federica', 'Matteo', 'Valentina', 'Luca', 'Martina'],
+  lastNames: ['Rossi', 'Ferrari', 'Esposito', 'Bianchi', 'Romano', 'Colombo', 'Ricci', 'Marino', 'Greco', 'Bruno'],
+  streets: ['Via Roma', 'Via Garibaldi', 'Via Dante', 'Via Mazzini', 'Via Verdi', 'Via Cavour', 'Via Nazionale', 'Via del Corso'],
+  cities: ['Milano', 'Roma', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze', 'Bari', 'Catania'],
+  postcodes: ['20121', '00100', '80100', '10100', '90100', '16100', '40100', '50100', '70100', '95100'],
+  emails: ['marco.rossi@gmail.com', 'giulia.ferrari@yahoo.it', 'francesco.bianchi@libero.it', 'chiara.romano@tiscali.it', 'alessandro.colombo@alice.it']
 };
 
-const generateRandomTestData = () => {
+const generateRandomTestData = (isItalian: boolean = false) => {
   const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
   const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
   
+  if (isItalian) {
+    return {
+      customerEmail: getRandomItem(testData.emails),
+      deliveryFirstName: getRandomItem(testData.firstNames),
+      deliveryLastName: getRandomItem(testData.lastNames),
+      deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+      deliveryPostcode: getRandomItem(testData.postcodes),
+      deliveryCity: getRandomItem(testData.cities),
+      deliveryPhone: `+39 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
+      useSameAddress: Math.random() > 0.3,
+      billingFirstName: getRandomItem(testData.firstNames),
+      billingLastName: getRandomItem(testData.lastNames),
+      billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+      billingPostcode: getRandomItem(testData.postcodes),
+      billingCity: getRandomItem(testData.cities),
+      paymentMethod: 'vorkasse' as const
+    };
+  }
+  
+  // Original German test data
+  const germanData = {
+    firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
+    lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
+    streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
+    cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
+    postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
+    emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
+  };
+  
   return {
-    deliveryFirstName: getRandomItem(testData.firstNames),
-    deliveryLastName: getRandomItem(testData.lastNames),
-    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    deliveryPostcode: getRandomItem(testData.postcodes),
-    deliveryCity: getRandomItem(testData.cities),
+    customerEmail: getRandomItem(germanData.emails),
+    deliveryFirstName: getRandomItem(germanData.firstNames),
+    deliveryLastName: getRandomItem(germanData.lastNames),
+    deliveryStreet: `${getRandomItem(germanData.streets)} ${getRandomNumber(1, 999)}`,
+    deliveryPostcode: getRandomItem(germanData.postcodes),
+    deliveryCity: getRandomItem(germanData.cities),
     deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
-    customerEmail: getRandomItem(testData.emails),
     useSameAddress: Math.random() > 0.3,
-    billingFirstName: getRandomItem(testData.firstNames),
-    billingLastName: getRandomItem(testData.lastNames),
-    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
-    billingPostcode: getRandomItem(testData.postcodes),
-    billingCity: getRandomItem(testData.cities),
+    billingFirstName: getRandomItem(germanData.firstNames),
+    billingLastName: getRandomItem(germanData.lastNames),
+    billingStreet: `${getRandomItem(germanData.streets)} ${getRandomNumber(1, 999)}`,
+    billingPostcode: getRandomItem(germanData.postcodes),
+    billingCity: getRandomItem(germanData.cities),
     paymentMethod: 'vorkasse' as const
   };
 };
 
-interface PriceCalculatorData {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    description: string;
-  };
-  amount: number;
-  basePrice: number;
-  deliveryFee: number;
-  totalPrice: number;
-  savings: number;
-}
-
 interface CheckoutFormProps {
-  orderData: PriceCalculatorData;
-  onOrderSuccess: (orderNumber: string) => void;
+  orderData: any;
+  onSubmit: (data: any) => void;
+  isSubmitting: boolean;
 }
 
-const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
+const CheckoutForm = ({ orderData, onSubmit, isSubmitting }: CheckoutFormProps) => {
   const [useSameAddress, setUseSameAddress] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setOrderData: setContextOrderData } = useOrder();
-  const { createOrder } = useOrders();
-  const { toast } = useToast();
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const shopConfig = useDomainShop();
+  const { toast } = useToast();
   
-  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  // Use appropriate translations based on shop type
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
   const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
-  // Check if current checkout is French
-  const isFrenchCheckout = () => {
-    const orderReferrer = localStorage.getItem('orderReferrer');
-    return orderReferrer === '/4/home' || shopConfig.shopType === 'france';
-  };
-
-  // Create the schema inside the component where `t` is available
+  // Create schema with appropriate validation messages
   const orderSchema = z.object({
     customerEmail: z.string().email(t.validation.emailRequired),
     deliveryFirstName: z.string().min(2, t.validation.firstNameRequired),
@@ -103,8 +112,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     billingStreet: z.string().optional(),
     billingPostcode: z.string().optional(),
     billingCity: z.string().optional(),
-    paymentMethod: z.enum(['vorkasse', 'rechnung']),
-    acceptTerms: z.boolean().refine(val => val === true, t.validation.termsRequired)
+    paymentMethod: z.enum(['vorkasse', 'rechnung'])
   });
 
   type OrderFormData = z.infer<typeof orderSchema>;
@@ -113,14 +121,14 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     resolver: zodResolver(orderSchema),
     defaultValues: {
       useSameAddress: true,
-      paymentMethod: 'vorkasse',
-      acceptTerms: false
+      paymentMethod: 'vorkasse'
     }
   });
 
   const handleGenerateTestData = () => {
-    const testDataValues = generateRandomTestData();
+    const testDataValues = generateRandomTestData(shopConfig.shopType === 'italy');
 
+    // Set form values
     form.setValue('customerEmail', testDataValues.customerEmail);
     form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
     form.setValue('deliveryLastName', testDataValues.deliveryLastName);
@@ -131,8 +139,10 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     form.setValue('useSameAddress', testDataValues.useSameAddress);
     form.setValue('paymentMethod', testDataValues.paymentMethod);
 
+    // Update local state
     setUseSameAddress(testDataValues.useSameAddress);
 
+    // Set billing address if different
     if (!testDataValues.useSameAddress) {
       form.setValue('billingFirstName', testDataValues.billingFirstName);
       form.setValue('billingLastName', testDataValues.billingLastName);
@@ -140,178 +150,75 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       form.setValue('billingPostcode', testDataValues.billingPostcode);
       form.setValue('billingCity', testDataValues.billingCity);
     }
-
+    
     toast({
       title: t.system.testDataGenerated,
       description: t.system.testDataDescription
     });
   };
 
-  const sendOrderConfirmationEmail = async (orderId: string, customerEmail: string) => {
-    try {
-      console.log('Sending order confirmation email...', { orderId, customerEmail });
-      
-      const originDomain = window.location.hostname;
-      
-      const { data, error } = await supabase.functions.invoke('send-order-confirmation', {
-        body: {
-          orderId,
-          customerEmail,
-          originDomain
-        }
-      });
-
-      if (error) {
-        console.error('Error sending confirmation email:', error);
-        throw error;
-      }
-
-      console.log('Order confirmation email sent successfully:', data);
-      return data;
-    } catch (error) {
-      console.error('Failed to send order confirmation email:', error);
-      // Don't throw the error - we don't want to fail the order process because of email issues
+  const handleFormSubmit = (data: OrderFormData) => {
+    if (!acceptedTerms) {
       toast({
-        title: t.system.emailSendTitle,
-        description: t.system.emailSendDescription,
+        title: 'Fehler',
+        description: t.validation.termsRequired,
         variant: 'destructive'
       });
+      return;
     }
-  };
-
-  const onSubmit = async (data: OrderFormData) => {
-    console.log('Checkout form submitted:', data);
-    console.log('Using order data:', orderData);
-    
-    setIsSubmitting(true);
-    
-    try {
-      const finalPrice = orderData.totalPrice;
-      const originDomain = window.location.hostname;
-      const isFrenchShop = isFrenchCheckout();
-
-      // Create order data for database
-      const dbOrderData = {
-        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: data.customerEmail, // Use actual customer email instead of hardcoded value
-        customer_email_actual: data.customerEmail, // Keep for legacy compatibility
-        customer_phone: data.deliveryPhone,
-        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
-        delivery_first_name: data.deliveryFirstName,
-        delivery_last_name: data.deliveryLastName,
-        delivery_street: data.deliveryStreet,
-        delivery_postcode: data.deliveryPostcode,
-        delivery_city: data.deliveryCity,
-        delivery_phone: data.deliveryPhone,
-        use_same_address: data.useSameAddress,
-        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
-        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
-        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
-        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
-        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
-        payment_method: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        liters: orderData.amount,
-        price_per_liter: orderData.product.price,
-        base_price: orderData.basePrice,
-        delivery_fee: orderData.deliveryFee,
-        discount: 0,
-        total_amount: finalPrice,
-        delivery_date_display: '4-7 Werktage',
-        status: 'pending',
-        origin_domain: originDomain
-      };
-
-      console.log('Sending order data to database:', dbOrderData);
-
-      // Create order in database
-      const createdOrder = await createOrder(dbOrderData);
-
-      if (!createdOrder) {
-        console.log('Order was already processed');
-        toast({
-          title: t.system.orderProcessedTitle,
-          description: t.system.orderProcessedDescription,
-        });
-        return;
-      }
-
-      console.log('Order created with order number:', createdOrder.order_number);
-
-      // Only send order confirmation email for non-French shops
-      // French shop orders get invoice directly (handled in useOrders hook)
-      if (!isFrenchShop) {
-        await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
-      } else {
-        console.log('Skipping order confirmation email for French shop - invoice will be sent instead');
-      }
-
-      // Set order data for context
-      const contextOrderData = {
-        deliveryFirstName: data.deliveryFirstName,
-        deliveryLastName: data.deliveryLastName,
-        deliveryStreet: data.deliveryStreet,
-        deliveryPostcode: data.deliveryPostcode,
-        deliveryCity: data.deliveryCity,
-        deliveryPhone: data.deliveryPhone,
-        customerEmail: data.customerEmail,
-        useSameAddress: data.useSameAddress,
-        billingFirstName: data.billingFirstName,
-        billingLastName: data.billingLastName,
-        billingStreet: data.billingStreet,
-        billingPostcode: data.billingPostcode,
-        billingCity: data.billingCity,
-        paymentMethod: data.paymentMethod,
-        product: orderData.product.name,
-        amount: orderData.amount,
-        pricePerLiter: orderData.product.price,
-        basePrice: orderData.basePrice,
-        deliveryFee: orderData.deliveryFee,
-        discount: 0,
-        total: finalPrice,
-        deliveryDate: '4-7 Werktage',
-        orderNumber: createdOrder.order_number
-      };
-
-      setContextOrderData(contextOrderData);
-
-      // Call the success callback to move to confirmation step
-      onOrderSuccess(createdOrder.order_number);
-
-      // Clear localStorage
-      localStorage.removeItem('orderData');
-
-    } catch (error) {
-      console.error('Error creating order:', error);
-      toast({
-        title: t.system.errorTitle,
-        description: t.system.errorDescription,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(data);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Test Data Generator Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-amber-50 border border-amber-200 rounded-xl p-4"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="bg-amber-100 p-2 rounded-lg">
+              <TestTube className="text-amber-600" size={20} />
+            </div>
+            <div>
+              <h4 className="font-semibold text-amber-900">
+                {shopConfig.shopType === 'italy' ? 'Modalità di sviluppo' : 'Entwicklungsmodus'}
+              </h4>
+              <p className="text-sm text-amber-700">
+                {shopConfig.shopType === 'italy' ? 'Genera dati di test automaticamente' : 'Automatisch Testdaten generieren'}
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            onClick={handleGenerateTestData}
+            variant="outline"
+            className="border-amber-300 text-amber-700 hover:bg-amber-100"
+          >
+            {shopConfig.shopType === 'italy' ? 'Genera dati di test' : 'Testdaten generieren'}
+          </Button>
+        </div>
+      </motion.div>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
           {/* Customer Email */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            className="bg-white rounded-xl p-6 shadow-lg"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <Mail className="text-purple-600" size={20} />
+              <div className="bg-purple-100 p-3 rounded-full mr-4">
+                <Mail className="text-purple-600" size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.emailSection.title}</h3>
-                <p className="text-sm text-gray-600">{t.emailSection.subtitle}</p>
+                <h3 className="text-xl font-bold text-gray-900">{t.emailSection.title}</h3>
+                <p className="text-gray-600">{t.emailSection.subtitle}</p>
               </div>
             </div>
 
@@ -335,15 +242,15 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            className="bg-white rounded-xl p-6 shadow-lg"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                <Truck className="text-blue-600" size={20} />
+              <div className="bg-red-100 p-3 rounded-full mr-4">
+                <Truck className="text-red-600" size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.deliverySection.title}</h3>
-                <p className="text-sm text-gray-600">{t.deliverySection.subtitle}</p>
+                <h3 className="text-xl font-bold text-gray-900">{t.deliverySection.title}</h3>
+                <p className="text-gray-600">{t.deliverySection.subtitle}</p>
               </div>
             </div>
 
@@ -439,15 +346,15 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            className="bg-white rounded-xl p-6 shadow-lg"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-green-100 p-3 rounded-lg mr-4">
-                <FileText className="text-green-600" size={20} />
+              <div className="bg-blue-100 p-3 rounded-full mr-4">
+                <CreditCard className="text-blue-600" size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.billingSection.title}</h3>
-                <p className="text-sm text-gray-600">{t.billingSection.subtitle}</p>
+                <h3 className="text-xl font-bold text-gray-900">{t.billingSection.title}</h3>
+                <p className="text-gray-600">{t.billingSection.subtitle}</p>
               </div>
             </div>
 
@@ -460,7 +367,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     setUseSameAddress(e.target.checked);
                     form.setValue('useSameAddress', e.target.checked);
                   }}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
                 <span className="text-gray-700 font-medium">
                   {t.billingSection.sameAddressLabel}
@@ -475,9 +382,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingFirstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t.deliverySection.firstNameLabel}</FormLabel>
+                      <FormLabel>Vorname *</FormLabel>
                       <FormControl>
-                        <Input placeholder={t.deliverySection.firstNamePlaceholder} {...field} />
+                        <Input placeholder="Max" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -489,9 +396,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingLastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t.deliverySection.lastNameLabel}</FormLabel>
+                      <FormLabel>Nachname *</FormLabel>
                       <FormControl>
-                        <Input placeholder={t.deliverySection.lastNamePlaceholder} {...field} />
+                        <Input placeholder="Mustermann" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -503,9 +410,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingStreet"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>{t.deliverySection.streetLabel}</FormLabel>
+                      <FormLabel>Straße und Hausnummer *</FormLabel>
                       <FormControl>
-                        <Input placeholder={t.deliverySection.streetPlaceholder} {...field} />
+                        <Input placeholder="Musterstraße 123" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -517,9 +424,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingPostcode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t.deliverySection.postcodeLabel}</FormLabel>
+                      <FormLabel>Postleitzahl *</FormLabel>
                       <FormControl>
-                        <Input placeholder={t.deliverySection.postcodePlaceholder} {...field} />
+                        <Input placeholder="12345" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -531,9 +438,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                   name="billingCity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t.deliverySection.cityLabel}</FormLabel>
+                      <FormLabel>Stadt *</FormLabel>
                       <FormControl>
-                        <Input placeholder={t.deliverySection.cityPlaceholder} {...field} />
+                        <Input placeholder="Musterstadt" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -548,15 +455,15 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            className="bg-white rounded-xl p-6 shadow-lg"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <CreditCard className="text-purple-600" size={20} />
+              <div className="bg-green-100 p-3 rounded-full mr-4">
+                <Shield className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.paymentSection.title}</h3>
-                <p className="text-sm text-gray-600">{t.paymentSection.subtitle}</p>
+                <h3 className="text-xl font-bold text-gray-900">{t.paymentSection.title}</h3>
+                <p className="text-gray-600">{t.paymentSection.subtitle}</p>
               </div>
             </div>
 
@@ -587,34 +494,30 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className={`border border-gray-200 rounded-lg p-4 ${isFrenchCheckout() ? 'bg-gray-100 opacity-60' : ''}`}>
-                          <div className="flex items-center space-x-3">
-                            <RadioGroupItem 
-                              value="rechnung" 
-                              id="rechnung" 
-                              disabled={isFrenchCheckout()}
-                              className={isFrenchCheckout() ? 'opacity-50 cursor-not-allowed' : ''}
-                            />
-                            <Label 
-                              htmlFor="rechnung" 
-                              className={`flex-1 ${isFrenchCheckout() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
-                            >
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <div className={`font-semibold ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-900'}`}>
-                                    {t.paymentSection.rechnung.title}
+                        {/* Hide Rechnung option for Italian shops */}
+                        {shopConfig.shopType !== 'italy' && (
+                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
+                            <div className="flex items-center space-x-3">
+                              <RadioGroupItem value="rechnung" id="rechnung" disabled />
+                              <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <div className="font-semibold text-gray-600 flex items-center space-x-2">
+                                      <FileText size={16} />
+                                      <span>{t.paymentSection.rechnung.title}</span>
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {t.paymentSection.rechnung.description}
+                                    </div>
                                   </div>
-                                  <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    {t.paymentSection.rechnung.description}
+                                  <div className="text-sm text-gray-500">
+                                    {t.paymentSection.rechnung.existingCustomers}
                                   </div>
                                 </div>
-                                <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-500'}`}>
-                                  {t.paymentSection.rechnung.existingCustomers}
-                                </div>
-                              </div>
-                            </Label>
+                              </Label>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </RadioGroup>
                   </FormControl>
@@ -624,20 +527,20 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             />
           </motion.div>
 
-          {/* Terms and Submit */}
+          {/* Terms and Conditions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white rounded-xl p-6 shadow-sm border"
+            className="bg-white rounded-xl p-6 shadow-lg"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-orange-100 p-3 rounded-lg mr-4">
-                <Shield className="text-orange-600" size={20} />
+              <div className="bg-gray-100 p-3 rounded-full mr-4">
+                <FileText className="text-gray-600" size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.termsSection.title}</h3>
-                <p className="text-sm text-gray-600">{t.termsSection.subtitle}</p>
+                <h3 className="text-xl font-bold text-gray-900">{t.termsSection.title}</h3>
+                <p className="text-gray-600">{t.termsSection.subtitle}</p>
               </div>
             </div>
 
@@ -648,33 +551,28 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               </p>
             </div>
 
-            <FormField
-              control={form.control}
-              name="acceptTerms"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <div className="flex items-start space-x-3">
-                    <FormControl>
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={field.onChange}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
-                      />
-                    </FormControl>
-                    <FormLabel className="text-sm text-gray-700 cursor-pointer">
-                      {t.termsSection.acceptTermsText}
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                checked={acceptedTerms}
+                onCheckedChange={setAcceptedTerms}
+                className="mt-1"
+              />
+              <label className="text-sm text-gray-700 cursor-pointer" onClick={() => setAcceptedTerms(!acceptedTerms)}>
+                {t.termsSection.acceptTermsText}
+              </label>
+            </div>
+          </motion.div>
 
+          {/* Submit Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
+              disabled={isSubmitting || !acceptedTerms}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
             >
               {isSubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
             </Button>

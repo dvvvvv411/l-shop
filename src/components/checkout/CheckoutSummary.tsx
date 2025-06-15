@@ -35,14 +35,14 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   const { toast } = useToast();
   const shopConfig = useDomainShop();
   
-  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  // Use appropriate translations based on shop type
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
   const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
   const finalPrice = orderData.totalPrice;
 
-  // VAT calculations - Italienische IVA ist 22%, andere 19%
+  // VAT calculations - Italian IVA is 22%, others 19%
   const vatRate = shopConfig.shopType === 'italy' ? 0.22 : 0.19;
   const netPrice = finalPrice / (1 + vatRate);
   const vatAmount = finalPrice - netPrice;
@@ -57,7 +57,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
 
     // Simulate API call delay
     setTimeout(() => {
-      // Fehlermeldung in der entsprechenden Sprache
+      // Error message in the appropriate language
       let errorMessage = 'Ungültiger Rabattcode. Bitte überprüfen Sie Ihren Code.';
       let toastTitle = 'Rabattcode ungültig';
       let toastDescription = 'Der eingegebene Rabattcode ist nicht gültig oder abgelaufen.';
