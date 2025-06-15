@@ -50,21 +50,97 @@ export const useItalianOrderSubmission = () => {
         bankAccount: bankAccountDetails?.system_name
       });
 
-      // Call the Italian invoice edge function
-      const { data, error } = await supabase.functions.invoke('send-italian-invoice', {
-        body: {
-          orderData,
-          orderNumber,
-          bankAccountDetails
+      // Save order to database first using standard order structure
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_number: orderNumber,
+          customer_name: `${orderData.deliveryFirstName} ${orderData.deliveryLastName}`,
+          customer_email: orderData.customerEmail,
+          customer_phone: orderData.deliveryPhone,
+          customer_address: `${orderData.deliveryStreet}, ${orderData.deliveryPostcode} ${orderData.deliveryCity}`,
+          customer_language: 'it',
+          delivery_first_name: orderData.deliveryFirstName,
+          delivery_last_name: orderData.deliveryLastName,
+          delivery_street: orderData.deliveryStreet,
+          delivery_postcode: orderData.deliveryPostcode,
+          delivery_city: orderData.deliveryCity,
+          delivery_phone: orderData.deliveryPhone,
+          billing_first_name: orderData.useSameAddress ? orderData.deliveryFirstName : orderData.billingFirstName,
+          billing_last_name: orderData.useSameAddress ? orderData.deliveryLastName : orderData.billingLastName,
+          billing_street: orderData.useSameAddress ? orderData.deliveryStreet : orderData.billingStreet,
+          billing_postcode: orderData.useSameAddress ? orderData.deliveryPostcode : orderData.billingPostcode,
+          billing_city: orderData.useSameAddress ? orderData.deliveryCity : orderData.billingCity,
+          use_same_address: orderData.useSameAddress,
+          product: orderData.product,
+          liters: orderData.amount,
+          price_per_liter: orderData.pricePerLiter,
+          amount: orderData.amount,
+          base_price: orderData.basePrice,
+          delivery_fee: orderData.deliveryFee,
+          discount: orderData.discount || 0,
+          total_amount: orderData.total,
+          payment_method: 'vorkasse',
+          status: 'pending',
+          bank_account_id: bankAccountDetails?.id,
+          origin_domain: 'gasoliocasa.com',
+          delivery_date_display: '3-5 giorni lavorativi'
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Error saving order:', orderError);
+        throw new Error(`Failed to save order: ${orderError.message}`);
+      }
+
+      console.log('Order saved successfully:', order.id);
+
+      // Get Italian shop configuration for invoice generation
+      const { data: italianShop, error: shopError } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('name', 'Gasolio IT')
+        .maybeSingle();
+
+      if (shopError) {
+        console.error('Error fetching Italian shop:', shopError);
+      }
+
+      // Generate invoice using the standard flow
+      console.log('Generating invoice for Italian order...');
+      const { data: invoiceData, error: invoiceError } = await supabase.functions.invoke('generate-invoice', {
+        body: { 
+          orderId: order.id,
+          shopId: italianShop?.id,
+          bankAccountId: bankAccountDetails?.id,
+          additionalNotes: 'Fattura per ordine gasolio - Consegna in 3-5 giorni lavorativi'
         }
       });
 
-      if (error) {
-        console.error('Error submitting Italian order:', error);
-        throw error;
+      if (invoiceError) {
+        console.error('Error generating invoice:', invoiceError);
+        // Don't throw here - order is saved, just log the invoice issue
+      } else {
+        console.log('Invoice generated successfully:', invoiceData?.invoiceNumber);
       }
 
-      console.log('Italian order submitted successfully:', data);
+      // Send order confirmation email using standard flow
+      console.log('Sending order confirmation email...');
+      const { error: emailError } = await supabase.functions.invoke('send-order-confirmation', {
+        body: {
+          orderId: order.id,
+          customerEmail: orderData.customerEmail,
+          originDomain: 'gasoliocasa.com'
+        }
+      });
+
+      if (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        // Don't throw here - order is saved
+      } else {
+        console.log('Confirmation email sent successfully');
+      }
 
       toast({
         title: "Ordine confermato!",
@@ -74,9 +150,10 @@ export const useItalianOrderSubmission = () => {
 
       return {
         success: true,
-        orderId: data.orderId,
+        orderId: order.id,
         orderNumber: orderNumber,
-        emailSent: data.emailSent
+        emailSent: !emailError,
+        invoiceGenerated: !invoiceError
       };
 
     } catch (error: any) {
