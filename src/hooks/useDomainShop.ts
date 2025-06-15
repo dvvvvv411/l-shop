@@ -50,7 +50,7 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#dc2626',
     faviconIcon: 'flame'
   },
-  'gasoliocasa.it': {
+  'gasoliocasa.com': {
     shopType: 'italy',
     name: 'OIL & OIL',
     brand: 'Gasolio IT',

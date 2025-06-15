@@ -1,4 +1,3 @@
-
 import { useDomainShop } from '@/hooks/useDomainShop';
 
 /**
@@ -12,7 +11,7 @@ export const detectItalianShop = (): boolean => {
   const pathname = window.location.pathname;
   
   // Check for Italian domain or Italian path
-  return hostname === 'gasoliocasa.it' || pathname.startsWith('/5/');
+  return hostname === 'gasoliocasa.com' || pathname.startsWith('/5/');
 };
 
 export const getItalianCurrency = (amount: number): string => {

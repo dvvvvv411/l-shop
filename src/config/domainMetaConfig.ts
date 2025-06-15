@@ -1,3 +1,4 @@
+
 export interface MetaData {
   title: string;
   description: string;
@@ -145,7 +146,7 @@ const italianShopMetaConfig: DomainShopMetaConfig = {
   brand: "Gasolio IT",
   phone: "+39 02 1234 5678",
   email: "info@gasoliocasa.it",
-  baseUrl: "https://gasoliocasa.it",
+  baseUrl: "https://gasoliocasa.com",
   pages: {
     home: {
       title: "Gasolio al miglior prezzo - Consegna rapida gasolio da riscaldamento in Italia",
