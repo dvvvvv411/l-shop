@@ -98,17 +98,18 @@ const Confirmation = () => {
     navigate('/');
   };
 
-  // Get translations based on shop type
-  const getTranslation = (key: string, fallback: string) => {
+  // Fixed getTranslation function to ensure it always returns a string
+  const getTranslation = (key: string, fallback: string): string => {
     if (isItalianShop) {
       // Navigate through the Italian translations object
       const keys = key.split('.');
-      let value = italianTranslations;
+      let value: any = italianTranslations;
       for (const k of keys) {
         value = value?.[k];
         if (!value) break;
       }
-      return value || fallback;
+      // Ensure we return a string, not the entire object
+      return typeof value === 'string' ? value : fallback;
     }
     return fallback;
   };
