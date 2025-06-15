@@ -40,8 +40,8 @@ export const useItalianOrderSubmission = () => {
     setIsSubmitting(true);
 
     try {
-      // Generate order number
-      const orderNumber = 'HÖ' + Math.floor(100000 + Math.random() * 900000);
+      // Generate order number - FIXED: Use 'H' instead of 'HÖ'
+      const orderNumber = 'H' + Math.floor(100000 + Math.random() * 900000);
 
       console.log('Submitting Italian order:', {
         orderNumber,
