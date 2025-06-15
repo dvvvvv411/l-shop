@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { CreditCard, Truck, Clock, Shield, FileText, Mail } from 'lucide-react';
+import { CreditCard, Truck, Clock, Shield, TestTube, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -322,6 +322,34 @@ const OrderForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Form */}
       <div className="lg:col-span-2">
+        {/* Test Data Generator Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <TestTube className="text-amber-600" size={20} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
+                <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              onClick={handleGenerateTestData}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Testdaten generieren
+            </Button>
+          </div>
+        </motion.div>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Customer Email */}
