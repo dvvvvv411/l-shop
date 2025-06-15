@@ -284,7 +284,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
             <p>Fioul Rapide - Votre partenaire fioul de confiance</p>
-            <p>Cet email a été généré automatiquement, merci de ne pas y répondre.</p>
+            <p>Cet email a été généré automatiquement, veuillez ne pas y répondre.</p>
           </div>
         </body>
         </html>
@@ -316,11 +316,11 @@ const handler = async (req: Request): Promise<Response> => {
         Des questions ? Contactez-nous : info@fioul-rapide.fr
 
         Fioul Rapide - Votre partenaire fioul de confiance
-        Cet email a été généré automatiquement, merci de ne pas y répondre.
+        Cet email a été généré automatiquement, veuillez ne pas y répondre.
       `;
     } else {
       // German email template (default)
-      subject = `Bestellbestätigung ${order.order_number} - Heizöl Service`;
+      subject = `Bestellbestätigung ${order.order_number} - HeizölExpress`;
       senderEmail = smtpConfig.sender_email;
       
       htmlContent = `
@@ -331,27 +331,27 @@ const handler = async (req: Request): Promise<Response> => {
           <title>Bestellbestätigung</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">Heizöl Service</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px;">Zuverlässige Heizöl-Lieferung</p>
+          <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">HeizölExpress</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Schnelle Heizöllieferung</p>
           </div>
           
           <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-            <h2 style="color: #dc2626; margin-top: 0;">Bestätigung Ihrer Bestellung</h2>
+            <h2 style="color: #2563eb; margin-top: 0;">Bestellbestätigung</h2>
             <p>Liebe/r ${order.delivery_first_name} ${order.delivery_last_name},</p>
-            <p>vielen Dank für Ihre Bestellung! Wir haben Ihre Anfrage erhalten und werden Sie bald kontaktieren, um die Details zu bestätigen.</p>
+            <p>vielen Dank für Ihre Bestellung! Wir haben Ihre Anfrage erhalten und werden Sie in Kürze kontaktieren, um die Details zu bestätigen.</p>
             
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-              <h3 style="margin-top: 0; color: #dc2626;">Bestelldetails</h3>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+              <h3 style="margin-top: 0; color: #2563eb;">Bestelldetails</h3>
               <p><strong>Bestellnummer:</strong> ${order.order_number}</p>
               <p><strong>Datum:</strong> ${formattedDate}</p>
               <p><strong>Produkt:</strong> ${order.product}</p>
               <p><strong>Menge:</strong> ${order.liters.toLocaleString()} Liter</p>
-              <p><strong>Gesamtsumme:</strong> ${formattedTotal}</p>
+              <p><strong>Gesamtbetrag:</strong> ${formattedTotal}</p>
             </div>
             
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0; color: #dc2626;">Lieferadresse</h3>
+              <h3 style="margin-top: 0; color: #2563eb;">Lieferadresse</h3>
               <p>${deliveryAddress}</p>
               ${order.delivery_phone ? `<p><strong>Telefon:</strong> ${order.delivery_phone}</p>` : ''}
             </div>
@@ -359,73 +359,69 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background: #e1f5fe; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="margin-top: 0; color: #0277bd;">Nächste Schritte</h3>
               <ol style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Telefonkontakt:</strong> Wir rufen Sie innerhalb von 24 Stunden an, um Ihre Bestellung zu bestätigen</li>
-                <li><strong>Zahlung:</strong> Sie erhalten die Details für die Banküberweisung</li>
+                <li><strong>Telefonischer Kontakt:</strong> Wir rufen Sie innerhalb von 24 Stunden an, um Ihre Bestellung zu bestätigen</li>
+                <li><strong>Zahlung:</strong> Sie erhalten die Bankverbindung für die Überweisung</li>
                 <li><strong>Lieferung:</strong> Die Lieferung erfolgt 3-5 Werktage nach Zahlungseingang</li>
               </ol>
             </div>
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
               <p style="margin: 5px 0; color: #666; font-size: 14px;">Haben Sie Fragen? Kontaktieren Sie uns:</p>
-              <p style="margin: 5px 0; color: #dc2626; font-weight: bold;">${smtpConfig.sender_email}</p>
+              <p style="margin: 5px 0; color: #2563eb; font-weight: bold;">info@heizoelexpress.de</p>
             </div>
           </div>
           
           <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-            <p>Heizöl Service - Ihr zuverlässiger Partner für Heizöl</p>
-            <p>Diese E-Mail wurde automatisch generiert, bitte antworten Sie nicht darauf.</p>
+            <p>HeizölExpress - Ihr zuverlässiger Partner für Heizöl</p>
+            <p>Diese E-Mail wurde automatisch generiert, bitte nicht antworten.</p>
           </div>
         </body>
         </html>
       `;
 
       textContent = `
-        Heizöl Service - Bestätigung Ihrer Bestellung
+        HeizölExpress - Bestellbestätigung
 
         Liebe/r ${order.delivery_first_name} ${order.delivery_last_name},
 
-        vielen Dank für Ihre Bestellung! Wir haben Ihre Anfrage erhalten und werden Sie bald kontaktieren, um die Details zu bestätigen.
+        vielen Dank für Ihre Bestellung! Wir haben Ihre Anfrage erhalten und werden Sie in Kürze kontaktieren, um die Details zu bestätigen.
 
         BESTELLDETAILS:
         Bestellnummer: ${order.order_number}
         Datum: ${formattedDate}
         Produkt: ${order.product}
         Menge: ${order.liters.toLocaleString()} Liter
-        Gesamtsumme: ${formattedTotal}
+        Gesamtbetrag: ${formattedTotal}
 
         LIEFERADRESSE:
         ${deliveryAddress}
         ${order.delivery_phone ? `Telefon: ${order.delivery_phone}` : ''}
 
         NÄCHSTE SCHRITTE:
-        1. Telefonkontakt: Wir rufen Sie innerhalb von 24 Stunden an, um Ihre Bestellung zu bestätigen
-        2. Zahlung: Sie erhalten die Details für die Banküberweisung
+        1. Telefonischer Kontakt: Wir rufen Sie innerhalb von 24 Stunden an, um Ihre Bestellung zu bestätigen
+        2. Zahlung: Sie erhalten die Bankverbindung für die Überweisung
         3. Lieferung: Die Lieferung erfolgt 3-5 Werktage nach Zahlungseingang
 
-        Haben Sie Fragen? Kontaktieren Sie uns: ${smtpConfig.sender_email}
+        Haben Sie Fragen? Kontaktieren Sie uns: info@heizoelexpress.de
 
-        Heizöl Service - Ihr zuverlässiger Partner für Heizöl
-        Diese E-Mail wurde automatisch generiert, bitte antworten Sie nicht darauf.
+        HeizölExpress - Ihr zuverlässiger Partner für Heizöl
+        Diese E-Mail wurde automatisch generiert, bitte nicht antworten.
       `;
     }
 
-    console.log('Sending email to:', customerEmail);
-    console.log('From:', senderEmail);
-    console.log('Language:', isItalianOrder ? 'Italian' : isFrenchOrder ? 'French' : 'German');
-
     // Send the email
-    const emailResponse = await resend.emails.send({
-      from: `${smtpConfig.sender_name} <${senderEmail}>`,
+    const { data: emailData, error: emailError } = await resend.emails.send({
+      from: senderEmail,
       to: [customerEmail],
       subject: subject,
       html: htmlContent,
       text: textContent,
     });
 
-    if (emailResponse.error) {
-      console.error('Failed to send email:', emailResponse.error);
+    if (emailError) {
+      console.error('Error sending email:', emailError);
       return new Response(
-        JSON.stringify({ error: 'Failed to send email', details: emailResponse.error }),
+        JSON.stringify({ error: 'Failed to send email', details: emailError }),
         { 
           status: 500, 
           headers: { "Content-Type": "application/json", ...corsHeaders } 
@@ -433,29 +429,13 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log('Email sent successfully:', emailResponse.data?.id);
-
-    // Log the email sending
-    const { error: logError } = await supabase
-      .from('email_sending_logs')
-      .insert({
-        recipient_email: customerEmail,
-        subject: subject,
-        status: 'sent',
-        sent_at: new Date().toISOString(),
-        smtp_config_id: smtpConfig.id,
-        order_id: orderId,
-      });
-
-    if (logError) {
-      console.error('Failed to log email:', logError);
-    }
+    console.log('Email sent successfully:', emailData);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        emailId: emailResponse.data?.id,
-        language: isItalianOrder ? 'Italian' : isFrenchOrder ? 'French' : 'German'
+        message: 'Order confirmation email sent successfully',
+        emailId: emailData?.id 
       }),
       { 
         status: 200, 
@@ -463,10 +443,10 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in send-order-confirmation function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { 
         status: 500, 
         headers: { "Content-Type": "application/json", ...corsHeaders } 

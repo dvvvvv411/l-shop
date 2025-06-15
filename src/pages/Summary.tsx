@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,21 @@ import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { Button } from '@/components/ui/button';
 import ItalianOrderSummary from '@/components/ItalianOrderSummary';
+
+interface ItalianOrderData {
+  product: {
+    name: string;
+    price: number;
+    description: string;
+    id: string;
+  };
+  amount: number;
+  postcode: string;
+  basePrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+  savings: number;
+}
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -204,7 +220,7 @@ const Summary = () => {
 
   // Use correct summary depending on shop type:
   let SummaryComponent = OrderSummary;
-  let summaryOrderData = orderData; // By default, use context orderData
+  let summaryOrderData: any = orderData; // By default, use context orderData
 
   // For Italy: massage the data so it always has the shape ItalianOrderSummary expects
   if (shopConfig.shopType === 'italy') {
@@ -217,12 +233,12 @@ const Summary = () => {
         id: ""
       },
       amount: orderData.amount,
-      postcode: orderData.deliveryPostcode, // ItalianOrderSummary expects postcode for savings etc; can be added if needed
+      postcode: orderData.deliveryPostcode,
       basePrice: orderData.basePrice,
       deliveryFee: orderData.deliveryFee,
       totalPrice: orderData.total,
-      savings: 0 // Not used in ItalianOrderSummary, set to 0 
-    };
+      savings: 0
+    } as ItalianOrderData;
   }
 
   return (

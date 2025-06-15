@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
@@ -41,9 +42,7 @@ const formSchema = z.object({
   billingPostcode: z.string().optional(),
   billingCity: z.string().optional(),
   paymentMethod: z.enum(['vorkasse', 'rechnung']).default('vorkasse'),
-  acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms and conditions" }),
-  }),
+  acceptTerms: z.boolean(),
 });
 
 // Conditional validation for billing address
@@ -84,6 +83,15 @@ const formSchemaWithBilling = formSchema.superRefine((data, ctx) => {
         path: ["billingCity"],
       });
     }
+  }
+  
+  // Require terms acceptance
+  if (!data.acceptTerms) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "You must accept the terms and conditions",
+      path: ["acceptTerms"],
+    });
   }
 });
 
