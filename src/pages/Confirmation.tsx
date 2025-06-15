@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, CreditCard, Calendar, Truck, Phone, Mail, Building2 } from 'lucide-react';
@@ -31,9 +31,6 @@ const Confirmation = () => {
   const orderNumber = location.state?.orderNumber || 'HÖ12345678';
 
   const isFrenchShop = shopConfig.shopType === 'france';
-  
-  // Ref for smooth scrolling to IBAN section
-  const ibanSectionRef = useRef<HTMLDivElement>(null);
 
   if (!orderData) {
     navigate('/');
@@ -79,21 +76,6 @@ const Confirmation = () => {
     fetchSupplier();
     fetchBankAccountDetails();
   }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, bankAccounts, shops]);
-
-  // Smooth scroll to IBAN section for French shop
-  useEffect(() => {
-    if (isFrenchShop && bankAccountDetails && ibanSectionRef.current) {
-      // Wait for animations to complete (1.5 second delay)
-      const timer = setTimeout(() => {
-        ibanSectionRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isFrenchShop, bankAccountDetails]);
 
   const handleNewOrder = () => {
     clearOrderData();
@@ -175,7 +157,6 @@ const Confirmation = () => {
                 {/* Bank Account Details for French Shop */}
                 {isFrenchShop && bankAccountDetails && (
                   <motion.div
-                    ref={ibanSectionRef}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15 }}
