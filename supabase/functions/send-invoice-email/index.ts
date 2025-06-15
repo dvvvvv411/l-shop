@@ -1,772 +1,507 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Resend } from 'npm:resend@4.0.0'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
+import { Resend } from 'npm:resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Helper function to format IBANs with spaces after every 4 characters
-function formatIban(iban: string): string {
+// Format IBAN for display (German format)
+const formatGermanIban = (iban: string) => {
   if (!iban) return '';
-  
-  // Remove existing spaces and convert to uppercase
-  const cleanIban = iban.replace(/\s/g, '').toUpperCase();
-  
-  // Add spaces after every 4 characters
-  const formatted = cleanIban.replace(/(.{4})/g, '$1 ').trim();
-  
-  return formatted;
-}
+  const cleanIban = iban.replace(/\s/g, '');
+  return cleanIban.replace(/(.{4})/g, '$1 ').trim();
+};
 
-// French email template generator
-const generateFrenchInvoiceEmail = (order: any, invoiceNumber: string, shop: any, bankAccount: any) => {
-  const accountHolderName = 'Fioul Rapide'; // Always show "Fioul Rapide" for French orders
-  
-  // Format the order creation date
-  const orderDate = new Date(order.created_at).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-  
-  return `
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facture ${invoiceNumber}</title>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb;">
-        <tr>
-            <td align="center" style="padding: 24px;">
-                <!-- Main Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="640" style="max-width: 640px; width: 100%;">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background-color: #2ed573; border-radius: 12px 12px 0 0; padding: 32px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; font-family: Arial, sans-serif;">Votre facture est prête !</h1>
-                            <p style="color: #ffffff; font-size: 16px; margin: 0; font-family: Arial, sans-serif;">Merci pour votre commande chez ${shop.company_name}</p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="background-color: #ffffff; padding: 32px; border-radius: 0 0 12px 12px;">
-                            
-                            <!-- Section Title -->
-                            <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">📋 Détails de la commande</h2>
-                            
-                            <!-- Order Details Grid -->
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Numéro de commande</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.order_number}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Date de la commande</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${orderDate}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Client</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.customer_name}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Produit</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.product || 'Fioul Standard'}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Quantité</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.liters.toLocaleString('fr-FR')} litres</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Adresse de livraison</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                        </td>
-                    </tr>
-                    
-                    <!-- Total Card -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #2ed573; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 24px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 16px; font-weight: 500; margin-bottom: 8px; font-family: Arial, sans-serif;">Montant total</div>
-                                        <div style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; font-family: Arial, sans-serif;">${order.total_amount.toFixed(2)}€</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    ${bankAccount ? `
-                    <!-- Payment Information -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px;">
-                                        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">💳 Informations de paiement</h2>
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                            <tr>
-                                                <td style="padding: 20px;">
-                                                    <h3 style="margin-top: 0; color: #1976d2; font-family: Arial, sans-serif;">Coordonnées bancaires pour virement</h3>
-                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                                        <tr>
-                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Banque</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bank_name}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Titulaire du compte</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${accountHolderName}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;"><strong>${formatIban(bankAccount.iban)}</strong></div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">${bankAccount.bic ? 'BIC' : 'Référence'}</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bic || `<strong>${order.order_number}</strong>`}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        ${bankAccount.bic ? `
-                                                        <tr>
-                                                            <td colspan="2" style="padding: 8px 0;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Référence</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;"><strong>${order.order_number}</strong></div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        ` : ''}
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
-                                            <tr>
-                                                <td style="padding: 15px;">
-                                                    <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Note très importante :</strong> Veuillez impérativement utiliser exactement le numéro de commande <strong>${order.order_number}</strong> comme référence de virement et vous assurer de transférer l'argent au bon destinataire <strong>${accountHolderName}</strong> afin que nous puissions identifier correctement votre paiement.
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    ` : ''}
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 12px 0 0 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #1f2937; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 16px; font-family: Arial, sans-serif;">${shop.company_name}</div>
-                                        ${shop.company_address ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">${shop.company_address}, ${shop.company_postcode} ${shop.company_city}</div>` : ''}
-                                        ${shop.company_phone ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Tél : ${shop.company_phone}</div>` : ''}
-                                        ${shop.company_email ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">E-mail : <a href="mailto:${shop.company_email}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_email}</a></div>` : ''}
-                                        ${shop.company_website ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Web : <a href="${shop.company_website}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_website}</a></div>` : ''}
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-  `;
+// Format IBAN for display (Italian format)
+const formatItalianIban = (iban: string) => {
+  if (!iban) return '';
+  const cleanIban = iban.replace(/\s/g, '');
+  return cleanIban.replace(/(.{4})/g, '$1 ').trim();
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    const { orderId, invoiceNumber } = await req.json()
+    
+    console.log('Sending invoice email for order:', orderId, 'invoice:', invoiceNumber)
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    const { orderId, invoiceNumber, invoiceFileUrl } = await req.json()
-    
-    console.log('Sending invoice email for order:', orderId, 'invoice:', invoiceNumber);
-
-    // Fetch order details
+    // Get order details
     const { data: order, error: orderError } = await supabaseClient
       .from('orders')
-      .select('*')
+      .select(`
+        *,
+        shops!inner(*),
+        bank_accounts!inner(*)
+      `)
       .eq('id', orderId)
       .single()
 
     if (orderError || !order) {
-      console.error('Order fetch error:', orderError);
-      throw new Error('Order not found')
+      throw new Error(`Order not found: ${orderError?.message}`)
     }
 
-    // Get SMTP configuration based on order domain
-    let smtpConfig = null
-    if (order.origin_domain) {
-      const { data: smtpData, error: smtpError } = await supabaseClient
-        .from('smtp_domains')
-        .select(`
-          smtp_configurations (
-            *,
-            shops (
-              id,
-              name,
-              company_name,
-              company_address,
-              company_postcode,
-              company_city,
-              company_phone,
-              company_email,
-              company_website
-            )
-          )
-        `)
-        .eq('domain', order.origin_domain)
-        .eq('smtp_configurations.is_active', true)
-        .single()
+    // Get invoice details
+    const { data: invoice, error: invoiceError } = await supabaseClient
+      .from('invoices')
+      .select('file_url, file_name')
+      .eq('order_id', orderId)
+      .eq('invoice_number', invoiceNumber)
+      .single()
 
-      if (!smtpError && smtpData?.smtp_configurations) {
-        smtpConfig = smtpData.smtp_configurations
-      }
+    if (invoiceError || !invoice) {
+      throw new Error(`Invoice not found: ${invoiceError?.message}`)
     }
 
-    // Fallback to default SMTP config if domain-specific not found
-    if (!smtpConfig) {
-      console.log('No domain-specific SMTP config found, using default');
-      const { data: defaultSmtpData, error: defaultSmtpError } = await supabaseClient
-        .from('smtp_configurations')
-        .select(`
-          *,
-          shops (
-            id,
-            name,
-            company_name,
-            company_address,
-            company_postcode,
-            company_city,
-            company_phone,
-            company_email,
-            company_website
-          )
-        `)
-        .eq('is_active', true)
-        .limit(1)
-        .single()
+    // Get SMTP configuration based on shop
+    const { data: smtpConfigs, error: smtpError } = await supabaseClient
+      .from('smtp_configurations')
+      .select('*')
+      .eq('shop_id', order.shop_id)
+      .eq('is_active', true)
+      .limit(1)
 
-      if (!defaultSmtpError && defaultSmtpData) {
-        smtpConfig = defaultSmtpData
-      }
+    if (smtpError || !smtpConfigs || smtpConfigs.length === 0) {
+      throw new Error(`No active SMTP configuration found for shop: ${smtpError?.message}`)
     }
 
-    if (!smtpConfig) {
-      console.error('No SMTP configuration found');
-      throw new Error('No SMTP configuration available')
+    const smtpConfig = smtpConfigs[0]
+    console.log('Using SMTP config:', smtpConfig.sender_email)
+
+    // Language detection based on shop name or company name
+    const shopName = order.shops.name || ''
+    const companyName = order.shops.company_name || ''
+    const languageDetection = {
+      shopName,
+      companyName,
+      isFrench: shopName.toLowerCase().includes('fioul') || shopName.toLowerCase().includes('rapide'),
+      isItalian: shopName.toLowerCase().includes('gasolio') || shopName.toLowerCase().includes('casa') || companyName.toLowerCase().includes('oil & oil')
     }
+    
+    console.log('Language detection:', languageDetection)
 
-    console.log('Using SMTP config:', smtpConfig.sender_email);
-
-    // Determine language based on shop name instead of domain
-    // Only Fioul Rapide should generate French invoices, all others should be German
-    const shop = smtpConfig.shops || { company_name: 'Heizöl-Express GmbH', name: 'Heizöl-Express' }
-    const isFrench = shop.name === 'Fioul Rapide' || shop.company_name === 'Fioul Rapide';
-    console.log('Language detection:', { shopName: shop.name, companyName: shop.company_name, isFrench });
-
-    // Get bank account information
-    let bankAccount = null
-    if (order.bank_account_id) {
-      const { data: bankData, error: bankError } = await supabaseClient
-        .from('bank_accounts')
-        .select('*')
-        .eq('id', order.bank_account_id)
-        .single()
-
-      if (!bankError && bankData) {
-        bankAccount = bankData
-      }
-    }
-
-    // Download the PDF file from Supabase Storage
-    let pdfBuffer = null
-    if (invoiceFileUrl) {
-      try {
-        // Extract filename from URL
-        const urlParts = invoiceFileUrl.split('/')
-        const filename = urlParts[urlParts.length - 1]
-        
-        const { data: pdfData, error: downloadError } = await supabaseClient.storage
-          .from('invoices')
-          .download(filename)
-
-        if (downloadError) {
-          console.error('Error downloading PDF:', downloadError)
-        } else {
-          pdfBuffer = await pdfData.arrayBuffer()
-          console.log('PDF downloaded successfully, size:', pdfBuffer.byteLength)
-        }
-      } catch (downloadError) {
-        console.error('Error processing PDF download:', downloadError)
-      }
-    }
-
-    // Initialize Resend with the SMTP config's API key
     const resend = new Resend(smtpConfig.resend_api_key)
 
+    // Download the PDF file from Supabase Storage
+    const { data: pdfData, error: downloadError } = await supabaseClient.storage
+      .from('invoices')
+      .download(invoice.file_name || `${invoiceNumber}.pdf`)
+
+    if (downloadError || !pdfData) {
+      throw new Error(`Failed to download PDF: ${downloadError?.message}`)
+    }
+
+    const pdfBuffer = await pdfData.arrayBuffer()
+    console.log('PDF downloaded successfully, size:', pdfBuffer.byteLength)
+
     // Create email content based on language
-    let emailSubject: string;
-    let emailHtml: string;
+    let subject: string
+    let htmlContent: string
+    let textContent: string
 
-    if (isFrench) {
-      emailSubject = `Votre facture - Commande ${order.order_number}`;
-      emailHtml = generateFrenchInvoiceEmail(order, invoiceNumber, shop, bankAccount);
+    if (languageDetection.isItalian) {
+      subject = `Fattura ${invoiceNumber} - Il tuo ordine Gasolio Casa`
+      htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .bank-details { background-color: #dcfce7; padding: 15px; margin: 20px 0; border-radius: 8px; }
+            .footer { background-color: #1f2937; color: white; padding: 20px; text-align: center; font-size: 12px; }
+            .important { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Gasolio Casa</h1>
+              <p>La tua fattura è pronta</p>
+            </div>
+            
+            <div class="content">
+              <h2>Caro/a ${order.delivery_first_name} ${order.delivery_last_name},</h2>
+              
+              <p>Grazie per il tuo ordine! In allegato trovi la fattura <strong>${invoiceNumber}</strong> per il tuo acquisto di gasolio.</p>
+              
+              <div class="important">
+                <h3>📋 Dettagli dell'ordine:</h3>
+                <ul>
+                  <li><strong>Numero ordine:</strong> ${order.order_number}</li>
+                  <li><strong>Numero fattura:</strong> ${invoiceNumber}</li>
+                  <li><strong>Quantità:</strong> ${order.liters.toLocaleString('it-IT')} litri</li>
+                  <li><strong>Importo totale:</strong> €${order.total_amount.toFixed(2)}</li>
+                </ul>
+              </div>
+
+              <div class="bank-details">
+                <h3>💳 Dati per il bonifico:</h3>
+                <p><strong>Intestatario:</strong> ${order.bank_accounts.account_holder}</p>
+                <p><strong>Banca:</strong> ${order.bank_accounts.bank_name}</p>
+                <p><strong>IBAN:</strong> ${formatItalianIban(order.bank_accounts.iban)}</p>
+                <p><strong>BIC:</strong> ${order.bank_accounts.bic}</p>
+                <p><strong>Causale:</strong> ${order.order_number}</p>
+                <p><strong>Importo:</strong> €${order.total_amount.toFixed(2)}</p>
+              </div>
+
+              <div class="important">
+                <h3>⚠️ Importante:</h3>
+                <p>Il gasolio verrà consegnato solo dopo aver ricevuto il pagamento. Ti preghiamo di effettuare il bonifico il prima possibile per velocizzare la consegna.</p>
+                <p><strong>Tempo di consegna stimato:</strong> 3-5 giorni lavorativi dopo il ricevimento del pagamento</p>
+              </div>
+
+              <p>Se hai domande sul tuo ordine, non esitare a contattarci:</p>
+              <ul>
+                <li>📧 E-mail: servizio@gasoliocasa.it</li>
+                <li>📞 Telefono: 0800 123 456 7</li>
+                <li>🕒 Orari: Lun-Ven 8:00-18:00</li>
+              </ul>
+
+              <p>Grazie per aver scelto Gasolio Casa!</p>
+              <p>Cordiali saluti,<br>Il team di Gasolio Casa</p>
+            </div>
+            
+            <div class="footer">
+              <p>Gasolio Casa - Il tuo partner affidabile per il gasolio da riscaldamento</p>
+              <p>Questa è una e-mail automatica, ti preghiamo di non rispondere direttamente.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+      
+      textContent = `
+Gasolio Casa - La tua fattura è pronta
+
+Caro/a ${order.delivery_first_name} ${order.delivery_last_name},
+
+Grazie per il tuo ordine! In allegato trovi la fattura ${invoiceNumber} per il tuo acquisto di gasolio.
+
+DETTAGLI DELL'ORDINE:
+- Numero ordine: ${order.order_number}
+- Numero fattura: ${invoiceNumber}
+- Quantità: ${order.liters.toLocaleString('it-IT')} litri
+- Importo totale: €${order.total_amount.toFixed(2)}
+
+DATI PER IL BONIFICO:
+Intestatario: ${order.bank_accounts.account_holder}
+Banca: ${order.bank_accounts.bank_name}
+IBAN: ${formatItalianIban(order.bank_accounts.iban)}
+BIC: ${order.bank_accounts.bic}
+Causale: ${order.order_number}
+Importo: €${order.total_amount.toFixed(2)}
+
+IMPORTANTE:
+Il gasolio verrà consegnato solo dopo aver ricevuto il pagamento. Ti preghiamo di effettuare il bonifico il prima possibile per velocizzare la consegna.
+Tempo di consegna stimato: 3-5 giorni lavorativi dopo il ricevimento del pagamento
+
+CONTATTI:
+E-mail: servizio@gasoliocasa.it
+Telefono: 0800 123 456 7
+Orari: Lun-Ven 8:00-18:00
+
+Grazie per aver scelto Gasolio Casa!
+
+Il team di Gasolio Casa
+      `
+    } else if (languageDetection.isFrench) {
+      subject = `Facture ${invoiceNumber} - Votre commande Fioul Rapide`
+      htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .bank-details { background-color: #dcfce7; padding: 15px; margin: 20px 0; border-radius: 8px; }
+            .footer { background-color: #1f2937; color: white; padding: 20px; text-align: center; font-size: 12px; }
+            .important { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Fioul Rapide</h1>
+              <p>Votre facture est prête</p>
+            </div>
+            
+            <div class="content">
+              <h2>Cher/Chère ${order.delivery_first_name} ${order.delivery_last_name},</h2>
+              
+              <p>Merci pour votre commande ! Vous trouverez en pièce jointe la facture <strong>${invoiceNumber}</strong> pour votre achat de fioul.</p>
+              
+              <div class="important">
+                <h3>📋 Détails de la commande :</h3>
+                <ul>
+                  <li><strong>Numéro de commande :</strong> ${order.order_number}</li>
+                  <li><strong>Numéro de facture :</strong> ${invoiceNumber}</li>
+                  <li><strong>Quantité :</strong> ${order.liters.toLocaleString('fr-FR')} litres</li>
+                  <li><strong>Montant total :</strong> ${order.total_amount.toFixed(2)}€</li>
+                </ul>
+              </div>
+
+              <div class="bank-details">
+                <h3>💳 Coordonnées bancaires :</h3>
+                <p><strong>Titulaire :</strong> ${order.bank_accounts.account_holder}</p>
+                <p><strong>Banque :</strong> ${order.bank_accounts.bank_name}</p>
+                <p><strong>IBAN :</strong> ${formatGermanIban(order.bank_accounts.iban)}</p>
+                <p><strong>BIC :</strong> ${order.bank_accounts.bic}</p>
+                <p><strong>Référence :</strong> ${order.order_number}</p>
+                <p><strong>Montant :</strong> ${order.total_amount.toFixed(2)}€</p>
+              </div>
+
+              <div class="important">
+                <h3>⚠️ Important :</h3>
+                <p>Le fioul sera livré uniquement après réception du paiement. Veuillez effectuer le virement dans les plus brefs délais pour accélérer la livraison.</p>
+                <p><strong>Délai de livraison estimé :</strong> 4-7 jours ouvrables après réception du paiement</p>
+              </div>
+
+              <p>Si vous avez des questions concernant votre commande, n'hésitez pas à nous contacter :</p>
+              <ul>
+                <li>📧 E-mail : service@fioul-rapide.fr</li>
+                <li>📞 Téléphone : 0800 123 456 7</li>
+                <li>🕒 Horaires : Lun-Ven 8h00-18h00</li>
+              </ul>
+
+              <p>Merci d'avoir choisi Fioul Rapide !</p>
+              <p>Cordialement,<br>L'équipe Fioul Rapide</p>
+            </div>
+            
+            <div class="footer">
+              <p>Fioul Rapide - Votre partenaire de confiance pour le fioul domestique</p>
+              <p>Ceci est un e-mail automatique, merci de ne pas répondre directement.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+      
+      textContent = `
+Fioul Rapide - Votre facture est prête
+
+Cher/Chère ${order.delivery_first_name} ${order.delivery_last_name},
+
+Merci pour votre commande ! Vous trouverez en pièce jointe la facture ${invoiceNumber} pour votre achat de fioul.
+
+DÉTAILS DE LA COMMANDE :
+- Numéro de commande : ${order.order_number}
+- Numéro de facture : ${invoiceNumber}
+- Quantité : ${order.liters.toLocaleString('fr-FR')} litres
+- Montant total : ${order.total_amount.toFixed(2)}€
+
+COORDONNÉES BANCAIRES :
+Titulaire : ${order.bank_accounts.account_holder}
+Banque : ${order.bank_accounts.bank_name}
+IBAN : ${formatGermanIban(order.bank_accounts.iban)}
+BIC : ${order.bank_accounts.bic}
+Référence : ${order.order_number}
+Montant : ${order.total_amount.toFixed(2)}€
+
+IMPORTANT :
+Le fioul sera livré uniquement après réception du paiement. Veuillez effectuer le virement dans les plus brefs délais pour accélérer la livraison.
+Délai de livraison estimé : 4-7 jours ouvrables après réception du paiement
+
+CONTACT :
+E-mail : service@fioul-rapide.fr
+Téléphone : 0800 123 456 7
+Horaires : Lun-Ven 8h00-18h00
+
+Merci d'avoir choisi Fioul Rapide !
+
+L'équipe Fioul Rapide
+      `
     } else {
-      // German email (existing template with anyname support)
-      const accountHolderName = bankAccount?.anyname ? shop.company_name : bankAccount?.account_holder;
-      
-      emailSubject = `Ihre Rechnung - Bestellung ${order.order_number}`;
-      emailHtml = `
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rechnung ${invoiceNumber}</title>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb;">
-        <tr>
-            <td align="center" style="padding: 24px;">
-                <!-- Main Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="640" style="max-width: 640px; width: 100%;">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background-color: #2ed573; border-radius: 12px 12px 0 0; padding: 32px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; font-family: Arial, sans-serif;">Ihre Rechnung ist bereit!</h1>
-                            <p style="color: #ffffff; font-size: 16px; margin: 0; font-family: Arial, sans-serif;">Vielen Dank für Ihre Bestellung bei ${shop.company_name}</p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="background-color: #ffffff; padding: 32px; border-radius: 0 0 12px 12px;">
-                            
-                            <!-- Section Title -->
-                            <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">📋 Bestelldetails</h2>
-                            
-                            <!-- Order Details Grid -->
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Bestellnummer</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.order_number}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Rechnungsnummer</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${invoiceNumber}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Kunde</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.customer_name}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Produkt</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.product || 'Heizöl Standard'}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Menge</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.liters.toLocaleString('de-DE')} Liter</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                            <tr>
-                                                <td style="padding: 16px;">
-                                                    <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Lieferadresse</div>
-                                                    <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${order.delivery_street}, ${order.delivery_postcode} ${order.delivery_city}</div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                        </td>
-                    </tr>
-                    
-                    <!-- Total Card -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #2ed573; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 24px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 16px; font-weight: 500; margin-bottom: 8px; font-family: Arial, sans-serif;">Gesamtbetrag</div>
-                                        <div style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; font-family: Arial, sans-serif;">€${order.total_amount.toFixed(2)}</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+      // German (default)
+      subject = `Rechnung ${invoiceNumber} - Ihre Heizöl-Bestellung`
+      htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .bank-details { background-color: #dcfce7; padding: 15px; margin: 20px 0; border-radius: 8px; }
+            .footer { background-color: #1f2937; color: white; padding: 20px; text-align: center; font-size: 12px; }
+            .important { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Heizöl Direkt</h1>
+              <p>Ihre Rechnung ist bereit</p>
+            </div>
+            
+            <div class="content">
+              <h2>Liebe/r ${order.delivery_first_name} ${order.delivery_last_name},</h2>
+              
+              <p>vielen Dank für Ihre Bestellung! Anbei finden Sie die Rechnung <strong>${invoiceNumber}</strong> für Ihren Heizöl-Kauf.</p>
+              
+              <div class="important">
+                <h3>📋 Bestelldetails:</h3>
+                <ul>
+                  <li><strong>Bestellnummer:</strong> ${order.order_number}</li>
+                  <li><strong>Rechnungsnummer:</strong> ${invoiceNumber}</li>
+                  <li><strong>Menge:</strong> ${order.liters.toLocaleString('de-DE')} Liter</li>
+                  <li><strong>Gesamtbetrag:</strong> ${order.total_amount.toFixed(2)}€</li>
+                </ul>
+              </div>
 
-                    ${bankAccount ? `
-                    <!-- Payment Information -->
-                    <tr>
-                        <td style="padding: 12px 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px;">
-                                        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; font-family: Arial, sans-serif; border-left: 4px solid #2ed573; padding-left: 12px;">💳 Zahlungsinformationen</h2>
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                            <tr>
-                                                <td style="padding: 20px;">
-                                                    <h3 style="margin-top: 0; color: #1976d2; font-family: Arial, sans-serif;">Bankverbindung für Überweisung</h3>
-                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                                        <tr>
-                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Bank</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bank_name}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Kontoinhaber</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${accountHolderName}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td width="50%" style="padding: 8px 8px 8px 0; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">IBAN</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${formatGermanIban(bankAccount.iban)}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                            <td width="50%" style="padding: 8px 0 8px 8px; vertical-align: top;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">${bankAccount.bic ? 'BIC' : 'Verwendungszweck'}</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;">${bankAccount.bic || `<strong>${order.order_number}</strong>`}</div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        ${bankAccount.bic ? `
-                                                        <tr>
-                                                            <td colspan="2" style="padding: 8px 0;">
-                                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
-                                                                    <tr>
-                                                                        <td style="padding: 16px;">
-                                                                            <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px; font-family: Arial, sans-serif;">Verwendungszweck</div>
-                                                                            <div style="font-size: 16px; color: #1f2937; font-weight: 600; font-family: Arial, sans-serif;"><strong>${order.order_number}</strong></div>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                        ` : ''}
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
-                                            <tr>
-                                                <td style="padding: 15px;">
-                                                    <div style="color: #1f2937; font-size: 16px; font-weight: 500; font-family: Arial, sans-serif;">
-                                                        <strong>Sehr wichtiger Hinweis:</strong> Bitte geben Sie bei der Überweisung unbedingt exakt die Bestellnummer <strong>${order.order_number}</strong> als Verwendungszweck an und stellen Sie sicher, dass Sie an den richtigen Empfänger <strong>${accountHolderName}</strong> überweisen, damit wir Ihre Zahlung korrekt zuordnen können.
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    ` : ''}
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 12px 0 0 0;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #1f2937; border-radius: 12px;">
-                                <tr>
-                                    <td style="padding: 32px; text-align: center;">
-                                        <div style="color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 16px; font-family: Arial, sans-serif;">${shop.company_name}</div>
-                                        ${shop.company_address ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">${shop.company_address}, ${shop.company_postcode} ${shop.company_city}</div>` : ''}
-                                        ${shop.company_phone ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Tel: ${shop.company_phone}</div>` : ''}
-                                        ${shop.company_email ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">E-Mail: <a href="mailto:${shop.company_email}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_email}</a></div>` : ''}
-                                        ${shop.company_website ? `<div style="color: #d1d5db; font-size: 14px; margin: 8px 0; font-family: Arial, sans-serif;">Web: <a href="${shop.company_website}" style="color: #2ed573; text-decoration: none; font-weight: 500;">${shop.company_website}</a></div>` : ''}
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-      `;
+              <div class="bank-details">
+                <h3>💳 Überweisungsdaten:</h3>
+                <p><strong>Empfänger:</strong> ${order.bank_accounts.account_holder}</p>
+                <p><strong>Bank:</strong> ${order.bank_accounts.bank_name}</p>
+                <p><strong>IBAN:</strong> ${formatGermanIban(order.bank_accounts.iban)}</p>
+                <p><strong>BIC:</strong> ${order.bank_accounts.bic}</p>
+                <p><strong>Verwendungszweck:</strong> ${order.order_number}</p>
+                <p><strong>Betrag:</strong> ${order.total_amount.toFixed(2)}€</p>
+              </div>
+
+              <div class="important">
+                <h3>⚠️ Wichtig:</h3>
+                <p>Das Heizöl wird erst nach Zahlungseingang geliefert. Bitte überweisen Sie den Betrag schnellstmöglich, um die Lieferung zu beschleunigen.</p>
+                <p><strong>Voraussichtliche Lieferzeit:</strong> 4-7 Werktage nach Zahlungseingang</p>
+              </div>
+
+              <p>Bei Fragen zu Ihrer Bestellung können Sie uns gerne kontaktieren:</p>
+              <ul>
+                <li>📧 E-Mail: service@heizoeldirekt.de</li>
+                <li>📞 Telefon: 0800 123 456 7</li>
+                <li>🕒 Öffnungszeiten: Mo-Fr 8:00-18:00 Uhr</li>
+              </ul>
+
+              <p>Vielen Dank, dass Sie sich für Heizöl Direkt entschieden haben!</p>
+              <p>Mit freundlichen Grüßen,<br>Ihr Heizöl Direkt Team</p>
+            </div>
+            
+            <div class="footer">
+              <p>Heizöl Direkt - Ihr zuverlässiger Partner für Heizöl</p>
+              <p>Dies ist eine automatische E-Mail, bitte antworten Sie nicht direkt darauf.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+      
+      textContent = `
+Heizöl Direkt - Ihre Rechnung ist bereit
+
+Liebe/r ${order.delivery_first_name} ${order.delivery_last_name},
+
+vielen Dank für Ihre Bestellung! Anbei finden Sie die Rechnung ${invoiceNumber} für Ihren Heizöl-Kauf.
+
+BESTELLDETAILS:
+- Bestellnummer: ${order.order_number}
+- Rechnungsnummer: ${invoiceNumber}
+- Menge: ${order.liters.toLocaleString('de-DE')} Liter
+- Gesamtbetrag: ${order.total_amount.toFixed(2)}€
+
+ÜBERWEISUNGSDATEN:
+Empfänger: ${order.bank_accounts.account_holder}
+Bank: ${order.bank_accounts.bank_name}
+IBAN: ${formatGermanIban(order.bank_accounts.iban)}
+BIC: ${order.bank_accounts.bic}
+Verwendungszweck: ${order.order_number}
+Betrag: ${order.total_amount.toFixed(2)}€
+
+WICHTIG:
+Das Heizöl wird erst nach Zahlungseingang geliefert. Bitte überweisen Sie den Betrag schnellstmöglich, um die Lieferung zu beschleunigen.
+Voraussichtliche Lieferzeit: 4-7 Werktage nach Zahlungseingang
+
+KONTAKT:
+E-Mail: service@heizoeldirekt.de
+Telefon: 0800 123 456 7
+Öffnungszeiten: Mo-Fr 8:00-18:00 Uhr
+
+Vielen Dank, dass Sie sich für Heizöl Direkt entschieden haben!
+
+Ihr Heizöl Direkt Team
+      `
     }
 
-    // Prepare email attachments
-    const attachments = []
-    if (pdfBuffer) {
-      // Extract filename from URL for attachment
-      const urlParts = invoiceFileUrl.split('/')
-      const filename = urlParts[urlParts.length - 1]
-      
-      attachments.push({
-        filename: filename,
-        content: Array.from(new Uint8Array(pdfBuffer)),
-        type: 'application/pdf',
-        disposition: 'attachment'
-      })
-    }
-
-    console.log('Sending email to:', order.customer_email);
-    console.log('From:', smtpConfig.sender_email);
-    console.log('Language:', isFrench ? 'French' : 'German');
-    console.log('Attachments:', attachments.length);
-
-    // Send email using Resend
+    // Send email with PDF attachment
     const emailResponse = await resend.emails.send({
       from: `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`,
-      to: [order.customer_email],
-      subject: emailSubject,
-      html: emailHtml,
-      attachments: attachments.length > 0 ? attachments : undefined
+      to: [order.customer_email_actual || order.customer_email],
+      subject: subject,
+      html: htmlContent,
+      text: textContent,
+      attachments: [
+        {
+          filename: `${invoiceNumber}.pdf`,
+          content: new Uint8Array(pdfBuffer),
+        },
+      ],
     })
 
     if (emailResponse.error) {
-      console.error('Resend error:', emailResponse.error);
       throw new Error(`Failed to send email: ${emailResponse.error.message}`)
     }
 
-    console.log('Email sent successfully:', emailResponse.data?.id);
-
-    // Log the email sending
+    // Log the email
     await supabaseClient
       .from('email_sending_logs')
       .insert({
         order_id: orderId,
-        recipient_email: order.customer_email,
-        subject: emailSubject,
+        smtp_config_id: smtpConfig.id,
+        recipient_email: order.customer_email_actual || order.customer_email,
+        subject: subject,
         status: 'sent',
-        sent_at: new Date().toISOString(),
-        smtp_config_id: smtpConfig.id
+        sent_at: new Date().toISOString()
       })
 
+    console.log('Invoice email sent successfully:', emailResponse)
+
     return new Response(
-      JSON.stringify({
-        success: true,
+      JSON.stringify({ 
+        success: true, 
         emailId: emailResponse.data?.id,
         message: 'Invoice email sent successfully'
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+      { 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders 
+        } 
       }
     )
+
   } catch (error) {
     console.error('Error sending invoice email:', error)
-    
-    // Log the failed email attempt
-    try {
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
-      
-      const { orderId } = await req.json().catch(() => ({}))
-      
-      if (orderId) {
-        await supabaseClient
-          .from('email_sending_logs')
-          .insert({
-            order_id: orderId,
-            recipient_email: 'unknown',
-            subject: 'Invoice Email Failed',
-            status: 'failed',
-            error_message: error.message
-          })
-      }
-    } catch (logError) {
-      console.error('Failed to log email error:', logError)
-    }
 
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message
+      JSON.stringify({ 
+        success: false, 
+        error: error.message 
       }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+      { 
+        status: 500, 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders 
+        } 
       }
     )
   }
