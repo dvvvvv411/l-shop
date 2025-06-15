@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -142,9 +141,39 @@ const Confirmation = () => {
     fetchBankAccountDetails();
   }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, isItalianShop, bankAccounts, shops]);
 
+  // Auto-scroll to IBAN section for Italian and French orders
+  useEffect(() => {
+    if ((isItalianShop || isFrenchShop) && bankAccountDetails) {
+      const timer = setTimeout(() => {
+        const ibanSection = document.getElementById('iban-section-confirmation');
+        if (ibanSection) {
+          ibanSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 1000); // Wait 1 second after component mounts
+
+      return () => clearTimeout(timer);
+    }
+  }, [isItalianShop, isFrenchShop, bankAccountDetails]);
+
   const handleNewOrder = () => {
     clearOrderData();
     navigate('/');
+  };
+
+  // Format IBAN for French checkout
+  const formatIbanForShop = (iban: string) => {
+    if (isFrenchShop && iban) {
+      // For French checkout, format as "IT43 J0760 1159 0000 1074 7057 30"
+      const cleanIban = iban.replace(/\s/g, '');
+      if (cleanIban.startsWith('IT') && cleanIban.length >= 27) {
+        return `${cleanIban.slice(0, 4)} ${cleanIban.slice(4, 5)}${cleanIban.slice(5, 9)} ${cleanIban.slice(9, 13)} ${cleanIban.slice(13, 17)} ${cleanIban.slice(17, 21)} ${cleanIban.slice(21, 25)} ${cleanIban.slice(25)}`;
+      }
+    }
+    // For Italian and other shops, use regular formatting with spaces every 4 characters
+    return iban.replace(/(.{4})/g, '$1 ').trim();
   };
 
   return (
@@ -242,6 +271,7 @@ const Confirmation = () => {
                 {/* Bank Account Details for French and Italian Shops */}
                 {(isFrenchShop || isItalianShop) && bankAccountDetails && (
                   <motion.div
+                    id="iban-section-confirmation"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15 }}
@@ -284,7 +314,7 @@ const Confirmation = () => {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">IBAN</div>
-                          <div className="text-green-900 font-mono text-lg">{bankAccountDetails.iban}</div>
+                          <div className="text-green-900 font-mono text-lg">{formatIbanForShop(bankAccountDetails.iban)}</div>
                         </div>
                         <div>
                           <div className="text-sm font-medium text-green-800 mb-1">BIC</div>
@@ -305,8 +335,8 @@ const Confirmation = () => {
                   </motion.div>
                 )}
 
-                {/* Debug info for Italian shop when no bank account found */}
-                {isItalianShop && !bankAccountDetails && (
+                {/* Debug info for Italian and French shops when no bank account found */}
+                {(isItalianShop || isFrenchShop) && !bankAccountDetails && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -314,10 +344,10 @@ const Confirmation = () => {
                     className="bg-yellow-50 border border-yellow-200 rounded-xl p-6"
                   >
                     <h3 className="text-lg font-bold text-yellow-800 mb-2">
-                      Debug: Conto bancario non trovato
+                      Debug: {isFrenchShop ? 'Compte bancaire non trouvé' : 'Conto bancario non trovato'}
                     </h3>
                     <p className="text-yellow-700 text-sm mb-2">
-                      Conti bancari disponibili: {bankAccounts.length > 0 ? bankAccounts.map(acc => acc.system_name).join(', ') : 'Nessuno'}
+                      {isFrenchShop ? 'Comptes bancaires disponibles' : 'Conti bancari disponibili'}: {bankAccounts.length > 0 ? bankAccounts.map(acc => acc.system_name).join(', ') : (isFrenchShop ? 'Aucun' : 'Nessuno')}
                     </p>
                     <p className="text-yellow-700 text-sm">
                       Shop Type: {shopConfig.shopType} | Domain: {typeof window !== 'undefined' ? window.location.hostname : 'N/A'}

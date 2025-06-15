@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -62,6 +61,19 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
 
   console.log('OrderSummary - Bank account details received:', bankAccountDetails);
 
+  // Format IBAN for French shop
+  const formatIbanForShop = (iban: string) => {
+    if (isFrenchShop && iban) {
+      // For French checkout, format as "IT43 J0760 1159 0000 1074 7057 30"
+      const cleanIban = iban.replace(/\s/g, '');
+      if (cleanIban.startsWith('IT') && cleanIban.length >= 27) {
+        return `${cleanIban.slice(0, 4)} ${cleanIban.slice(4, 5)}${cleanIban.slice(5, 9)} ${cleanIban.slice(9, 13)} ${cleanIban.slice(13, 17)} ${cleanIban.slice(17, 21)} ${cleanIban.slice(21, 25)} ${cleanIban.slice(25)}`;
+      }
+    }
+    // For Italian and other shops, use regular formatting with spaces every 4 characters
+    return iban.replace(/(.{4})/g, '$1 ').trim();
+  };
+
   return (
     <div className="space-y-6">
       {/* Bank Account Details for French Shop and Italian Shop - Show prominently at top */}
@@ -105,7 +117,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               </div>
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                <div className="text-green-900 font-mono text-sm font-bold break-all">{bankAccountDetails.iban}</div>
+                <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIbanForShop(bankAccountDetails.iban)}</div>
               </div>
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>

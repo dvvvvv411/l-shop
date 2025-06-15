@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -43,6 +44,7 @@ const CheckoutConfirmation = ({
   const italianTranslations = useItalianCheckoutTranslations();
   const shopConfig = useDomainShop();
   const isItalianShop = shopConfig.shopType === 'italy';
+  const isFrenchShop = shopConfig.shopType === 'france';
   const { bankAccounts } = useBankAccounts();
   const { shops } = useShops();
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
@@ -54,13 +56,14 @@ const CheckoutConfirmation = ({
   console.log('CheckoutConfirmation - Shop detection:', {
     shopType: shopConfig.shopType,
     isItalianShop,
+    isFrenchShop,
     domain: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
     pathname: typeof window !== 'undefined' ? window.location.pathname : 'N/A'
   });
 
-  // Fetch bank account details for Italian shop
+  // Fetch bank account details for Italian and French shops
   useEffect(() => {
-    if (isItalianShop) {
+    if (isItalianShop || isFrenchShop) {
       console.log('CheckoutConfirmation - Available bank accounts:', bankAccounts.map(acc => ({
         id: acc.id,
         system_name: acc.system_name,
@@ -68,57 +71,89 @@ const CheckoutConfirmation = ({
         is_active: acc.is_active
       })));
 
-      // Enhanced search for Italian bank account with multiple fallback strategies
-      let italianAccount = null;
-      
-      // Strategy 1: Exact match for GasolioCasa
-      italianAccount = bankAccounts.find(account => 
-        account.system_name === 'GasolioCasa' && account.is_active
-      );
-      
-      // Strategy 2: Case-insensitive search for gasoliocasa variations
-      if (!italianAccount) {
-        italianAccount = bankAccounts.find(account => 
-          account.system_name.toLowerCase().includes('gasoliocasa') && account.is_active
+      let targetAccount = null;
+
+      if (isItalianShop) {
+        // Enhanced search for Italian bank account with multiple fallback strategies
+        // Strategy 1: Exact match for GasolioCasa
+        targetAccount = bankAccounts.find(account => 
+          account.system_name === 'GasolioCasa' && account.is_active
         );
+        
+        // Strategy 2: Case-insensitive search for gasoliocasa variations
+        if (!targetAccount) {
+          targetAccount = bankAccounts.find(account => 
+            account.system_name.toLowerCase().includes('gasoliocasa') && account.is_active
+          );
+        }
+        
+        // Strategy 3: Search for gasolio-related accounts
+        if (!targetAccount) {
+          targetAccount = bankAccounts.find(account => 
+            account.system_name.toLowerCase().includes('gasolio') && account.is_active
+          );
+        }
+        
+        // Strategy 4: Search for Italy/Italian-related accounts
+        if (!targetAccount) {
+          targetAccount = bankAccounts.find(account => 
+            (account.system_name.toLowerCase().includes('italia') || 
+             account.system_name.toLowerCase().includes('italy') ||
+             account.system_name.toLowerCase().includes('it')) && account.is_active
+          );
+        }
+        
+        if (targetAccount) {
+          setDisplayAccountHolder('Gasolio Casa');
+        }
+      } else if (isFrenchShop) {
+        // Look for French bank account
+        targetAccount = bankAccounts.find(
+          account => account.system_name === 'Italien Champion' && account.is_active
+        );
+        
+        if (targetAccount) {
+          setDisplayAccountHolder('Fioul Rapide');
+        }
       }
       
-      // Strategy 3: Search for gasolio-related accounts
-      if (!italianAccount) {
-        italianAccount = bankAccounts.find(account => 
-          account.system_name.toLowerCase().includes('gasolio') && account.is_active
-        );
-      }
-      
-      // Strategy 4: Search for Italy/Italian-related accounts
-      if (!italianAccount) {
-        italianAccount = bankAccounts.find(account => 
-          (account.system_name.toLowerCase().includes('italia') || 
-           account.system_name.toLowerCase().includes('italy') ||
-           account.system_name.toLowerCase().includes('it')) && account.is_active
-        );
-      }
-      
-      console.log('CheckoutConfirmation - Italian account search result:', {
-        found: !!italianAccount,
-        account: italianAccount ? {
-          id: italianAccount.id,
-          system_name: italianAccount.system_name,
-          bank_name: italianAccount.bank_name
+      console.log('CheckoutConfirmation - Account search result:', {
+        found: !!targetAccount,
+        shopType: shopConfig.shopType,
+        account: targetAccount ? {
+          id: targetAccount.id,
+          system_name: targetAccount.system_name,
+          bank_name: targetAccount.bank_name
         } : null
       });
       
-      if (italianAccount) {
-        setBankAccountDetails(italianAccount);
-        setDisplayAccountHolder('Gasolio Casa');
-        console.log('CheckoutConfirmation - Using Italian account holder: Gasolio Casa');
+      if (targetAccount) {
+        setBankAccountDetails(targetAccount);
+        console.log(`CheckoutConfirmation - Using ${shopConfig.shopType} account holder: ${displayAccountHolder}`);
       } else {
-        console.warn('CheckoutConfirmation - No active Italian bank account found. Available accounts:', 
+        console.warn(`CheckoutConfirmation - No active ${shopConfig.shopType} bank account found. Available accounts:`, 
           bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
         );
       }
     }
-  }, [isItalianShop, bankAccounts, shops]);
+  }, [isItalianShop, isFrenchShop, bankAccounts, shops]);
+
+  // Auto-scroll to IBAN section for Italian and French orders
+  useEffect(() => {
+    if ((isItalianShop || isFrenchShop) && bankAccountDetails) {
+      const timer = setTimeout(() => {
+        const ibanSection = document.getElementById('iban-section');
+        if (ibanSection) {
+          ibanSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 1000); // Wait 1 second after component mounts
+
+      return () => clearTimeout(timer);
+    }
+  }, [isItalianShop, isFrenchShop, bankAccountDetails]);
 
   if (!contextOrderData) {
     return (
@@ -130,10 +165,22 @@ const CheckoutConfirmation = ({
     );
   }
 
-  // VAT calculations (19% VAT for Germany, 22% for Italy)
-  const vatRate = isItalianShop ? 0.22 : 0.19;
+  // VAT calculations (19% VAT for Germany, 22% for Italy, 22% for France)
+  const vatRate = (isItalianShop || isFrenchShop) ? 0.22 : 0.19;
   const netPrice = orderData.totalPrice / (1 + vatRate);
   const vatAmount = orderData.totalPrice - netPrice;
+
+  // Format IBAN for French checkout
+  const formatIbanForShop = (iban: string) => {
+    if (isFrenchShop && iban) {
+      // For French checkout, format as "IT43 J0760 1159 0000 1074 7057 30"
+      const cleanIban = iban.replace(/\s/g, '');
+      if (cleanIban.startsWith('IT') && cleanIban.length >= 27) {
+        return `${cleanIban.slice(0, 4)} ${cleanIban.slice(4, 5)}${cleanIban.slice(5, 9)} ${cleanIban.slice(9, 13)} ${cleanIban.slice(13, 17)} ${cleanIban.slice(17, 21)} ${cleanIban.slice(21, 25)} ${cleanIban.slice(25)}`;
+      }
+    }
+    return formatIban(iban);
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -161,9 +208,10 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Bank Account Details for Italian Shop - Show prominently */}
-        {isItalianShop && bankAccountDetails && (
+        {/* Bank Account Details for Italian and French Shops - Show prominently */}
+        {(isItalianShop || isFrenchShop) && bankAccountDetails && (
           <motion.div
+            id="iban-section"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
@@ -192,7 +240,7 @@ const CheckoutConfirmation = ({
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(bankAccountDetails.iban)}</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIbanForShop(bankAccountDetails.iban)}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
@@ -213,8 +261,8 @@ const CheckoutConfirmation = ({
           </motion.div>
         )}
 
-        {/* Debug info for Italian shop when no bank account found */}
-        {isItalianShop && !bankAccountDetails && (
+        {/* Debug info for Italian and French shops when no bank account found */}
+        {(isItalianShop || isFrenchShop) && !bankAccountDetails && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -222,10 +270,10 @@ const CheckoutConfirmation = ({
             className="bg-yellow-50 border border-yellow-200 rounded-xl p-6"
           >
             <h3 className="text-lg font-bold text-yellow-800 mb-2">
-              Debug: Conto bancario non trovato
+              Debug: {isFrenchShop ? 'Compte bancaire non trouvé' : 'Conto bancario non trovato'}
             </h3>
             <p className="text-yellow-700 text-sm mb-2">
-              Conti bancari disponibili: {bankAccounts.length > 0 ? bankAccounts.map(acc => acc.system_name).join(', ') : 'Nessuno'}
+              {isFrenchShop ? 'Comptes bancaires disponibles' : 'Conti bancari disponibili'}: {bankAccounts.length > 0 ? bankAccounts.map(acc => acc.system_name).join(', ') : (isFrenchShop ? 'Aucun' : 'Nessuno')}
             </p>
             <p className="text-yellow-700 text-sm">
               Shop Type: {shopConfig.shopType} | Domain: {typeof window !== 'undefined' ? window.location.hostname : 'N/A'}
@@ -260,7 +308,7 @@ const CheckoutConfirmation = ({
                 {t.confirmation.nextSteps}
               </h4>
               <div className="space-y-2 text-sm">
-                {!isItalianShop && (
+                {!isItalianShop && !isFrenchShop && (
                   <div className="flex items-start space-x-3">
                     <Phone className="text-blue-600 mt-1" size={16} />
                     <div>
@@ -277,11 +325,13 @@ const CheckoutConfirmation = ({
                   <CreditCard className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isItalianShop ? '1. Bonifico bancario' : '2. Überweisung'}
+                      {isItalianShop ? '1. Bonifico bancario' : isFrenchShop ? '1. Virement bancaire' : '2. Überweisung'}
                     </div>
                     <div className="text-blue-700">
                       {isItalianShop 
                         ? `Si prega di trasferire l'importo di ${contextOrderData.total.toFixed(2)}€ con il riferimento ${orderNumber}.`
+                        : isFrenchShop
+                        ? `Veuillez virer le montant de ${contextOrderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
                         : t.confirmation.bankTransferDesc.replace('{amount}', contextOrderData.total.toFixed(2))
                       }
                     </div>
@@ -291,7 +341,7 @@ const CheckoutConfirmation = ({
                   <Truck className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isItalianShop ? '2. Consegna' : '3. Lieferung'}
+                      {isItalianShop ? '2. Consegna' : isFrenchShop ? '2. Livraison' : '3. Lieferung'}
                     </div>
                     <div className="text-blue-700">
                       {t.confirmation.deliveryDesc}
@@ -333,7 +383,7 @@ const CheckoutConfirmation = ({
                 </span>
               </div>
               <div className="text-orange-800 font-bold">
-                {isItalianShop ? '3-5 giorni lavorativi' : t.summary.workdays}
+                {isItalianShop ? '3-5 giorni lavorativi' : isFrenchShop ? '2-4 jours ouvrables' : t.summary.workdays}
               </div>
               <div className="text-orange-700 text-sm">
                 {t.summary.afterPayment}
@@ -362,8 +412,8 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Contact Support - Only show for non-Italian orders */}
-        {!isItalianShop && (
+        {/* Contact Support - Only show for non-Italian and non-French orders */}
+        {!isItalianShop && !isFrenchShop && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -440,7 +490,7 @@ const CheckoutConfirmation = ({
               <span className="text-gray-600">
                 {t.summary.quantity}
               </span>
-              <span className="font-semibold">{orderData.amount.toLocaleString(isItalianShop ? 'it-IT' : 'de-DE')} Litri</span>
+              <span className="font-semibold">{orderData.amount.toLocaleString(isItalianShop ? 'it-IT' : isFrenchShop ? 'fr-FR' : 'de-DE')} Litri</span>
             </div>
             
             <div className="flex justify-between">
@@ -477,7 +527,7 @@ const CheckoutConfirmation = ({
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
-                {isItalianShop ? 'IVA (22%)' : t.summary.vat}
+                {isItalianShop ? 'IVA (22%)' : isFrenchShop ? 'TVA (22%)' : t.summary.vat}
               </span>
               <span className="font-semibold">{vatAmount.toFixed(2)}€</span>
             </div>
