@@ -38,9 +38,9 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Query SMTP configuration for gasoliocasa.com domain
-    console.log('Fetching SMTP configuration for gasoliocasa.com...');
-    const { data: smtpConfig, error: smtpError } = await supabase
+    // Query SMTP configurations with their domains
+    console.log('Fetching SMTP configurations with domains...');
+    const { data: smtpConfigs, error: smtpError } = await supabase
       .from('smtp_configurations')
       .select(`
         *,
@@ -49,25 +49,33 @@ const handler = async (req: Request): Promise<Response> => {
           is_primary
         )
       `)
-      .eq('is_active', true)
-      .single();
+      .eq('is_active', true);
 
-    if (smtpError || !smtpConfig) {
-      console.error('Error fetching SMTP configuration:', smtpError);
-      throw new Error('No active SMTP configuration found for Italian shop');
+    if (smtpError || !smtpConfigs || smtpConfigs.length === 0) {
+      console.error('Error fetching SMTP configurations:', smtpError);
+      throw new Error('No active SMTP configurations found');
     }
 
-    // Check if this SMTP config has gasoliocasa.com domain
-    const hasGasolioDomain = smtpConfig.smtp_domains?.some((domain: any) => 
-      domain.domain === 'gasoliocasa.com'
+    console.log('Found SMTP configurations:', smtpConfigs.map(config => ({
+      id: config.id,
+      sender_email: config.sender_email,
+      domains: config.smtp_domains?.map((d: any) => d.domain)
+    })));
+
+    // Find the SMTP configuration that has gasoliocasa.com domain
+    const smtpConfig = smtpConfigs.find(config => 
+      config.smtp_domains?.some((domain: any) => domain.domain === 'gasoliocasa.com')
     );
 
-    if (!hasGasolioDomain) {
-      console.error('SMTP configuration does not have gasoliocasa.com domain');
-      throw new Error('SMTP configuration not configured for gasoliocasa.com domain');
+    if (!smtpConfig) {
+      console.error('No SMTP configuration found with gasoliocasa.com domain');
+      console.log('Available domains:', smtpConfigs.map(config => 
+        config.smtp_domains?.map((d: any) => d.domain)
+      ).flat());
+      throw new Error('No SMTP configuration found for gasoliocasa.com domain');
     }
 
-    console.log('Found SMTP configuration:', {
+    console.log('Found SMTP configuration for gasoliocasa.com:', {
       id: smtpConfig.id,
       sender_email: smtpConfig.sender_email,
       sender_name: smtpConfig.sender_name,
