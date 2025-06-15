@@ -145,7 +145,7 @@ const italianShopMetaConfig: DomainShopMetaConfig = {
   name: "Gasolio Veloce",
   brand: "Gasolio IT",
   phone: "+39 02 1234 5678",
-  email: "info@gasoliocasa.it",
+  email: "info@gasoliocasa.com",
   baseUrl: "https://gasoliocasa.com",
   pages: {
     home: {

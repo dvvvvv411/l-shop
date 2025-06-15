@@ -12,7 +12,7 @@ const Footer = () => {
   // Determine if we should use root URLs (production Italian shop) or prefixed URLs (preview)
   const isProductionItalianShop = shopConfig.shopType === 'italy' && 
     typeof window !== 'undefined' && 
-    (window.location.hostname === 'gasolio-veloce.it' || window.location.hostname === 'gasoliocasa.it');
+    (window.location.hostname === 'gasolio-veloce.com' || window.location.hostname === 'gasoliocasa.com');
   
   const getUrl = (path: string) => {
     return isProductionItalianShop ? path : path;
@@ -79,7 +79,7 @@ const Footer = () => {
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-green-400" />
                 <div>
-                  <p className="font-semibold">info@gasoliocasa.it</p>
+                  <p className="font-semibold">info@gasoliocasa.com</p>
                   <p className="text-gray-400 text-sm">Risposta entro 24h</p>
                 </div>
               </div>

@@ -14,7 +14,7 @@ const Header = () => {
   // Determine if we should use root URLs (production Italian shop) or prefixed URLs (preview)
   const isProductionItalianShop = shopConfig.shopType === 'italy' && 
     typeof window !== 'undefined' && 
-    window.location.hostname === 'gasoliocasa.it';
+    window.location.hostname === 'gasoliocasa.com';
   
   const getUrl = (path: string) => {
     return isProductionItalianShop ? path : path;
@@ -71,7 +71,7 @@ const Header = () => {
             <div className="hidden lg:flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Mail size={16} />
-                <span className="text-sm font-medium">info@gasoliocasa.it</span>
+                <span className="text-sm font-medium">info@gasoliocasa.com</span>
               </div>
             </div>
 
@@ -112,7 +112,7 @@ const Header = () => {
                 <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Mail size={16} />
-                    <span className="text-sm font-medium">info@gasoliocasa.it</span>
+                    <span className="text-sm font-medium">info@gasoliocasa.com</span>
                   </div>
                 </div>
               </div>

@@ -22,7 +22,7 @@ const Impressum = () => {
               <div className="space-y-2 text-gray-700">
                 <p><strong>Ragione sociale:</strong> OIL & OIL SRL</p>
                 <p><strong>Indirizzo:</strong> Via delle Terme, 13, Falerone (FM), 63837, Marche, Italia</p>
-                <p><strong>Email:</strong> info@gasoliocasa.it</p>
+                <p><strong>Email:</strong> info@gasoliocasa.com</p>
                 <p><strong>Partita IVA:</strong> IT24871660965</p>
                 <p><strong>Codice fiscale:</strong> 01437910431</p>
                 <p><strong>Capitale sociale:</strong> €50.000,00 i.v.</p>
@@ -57,7 +57,7 @@ const Impressum = () => {
               <h2 className="text-2xl font-bold text-green-600 mb-4">Contatti per reclami</h2>
               <p className="text-gray-700 leading-relaxed">
                 Per reclami o segnalazioni, contattate il nostro servizio clienti:
-                <br />Email: info@gasoliocasa.it
+                <br />Email: info@gasoliocasa.com
               </p>
             </section>
           </div>

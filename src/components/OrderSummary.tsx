@@ -262,7 +262,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <strong>{isItalianShop ? 'Telefono:' : (isFrenchShop ? 'Téléphone:' : 'Telefon:')}</strong> 0800 123 456 7
           </div>
           <div className="text-blue-800">
-            <strong>E-Mail:</strong> {isItalianShop ? 'servizio@gasoliocasa.it' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
+            <strong>E-Mail:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
           </div>
           <div className="text-blue-700">
             {isItalianShop ? 'Lun-Ven: 8:00-18:00' : (isFrenchShop ? 'Lun-Ven: 8h00-18h00' : 'Mo-Fr: 8:00-18:00 Uhr')}
