@@ -2,7 +2,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { Resend } from "npm:resend@2.0.0";
-import jsPDF from "npm:jspdf@2.5.1";
+// Fix jsPDF import for Deno environment
+import { jsPDF } from "npm:jspdf@2.5.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,7 +90,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const resend = new Resend(smtpConfig.resend_api_key);
 
-    // Generate Italian invoice PDF
+    // Generate Italian invoice PDF with fixed constructor
+    console.log('Creating PDF document...');
     const doc = new jsPDF();
     
     // Invoice header
@@ -133,9 +135,13 @@ const handler = async (req: Request): Promise<Response> => {
       doc.text(`Riferimento: ${orderNumber}`, 20, 270);
     }
     
+    console.log('PDF created successfully, converting to base64...');
+    
     // Generate PDF as buffer
     const pdfBuffer = doc.output('arraybuffer');
     const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
+
+    console.log('PDF converted to base64, saving order...');
 
     // Save order to database
     const { data: order, error: orderError } = await supabase
