@@ -592,27 +592,30 @@ const OrderForm = () => {
                             </div>
                           </div>
 
-                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
-                            <div className="flex items-center space-x-3">
-                              <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                              <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <div className="font-semibold text-gray-600 flex items-center space-x-2">
-                                      <FileText size={16} />
-                                      <span>Rechnung</span>
+                          {/* Hide Fattura/Rechnung option for Italian shops */}
+                          {shopConfig.shopType !== 'italy' && (
+                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
+                              <div className="flex items-center space-x-3">
+                                <RadioGroupItem value="rechnung" id="rechnung" disabled />
+                                <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
+                                  <div className="flex justify-between items-center">
+                                    <div>
+                                      <div className="font-semibold text-gray-600 flex items-center space-x-2">
+                                        <FileText size={16} />
+                                        <span>Rechnung</span>
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        Zahlung nach Lieferung (derzeit nicht verfügbar)
+                                      </div>
                                     </div>
                                     <div className="text-sm text-gray-500">
-                                      Zahlung nach Lieferung (derzeit nicht verfügbar)
+                                      Nur für Bestandskunden verfügbar
                                     </div>
                                   </div>
-                                  <div className="text-sm text-gray-500">
-                                    Nur für Bestandskunden verfügbar
-                                  </div>
-                                </div>
-                              </Label>
+                                </Label>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </RadioGroup>
                     </FormControl>
