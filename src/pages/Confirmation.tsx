@@ -34,6 +34,14 @@ const Confirmation = () => {
   const isFrenchShop = shopConfig.shopType === 'france';
   const isItalianShop = shopConfig.shopType === 'italy';
 
+  console.log('Confirmation - Shop detection:', {
+    shopType: shopConfig.shopType,
+    isFrenchShop,
+    isItalianShop,
+    domain: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+    pathname: typeof window !== 'undefined' ? window.location.pathname : 'N/A'
+  });
+
   if (!orderData) {
     navigate('/');
     return null;
@@ -55,36 +63,79 @@ const Confirmation = () => {
       }
     };
 
-    // Fetch bank account details for French and Italian shops
+    // Enhanced bank account detection for French and Italian shops
     const fetchBankAccountDetails = () => {
+      console.log('Confirmation - Available bank accounts:', bankAccounts.map(acc => ({
+        id: acc.id,
+        system_name: acc.system_name,
+        bank_name: acc.bank_name,
+        is_active: acc.is_active
+      })));
+
       if (isFrenchShop) {
-        const italienChampionAccount = bankAccounts.find(
-          account => account.system_name === 'Italien Champion'
+        // Look for French bank account
+        const frenchAccount = bankAccounts.find(
+          account => account.system_name === 'Italien Champion' && account.is_active
         );
         
-        console.log('Confirmation - Found Italien Champion account:', italienChampionAccount);
+        console.log('Confirmation - Found French account:', frenchAccount);
         
-        if (italienChampionAccount) {
-          setBankAccountDetails(italienChampionAccount);
+        if (frenchAccount) {
+          setBankAccountDetails(frenchAccount);
           setDisplayAccountHolder('Fioul Rapide');
-          console.log('Confirmation - Using hardcoded French account holder: Fioul Rapide');
+          console.log('Confirmation - Using French account holder: Fioul Rapide');
+        } else {
+          console.warn('Confirmation - No active French bank account found');
         }
       } else if (isItalianShop) {
-        // For Italian shop, look for GasolioCasa account
-        const gasolioCasaAccount = bankAccounts.find(
-          account => account.system_name.toLowerCase().includes('gasoliocasa') ||
-                    account.system_name.toLowerCase().includes('gasolio') ||
-                    account.system_name.toLowerCase().includes('italia') ||
-                    account.system_name.toLowerCase().includes('italy')
+        // Enhanced search for Italian bank account with multiple fallback strategies
+        let italianAccount = null;
+        
+        // Strategy 1: Exact match for GasolioCasa
+        italianAccount = bankAccounts.find(account => 
+          account.system_name === 'GasolioCasa' && account.is_active
         );
         
-        console.log('Confirmation - Available bank accounts:', bankAccounts.map(acc => acc.system_name));
-        console.log('Confirmation - Found Italian account:', gasolioCasaAccount);
+        // Strategy 2: Case-insensitive search for gasoliocasa variations
+        if (!italianAccount) {
+          italianAccount = bankAccounts.find(account => 
+            account.system_name.toLowerCase().includes('gasoliocasa') && account.is_active
+          );
+        }
         
-        if (gasolioCasaAccount) {
-          setBankAccountDetails(gasolioCasaAccount);
+        // Strategy 3: Search for gasolio-related accounts
+        if (!italianAccount) {
+          italianAccount = bankAccounts.find(account => 
+            account.system_name.toLowerCase().includes('gasolio') && account.is_active
+          );
+        }
+        
+        // Strategy 4: Search for Italy/Italian-related accounts
+        if (!italianAccount) {
+          italianAccount = bankAccounts.find(account => 
+            (account.system_name.toLowerCase().includes('italia') || 
+             account.system_name.toLowerCase().includes('italy') ||
+             account.system_name.toLowerCase().includes('it')) && account.is_active
+          );
+        }
+        
+        console.log('Confirmation - Italian account search result:', {
+          found: !!italianAccount,
+          account: italianAccount ? {
+            id: italianAccount.id,
+            system_name: italianAccount.system_name,
+            bank_name: italianAccount.bank_name
+          } : null
+        });
+        
+        if (italianAccount) {
+          setBankAccountDetails(italianAccount);
           setDisplayAccountHolder('Gasolio Veloce');
           console.log('Confirmation - Using Italian account holder: Gasolio Veloce');
+        } else {
+          console.warn('Confirmation - No active Italian bank account found. Available accounts:', 
+            bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
+          );
         }
       }
     };
@@ -269,6 +320,26 @@ const Confirmation = () => {
                         </div>
                       </div>
                     </div>
+                  </motion.div>
+                )}
+
+                {/* Debug info for Italian shop when no bank account found */}
+                {isItalianShop && !bankAccountDetails && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    className="bg-yellow-50 border border-yellow-200 rounded-xl p-6"
+                  >
+                    <h3 className="text-lg font-bold text-yellow-800 mb-2">
+                      Debug: Conto bancario non trovato
+                    </h3>
+                    <p className="text-yellow-700 text-sm mb-2">
+                      Conti bancari disponibili: {bankAccounts.length > 0 ? bankAccounts.map(acc => acc.system_name).join(', ') : 'Nessuno'}
+                    </p>
+                    <p className="text-yellow-700 text-sm">
+                      Shop Type: {shopConfig.shopType} | Domain: {typeof window !== 'undefined' ? window.location.hostname : 'N/A'}
+                    </p>
                   </motion.div>
                 )}
 

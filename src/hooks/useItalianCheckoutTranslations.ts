@@ -82,7 +82,7 @@ export interface ItalianCheckoutTranslations {
     fairPrices: string;
     confirmedOrder: string;
   };
-  // Confirmation section
+  // Confirmation section - ENHANCED
   confirmation: {
     title: string;
     subtitle: string;
@@ -105,6 +105,18 @@ export interface ItalianCheckoutTranslations {
     importantNoteDesc: string;
     basePrice: string;
     deliveryLabel: string;
+    // Added missing keys
+    bankAccountTitle: string;
+    bankAccountSubtitle: string;
+    accountHolder: string;
+    bankName: string;
+    transferAmount: string;
+    reference: string;
+    yourSupplier: string;
+    questionsAboutOrder: string;
+    phone: string;
+    email: string;
+    newOrder: string;
   };
   // Navigation
   navigation: {
@@ -242,18 +254,30 @@ const italianTranslations: ItalianCheckoutTranslations = {
     nextSteps: 'Prossimi passi',
     phoneContact: '1. Contatto telefonico',
     phoneContactDesc: 'Ti chiameremo nelle prossime 24 ore per confermare il tuo ordine.',
-    bankTransfer: '2. Bonifico bancario',
-    bankTransferDesc: 'Dopo la nostra chiamata, trasferisci l\'importo di {amount}€ sul nostro conto.',
-    delivery: '3. Consegna',
+    bankTransfer: '1. Bonifico bancario',
+    bankTransferDesc: 'Si prega di trasferire l\'importo con il riferimento fornito.',
+    delivery: '2. Consegna',
     deliveryDesc: 'Dopo il ricevimento del pagamento, la consegna avviene in 3-5 giorni lavorativi.',
     deliveryInformation: 'Informazioni sulla consegna',
     deliveryDetails: 'Dettagli importanti sulla tua consegna',
     deliveryTerm: 'Data di consegna',
     deliveryAddress: 'Indirizzo di consegna',
-    importantNote: '📞 Nota importante sulla consegna',
-    importantNoteDesc: 'Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile al {phone}.',
+    importantNote: 'Nota importante sulla consegna',
+    importantNoteDesc: 'Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile.',
     basePrice: 'Prezzo base',
-    deliveryLabel: 'Consegna'
+    deliveryLabel: 'Consegna',
+    // Added missing translations
+    bankAccountTitle: 'Dati bancari',
+    bankAccountSubtitle: 'Effettua il bonifico con queste informazioni',
+    accountHolder: 'Intestatario del conto',
+    bankName: 'Banca',
+    transferAmount: 'Importo da trasferire',
+    reference: 'Riferimento',
+    yourSupplier: 'Il tuo fornitore',
+    questionsAboutOrder: 'Domande sul tuo ordine?',
+    phone: 'Telefono',
+    email: 'E-mail',
+    newOrder: 'Nuovo ordine'
   },
   navigation: {
     back: 'Indietro',
