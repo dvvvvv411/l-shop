@@ -13,7 +13,6 @@ import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useShops } from '@/hooks/useShops';
-import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { Button } from '@/components/ui/button';
 
 const Confirmation = () => {
@@ -29,7 +28,6 @@ const Confirmation = () => {
   const { shops } = useShops();
   const shopConfig = useDomainShop();
   const orderNumber = location.state?.orderNumber || 'HÖ12345678';
-  const italianTranslations = useItalianCheckoutTranslations();
 
   const isFrenchShop = shopConfig.shopType === 'france';
   const isItalianShop = shopConfig.shopType === 'italy';
@@ -149,22 +147,6 @@ const Confirmation = () => {
     navigate('/');
   };
 
-  // Fixed getTranslation function to ensure it always returns a string
-  const getTranslation = (key: string, fallback: string): string => {
-    if (isItalianShop) {
-      // Navigate through the Italian translations object
-      const keys = key.split('.');
-      let value: any = italianTranslations;
-      for (const k of keys) {
-        value = value?.[k];
-        if (!value) break;
-      }
-      // Ensure we return a string, not the entire object
-      return typeof value === 'string' ? value : fallback;
-    }
-    return fallback;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -194,7 +176,7 @@ const Confirmation = () => {
                   
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">
                     {isItalianShop 
-                      ? getTranslation('confirmation.title', 'Ordine confermato!')
+                      ? 'Ordine confermato!'
                       : isFrenchShop 
                         ? 'Commande confirmée !' 
                         : 'Vielen Dank für Ihre Bestellung!'
@@ -203,7 +185,7 @@ const Confirmation = () => {
                   
                   <p className="text-gray-600 text-lg mb-6">
                     {isItalianShop 
-                      ? getTranslation('confirmation.subtitle', 'Grazie per il tuo ordine di gasolio')
+                      ? 'Grazie per il tuo ordine di gasolio'
                       : isFrenchShop 
                         ? 'Votre commande de fioul a été enregistrée avec succès et est en cours de traitement.'
                         : 'Ihre Heizölbestellung wurde erfolgreich aufgenommen und wird bearbeitet.'
@@ -213,7 +195,7 @@ const Confirmation = () => {
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 inline-block">
                     <div className="text-sm text-red-600 font-medium">
                       {isItalianShop 
-                        ? getTranslation('confirmation.orderNumber', 'Il tuo numero d\'ordine')
+                        ? 'Il tuo numero d\'ordine'
                         : isFrenchShop 
                           ? 'Votre numéro de commande' 
                           : 'Ihre Bestellnummer'
@@ -272,7 +254,7 @@ const Confirmation = () => {
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
                           {isItalianShop 
-                            ? 'Dati bancari'
+                            ? 'Dati bancari per il pagamento'
                             : 'Coordonnées bancaires'
                           }
                         </h3>
@@ -375,7 +357,7 @@ const Confirmation = () => {
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">
                         {isItalianShop 
-                          ? getTranslation('confirmation.paymentInstructions', 'Istruzioni di pagamento')
+                          ? 'Istruzioni di pagamento'
                           : isFrenchShop 
                             ? 'Instructions de paiement' 
                             : 'Zahlungshinweise'
@@ -383,7 +365,7 @@ const Confirmation = () => {
                       </h3>
                       <p className="text-gray-600">
                         {isItalianShop 
-                          ? getTranslation('confirmation.howToPay', 'Come pagare il tuo ordine')
+                          ? 'Come pagare il tuo ordine'
                           : isFrenchShop 
                             ? 'Comment payer votre commande' 
                             : 'So zahlen Sie Ihre Bestellung'
@@ -396,7 +378,7 @@ const Confirmation = () => {
                     <div className="bg-blue-50 rounded-lg p-4">
                       <h4 className="font-semibold text-blue-900 mb-3">
                         {isItalianShop 
-                          ? getTranslation('confirmation.nextSteps', 'Prossimi passi')
+                          ? 'Prossimi passi'
                           : isFrenchShop 
                             ? 'Prochaines étapes' 
                             : 'Nächste Schritte'
@@ -477,7 +459,7 @@ const Confirmation = () => {
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">
                         {isItalianShop 
-                          ? getTranslation('confirmation.deliveryInformation', 'Informazioni sulla consegna')
+                          ? 'Informazioni sulla consegna'
                           : isFrenchShop 
                             ? 'Informations de livraison' 
                             : 'Lieferinformationen'
@@ -485,7 +467,7 @@ const Confirmation = () => {
                       </h3>
                       <p className="text-gray-600">
                         {isItalianShop 
-                          ? getTranslation('confirmation.deliveryDetails', 'Dettagli importanti sulla tua consegna')
+                          ? 'Dettagli importanti sulla tua consegna'
                           : isFrenchShop 
                             ? 'Détails importants sur votre livraison' 
                             : 'Wichtige Details zu Ihrer Lieferung'
@@ -500,7 +482,7 @@ const Confirmation = () => {
                         <Calendar className="text-orange-600 mr-2" size={18} />
                         <span className="font-semibold text-orange-900">
                           {isItalianShop 
-                            ? getTranslation('confirmation.deliveryTerm', 'Data di consegna')
+                            ? 'Data di consegna'
                             : isFrenchShop 
                               ? 'Date de livraison' 
                               : 'Liefertermin'
@@ -509,7 +491,7 @@ const Confirmation = () => {
                       </div>
                       <div className="text-orange-800 font-bold">
                         {isItalianShop 
-                          ? getTranslation('summary.workdays', '3-5 giorni lavorativi')
+                          ? '3-5 giorni lavorativi'
                           : isFrenchShop 
                             ? '2-4 jours ouvrables' 
                             : orderData.deliveryDate
@@ -517,7 +499,7 @@ const Confirmation = () => {
                       </div>
                       <div className="text-orange-700 text-sm">
                         {isItalianShop 
-                          ? getTranslation('summary.afterPayment', 'dopo il ricevimento del pagamento')
+                          ? 'dopo il ricevimento del pagamento'
                           : isFrenchShop 
                             ? 'Après réception du paiement' 
                             : 'Nach Zahlungseingang'
@@ -528,7 +510,7 @@ const Confirmation = () => {
                     <div className="bg-gray-50 rounded-lg p-4">
                       <div className="font-semibold text-gray-900 mb-2">
                         {isItalianShop 
-                          ? getTranslation('confirmation.deliveryAddress', 'Indirizzo di consegna')
+                          ? 'Indirizzo di consegna'
                           : isFrenchShop 
                             ? 'Adresse de livraison' 
                             : 'Lieferadresse'
@@ -545,7 +527,7 @@ const Confirmation = () => {
                   <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <h4 className="font-semibold text-yellow-800 mb-2">
                       📞 {isItalianShop 
-                        ? getTranslation('confirmation.importantNote', 'Nota importante sulla consegna')
+                        ? 'Nota importante sulla consegna'
                         : isFrenchShop 
                           ? 'Remarque importante sur la livraison' 
                           : 'Wichtiger Hinweis zur Lieferung'
@@ -553,7 +535,7 @@ const Confirmation = () => {
                     </h4>
                     <p className="text-yellow-700 text-sm">
                       {isItalianShop 
-                        ? getTranslation('confirmation.importantNoteDesc', `Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile al ${orderData.deliveryPhone}.`)
+                        ? `Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile al ${orderData.deliveryPhone}.`
                         : isFrenchShop 
                           ? `Notre chauffeur vous contactera par téléphone le jour de la livraison. Assurez-vous d'être joignable au ${orderData.deliveryPhone}.`
                           : `Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. Bitte stellen Sie sicher, dass Sie unter ${orderData.deliveryPhone} erreichbar sind.`
