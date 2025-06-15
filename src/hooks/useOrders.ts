@@ -120,6 +120,9 @@ export const useOrders = () => {
           finalOrderData.shop_id = fioulRapideShopId;
           console.log('Automatically assigned Fioul Rapide shop ID');
         }
+
+        // Set the language for French orders
+        finalOrderData.customer_language = 'fr';
       }
       
       // Add order data with request_id and temporary order_number

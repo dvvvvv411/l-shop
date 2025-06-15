@@ -560,6 +560,7 @@ export type Database = {
           customer_address: string
           customer_email: string
           customer_email_actual: string | null
+          customer_language: string | null
           customer_name: string
           customer_phone: string | null
           delivery_city: string | null
@@ -606,6 +607,7 @@ export type Database = {
           customer_address: string
           customer_email: string
           customer_email_actual?: string | null
+          customer_language?: string | null
           customer_name: string
           customer_phone?: string | null
           delivery_city?: string | null
@@ -652,6 +654,7 @@ export type Database = {
           customer_address?: string
           customer_email?: string
           customer_email_actual?: string | null
+          customer_language?: string | null
           customer_name?: string
           customer_phone?: string | null
           delivery_city?: string | null
