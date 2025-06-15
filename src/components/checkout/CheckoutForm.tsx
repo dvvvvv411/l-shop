@@ -15,6 +15,7 @@ import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useItalianCheckout } from '@/hooks/useItalianCheckout';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -76,16 +77,22 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const shopConfig = useDomainShop();
+  const italianCheckout = useItalianCheckout();
   
-  // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
+  // Choose the right translations based on shop type
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
-  const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
+  const t = italianCheckout.isItalianCheckout ? italianTranslations : germanFrenchTranslations;
 
   // Check if current checkout is French
   const isFrenchCheckout = () => {
     const orderReferrer = localStorage.getItem('orderReferrer');
     return orderReferrer === '/4/home' || shopConfig.shopType === 'france';
+  };
+
+  // Check if current checkout should disable invoice payment
+  const shouldDisableInvoicePayment = () => {
+    return isFrenchCheckout() || italianCheckout.isItalianCheckout;
   };
 
   // Create the schema inside the component where `t` is available
@@ -182,19 +189,20 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const onSubmit = async (data: OrderFormData) => {
     console.log('Checkout form submitted:', data);
     console.log('Using order data:', orderData);
+    console.log('Italian checkout config:', italianCheckout);
     
     setIsSubmitting(true);
     
     try {
       const finalPrice = orderData.totalPrice;
       const originDomain = window.location.hostname;
-      const isFrenchShop = isFrenchCheckout();
 
-      // Create order data for database
+      // Create order data for database with Italian checkout enhancements
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: data.customerEmail, // Use actual customer email instead of hardcoded value
-        customer_email_actual: data.customerEmail, // Keep for legacy compatibility
+        customer_email: data.customerEmail,
+        customer_email_actual: data.customerEmail,
+        customer_language: italianCheckout.customerLanguage,
         customer_phone: data.deliveryPhone,
         customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
         delivery_first_name: data.deliveryFirstName,
@@ -220,7 +228,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
         total_amount: finalPrice,
         delivery_date_display: '4-7 Werktage',
         status: 'pending',
-        origin_domain: originDomain
+        origin_domain: originDomain,
+        bank_account_id: italianCheckout.bankAccountId
       };
 
       console.log('Sending order data to database:', dbOrderData);
@@ -239,11 +248,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Only send order confirmation email for non-French shops
-      // French shop orders get invoice directly (handled in useOrders hook)
-      if (!isFrenchShop) {
+      // Handle email sending based on checkout type
+      if (italianCheckout.shouldSendOrderConfirmation) {
         await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
-      } else {
+      } else if (italianCheckout.shouldSendInvoice) {
+        console.log('Skipping order confirmation email for Italian shop - invoice will be sent instead');
+      } else if (isFrenchCheckout()) {
         console.log('Skipping order confirmation email for French shop - invoice will be sent instead');
       }
 
@@ -587,28 +597,28 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                           </div>
                         </div>
 
-                        <div className={`border border-gray-200 rounded-lg p-4 ${isFrenchCheckout() ? 'bg-gray-100 opacity-60' : ''}`}>
+                        <div className={`border border-gray-200 rounded-lg p-4 ${shouldDisableInvoicePayment() ? 'bg-gray-100 opacity-60' : ''}`}>
                           <div className="flex items-center space-x-3">
                             <RadioGroupItem 
                               value="rechnung" 
                               id="rechnung" 
-                              disabled={isFrenchCheckout()}
-                              className={isFrenchCheckout() ? 'opacity-50 cursor-not-allowed' : ''}
+                              disabled={shouldDisableInvoicePayment()}
+                              className={shouldDisableInvoicePayment() ? 'opacity-50 cursor-not-allowed' : ''}
                             />
                             <Label 
                               htmlFor="rechnung" 
-                              className={`flex-1 ${isFrenchCheckout() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
+                              className={`flex-1 ${shouldDisableInvoicePayment() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
                             >
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className={`font-semibold ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-900'}`}>
+                                  <div className={`font-semibold ${shouldDisableInvoicePayment() ? 'text-gray-400' : 'text-gray-900'}`}>
                                     {t.paymentSection.rechnung.title}
                                   </div>
-                                  <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  <div className={`text-sm ${shouldDisableInvoicePayment() ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {t.paymentSection.rechnung.description}
                                   </div>
                                 </div>
-                                <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-500'}`}>
+                                <div className={`text-sm ${shouldDisableInvoicePayment() ? 'text-gray-400' : 'text-gray-500'}`}>
                                   {t.paymentSection.rechnung.existingCustomers}
                                 </div>
                               </div>

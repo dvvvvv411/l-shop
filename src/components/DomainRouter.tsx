@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -180,9 +181,9 @@ const DomainRouter = () => {
     return (
       <Routes>
         <Route path="/" element={<V5Home />} />
-        <Route path="/bestellen" element={<Order />} />
-        <Route path="/zusammenfassung" element={<Summary />} />
-        <Route path="/bestaetigung" element={<Confirmation />} />
+        <Route path="/ordina" element={<Order />} />
+        <Route path="/riepilogo" element={<Summary />} />
+        <Route path="/conferma" element={<Confirmation />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/note-legali" element={<V5Impressum />} />
         <Route path="/termini" element={<V5AGB />} />
