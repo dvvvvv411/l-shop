@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Truck, Shield, Calculator, Building2 } from 'lucide-react';
@@ -252,32 +253,6 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <span className="text-gray-700">
               {t.summary.fairPrices}
             </span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Help Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-blue-50 rounded-xl p-6"
-      >
-        <h4 className="font-bold text-blue-900 mb-3">
-          {isItalianShop ? italianTranslations.confirmation.questionsAboutOrder : (isFrenchShop ? 'Questions sur votre commande?' : 'Fragen zu Ihrer Bestellung?')}
-        </h4>
-        <p className="text-blue-800 text-sm mb-4">
-          {isItalianShop ? italianTranslations.confirmation.yourSupplier : (isFrenchShop ? 'Votre fournisseur de fioul' : 'Ihr Heizöllieferant')}
-        </p>
-        <div className="space-y-2 text-sm">
-          <div className="text-blue-800">
-            <strong>{isItalianShop ? italianTranslations.confirmation.phone : (isFrenchShop ? 'Téléphone' : 'Telefon')}:</strong> 0800 123 456 7
-          </div>
-          <div className="text-blue-800">
-            <strong>{isItalianShop ? italianTranslations.confirmation.email : (isFrenchShop ? 'E-mail' : 'E-Mail')}:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
-          </div>
-          <div className="text-blue-700">
-            {isItalianShop ? 'Lun-Ven: 8:00-18:00' : (isFrenchShop ? 'Lun-Ven: 8h00-18h00' : 'Mo-Fr: 8:00-18:00 Uhr')}
           </div>
         </div>
       </motion.div>

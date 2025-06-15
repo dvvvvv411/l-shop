@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -411,49 +410,6 @@ const CheckoutConfirmation = ({
             </p>
           </div>
         </motion.div>
-
-        {/* Contact Support - Only show for non-Italian and non-French orders */}
-        {!isItalianShop && !isFrenchShop && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-xl p-6 shadow-lg"
-          >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              {t.confirmation.questionsAboutOrder}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Phone className="text-red-600" size={20} />
-                <div>
-                  <div className="font-semibold text-gray-900">
-                    {t.confirmation.phone}
-                  </div>
-                  <div className="text-gray-600 text-sm">+39 02 1234 5678</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Mail className="text-red-600" size={20} />
-                <div>
-                  <div className="font-semibold text-gray-900">{t.confirmation.email}</div>
-                  <div className="text-gray-600 text-sm">info@gasoliocasa.com</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 text-center">
-              <Button
-                onClick={onNewOrder}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold"
-              >
-                {t.confirmation.newOrder}
-              </Button>
-            </div>
-          </motion.div>
-        )}
       </div>
 
       {/* Order Summary Sidebar */}
