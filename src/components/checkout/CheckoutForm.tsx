@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, FileText, Mail } from 'lucide-react';
+import { Truck, CreditCard, Shield, TestTube, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,38 @@ import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
+
+// Test data arrays for random generation
+const testData = {
+  firstNames: ['Max', 'Anna', 'Michael', 'Sarah', 'Thomas', 'Julia', 'Andreas', 'Lisa', 'Markus', 'Elena'],
+  lastNames: ['Müller', 'Schmidt', 'Schneider', 'Fischer', 'Weber', 'Meyer', 'Wagner', 'Becker', 'Schulz', 'Hoffmann'],
+  streets: ['Hauptstraße', 'Kirchgasse', 'Bahnhofstraße', 'Gartenweg', 'Am Markt', 'Lindenstraße', 'Rosenweg', 'Feldstraße'],
+  cities: ['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig'],
+  postcodes: ['10115', '20095', '80331', '50667', '60311', '70173', '40213', '44135', '45127', '04109'],
+  emails: ['max.mustermann@gmail.com', 'anna.meyer@yahoo.de', 'michael.schmidt@web.de', 'sarah.wagner@gmx.de', 'thomas.fischer@t-online.de']
+};
+
+const generateRandomTestData = () => {
+  const getRandomItem = (array: string[]) => array[Math.floor(Math.random() * array.length)];
+  const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
+  return {
+    deliveryFirstName: getRandomItem(testData.firstNames),
+    deliveryLastName: getRandomItem(testData.lastNames),
+    deliveryStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+    deliveryPostcode: getRandomItem(testData.postcodes),
+    deliveryCity: getRandomItem(testData.cities),
+    deliveryPhone: `+49 ${getRandomNumber(100, 999)} ${getRandomNumber(1000000, 9999999)}`,
+    customerEmail: getRandomItem(testData.emails),
+    useSameAddress: Math.random() > 0.3,
+    billingFirstName: getRandomItem(testData.firstNames),
+    billingLastName: getRandomItem(testData.lastNames),
+    billingStreet: `${getRandomItem(testData.streets)} ${getRandomNumber(1, 999)}`,
+    billingPostcode: getRandomItem(testData.postcodes),
+    billingCity: getRandomItem(testData.cities),
+    paymentMethod: 'vorkasse' as const
+  };
+};
 
 interface PriceCalculatorData {
   product: {
@@ -50,15 +82,10 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const italianTranslations = useItalianCheckoutTranslations();
   const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
-  // Check if current checkout is French or Italian
+  // Check if current checkout is French
   const isFrenchCheckout = () => {
     const orderReferrer = localStorage.getItem('orderReferrer');
     return orderReferrer === '/4/home' || shopConfig.shopType === 'france';
-  };
-
-  const isItalianCheckout = () => {
-    const orderReferrer = localStorage.getItem('orderReferrer');
-    return orderReferrer === '/5/home' || shopConfig.shopType === 'italy';
   };
 
   // Create the schema inside the component where `t` is available
@@ -90,6 +117,35 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       acceptTerms: false
     }
   });
+
+  const handleGenerateTestData = () => {
+    const testDataValues = generateRandomTestData();
+
+    form.setValue('customerEmail', testDataValues.customerEmail);
+    form.setValue('deliveryFirstName', testDataValues.deliveryFirstName);
+    form.setValue('deliveryLastName', testDataValues.deliveryLastName);
+    form.setValue('deliveryStreet', testDataValues.deliveryStreet);
+    form.setValue('deliveryPostcode', testDataValues.deliveryPostcode);
+    form.setValue('deliveryCity', testDataValues.deliveryCity);
+    form.setValue('deliveryPhone', testDataValues.deliveryPhone);
+    form.setValue('useSameAddress', testDataValues.useSameAddress);
+    form.setValue('paymentMethod', testDataValues.paymentMethod);
+
+    setUseSameAddress(testDataValues.useSameAddress);
+
+    if (!testDataValues.useSameAddress) {
+      form.setValue('billingFirstName', testDataValues.billingFirstName);
+      form.setValue('billingLastName', testDataValues.billingLastName);
+      form.setValue('billingStreet', testDataValues.billingStreet);
+      form.setValue('billingPostcode', testDataValues.billingPostcode);
+      form.setValue('billingCity', testDataValues.billingCity);
+    }
+
+    toast({
+      title: t.system.testDataGenerated,
+      description: t.system.testDataDescription
+    });
+  };
 
   const sendOrderConfirmationEmail = async (orderId: string, customerEmail: string) => {
     try {
@@ -133,13 +189,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       const finalPrice = orderData.totalPrice;
       const originDomain = window.location.hostname;
       const isFrenchShop = isFrenchCheckout();
-      const isItalianShop = isItalianCheckout();
 
       // Create order data for database
       const dbOrderData = {
         customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
-        customer_email: data.customerEmail,
-        customer_email_actual: data.customerEmail,
+        customer_email: data.customerEmail, // Use actual customer email instead of hardcoded value
+        customer_email_actual: data.customerEmail, // Keep for legacy compatibility
         customer_phone: data.deliveryPhone,
         customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
         delivery_first_name: data.deliveryFirstName,
@@ -163,7 +218,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
         delivery_fee: orderData.deliveryFee,
         discount: 0,
         total_amount: finalPrice,
-        delivery_date_display: isItalianShop ? '3-5 giorni lavorativi' : (isFrenchShop ? '2-4 jours ouvrables' : '4-7 Werktage'),
+        delivery_date_display: '4-7 Werktage',
         status: 'pending',
         origin_domain: originDomain
       };
@@ -184,12 +239,12 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Only send order confirmation email for non-French and non-Italian shops
-      // French and Italian shop orders get invoice directly (handled in useOrders hook)
-      if (!isFrenchShop && !isItalianShop) {
+      // Only send order confirmation email for non-French shops
+      // French shop orders get invoice directly (handled in useOrders hook)
+      if (!isFrenchShop) {
         await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
       } else {
-        console.log('Skipping order confirmation email for French/Italian shop - invoice will be sent instead');
+        console.log('Skipping order confirmation email for French shop - invoice will be sent instead');
       }
 
       // Set order data for context
@@ -215,7 +270,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
         deliveryFee: orderData.deliveryFee,
         discount: 0,
         total: finalPrice,
-        deliveryDate: isItalianShop ? '3-5 giorni lavorativi' : (isFrenchShop ? '2-4 jours ouvrables' : '4-7 Werktage'),
+        deliveryDate: '4-7 Werktage',
         orderNumber: createdOrder.order_number
       };
 
@@ -238,9 +293,6 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       setIsSubmitting(false);
     }
   };
-
-  // Check if this is an Italian or French shop to hide rechnung payment option
-  const isSpecialShop = isItalianCheckout() || isFrenchCheckout();
 
   return (
     <div className="space-y-6">
@@ -408,9 +460,11 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
                     setUseSameAddress(e.target.checked);
                     form.setValue('useSameAddress', e.target.checked);
                   }}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">{t.billingSection.sameAddressLabel}</span>
+                <span className="text-gray-700 font-medium">
+                  {t.billingSection.sameAddressLabel}
+                </span>
               </label>
             </div>
 
@@ -497,8 +551,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             className="bg-white rounded-xl p-6 shadow-sm border"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-yellow-100 p-3 rounded-lg mr-4">
-                <CreditCard className="text-yellow-600" size={20} />
+              <div className="bg-purple-100 p-3 rounded-lg mr-4">
+                <CreditCard className="text-purple-600" size={20} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{t.paymentSection.title}</h3>
@@ -512,42 +566,56 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="space-y-4"
-                    >
-                      <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-                        <RadioGroupItem value="vorkasse" id="vorkasse" />
-                        <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-semibold text-gray-900">{t.paymentSection.vorkasse.title}</div>
-                              <div className="text-sm text-gray-600">{t.paymentSection.vorkasse.description}</div>
-                            </div>
-                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                              {t.paymentSection.vorkasse.recommended}
-                            </span>
-                          </div>
-                        </Label>
-                      </div>
-
-                      {!isSpecialShop && (
-                        <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50 opacity-60">
-                          <RadioGroupItem value="rechnung" id="rechnung" disabled />
-                          <Label htmlFor="rechnung" className="flex-1 cursor-not-allowed">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-semibold text-gray-900">{t.paymentSection.rechnung.title}</div>
-                                <div className="text-sm text-gray-600">{t.paymentSection.rechnung.description}</div>
+                    <RadioGroup value={field.value} onValueChange={field.onChange}>
+                      <div className="space-y-3">
+                        <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
+                          <div className="flex items-center space-x-3">
+                            <RadioGroupItem value="vorkasse" id="vorkasse" />
+                            <Label htmlFor="vorkasse" className="flex-1 cursor-pointer">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="font-semibold text-gray-900">{t.paymentSection.vorkasse.title}</div>
+                                  <div className="text-sm text-gray-600">
+                                    {t.paymentSection.vorkasse.description}
+                                  </div>
+                                </div>
+                                <div className="text-sm text-green-600 font-semibold">
+                                  {t.paymentSection.vorkasse.recommended}
+                                </div>
                               </div>
-                              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-0.5 rounded">
-                                {t.paymentSection.rechnung.existingCustomers}
-                              </span>
-                            </div>
-                          </Label>
+                            </Label>
+                          </div>
                         </div>
-                      )}
+
+                        <div className={`border border-gray-200 rounded-lg p-4 ${isFrenchCheckout() ? 'bg-gray-100 opacity-60' : ''}`}>
+                          <div className="flex items-center space-x-3">
+                            <RadioGroupItem 
+                              value="rechnung" 
+                              id="rechnung" 
+                              disabled={isFrenchCheckout()}
+                              className={isFrenchCheckout() ? 'opacity-50 cursor-not-allowed' : ''}
+                            />
+                            <Label 
+                              htmlFor="rechnung" 
+                              className={`flex-1 ${isFrenchCheckout() ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer'}`}
+                            >
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className={`font-semibold ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-900'}`}>
+                                    {t.paymentSection.rechnung.title}
+                                  </div>
+                                  <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    {t.paymentSection.rechnung.description}
+                                  </div>
+                                </div>
+                                <div className={`text-sm ${isFrenchCheckout() ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  {t.paymentSection.rechnung.existingCustomers}
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />
@@ -556,7 +624,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             />
           </motion.div>
 
-          {/* Terms and Conditions */}
+          {/* Terms and Submit */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -564,8 +632,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
             className="bg-white rounded-xl p-6 shadow-sm border"
           >
             <div className="flex items-center mb-6">
-              <div className="bg-red-100 p-3 rounded-lg mr-4">
-                <Shield className="text-red-600" size={20} />
+              <div className="bg-orange-100 p-3 rounded-lg mr-4">
+                <Shield className="text-orange-600" size={20} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{t.termsSection.title}</h3>
@@ -573,44 +641,43 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2">{t.termsSection.withdrawalTitle}</h4>
-              <p className="text-sm text-gray-700">{t.termsSection.withdrawalText}</p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <h4 className="font-semibold text-yellow-800 mb-2">{t.termsSection.withdrawalTitle}</h4>
+              <p className="text-yellow-700 text-sm">
+                {t.termsSection.withdrawalText}
+              </p>
             </div>
 
             <FormField
               control={form.control}
               name="acceptTerms"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={field.onChange}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mt-1"
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm font-normal">
+                <FormItem className="mb-6">
+                  <div className="flex items-start space-x-3">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm text-gray-700 cursor-pointer">
                       {t.termsSection.acceptTermsText}
                     </FormLabel>
-                    <FormMessage />
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="mt-8">
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold"
-              >
-                {isSubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
+            >
+              {isSubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
+            </Button>
           </motion.div>
         </form>
       </Form>
