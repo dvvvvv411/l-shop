@@ -13,7 +13,7 @@ export interface ItalianCheckoutConfig {
 
 export const useItalianCheckout = (): ItalianCheckoutConfig => {
   const shopConfig = useDomainShop();
-  const { data: bankAccounts } = useBankAccounts();
+  const { bankAccounts } = useBankAccounts();
 
   return useMemo(() => {
     const isItalianCheckout = shopConfig.shopType === 'italy';

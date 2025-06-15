@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -44,6 +45,7 @@ const AdminOrderDetail = () => {
       customer_email_actual: 'max.mustermann@email.de',
       customer_phone: '+49 30 12345678',
       customer_address: 'Musterstraße 123',
+      customer_language: 'de',
       delivery_first_name: 'Max',
       delivery_last_name: 'Mustermann',
       delivery_street: 'Musterstraße 123',
@@ -90,6 +92,7 @@ const AdminOrderDetail = () => {
       customer_email_actual: 'anna.schmidt@email.de',
       customer_phone: '+49 40 87654321',
       customer_address: 'Hauptstraße 45',
+      customer_language: 'de',
       delivery_first_name: 'Anna',
       delivery_last_name: 'Schmidt',
       delivery_street: 'Hauptstraße 45',
