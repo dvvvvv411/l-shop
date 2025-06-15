@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Calendar, Truck, Package, Phone, Mail, Building2 } from 'lucide-react';
@@ -48,25 +49,37 @@ const CheckoutConfirmation = ({
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
-  // Fetch bank account details for French shop
+  // Fetch bank account details based on shop type
   useEffect(() => {
-    if (isFrenchShop) {
+    if (isItalianShop) {
+      // For Italian shop, get GasolioCasa bank account
+      const gasolioCasaAccount = bankAccounts.find(
+        account => account.system_name === 'GasolioCasa'
+      );
+      
+      console.log('Found GasolioCasa account:', gasolioCasaAccount);
+      
+      if (gasolioCasaAccount) {
+        setBankAccountDetails(gasolioCasaAccount);
+        // Use the actual account holder from the bank account
+        setDisplayAccountHolder(gasolioCasaAccount.account_holder);
+        console.log('Using Italian account holder:', gasolioCasaAccount.account_holder);
+      }
+    } else if (isFrenchShop) {
       const italienChampionAccount = bankAccounts.find(
         account => account.system_name === 'Italien Champion'
       );
       
       console.log('Found Italien Champion account:', italienChampionAccount);
-      console.log('Available shops:', shops);
       
       if (italienChampionAccount) {
         setBankAccountDetails(italienChampionAccount);
-        
         // For French shop, always use "Fioul Rapide" as account holder
         setDisplayAccountHolder('Fioul Rapide');
         console.log('Using hardcoded French account holder: Fioul Rapide');
       }
     }
-  }, [isFrenchShop, bankAccounts, shops]);
+  }, [isItalianShop, isFrenchShop, bankAccounts, shops]);
 
   if (!contextOrderData) {
     return (
@@ -125,6 +138,58 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
+        {/* Bank Account Details for Italian Shop */}
+        {isItalianShop && bankAccountDetails && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="bg-green-50 border-2 border-green-300 rounded-xl p-6 shadow-lg"
+          >
+            <div className="flex items-center mb-4">
+              <div className="bg-green-100 p-3 rounded-full mr-4">
+                <Building2 className="text-green-600" size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-green-900">Coordinate bancarie</h3>
+                <p className="text-green-700">Per il bonifico</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Intestatario</div>
+                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
+                </div>
+                
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banca</div>
+                  <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(bankAccountDetails.iban)}</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
+                  <div className="text-green-900 font-mono font-bold">{bankAccountDetails.bic}</div>
+                </div>
+                
+                <div className="bg-green-100 p-3 rounded-lg border border-green-200">
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Causale</div>
+                  <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
+                </div>
+                
+                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Importo da versare</div>
+                  <div className="text-red-900 font-bold text-xl">{contextOrderData.total.toFixed(2)}€</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Bank Account Details for French Shop - Show prominently */}
         {isFrenchShop && bankAccountDetails && (
           <motion.div
@@ -147,7 +212,7 @@ const CheckoutConfirmation = ({
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">Fioul Rapide</div>
+                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">
@@ -190,10 +255,10 @@ const CheckoutConfirmation = ({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">
-                {isFrenchShop ? 'Instructions de paiement' : t.confirmation.paymentInstructions}
+                {isFrenchShop ? 'Instructions de paiement' : isItalianShop ? 'Istruzioni per il pagamento' : t.confirmation.paymentInstructions}
               </h3>
               <p className="text-gray-600">
-                {isFrenchShop ? 'Comment payer votre commande' : t.confirmation.howToPay}
+                {isFrenchShop ? 'Comment payer votre commande' : isItalianShop ? 'Come pagare il tuo ordine' : t.confirmation.howToPay}
               </p>
             </div>
           </div>
@@ -201,22 +266,9 @@ const CheckoutConfirmation = ({
           <div className="space-y-4">
             <div className="bg-blue-50 rounded-lg p-4">
               <h4 className="font-semibold text-blue-900 mb-3">
-                {isFrenchShop ? 'Prochaines étapes' : t.confirmation.nextSteps}
+                {isFrenchShop ? 'Prochaines étapes' : isItalianShop ? 'Prossimi passi' : t.confirmation.nextSteps}
               </h4>
               <div className="space-y-2 text-sm">
-                {!isFrenchShop && (
-                  <div className="flex items-start space-x-3">
-                    <Phone className="text-blue-600 mt-1" size={16} />
-                    <div>
-                      <div className="font-semibold text-blue-900">
-                        {isItalianShop ? t.confirmation.phoneContact : t.confirmation.phoneContact}
-                      </div>
-                      <div className="text-blue-700">
-                        {isItalianShop ? t.confirmation.phoneContactDesc : t.confirmation.phoneContactDesc}
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-start space-x-3">
                   <CreditCard className="text-blue-600 mt-1" size={16} />
                   <div>
@@ -224,15 +276,15 @@ const CheckoutConfirmation = ({
                       {isFrenchShop 
                         ? '1. Virement bancaire'
                         : isItalianShop
-                        ? t.confirmation.bankTransfer
-                        : '2. Überweisung'}
+                        ? '1. Bonifico bancario'
+                        : '1. Überweisung'}
                     </div>
                     <div className="text-blue-700">
                       {isFrenchShop 
                         ? `Veuillez virer le montant de ${contextOrderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
                         : isItalianShop
-                        ? t.confirmation.bankTransferDesc.replace('{amount}', contextOrderData.total.toFixed(2))
-                        : t.confirmation.bankTransferDesc.replace('{amount}', contextOrderData.total.toFixed(2))}
+                        ? `Effettua il bonifico di ${contextOrderData.total.toFixed(2)}€ con causale ${orderNumber}.`
+                        : `Überweisen Sie den Betrag von ${contextOrderData.total.toFixed(2)}€ mit der Referenz ${orderNumber}.`}
                     </div>
                   </div>
                 </div>
@@ -243,15 +295,15 @@ const CheckoutConfirmation = ({
                       {isFrenchShop
                         ? '2. Livraison'
                         : isItalianShop
-                        ? t.confirmation.delivery
-                        : '3. Lieferung'}
+                        ? '2. Consegna'
+                        : '2. Lieferung'}
                     </div>
                     <div className="text-blue-700">
                       {isFrenchShop
                         ? 'Après réception du paiement, la livraison s\'effectue en 2-4 jours ouvrables.'
                         : isItalianShop
-                        ? t.confirmation.deliveryDesc
-                        : t.confirmation.deliveryDesc}
+                        ? 'Dopo aver ricevuto il pagamento, la consegna avviene in 2-4 giorni lavorativi.'
+                        : 'Nach Zahlungseingang erfolgt die Lieferung in 2-4 Werktagen.'}
                     </div>
                   </div>
                 </div>
@@ -276,14 +328,14 @@ const CheckoutConfirmation = ({
                 {isFrenchShop 
                   ? 'Informations de livraison'
                   : isItalianShop
-                  ? t.confirmation.deliveryInformation
+                  ? 'Informazioni sulla consegna'
                   : t.confirmation.deliveryInformation}
               </h3>
               <p className="text-gray-600">
                 {isFrenchShop
                   ? 'Détails importants sur votre livraison'
                   : isItalianShop
-                  ? t.confirmation.deliveryDetails
+                  ? 'Dettagli importanti sulla tua consegna'
                   : t.confirmation.deliveryDetails}
               </p>
             </div>
@@ -297,7 +349,7 @@ const CheckoutConfirmation = ({
                   {isFrenchShop
                     ? 'Date de livraison'
                     : isItalianShop
-                    ? t.confirmation.deliveryTerm
+                    ? 'Data di consegna'
                     : t.confirmation.deliveryTerm}
                 </span>
               </div>
@@ -305,14 +357,14 @@ const CheckoutConfirmation = ({
                 {isFrenchShop
                   ? '2-4 jours ouvrables'
                   : isItalianShop
-                  ? t.summary.workdays
+                  ? '2-4 giorni lavorativi'
                   : t.summary.workdays}
               </div>
               <div className="text-orange-700 text-sm">
                 {isFrenchShop
                   ? 'Après réception du paiement'
                   : isItalianShop
-                  ? t.summary.afterPayment
+                  ? 'Dopo aver ricevuto il pagamento'
                   : t.summary.afterPayment}
               </div>
             </div>
@@ -322,7 +374,7 @@ const CheckoutConfirmation = ({
                 {isFrenchShop 
                   ? 'Adresse de livraison'
                   : isItalianShop
-                  ? t.confirmation.deliveryAddress
+                  ? 'Indirizzo di consegna'
                   : t.confirmation.deliveryAddress}
               </div>
               <div className="text-gray-700 text-sm space-y-1">
@@ -338,14 +390,14 @@ const CheckoutConfirmation = ({
               📞{isFrenchShop
                 ? 'Remarque importante sur la livraison'
                 : isItalianShop
-                ? t.confirmation.importantNote
+                ? 'Nota importante sulla consegna'
                 : t.confirmation.importantNote}
             </h4>
             <p className="text-yellow-700 text-sm">
               {isFrenchShop
                 ? `Notre chauffeur vous contactera par téléphone le jour de la livraison. Assurez-vous d'être joignable au ${contextOrderData.deliveryPhone}.`
                 : isItalianShop
-                ? t.confirmation.importantNoteDesc.replace('{phone}', contextOrderData.deliveryPhone)
+                ? `Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile al ${contextOrderData.deliveryPhone}.`
                 : t.confirmation.importantNoteDesc.replace('{phone}', contextOrderData.deliveryPhone)}
             </p>
           </div>
@@ -369,14 +421,14 @@ const CheckoutConfirmation = ({
                 {isFrenchShop
                   ? 'Résumé de commande'
                   : isItalianShop
-                  ? t.summary.orderSummary
+                  ? 'Riepilogo ordine'
                   : t.summary.orderSummary}
               </h3>
               <p className="text-sm text-gray-600">
                 {isFrenchShop
                   ? 'Commande confirmée'
                   : isItalianShop
-                  ? t.summary.confirmedOrder
+                  ? 'Ordine confermato'
                   : t.summary.confirmedOrder}
               </p>
             </div>
@@ -384,21 +436,21 @@ const CheckoutConfirmation = ({
           <div className="space-y-4">
             <div className="flex justify-between">
               <span className="text-gray-600">
-                {isFrenchShop ? 'Produit' : isItalianShop ? t.summary.product : t.summary.product}
+                {isFrenchShop ? 'Produit' : isItalianShop ? 'Prodotto' : t.summary.product}
               </span>
               <span className="font-semibold">{orderData.product.name}</span>
             </div>
             
             <div className="flex justify-between">
               <span className="text-gray-600">
-                {isFrenchShop ? 'Quantité' : isItalianShop ? t.summary.quantity : t.summary.quantity}
+                {isFrenchShop ? 'Quantité' : isItalianShop ? 'Quantità' : t.summary.quantity}
               </span>
               <span className="font-semibold">{orderData.amount.toLocaleString(isFrenchShop ? 'fr-FR' : isItalianShop ? 'it-IT' : 'de-DE')} Liter</span>
             </div>
             
             <div className="flex justify-between">
               <span className="text-gray-600">
-                {isFrenchShop ? 'Prix par litre' : isItalianShop ? t.summary.pricePerLiter : t.summary.pricePerLiter}
+                {isFrenchShop ? 'Prix par litre' : isItalianShop ? 'Prezzo per litro' : t.summary.pricePerLiter}
               </span>
               <span className="font-semibold">{orderData.product.price.toFixed(2)}€</span>
             </div>
@@ -407,15 +459,15 @@ const CheckoutConfirmation = ({
             
             <div className="flex justify-between">
               <span className="text-gray-600">
-                {isFrenchShop ? 'Prix de base' : isItalianShop ? t.confirmation.basePrice : t.confirmation.basePrice}
+                {isFrenchShop ? 'Prix de base' : isItalianShop ? 'Prezzo base' : t.confirmation.basePrice}
               </span>
               <span className="font-semibold">{orderData.basePrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-green-600">
-              <span>{isFrenchShop ? 'Livraison' : isItalianShop ? t.confirmation.deliveryLabel : t.confirmation.deliveryLabel}</span>
+              <span>{isFrenchShop ? 'Livraison' : isItalianShop ? 'Consegna' : t.confirmation.deliveryLabel}</span>
               <span className="font-semibold">
-                {orderData.deliveryFee === 0 ? (isFrenchShop ? 'Gratuite' : isItalianShop ? t.summary.free : t.summary.free) : `${orderData.deliveryFee.toFixed(2)}€`}
+                {orderData.deliveryFee === 0 ? (isFrenchShop ? 'Gratuite' : isItalianShop ? 'Gratuita' : t.summary.free) : `${orderData.deliveryFee.toFixed(2)}€`}
               </span>
             </div>
             
@@ -423,14 +475,14 @@ const CheckoutConfirmation = ({
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
-                {isFrenchShop ? 'Net' : isItalianShop ? t.summary.net : t.summary.net}
+                {isFrenchShop ? 'Net' : isItalianShop ? 'Netto' : t.summary.net}
               </span>
               <span className="font-semibold">{netPrice.toFixed(2)}€</span>
             </div>
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
-                {isFrenchShop ? 'TVA' : isItalianShop ? t.summary.vat : t.summary.vat}
+                {isFrenchShop ? 'TVA' : isItalianShop ? 'IVA' : t.summary.vat}
               </span>
               <span className="font-semibold">{vatAmount.toFixed(2)}€</span>
             </div>
@@ -438,7 +490,7 @@ const CheckoutConfirmation = ({
             <hr className="border-gray-200" />
             
             <div className="flex justify-between text-xl font-bold">
-              <span>{isFrenchShop ? 'Total' : isItalianShop ? t.summary.total : t.summary.total}</span>
+              <span>{isFrenchShop ? 'Total' : isItalianShop ? 'Totale' : t.summary.total}</span>
               <span className="text-blue-600">{orderData.totalPrice.toFixed(2)}€</span>
             </div>
             
@@ -446,7 +498,7 @@ const CheckoutConfirmation = ({
               {isFrenchShop 
                 ? `TVA incluse (${vatAmount.toFixed(2)}€)`
                 : isItalianShop
-                ? t.summary.inclVat.replace('{amount}', vatAmount.toFixed(2))
+                ? `IVA inclusa (${vatAmount.toFixed(2)}€)`
                 : t.summary.inclVat.replace('{amount}', vatAmount.toFixed(2))}
             </div>
           </div>

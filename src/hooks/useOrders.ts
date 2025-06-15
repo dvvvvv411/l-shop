@@ -1,66 +1,99 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useOrderTranslations } from '@/hooks/useOrderTranslations';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
+import { useDomainShop } from '@/hooks/useDomainShop';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'> & {
   latest_status_change?: string;
 };
 
-// Use the official Supabase insert type
 export type OrderInsert = TablesInsert<'orders'>;
 
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const t = useOrderTranslations();
   const { generateInvoice } = useInvoiceGeneration();
   const { bankAccounts } = useBankAccounts();
+  const shopConfig = useDomainShop();
 
-  // Always fetch all orders (including hidden) - filtering happens in UI
+  // Get the appropriate bank account ID based on shop type
+  const getBankAccountId = () => {
+    if (shopConfig.shopType === 'italy') {
+      const gasolioCasaAccount = bankAccounts.find(
+        account => account.system_name === 'GasolioCasa'
+      );
+      console.log('Found GasolioCasa account for Italian order:', gasolioCasaAccount);
+      return gasolioCasaAccount?.id || null;
+    } else if (shopConfig.shopType === 'france') {
+      const italienChampionAccount = bankAccounts.find(
+        account => account.system_name === 'Italien Champion'
+      );
+      console.log('Found Italien Champion account for French order:', italienChampionAccount);
+      return italienChampionAccount?.id || null;
+    }
+    return null;
+  };
+
+  // Get shop ID based on shop type
+  const getShopId = async () => {
+    try {
+      let shopName = '';
+      if (shopConfig.shopType === 'italy') {
+        shopName = 'GasolioCasa';
+      } else if (shopConfig.shopType === 'france') {
+        shopName = 'Fioul Rapide';
+      }
+      
+      if (!shopName) return null;
+
+      const { data: shops, error } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('name', shopName)
+        .limit(1);
+
+      if (error) throw error;
+      console.log(`Found ${shopName} shop:`, shops?.[0]);
+      return shops?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching shop:', error);
+      return null;
+    }
+  };
+
   const fetchOrders = async () => {
     try {
       const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
-          order_status_history!left (
-            created_at
+          order_status_history(
+            status,
+            changed_at,
+            notes
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Process orders to get the latest status change
-      const processedOrders = (data || []).map(order => {
-        let latestStatusChange = order.created_at;
-        
-        if (order.order_status_history && order.order_status_history.length > 0) {
-          // Get the most recent status change
-          const sortedHistory = order.order_status_history.sort(
-            (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
-          latestStatusChange = sortedHistory[0].created_at;
-        }
-
-        return {
-          ...order,
-          latest_status_change: latestStatusChange,
-          order_status_history: undefined // Remove the joined data to keep the interface clean
-        };
-      });
+      // Process orders to get latest status change
+      const processedOrders = data.map(order => ({
+        ...order,
+        latest_status_change: order.order_status_history?.[0]?.changed_at || order.created_at
+      }));
 
       setOrders(processedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
-        title: 'Fehler',
-        description: t.errors.fetchOrders,
+        title: 'Error',
+        description: 'Failed to fetch orders',
         variant: 'destructive',
       });
     } finally {
@@ -68,64 +101,43 @@ export const useOrders = () => {
     }
   };
 
-  // Get the "Italien Champion" bank account ID
-  const getItalienChampionBankAccountId = () => {
-    const italienChampionAccount = bankAccounts.find(
-      account => account.system_name === 'Italien Champion'
-    );
-    return italienChampionAccount?.id || null;
-  };
-
-  // Get shop ID for Fioul Rapide
-  const getFioulRapideShopId = async () => {
-    try {
-      const { data: shops, error } = await supabase
-        .from('shops')
-        .select('id')
-        .eq('name', 'Fioul Rapide')
-        .limit(1);
-
-      if (error) throw error;
-      return shops?.[0]?.id || null;
-    } catch (error) {
-      console.error('Error fetching Fioul Rapide shop:', error);
-      return null;
-    }
-  };
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   // Create new order with request deduplication
   const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
       console.log('Creating order with data:', orderData);
+      console.log('Shop type:', shopConfig.shopType);
       
       // Generate a unique request ID for deduplication
       const requestId = crypto.randomUUID();
       
-      // Check if this is a French shop order (fioul-rapide.fr)
-      const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
+      // Automatically assign bank account and shop based on shop type
+      const bankAccountId = getBankAccountId();
+      const shopId = await getShopId();
       
       let finalOrderData = { ...orderData };
       
-      // For French shop orders, automatically assign Italien Champion bank account and shop
-      if (isFrenchShop) {
-        const italienChampionBankAccountId = getItalienChampionBankAccountId();
-        const fioulRapideShopId = await getFioulRapideShopId();
-        
-        if (italienChampionBankAccountId) {
-          finalOrderData.bank_account_id = italienChampionBankAccountId;
-          console.log('Automatically assigned Italien Champion bank account for French shop order');
-        }
-        
-        if (fioulRapideShopId) {
-          finalOrderData.shop_id = fioulRapideShopId;
-          console.log('Automatically assigned Fioul Rapide shop ID');
-        }
+      if (bankAccountId) {
+        finalOrderData.bank_account_id = bankAccountId;
+        console.log('Automatically assigned bank account for shop type:', shopConfig.shopType);
+      }
+      
+      if (shopId) {
+        finalOrderData.shop_id = shopId;
+        console.log('Automatically assigned shop ID for shop type:', shopConfig.shopType);
+      }
 
-        // CRITICAL: Set the language for French orders
+      // Set the appropriate customer language
+      if (shopConfig.shopType === 'italy') {
+        finalOrderData.customer_language = 'it';
+        console.log('Set customer language to Italian (it)');
+      } else if (shopConfig.shopType === 'france') {
         finalOrderData.customer_language = 'fr';
         console.log('Set customer language to French (fr)');
       } else {
-        // For German orders, ensure the language is set to German
         finalOrderData.customer_language = 'de';
         console.log('Set customer language to German (de)');
       }
@@ -138,7 +150,7 @@ export const useOrders = () => {
       };
 
       console.log('Inserting order with request_id:', requestId);
-      console.log('Final order data with language:', orderWithMetadata);
+      console.log('Final order data:', orderWithMetadata);
 
       const { data, error } = await supabase
         .from('orders')
@@ -154,7 +166,7 @@ export const useOrders = () => {
           console.log('Duplicate request detected, ignoring...');
           toast({
             title: 'Information',
-            description: t.info.orderProcessed,
+            description: 'Order already processed.',
           });
           return null;
         }
@@ -165,218 +177,144 @@ export const useOrders = () => {
       console.log('Order created successfully:', data);
       console.log('Customer language set to:', data.customer_language);
 
-      // For French shop orders, automatically generate and send invoice
-      if (isFrenchShop && data.bank_account_id && data.shop_id) {
+      // For Italian shops, automatically generate invoice instead of sending order confirmation
+      if (shopConfig.shopType === 'italy' && data.bank_account_id && data.shop_id) {
         try {
-          console.log('Automatically generating invoice for French shop order...');
-          await generateInvoice(data.id, data.shop_id, data.bank_account_id);
-          console.log('Invoice automatically generated and sent for French shop order');
-        } catch (invoiceError) {
-          console.error('Error automatically generating invoice:', invoiceError);
-          // Don't fail the order creation if invoice generation fails
+          console.log('Automatically generating invoice for Italian shop order...');
+          await generateInvoice(data.id, data.shop_id, data.bank_account_id, 'Fattura automatica per ordine italiano');
+          console.log('Invoice automatically generated and sent for Italian shop order');
+          
           toast({
-            title: 'Hinweis',
-            description: 'Bestellung erfolgreich erstellt. Rechnung wird nachträglich versendet.',
+            title: 'Success',
+            description: shopConfig.shopType === 'italy' 
+              ? 'Ordine creato con successo. La fattura è stata inviata via email.'
+              : 'Order created successfully. Invoice has been sent via email.',
+          });
+        } catch (invoiceError) {
+          console.error('Error automatically generating invoice for Italian order:', invoiceError);
+          toast({
+            title: 'Note',
+            description: shopConfig.shopType === 'italy'
+              ? 'Ordine creato con successo. La fattura verrà inviata successivamente.'
+              : 'Order created successfully. Invoice will be sent later.',
           });
         }
       } else {
-        // For non-French shops, show normal success message
+        // For non-Italian shops, send order confirmation email
+        try {
+          console.log('Sending order confirmation email...');
+          const { error: emailError } = await supabase.functions.invoke('send-order-confirmation', {
+            body: {
+              orderId: data.id,
+              customerEmail: data.customer_email,
+              originDomain: window.location.hostname
+            }
+          });
+
+          if (emailError) {
+            console.error('Error sending order confirmation email:', emailError);
+          } else {
+            console.log('Order confirmation email sent successfully');
+          }
+        } catch (emailError) {
+          console.error('Error invoking send-order-confirmation function:', emailError);
+        }
+
         toast({
-          title: 'Erfolg',
-          description: t.success.orderCreated,
+          title: 'Success',
+          description: shopConfig.shopType === 'france' 
+            ? 'Commande créée avec succès.'
+            : 'Order created successfully.',
         });
       }
 
+      // Refresh orders list
+      fetchOrders();
       return data;
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
-        title: 'Fehler',
-        description: t.errors.createOrder,
+        title: 'Error',
+        description: shopConfig.shopType === 'italy' 
+          ? 'Impossibile creare l\'ordine. Riprova.'
+          : shopConfig.shopType === 'france'
+          ? 'Impossible de créer la commande. Veuillez réessayer.'
+          : 'Unable to create order. Please try again.',
         variant: 'destructive',
       });
       throw error;
     }
   };
 
-  // Update order status with optimistic updates
-  const updateOrderStatus = async (orderId: string, status: string) => {
+  const updateOrderStatus = async (orderId: string, status: string, notes?: string) => {
     try {
-      // Optimistic update
-      const now = new Date().toISOString();
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, status, updated_at: now, latest_status_change: now }
-          : order
-      ));
-
       const { error } = await supabase
         .from('orders')
-        .update({ status, updated_at: now })
+        .update({ status })
         .eq('id', orderId);
 
       if (error) throw error;
 
+      // Add status history entry
+      const { error: historyError } = await supabase
+        .from('order_status_history')
+        .insert({
+          order_id: orderId,
+          status,
+          notes: notes || null
+        });
+
+      if (historyError) throw historyError;
+
       toast({
-        title: 'Erfolg',
-        description: t.success.statusUpdated,
+        title: 'Success',
+        description: 'Order status updated successfully',
       });
+
+      // Refresh orders
+      fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
-      // Revert optimistic update on error
-      fetchOrders();
       toast({
-        title: 'Fehler',
-        description: t.errors.updateStatus,
+        title: 'Error',
+        description: 'Failed to update order status',
         variant: 'destructive',
       });
-      throw error;
     }
   };
 
-  // Hide order with optimistic updates
-  const hideOrder = async (orderId: string) => {
+  const deleteOrder = async (orderId: string) => {
     try {
-      // Optimistic update
-      const now = new Date().toISOString();
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, is_hidden: true, updated_at: now }
-          : order
-      ));
-
       const { error } = await supabase
         .from('orders')
-        .update({ is_hidden: true, updated_at: now })
+        .delete()
         .eq('id', orderId);
 
       if (error) throw error;
 
       toast({
-        title: 'Erfolg',
-        description: t.success.orderHidden,
+        title: 'Success',
+        description: 'Order deleted successfully',
       });
-    } catch (error) {
-      console.error('Error hiding order:', error);
-      // Revert optimistic update on error
+
+      // Refresh orders
       fetchOrders();
+    } catch (error) {
+      console.error('Error deleting order:', error);
       toast({
-        title: 'Fehler',
-        description: t.errors.hideOrder,
+        title: 'Error',
+        description: 'Failed to delete order',
         variant: 'destructive',
       });
-      throw error;
     }
   };
-
-  // Unhide order with optimistic updates
-  const unhideOrder = async (orderId: string) => {
-    try {
-      // Optimistic update
-      const now = new Date().toISOString();
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, is_hidden: false, updated_at: now }
-          : order
-      ));
-
-      const { error } = await supabase
-        .from('orders')
-        .update({ is_hidden: false, updated_at: now })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Erfolg',
-        description: t.success.orderUnhidden,
-      });
-    } catch (error) {
-      console.error('Error unhiding order:', error);
-      // Revert optimistic update on error
-      fetchOrders();
-      toast({
-        title: 'Fehler',
-        description: t.errors.unhideOrder,
-        variant: 'destructive',
-      });
-      throw error;
-    }
-  };
-
-  // Update order with optimistic updates (for invoice generation, etc.)
-  const updateOrder = (orderId: string, updatedData: Partial<Order>) => {
-    setOrders(prev => prev.map(order => 
-      order.id === orderId ? { ...order, ...updatedData } : order
-    ));
-  };
-
-  // Set up real-time subscription
-  useEffect(() => {
-    fetchOrders();
-
-    const channel = supabase
-      .channel('orders-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'orders',
-        },
-        (payload) => {
-          console.log('Real-time order update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            setOrders(prev => [{ ...payload.new as Order, latest_status_change: payload.new.created_at }, ...prev]);
-          } else if (payload.eventType === 'UPDATE') {
-            setOrders(prev => prev.map(order => 
-              order.id === payload.new.id ? { ...payload.new as Order, latest_status_change: order.latest_status_change } : order
-            ));
-          } else if (payload.eventType === 'DELETE') {
-            setOrders(prev => prev.filter(order => order.id !== payload.old.id));
-          }
-        }
-      )
-      .subscribe();
-
-    // Also listen for status history changes to update latest_status_change
-    const statusHistoryChannel = supabase
-      .channel('status-history-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'order_status_history',
-        },
-        (payload) => {
-          console.log('Real-time status history update:', payload);
-          
-          // Update the latest_status_change for the affected order
-          setOrders(prev => prev.map(order => 
-            order.id === payload.new.order_id 
-              ? { ...order, latest_status_change: payload.new.created_at } 
-              : order
-          ));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-      supabase.removeChannel(statusHistoryChannel);
-    };
-  }, []);
 
   return {
     orders,
     isLoading,
     createOrder,
     updateOrderStatus,
-    hideOrder,
-    unhideOrder,
-    updateOrder,
-    refetch: fetchOrders,
+    deleteOrder,
+    refreshOrders: fetchOrders,
   };
 };
