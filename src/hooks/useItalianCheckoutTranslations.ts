@@ -82,7 +82,7 @@ export interface ItalianCheckoutTranslations {
     fairPrices: string;
     confirmedOrder: string;
   };
-  // Confirmation section - ENHANCED
+  // Confirmation section - COMPLETE with all required keys
   confirmation: {
     title: string;
     subtitle: string;
@@ -105,7 +105,7 @@ export interface ItalianCheckoutTranslations {
     importantNoteDesc: string;
     basePrice: string;
     deliveryLabel: string;
-    // Added missing keys
+    // Bank account specific keys
     bankAccountTitle: string;
     bankAccountSubtitle: string;
     accountHolder: string;
@@ -266,14 +266,14 @@ const italianTranslations: ItalianCheckoutTranslations = {
     importantNoteDesc: 'Il nostro autista ti contatterà telefonicamente il giorno della consegna. Assicurati di essere raggiungibile.',
     basePrice: 'Prezzo base',
     deliveryLabel: 'Consegna',
-    // Added missing translations
-    bankAccountTitle: 'Dati bancari',
-    bankAccountSubtitle: 'Effettua il bonifico con queste informazioni',
+    // Bank account specific keys - ADDED ALL MISSING KEYS
+    bankAccountTitle: 'Dati bancari per il pagamento',
+    bankAccountSubtitle: 'Effettua il bonifico utilizzando questi dati',
     accountHolder: 'Intestatario del conto',
-    bankName: 'Banca',
+    bankName: 'Nome della banca',
     transferAmount: 'Importo da trasferire',
-    reference: 'Riferimento',
-    yourSupplier: 'Il tuo fornitore',
+    reference: 'Riferimento obbligatorio',
+    yourSupplier: 'Il tuo fornitore di gasolio',
     questionsAboutOrder: 'Domande sul tuo ordine?',
     phone: 'Telefono',
     email: 'E-mail',
