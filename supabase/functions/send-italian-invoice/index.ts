@@ -38,12 +38,48 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Initialize Resend
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    if (!resendApiKey) {
-      throw new Error('RESEND_API_KEY not configured');
+    // Query SMTP configuration for gasoliocasa.com domain
+    console.log('Fetching SMTP configuration for gasoliocasa.com...');
+    const { data: smtpConfig, error: smtpError } = await supabase
+      .from('smtp_configurations')
+      .select(`
+        *,
+        smtp_domains (
+          domain,
+          is_primary
+        )
+      `)
+      .eq('is_active', true)
+      .single();
+
+    if (smtpError || !smtpConfig) {
+      console.error('Error fetching SMTP configuration:', smtpError);
+      throw new Error('No active SMTP configuration found for Italian shop');
     }
-    const resend = new Resend(resendApiKey);
+
+    // Check if this SMTP config has gasoliocasa.com domain
+    const hasGasolioDomain = smtpConfig.smtp_domains?.some((domain: any) => 
+      domain.domain === 'gasoliocasa.com'
+    );
+
+    if (!hasGasolioDomain) {
+      console.error('SMTP configuration does not have gasoliocasa.com domain');
+      throw new Error('SMTP configuration not configured for gasoliocasa.com domain');
+    }
+
+    console.log('Found SMTP configuration:', {
+      id: smtpConfig.id,
+      sender_email: smtpConfig.sender_email,
+      sender_name: smtpConfig.sender_name,
+      domains: smtpConfig.smtp_domains?.map((d: any) => d.domain)
+    });
+
+    // Initialize Resend with database API key
+    if (!smtpConfig.resend_api_key) {
+      throw new Error('No Resend API key found in SMTP configuration');
+    }
+
+    const resend = new Resend(smtpConfig.resend_api_key);
 
     // Generate Italian invoice PDF
     const doc = new jsPDF();
@@ -139,9 +175,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Order saved successfully:', order.id);
 
-    // Send invoice email
+    // Send invoice email using database SMTP configuration
+    console.log('Sending email with SMTP config:', {
+      from: `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`,
+      to: orderData.customerEmail
+    });
+
     const emailResponse = await resend.emails.send({
-      from: 'Gasolio Veloce <noreply@gasoliocasa.com>',
+      from: `${smtpConfig.sender_name} <${smtpConfig.sender_email}>`,
       to: [orderData.customerEmail],
       subject: `Fattura ordine ${orderNumber} - Gasolio Veloce`,
       html: `
