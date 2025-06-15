@@ -225,6 +225,7 @@ const OrderForm = () => {
     }
     console.log('Order form submitted:', data);
     console.log('Using order data:', orderData);
+    console.log('Shop config:', shopConfig);
     setIsSubmitting(true);
     try {
       // Calculate final price
@@ -268,10 +269,10 @@ const OrderForm = () => {
       // Use Italian order creation for Italian shops, regular for others
       let createdOrder;
       if (shopConfig.shopType === 'italy') {
-        console.log('Using Italian order creation flow');
+        console.log('Using Italian order creation flow for Italian shop');
         createdOrder = await createItalianOrder(dbOrderData);
       } else {
-        console.log('Using regular order creation flow');
+        console.log('Using regular order creation flow for non-Italian shop');
         createdOrder = await createOrder(dbOrderData);
       }
 
@@ -282,9 +283,11 @@ const OrderForm = () => {
         return;
       }
       console.log('Order created with order number:', createdOrder.order_number);
+      console.log('Order created with customer language:', createdOrder.customer_language);
 
       // Send order confirmation email only for non-Italian shops
       if (shopConfig.shopType !== 'italy') {
+        console.log('Sending order confirmation email for non-Italian shop');
         await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
       } else {
         console.log('Skipping order confirmation email for Italian shop - invoice will be sent instead');
@@ -606,7 +609,6 @@ const OrderForm = () => {
                             </div>
                           </div>
 
-                          {/* Hide Fattura/Rechnung option for Italian shops */}
                           {shopConfig.shopType !== 'italy' && (
                             <div className="border border-gray-200 rounded-lg p-4 bg-gray-100 opacity-50">
                               <div className="flex items-center space-x-3">
@@ -639,7 +641,7 @@ const OrderForm = () => {
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-semibold text-gray-900 mb-2">Zahlungsdetails</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Sie werden nach Bestellung telefonisch von unserem Kundesn</li>
+                  <li>• Sie werden nach Bestellung telefonisch von unserem Kundendienst kontaktiert</li>
                   <li>• Lieferung erfolgt nach Zahlungseingang</li>
                   <li>• Sichere und schnelle Abwicklung</li>
                 </ul>

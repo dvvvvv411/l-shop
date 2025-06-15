@@ -68,8 +68,9 @@ export const useItalianOrders = () => {
         console.log('Automatically assigned GasolioCasa shop ID');
       }
 
-      // Set the language for Italian orders
+      // CRITICAL: Set the language for Italian orders
       finalOrderData.customer_language = 'it';
+      console.log('Set customer language to Italian (it)');
       
       // Add order data with request_id and temporary order_number
       const orderWithMetadata: OrderInsert = {
@@ -79,6 +80,7 @@ export const useItalianOrders = () => {
       };
 
       console.log('Inserting Italian order with request_id:', requestId);
+      console.log('Final order data with Italian language:', orderWithMetadata);
 
       const { data, error } = await supabase
         .from('orders')
@@ -103,6 +105,7 @@ export const useItalianOrders = () => {
       }
 
       console.log('Italian order created successfully:', data);
+      console.log('Customer language set to:', data.customer_language);
 
       // For Italian shop orders, automatically generate and send invoice instead of order confirmation
       if (data.bank_account_id && data.shop_id) {

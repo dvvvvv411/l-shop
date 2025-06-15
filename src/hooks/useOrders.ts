@@ -121,8 +121,13 @@ export const useOrders = () => {
           console.log('Automatically assigned Fioul Rapide shop ID');
         }
 
-        // Set the language for French orders
+        // CRITICAL: Set the language for French orders
         finalOrderData.customer_language = 'fr';
+        console.log('Set customer language to French (fr)');
+      } else {
+        // For German orders, ensure the language is set to German
+        finalOrderData.customer_language = 'de';
+        console.log('Set customer language to German (de)');
       }
       
       // Add order data with request_id and temporary order_number
@@ -133,6 +138,7 @@ export const useOrders = () => {
       };
 
       console.log('Inserting order with request_id:', requestId);
+      console.log('Final order data with language:', orderWithMetadata);
 
       const { data, error } = await supabase
         .from('orders')
@@ -157,6 +163,7 @@ export const useOrders = () => {
       }
 
       console.log('Order created successfully:', data);
+      console.log('Customer language set to:', data.customer_language);
 
       // For French shop orders, automatically generate and send invoice
       if (isFrenchShop && data.bank_account_id && data.shop_id) {
