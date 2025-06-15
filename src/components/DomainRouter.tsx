@@ -88,6 +88,8 @@ import V6Liefergebiet from '@/pages/v6/Liefergebiet';
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
 
+  console.log('DomainRouter - Current shop config:', shopConfig);
+
   // For STANTON domain, route to V1 pages
   if (shopConfig.shopType === 'stanton') {
     return (
@@ -178,6 +180,7 @@ const DomainRouter = () => {
 
   // For Italian domain, route to V5 pages
   if (shopConfig.shopType === 'italy') {
+    console.log('Routing to Italian pages (V5)');
     return (
       <Routes>
         <Route path="/" element={<V5Home />} />
@@ -295,9 +298,9 @@ const DomainRouter = () => {
       <Route path="/4/livraison" element={<V4Liefergebiet />} />
 
       <Route path="/5/home" element={<V5Home />} />
-      <Route path="/5/bestellen" element={<Order />} />
-      <Route path="/5/zusammenfassung" element={<Summary />} />
-      <Route path="/5/bestaetigung" element={<Confirmation />} />
+      <Route path="/5/ordina" element={<Order />} />
+      <Route path="/5/riepilogo" element={<Summary />} />
+      <Route path="/5/conferma" element={<Confirmation />} />
       <Route path="/5/checkout" element={<Checkout />} />
       <Route path="/5/note-legali" element={<V5Impressum />} />
       <Route path="/5/termini" element={<V5AGB />} />

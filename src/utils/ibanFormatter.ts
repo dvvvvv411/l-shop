@@ -22,6 +22,25 @@ export const formatIban = (iban: string): string => {
 };
 
 /**
+ * Validates Italian IBAN format
+ * Italian IBANs: IT + 2 check digits + 1 check character + 10 digits (ABI) + 5 digits (CAB) + 12 alphanumeric (account)
+ */
+export const validateItalianIban = (iban: string): boolean => {
+  if (!iban) return false;
+  
+  const cleanIban = iban.replace(/\s/g, '').toUpperCase();
+  
+  // Check if it starts with IT and has correct length (27 characters)
+  if (!cleanIban.startsWith('IT') || cleanIban.length !== 27) {
+    return false;
+  }
+  
+  // Basic format validation: IT + 2 digits + 1 character + 22 alphanumeric
+  const italianIbanPattern = /^IT\d{2}[A-Z]\d{22}$/;
+  return italianIbanPattern.test(cleanIban);
+};
+
+/**
  * Legacy function for backward compatibility
  * @deprecated Use formatIban instead
  */

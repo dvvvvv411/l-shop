@@ -22,11 +22,14 @@ export const useItalianCheckout = (): ItalianCheckoutConfig => {
     const italianBankAccount = bankAccounts?.find(account => 
       account.system_name.toLowerCase().includes('italia') || 
       account.system_name.toLowerCase().includes('italy') ||
-      account.system_name.toLowerCase().includes('gasolio')
+      account.system_name.toLowerCase().includes('gasolio') ||
+      account.system_name.toLowerCase().includes('it')
     );
 
     console.log('Italian checkout configuration:', {
       isItalianCheckout,
+      shopType: shopConfig.shopType,
+      pathname: typeof window !== 'undefined' ? window.location.pathname : 'N/A',
       availableBankAccounts: bankAccounts?.map(acc => acc.system_name),
       selectedItalianAccount: italianBankAccount?.system_name
     });

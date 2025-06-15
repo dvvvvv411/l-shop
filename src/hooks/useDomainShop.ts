@@ -67,6 +67,16 @@ const domainMappings: Record<string, DomainShopConfig> = {
     email: 'info@malta-heating-oil.com',
     faviconColor: '#f59e0b',
     faviconIcon: 'sun'
+  },
+  // Add localhost mapping for testing Italian shop
+  'localhost': {
+    shopType: 'italy',
+    name: 'OIL & OIL',
+    brand: 'Gasolio IT',
+    phone: '',
+    email: 'info@gasoliocasa.it',
+    faviconColor: '#16a34a',
+    faviconIcon: 'flame-italia'
   }
 };
 
@@ -88,9 +98,28 @@ const getDomainShopConfig = (): DomainShopConfig => {
   }
 
   const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  // Check for legacy path-based routing first (e.g., /5/home for Italian)
+  if (pathname.startsWith('/5/')) {
+    const config = {
+      shopType: 'italy' as ShopType,
+      name: 'OIL & OIL',
+      brand: 'Gasolio IT',
+      phone: '',
+      email: 'info@gasoliocasa.it',
+      faviconColor: '#16a34a',
+      faviconIcon: 'flame-italia' as const
+    };
+    console.log('Italian shop detected via path routing:', { pathname, shopType: config.shopType });
+    localStorage.setItem('orderReferrer', '/5/home');
+    return config;
+  }
+  
+  // Then check domain mappings
   const config = domainMappings[hostname] || defaultConfig;
   
-  console.log('Domain shop detected synchronously:', { hostname, shopType: config.shopType });
+  console.log('Domain shop detected:', { hostname, pathname, shopType: config.shopType });
   
   // Set appropriate order referrer for checkout branding
   if (config.shopType === 'austria') {
