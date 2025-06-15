@@ -140,6 +140,8 @@ export interface CheckoutTranslations {
     invalidOrderDataDescription: string;
     loadOrderDataErrorTitle: string;
     loadOrderDataErrorDescription: string;
+    orderErrorTitle: string;
+    orderErrorDescription: string;
   };
   // Validation messages
   validation: {
@@ -151,6 +153,32 @@ export interface CheckoutTranslations {
     cityRequired: string;
     phoneRequired: string;
     termsRequired: string;
+  };
+  // Form fields - consolidated access
+  form: {
+    contactInformation: string;
+    email: string;
+    emailPlaceholder: string;
+    deliveryAddress: string;
+    firstName: string;
+    firstNamePlaceholder: string;
+    lastName: string;
+    lastNamePlaceholder: string;
+    street: string;
+    streetPlaceholder: string;
+    postcode: string;
+    postcodePlaceholder: string;
+    city: string;
+    cityPlaceholder: string;
+    phone: string;
+    phonePlaceholder: string;
+    billingAddress: string;
+    sameAsDelivery: string;
+    termsAndConditions: string;
+    acceptTermsText: string;
+    acceptPrivacyText: string;
+    submitOrder: string;
+    processing: string;
   };
 }
 
@@ -285,7 +313,9 @@ const translations = {
       invalidOrderDataTitle: 'Ungültige Bestelldaten',
       invalidOrderDataDescription: 'Bitte führen Sie eine neue Preisberechnung durch.',
       loadOrderDataErrorTitle: 'Fehler beim Laden der Bestelldaten',
-      loadOrderDataErrorDescription: 'Bitte führen Sie eine neue Preisberechnung durch.'
+      loadOrderDataErrorDescription: 'Bitte führen Sie eine neue Preisberechnung durch.',
+      orderErrorTitle: 'Fehler beim Erstellen der Bestellung',
+      orderErrorDescription: 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'
     },
     validation: {
       emailRequired: 'Gültige E-Mail-Adresse erforderlich',
@@ -296,6 +326,31 @@ const translations = {
       cityRequired: 'Stadt ist erforderlich',
       phoneRequired: 'Telefonnummer ist erforderlich',
       termsRequired: 'Sie müssen die AGB akzeptieren'
+    },
+    form: {
+      contactInformation: 'Kontaktinformationen',
+      email: 'E-Mail-Adresse',
+      emailPlaceholder: 'ihre.email@beispiel.de',
+      deliveryAddress: 'Lieferadresse',
+      firstName: 'Vorname',
+      firstNamePlaceholder: 'Vorname',
+      lastName: 'Nachname',
+      lastNamePlaceholder: 'Nachname',
+      street: 'Straße und Hausnummer',
+      streetPlaceholder: 'Straße und Hausnummer',
+      postcode: 'Postleitzahl',
+      postcodePlaceholder: 'PLZ',
+      city: 'Stadt',
+      cityPlaceholder: 'Stadt',
+      phone: 'Telefonnummer',
+      phonePlaceholder: 'Telefonnummer',
+      billingAddress: 'Rechnungsadresse',
+      sameAsDelivery: 'Rechnungsadresse ist identisch mit Lieferadresse',
+      termsAndConditions: 'AGB und Datenschutz',
+      acceptTermsText: 'Ich akzeptiere die Allgemeinen Geschäftsbedingungen',
+      acceptPrivacyText: 'Ich akzeptiere die Datenschutzerklärung',
+      submitOrder: 'Bestellung abschließen',
+      processing: 'Wird bearbeitet...'
     }
   },
   fr: {
@@ -428,7 +483,9 @@ const translations = {
       invalidOrderDataTitle: 'Données de commande non valides',
       invalidOrderDataDescription: 'Veuillez effectuer un nouveau calcul de prix.',
       loadOrderDataErrorTitle: 'Erreur lors du chargement des données de commande',
-      loadOrderDataErrorDescription: 'Veuillez effectuer un nouveau calcul de prix.'
+      loadOrderDataErrorDescription: 'Veuillez effectuer un nouveau calcul de prix.',
+      orderErrorTitle: 'Erreur lors de la création de la commande',
+      orderErrorDescription: 'Une erreur s\'est produite. Veuillez réessayer.'
     },
     validation: {
       emailRequired: 'Adresse e-mail valide requise',
@@ -439,6 +496,31 @@ const translations = {
       cityRequired: 'La ville est requise',
       phoneRequired: 'Le numéro de téléphone est requis',
       termsRequired: 'Vous devez accepter les CGV'
+    },
+    form: {
+      contactInformation: 'Informations de contact',
+      email: 'Adresse e-mail',
+      emailPlaceholder: 'votre.email@exemple.fr',
+      deliveryAddress: 'Adresse de livraison',
+      firstName: 'Prénom',
+      firstNamePlaceholder: 'Prénom',
+      lastName: 'Nom',
+      lastNamePlaceholder: 'Nom',
+      street: 'Rue et numéro',
+      streetPlaceholder: 'Rue et numéro',
+      postcode: 'Code postal',
+      postcodePlaceholder: 'Code postal',
+      city: 'Ville',
+      cityPlaceholder: 'Ville',
+      phone: 'Numéro de téléphone',
+      phonePlaceholder: 'Numéro de téléphone',
+      billingAddress: 'Adresse de facturation',
+      sameAsDelivery: 'L\'adresse de facturation est identique à l\'adresse de livraison',
+      termsAndConditions: 'CGV et confidentialité',
+      acceptTermsText: 'J\'accepte les conditions générales',
+      acceptPrivacyText: 'J\'accepte la politique de confidentialité',
+      submitOrder: 'Finaliser la commande',
+      processing: 'En cours de traitement...'
     }
   }
 } as const;

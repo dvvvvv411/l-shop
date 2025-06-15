@@ -152,6 +152,8 @@ export interface ItalianCheckoutTranslations {
     invalidOrderDataDescription: string;
     loadOrderDataErrorTitle: string;
     loadOrderDataErrorDescription: string;
+    orderErrorTitle: string;
+    orderErrorDescription: string;
   };
   // Validation messages
   validation: {
@@ -163,6 +165,32 @@ export interface ItalianCheckoutTranslations {
     cityRequired: string;
     phoneRequired: string;
     termsRequired: string;
+  };
+  // Form fields - consolidated access
+  form: {
+    contactInformation: string;
+    email: string;
+    emailPlaceholder: string;
+    deliveryAddress: string;
+    firstName: string;
+    firstNamePlaceholder: string;
+    lastName: string;
+    lastNamePlaceholder: string;
+    street: string;
+    streetPlaceholder: string;
+    postcode: string;
+    postcodePlaceholder: string;
+    city: string;
+    cityPlaceholder: string;
+    phone: string;
+    phonePlaceholder: string;
+    billingAddress: string;
+    sameAsDelivery: string;
+    termsAndConditions: string;
+    acceptTermsText: string;
+    acceptPrivacyText: string;
+    submitOrder: string;
+    processing: string;
   };
 }
 
@@ -308,7 +336,9 @@ const italianTranslations: ItalianCheckoutTranslations = {
     invalidOrderDataTitle: 'Dati ordine non validi',
     invalidOrderDataDescription: 'Esegui un nuovo calcolo del prezzo.',
     loadOrderDataErrorTitle: 'Errore nel caricamento dei dati ordine',
-    loadOrderDataErrorDescription: 'Esegui un nuovo calcolo del prezzo.'
+    loadOrderDataErrorDescription: 'Esegui un nuovo calcolo del prezzo.',
+    orderErrorTitle: 'Errore nella creazione dell\'ordine',
+    orderErrorDescription: 'Si è verificato un errore. Riprova.'
   },
   validation: {
     emailRequired: 'Indirizzo e-mail valido richiesto',
@@ -319,6 +349,31 @@ const italianTranslations: ItalianCheckoutTranslations = {
     cityRequired: 'Città richiesta',
     phoneRequired: 'Numero di telefono richiesto',
     termsRequired: 'Devi accettare i termini e condizioni'
+  },
+  form: {
+    contactInformation: 'Informazioni di contatto',
+    email: 'Indirizzo e-mail',
+    emailPlaceholder: 'la.tua.email@esempio.it',
+    deliveryAddress: 'Indirizzo di consegna',
+    firstName: 'Nome',
+    firstNamePlaceholder: 'Nome',
+    lastName: 'Cognome',
+    lastNamePlaceholder: 'Cognome',
+    street: 'Via e numero civico',
+    streetPlaceholder: 'Via e numero civico',
+    postcode: 'CAP',
+    postcodePlaceholder: 'CAP',
+    city: 'Città',
+    cityPlaceholder: 'Città',
+    phone: 'Numero di telefono',
+    phonePlaceholder: 'Numero di telefono',
+    billingAddress: 'Indirizzo di fatturazione',
+    sameAsDelivery: 'L\'indirizzo di fatturazione è identico all\'indirizzo di consegna',
+    termsAndConditions: 'Termini e condizioni e privacy',
+    acceptTermsText: 'Accetto i termini e condizioni generali',
+    acceptPrivacyText: 'Accetto l\'informativa sulla privacy',
+    submitOrder: 'Finalizza ordine',
+    processing: 'Elaborazione in corso...'
   }
 };
 
