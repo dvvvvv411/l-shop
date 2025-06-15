@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, Truck, Clock, ChevronDown, ChevronUp } from 'lucide-react';
@@ -38,6 +37,7 @@ const CheckoutSummary = ({ orderData }: CheckoutSummaryProps) => {
   // Wähle die richtigen Übersetzungen basierend auf dem Shop-Typ
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
+  // Switch based on shop type
   const t = shopConfig.shopType === 'italy' ? italianTranslations : germanFrenchTranslations;
 
   const finalPrice = orderData.totalPrice;

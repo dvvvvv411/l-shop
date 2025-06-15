@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +12,7 @@ import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { Button } from '@/components/ui/button';
+import ItalianOrderSummary from '@/components/ItalianOrderSummary';
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -202,6 +202,12 @@ const Summary = () => {
 
   const t = getTranslations();
 
+  // Use correct summary depending on shop type:
+  let SummaryComponent = OrderSummary;
+  if (shopConfig.shopType === 'italy') {
+    SummaryComponent = ItalianOrderSummary;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -372,28 +378,10 @@ const Summary = () => {
 
               {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
-                <OrderSummary
-                  orderData={{
-                    product: {
-                      id: 'standard',
-                      name: orderData.product,
-                      price: orderData.pricePerLiter,
-                      description: shopConfig.shopType === 'italy' 
-                        ? 'Gasolio di qualità secondo EN 590'
-                        : shopConfig.shopType === 'france'
-                        ? 'Fioul de qualité selon DIN 51603-1'
-                        : 'Qualitäts-Heizöl nach DIN 51603-1'
-                    },
-                    amount: orderData.amount,
-                    postcode: orderData.deliveryPostcode,
-                    basePrice: orderData.basePrice,
-                    deliveryFee: orderData.deliveryFee,
-                    totalPrice: orderData.total,
-                    savings: orderData.discount
-                  }}
+                <SummaryComponent 
+                  orderData={orderData} 
                   bankAccountDetails={bankAccountDetails}
                   orderNumber={orderData.orderNumber}
-                  autoScrollToBankDetails={shopConfig.shopType === 'france' || shopConfig.shopType === 'italy'}
                 />
               </div>
             </div>
