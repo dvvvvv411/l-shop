@@ -96,11 +96,11 @@ export const useItalianOrderSubmission = () => {
 
       console.log('Order saved successfully:', order.id);
 
-      // Get Italian shop configuration for invoice generation
+      // Get Italian shop configuration for invoice generation - FIXED: Use correct shop name
       const { data: italianShop, error: shopError } = await supabase
         .from('shops')
         .select('*')
-        .eq('name', 'Gasolio IT')
+        .eq('name', 'Gasolio Casa')
         .maybeSingle();
 
       if (shopError) {

@@ -55,7 +55,7 @@ serve(async (req) => {
     // Store the old status for history logging
     const oldStatus = order.status;
 
-    // Fetch shop details if provided
+    // Fetch shop details with improved logic
     let shop = null
     if (shopId) {
       const { data: shopData, error: shopError } = await supabaseClient
@@ -69,6 +69,27 @@ serve(async (req) => {
         throw new Error('Shop not found')
       }
       shop = shopData
+    } else {
+      // Fallback: try to detect Italian shop based on domain or order language
+      const isItalianOrder = order.customer_language === 'it' || 
+                           order.origin_domain?.includes('gasoliocasa') ||
+                           order.origin_domain?.includes('gasolio');
+      
+      if (isItalianOrder) {
+        console.log('Detected Italian order, searching for Italian shop...');
+        const { data: italianShop, error: italianShopError } = await supabaseClient
+          .from('shops')
+          .select('*')
+          .eq('name', 'Gasolio Casa')
+          .maybeSingle();
+
+        if (!italianShopError && italianShop) {
+          shop = italianShop;
+          console.log('Found Italian shop:', shop.name);
+        } else {
+          console.warn('Could not find Italian shop, will use fallback data');
+        }
+      }
     }
 
     // Fetch bank account details if provided
@@ -405,7 +426,7 @@ function generateInvoicePDF(order: any, shop: any, bankAccount: any, invoiceNumb
   // Set default font
   doc.setFont('helvetica')
   
-  // Company header with background
+  // Company header with background - Use shop data if available, otherwise fallback to appropriate defaults
   const companyName = shop?.company_name || (isItalianShop ? 'Gasolio Veloce S.r.l.' : (isFrenchShop ? 'Fioul Rapide SARL' : 'Heizöl-Express GmbH'))
   const companyAddress = shop?.company_address || (isItalianShop ? 'Via Roma 123' : (isFrenchShop ? 'Rue de la République 123' : 'Musterstraße 123'))
   const companyPostcode = shop?.company_postcode || (isItalianShop ? '00100' : (isFrenchShop ? '75001' : '12345'))
