@@ -12,7 +12,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
+import { useItalianOrders } from '@/hooks/useItalianOrders';
 import OrderSummary from '@/components/OrderSummary';
+import ItalianOrderSummary from '@/components/italian/ItalianOrderSummary';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -93,6 +95,7 @@ const OrderForm = () => {
   const [orderData, setOrderData] = useState<PriceCalculatorData | null>(null);
   const { setOrderData: setContextOrderData } = useOrder();
   const { createOrder } = useOrders();
+  const { createOrder: createItalianOrder } = useItalianOrders(); // Italian order hook
   const { toast } = useToast();
   const navigate = useNavigate();
   const shopConfig = useDomainShop();
@@ -262,8 +265,15 @@ const OrderForm = () => {
       };
       console.log('Sending order data to database:', dbOrderData);
 
-      // Create order in database
-      const createdOrder = await createOrder(dbOrderData);
+      // Use Italian order creation for Italian shops, regular for others
+      let createdOrder;
+      if (shopConfig.shopType === 'italy') {
+        console.log('Using Italian order creation flow');
+        createdOrder = await createItalianOrder(dbOrderData);
+      } else {
+        console.log('Using regular order creation flow');
+        createdOrder = await createOrder(dbOrderData);
+      }
 
       // Handle case where order was already processed (duplicate request)
       if (!createdOrder) {
@@ -273,8 +283,12 @@ const OrderForm = () => {
       }
       console.log('Order created with order number:', createdOrder.order_number);
 
-      // Send order confirmation email
-      await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
+      // Send order confirmation email only for non-Italian shops
+      if (shopConfig.shopType !== 'italy') {
+        await sendOrderConfirmationEmail(createdOrder.id, data.customerEmail);
+      } else {
+        console.log('Skipping order confirmation email for Italian shop - invoice will be sent instead');
+      }
 
       // Set order data for context (for summary page) - now includes customerEmail
       const contextOrderData = {
@@ -653,7 +667,11 @@ const OrderForm = () => {
 
       {/* Order Summary Sidebar */}
       <div className="lg:col-span-1">
-        <OrderSummary orderData={orderData} />
+        {shopConfig.shopType === 'italy' ? (
+          <ItalianOrderSummary orderData={orderData} />
+        ) : (
+          <OrderSummary orderData={orderData} />
+        )}
       </div>
     </div>
   );

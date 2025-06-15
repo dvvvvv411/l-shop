@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +12,8 @@ import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { Button } from '@/components/ui/button';
+import ItalianOrderSummary from '@/components/italian/ItalianOrderSummary';
+import { useItalianOrders } from '@/hooks/useItalianOrders';
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -48,9 +49,14 @@ const Summary = () => {
     fetchSupplier();
   }, [orderData.deliveryPostcode, getSupplierByPostcode]);
 
-  // Get bank account details for French shop - always use Italien Champion account
+  // Get bank account details - use GasolioCasa for Italian shops, Italien Champion for French shops
   const getBankAccountDetails = () => {
-    if (shopConfig.shopType === 'france') {
+    if (shopConfig.shopType === 'italy') {
+      const gasolioCasaAccount = bankAccounts.find(
+        account => account.system_name === 'GasolioCasa'
+      );
+      return gasolioCasaAccount || null;
+    } else if (shopConfig.shopType === 'france') {
       const italienChampionAccount = bankAccounts.find(
         account => account.system_name === 'Italien Champion'
       );
@@ -81,6 +87,8 @@ const Summary = () => {
       }
     });
   };
+
+  const isItalianShop = shopConfig.shopType === 'italy';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -252,27 +260,49 @@ const Summary = () => {
                 </motion.div>
               </div>
 
-              {/* Order Summary Sidebar - Use orderData directly from context */}
+              {/* Order Summary Sidebar - Use Italian component for Italian shops */}
               <div className="lg:col-span-1">
-                <OrderSummary
-                  orderData={{
-                    product: {
-                      id: 'standard',
-                      name: orderData.product,
-                      price: orderData.pricePerLiter,
-                      description: 'Qualitäts-Heizöl nach DIN 51603-1'
-                    },
-                    amount: orderData.amount,
-                    postcode: orderData.deliveryPostcode,
-                    basePrice: orderData.basePrice,
-                    deliveryFee: orderData.deliveryFee,
-                    totalPrice: orderData.total,
-                    savings: orderData.discount
-                  }}
-                  bankAccountDetails={bankAccountDetails}
-                  orderNumber={orderData.orderNumber}
-                  autoScrollToBankDetails={shopConfig.shopType === 'france'}
-                />
+                {isItalianShop ? (
+                  <ItalianOrderSummary
+                    orderData={{
+                      product: {
+                        id: 'standard',
+                        name: orderData.product,
+                        price: orderData.pricePerLiter,
+                        description: 'Gasolio di qualità secondo EN 590'
+                      },
+                      amount: orderData.amount,
+                      postcode: orderData.deliveryPostcode,
+                      basePrice: orderData.basePrice,
+                      deliveryFee: orderData.deliveryFee,
+                      totalPrice: orderData.total,
+                      savings: orderData.discount
+                    }}
+                    bankAccountDetails={bankAccountDetails}
+                    orderNumber={orderData.orderNumber}
+                    autoScrollToBankDetails={true}
+                  />
+                ) : (
+                  <OrderSummary
+                    orderData={{
+                      product: {
+                        id: 'standard',
+                        name: orderData.product,
+                        price: orderData.pricePerLiter,
+                        description: 'Qualitäts-Heizöl nach DIN 51603-1'
+                      },
+                      amount: orderData.amount,
+                      postcode: orderData.deliveryPostcode,
+                      basePrice: orderData.basePrice,
+                      deliveryFee: orderData.deliveryFee,
+                      totalPrice: orderData.total,
+                      savings: orderData.discount
+                    }}
+                    bankAccountDetails={bankAccountDetails}
+                    orderNumber={orderData.orderNumber}
+                    autoScrollToBankDetails={shopConfig.shopType === 'france'}
+                  />
+                )}
               </div>
             </div>
           </motion.div>
