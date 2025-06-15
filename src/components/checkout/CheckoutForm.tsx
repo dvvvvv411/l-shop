@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -13,8 +12,7 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useItalianOrders } from '@/hooks/useItalianOrders';
 import { useDomainShop } from '@/hooks/useDomainShop';
-import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
-import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useUnifiedCheckoutTranslations } from '@/hooks/useUnifiedCheckoutTranslations';
 
 const formSchema = z.object({
   deliveryFirstName: z.string().min(1, 'Vorname ist erforderlich'),
@@ -66,7 +64,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
   const { createOrder: createStandardOrder } = useOrders();
   const { createOrder: createItalianOrder } = useItalianOrders();
   
-  const t = isItalianShop ? useItalianCheckoutTranslations() : useCheckoutTranslations();
+  const t = useUnifiedCheckoutTranslations();
 
   const {
     register,
@@ -134,9 +132,21 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
       if (createdOrder) {
         console.log('Order created successfully:', createdOrder);
         
-        // Store order data in context
+        // Store order data in context with all required fields
         setOrderData({
-          ...data,
+          deliveryFirstName: data.deliveryFirstName,
+          deliveryLastName: data.deliveryLastName,
+          deliveryStreet: data.deliveryStreet,
+          deliveryPostcode: data.deliveryPostcode,
+          deliveryCity: data.deliveryCity,
+          deliveryPhone: data.deliveryPhone,
+          customerEmail: data.customerEmail,
+          useSameAddress: data.useSameAddress,
+          billingFirstName: data.useSameAddress ? data.deliveryFirstName : (data.billingFirstName || ''),
+          billingLastName: data.useSameAddress ? data.deliveryLastName : (data.billingLastName || ''),
+          billingStreet: data.useSameAddress ? data.deliveryStreet : (data.billingStreet || ''),
+          billingPostcode: data.useSameAddress ? data.deliveryPostcode : (data.billingPostcode || ''),
+          billingCity: data.useSameAddress ? data.deliveryCity : (data.billingCity || ''),
           product: orderData.product.name,
           amount: orderData.amount,
           pricePerLiter: orderData.product.price,
@@ -168,19 +178,19 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
       className="bg-white rounded-xl p-8 shadow-lg"
     >
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        {isItalianShop ? 'Compila il modulo d\'ordine' : t.form?.title || 'Checkout'}
+        {t.form?.title || 'Checkout'}
       </h2>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Delivery Address Section */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {isItalianShop ? 'Indirizzo di consegna' : t.form?.deliveryAddress || 'Delivery Address'}
+            {t.form?.deliveryAddress || 'Delivery Address'}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="deliveryFirstName">
-                {isItalianShop ? 'Nome' : t.form?.firstName || 'First Name'}
+                {t.form?.firstName || 'First Name'}
               </Label>
               <Input
                 id="deliveryFirstName"
@@ -194,7 +204,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div>
               <Label htmlFor="deliveryLastName">
-                {isItalianShop ? 'Cognome' : t.form?.lastName || 'Last Name'}
+                {t.form?.lastName || 'Last Name'}
               </Label>
               <Input
                 id="deliveryLastName"
@@ -208,7 +218,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div className="md:col-span-2">
               <Label htmlFor="deliveryStreet">
-                {isItalianShop ? 'Indirizzo' : t.form?.street || 'Street'}
+                {t.form?.street || 'Street'}
               </Label>
               <Input
                 id="deliveryStreet"
@@ -222,7 +232,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div>
               <Label htmlFor="deliveryPostcode">
-                {isItalianShop ? 'CAP' : t.form?.postcode || 'Postcode'}
+                {t.form?.postcode || 'Postcode'}
               </Label>
               <Input
                 id="deliveryPostcode"
@@ -237,7 +247,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div>
               <Label htmlFor="deliveryCity">
-                {isItalianShop ? 'Città' : t.form?.city || 'City'}
+                {t.form?.city || 'City'}
               </Label>
               <Input
                 id="deliveryCity"
@@ -251,7 +261,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div>
               <Label htmlFor="deliveryPhone">
-                {isItalianShop ? 'Telefono' : t.form?.phone || 'Phone'}
+                {t.form?.phone || 'Phone'}
               </Label>
               <Input
                 id="deliveryPhone"
@@ -266,7 +276,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             
             <div>
               <Label htmlFor="customerEmail">
-                {isItalianShop ? 'Email' : t.form?.email || 'Email'}
+                {t.form?.email || 'Email'}
               </Label>
               <Input
                 id="customerEmail"
@@ -290,19 +300,19 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
               onCheckedChange={(checked) => setValue('useSameAddress', checked as boolean)}
             />
             <Label htmlFor="useSameAddress" className="text-sm">
-              {isItalianShop ? 'Usa lo stesso indirizzo per la fatturazione' : t.form?.sameAsBilling || 'Same as delivery address'}
+              {t.form?.sameAsBilling || 'Same as delivery address'}
             </Label>
           </div>
 
           {!useSameAddress && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {isItalianShop ? 'Indirizzo di fatturazione' : t.form?.billingAddress || 'Billing Address'}
+                {t.form?.billingAddress || 'Billing Address'}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="billingFirstName">
-                    {isItalianShop ? 'Nome' : t.form?.firstName || 'First Name'}
+                    {t.form?.firstName || 'First Name'}
                   </Label>
                   <Input
                     id="billingFirstName"
@@ -316,7 +326,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 
                 <div>
                   <Label htmlFor="billingLastName">
-                    {isItalianShop ? 'Cognome' : t.form?.lastName || 'Last Name'}
+                    {t.form?.lastName || 'Last Name'}
                   </Label>
                   <Input
                     id="billingLastName"
@@ -330,7 +340,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 
                 <div className="md:col-span-2">
                   <Label htmlFor="billingStreet">
-                    {isItalianShop ? 'Indirizzo' : t.form?.street || 'Street'}
+                    {t.form?.street || 'Street'}
                   </Label>
                   <Input
                     id="billingStreet"
@@ -344,7 +354,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 
                 <div>
                   <Label htmlFor="billingPostcode">
-                    {isItalianShop ? 'CAP' : t.form?.postcode || 'Postcode'}
+                    {t.form?.postcode || 'Postcode'}
                   </Label>
                   <Input
                     id="billingPostcode"
@@ -358,7 +368,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 
                 <div>
                   <Label htmlFor="billingCity">
-                    {isItalianShop ? 'Città' : t.form?.city || 'City'}
+                    {t.form?.city || 'City'}
                   </Label>
                   <Input
                     id="billingCity"
@@ -383,7 +393,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
               className={errors.acceptTerms ? 'border-red-500' : ''}
             />
             <Label htmlFor="acceptTerms" className="text-sm cursor-pointer">
-              {isItalianShop ? 'Accetto i termini e condizioni' : t.form?.acceptTerms || 'I accept the terms and conditions'}
+              {t.form?.acceptTerms || 'I accept the terms and conditions'}
             </Label>
           </div>
           {errors.acceptTerms && (
@@ -397,8 +407,8 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
           className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           {isSubmitting 
-            ? (isItalianShop ? 'Invio in corso...' : t.form?.submitting || 'Submitting...')
-            : (isItalianShop ? 'Invia ordine' : t.form?.submitOrder || 'Submit Order')
+            ? (t.form?.submitting || 'Submitting...')
+            : (t.form?.submitOrder || 'Submit Order')
           }
         </Button>
       </form>
