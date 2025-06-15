@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -19,7 +20,6 @@ const Confirmation = () => {
   const [isLoadingSupplier, setIsLoadingSupplier] = useState(false);
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
   const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
-  const [italianOrderData, setItalianOrderData] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { orderData, clearOrderData } = useOrder();
@@ -27,12 +27,10 @@ const Confirmation = () => {
   const { bankAccounts } = useBankAccounts();
   const { shops } = useShops();
   const shopConfig = useDomainShop();
-  
+  const orderNumber = location.state?.orderNumber || 'HÖ12345678';
+
   const isFrenchShop = shopConfig.shopType === 'france';
   const isItalianShop = shopConfig.shopType === 'italy';
-  
-  // Get order number and data from various sources
-  const orderNumber = location.state?.orderNumber || italianOrderData?.orderNumber || 'H123456';
 
   console.log('Confirmation - Shop detection:', {
     shopType: shopConfig.shopType,
@@ -42,45 +40,18 @@ const Confirmation = () => {
     pathname: typeof window !== 'undefined' ? window.location.pathname : 'N/A'
   });
 
-  // Load Italian order data if available
-  useEffect(() => {
-    if (isItalianShop) {
-      const storedItalianData = localStorage.getItem('italianOrderConfirmation');
-      if (storedItalianData) {
-        try {
-          const parsedData = JSON.parse(storedItalianData);
-          setItalianOrderData(parsedData);
-          console.log('Loaded Italian order data:', parsedData);
-        } catch (error) {
-          console.error('Error parsing Italian order data:', error);
-        }
-      } else if (!orderData) {
-        // If no Italian data and no regular order data, redirect to home
-        navigate('/');
-        return;
-      }
-    } else if (!orderData) {
-      // For non-Italian shops, redirect if no order data
-      navigate('/');
-      return;
-    }
-  }, [isItalianShop, orderData, navigate]);
-
-  // Get the appropriate order data based on shop type
-  const currentOrderData = isItalianShop ? italianOrderData : orderData;
-  
-  if (!currentOrderData) {
+  if (!orderData) {
+    navigate('/');
     return null;
   }
 
   // Fetch supplier information and bank account details when component mounts
   useEffect(() => {
     const fetchSupplier = async () => {
-      const postcode = currentOrderData.deliveryPostcode;
-      if (postcode) {
+      if (orderData.deliveryPostcode) {
         setIsLoadingSupplier(true);
         try {
-          const supplierData = await getSupplierByPostcode(postcode);
+          const supplierData = await getSupplierByPostcode(orderData.deliveryPostcode);
           setSupplier(supplierData);
         } catch (error) {
           console.error('Error fetching supplier:', error);
@@ -115,68 +86,65 @@ const Confirmation = () => {
           console.warn('Confirmation - No active French bank account found');
         }
       } else if (isItalianShop) {
-        // For Italian shop, use the bank account from stored data if available
-        if (italianOrderData?.bankAccountDetails) {
-          setBankAccountDetails(italianOrderData.bankAccountDetails);
-          setDisplayAccountHolder('Gasolio Veloce');
-          console.log('Confirmation - Using stored Italian bank account');
-        } else {
-          // Fallback to searching bank accounts
-          let italianAccount = null;
-          
-          // Strategy 1: Exact match for GasolioCasa
+        // Enhanced search for Italian bank account with multiple fallback strategies
+        let italianAccount = null;
+        
+        // Strategy 1: Exact match for GasolioCasa
+        italianAccount = bankAccounts.find(account => 
+          account.system_name === 'GasolioCasa' && account.is_active
+        );
+        
+        // Strategy 2: Case-insensitive search for gasoliocasa variations
+        if (!italianAccount) {
           italianAccount = bankAccounts.find(account => 
-            account.system_name === 'GasolioCasa' && account.is_active
+            account.system_name.toLowerCase().includes('gasoliocasa') && account.is_active
           );
-          
-          // Strategy 2: Case-insensitive search for gasoliocasa variations
-          if (!italianAccount) {
-            italianAccount = bankAccounts.find(account => 
-              account.system_name.toLowerCase().includes('gasoliocasa') && account.is_active
-            );
-          }
-          
-          // Strategy 3: Search for gasolio-related accounts
-          if (!italianAccount) {
-            italianAccount = bankAccounts.find(account => 
-              account.system_name.toLowerCase().includes('gasolio') && account.is_active
-            );
-          }
-          
-          console.log('Confirmation - Italian account search result:', {
-            found: !!italianAccount,
-            account: italianAccount ? {
-              id: italianAccount.id,
-              system_name: italianAccount.system_name,
-              bank_name: italianAccount.bank_name
-            } : null
-          });
-          
-          if (italianAccount) {
-            setBankAccountDetails(italianAccount);
-            setDisplayAccountHolder('Gasolio Veloce');
-            console.log('Confirmation - Using Italian account holder: Gasolio Veloce');
-          } else {
-            console.warn('Confirmation - No active Italian bank account found. Available accounts:', 
-              bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
-            );
-          }
+        }
+        
+        // Strategy 3: Search for gasolio-related accounts
+        if (!italianAccount) {
+          italianAccount = bankAccounts.find(account => 
+            account.system_name.toLowerCase().includes('gasolio') && account.is_active
+          );
+        }
+        
+        // Strategy 4: Search for Italy/Italian-related accounts
+        if (!italianAccount) {
+          italianAccount = bankAccounts.find(account => 
+            (account.system_name.toLowerCase().includes('italia') || 
+             account.system_name.toLowerCase().includes('italy') ||
+             account.system_name.toLowerCase().includes('it')) && account.is_active
+          );
+        }
+        
+        console.log('Confirmation - Italian account search result:', {
+          found: !!italianAccount,
+          account: italianAccount ? {
+            id: italianAccount.id,
+            system_name: italianAccount.system_name,
+            bank_name: italianAccount.bank_name
+          } : null
+        });
+        
+        if (italianAccount) {
+          setBankAccountDetails(italianAccount);
+          setDisplayAccountHolder('Gasolio Veloce');
+          console.log('Confirmation - Using Italian account holder: Gasolio Veloce');
+        } else {
+          console.warn('Confirmation - No active Italian bank account found. Available accounts:', 
+            bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
+          );
         }
       }
     };
 
     fetchSupplier();
     fetchBankAccountDetails();
-  }, [currentOrderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, isItalianShop, bankAccounts, shops, italianOrderData]);
+  }, [orderData.deliveryPostcode, getSupplierByPostcode, isFrenchShop, isItalianShop, bankAccounts, shops]);
 
   const handleNewOrder = () => {
-    if (isItalianShop) {
-      localStorage.removeItem('italianOrderConfirmation');
-      navigate('/');
-    } else {
-      clearOrderData();
-      navigate('/');
-    }
+    clearOrderData();
+    navigate('/');
   };
 
   return (
@@ -237,20 +205,20 @@ const Confirmation = () => {
                   </div>
 
                   {/* Email confirmation notice */}
-                  {currentOrderData.customerEmail && !isFrenchShop && !isItalianShop && (
+                  {orderData.customerEmail && !isFrenchShop && !isItalianShop && (
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-center space-x-2 text-blue-700">
                         <Mail size={20} />
                         <span className="font-medium">Bestätigung per E-Mail</span>
                       </div>
                       <p className="text-blue-600 text-sm mt-2">
-                        Eine Bestellbestätigung wurde an <strong>{currentOrderData.customerEmail}</strong> gesendet.
+                        Eine Bestellbestätigung wurde an <strong>{orderData.customerEmail}</strong> gesendet.
                       </p>
                     </div>
                   )}
 
                   {/* Invoice notice for French and Italian shops */}
-                  {(isFrenchShop || isItalianShop) && currentOrderData.customerEmail && (
+                  {(isFrenchShop || isItalianShop) && orderData.customerEmail && (
                     <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center justify-center space-x-2 text-green-700">
                         <Mail size={20} />
@@ -263,8 +231,8 @@ const Confirmation = () => {
                       </div>
                       <p className="text-green-600 text-sm mt-2">
                         {isItalianShop 
-                          ? `La tua fattura è stata automaticamente inviata a ${currentOrderData.customerEmail} con i dati bancari.`
-                          : `Votre facture a été automatiquement envoyée à ${currentOrderData.customerEmail} avec les coordonnées bancaires.`
+                          ? `La tua fattura è stata automaticamente inviata a ${orderData.customerEmail} con i dati bancari.`
+                          : `Votre facture a été automatiquement envoyée à ${orderData.customerEmail} avec les coordonnées bancaires.`
                         }
                       </p>
                     </div>
@@ -328,7 +296,7 @@ const Confirmation = () => {
                         <div className="text-sm font-medium text-green-800 mb-1">
                           {isItalianShop ? 'Importo da trasferire' : 'Montant à virer'}
                         </div>
-                        <div className="text-2xl font-bold text-green-900">{currentOrderData.total.toFixed(2)}€</div>
+                        <div className="text-2xl font-bold text-green-900">{orderData.total.toFixed(2)}€</div>
                         <div className="text-sm text-green-700 mt-1">
                           {isItalianShop ? 'Riferimento' : 'Référence'}: {orderNumber}
                         </div>
@@ -443,10 +411,10 @@ const Confirmation = () => {
                             </div>
                             <div className="text-blue-700">
                               {isItalianShop 
-                                ? `Si prega di trasferire l'importo di ${currentOrderData.total.toFixed(2)}€ con il riferimento ${orderNumber}.`
+                                ? `Si prega di trasferire l'importo di ${orderData.total.toFixed(2)}€ con il riferimento ${orderNumber}.`
                                 : isFrenchShop 
-                                  ? `Veuillez virer le montant de ${currentOrderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
-                                  : `Nach unserem Anruf überweisen Sie den Betrag von ${currentOrderData.total.toFixed(2)}€ auf unser Konto.`
+                                  ? `Veuillez virer le montant de ${orderData.total.toFixed(2)}€ avec la référence ${orderNumber}.`
+                                  : `Nach unserem Anruf überweisen Sie den Betrag von ${orderData.total.toFixed(2)}€ auf unser Konto.`
                               }
                             </div>
                           </div>
@@ -641,20 +609,20 @@ const Confirmation = () => {
                   orderData={{
                     product: {
                       id: 'standard',
-                      name: currentOrderData.product,
-                      price: currentOrderData.pricePerLiter,
+                      name: orderData.product,
+                      price: orderData.pricePerLiter,
                       description: isItalianShop 
                         ? 'Gasolio di qualità secondo norma DIN 51603-1'
                         : isFrenchShop 
                           ? 'Fioul de qualité selon norme DIN 51603-1' 
                           : 'Qualitäts-Heizöl nach DIN 51603-1'
                     },
-                    amount: currentOrderData.amount,
-                    postcode: currentOrderData.deliveryPostcode,
-                    basePrice: currentOrderData.basePrice,
-                    deliveryFee: currentOrderData.deliveryFee,
-                    totalPrice: currentOrderData.total,
-                    savings: currentOrderData.discount
+                    amount: orderData.amount,
+                    postcode: orderData.deliveryPostcode,
+                    basePrice: orderData.basePrice,
+                    deliveryFee: orderData.deliveryFee,
+                    totalPrice: orderData.total,
+                    savings: orderData.discount
                   }}
                   bankAccountDetails={bankAccountDetails ? {
                     ...bankAccountDetails,

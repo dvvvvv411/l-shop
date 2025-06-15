@@ -40,7 +40,7 @@ export const useItalianOrderSubmission = () => {
     setIsSubmitting(true);
 
     try {
-      // Generate order number with 'H' prefix for Italian orders
+      // Generate order number - FIXED: Use 'H' instead of 'HÖ'
       const orderNumber = 'H' + Math.floor(100000 + Math.random() * 900000);
 
       console.log('Submitting Italian order:', {
@@ -50,7 +50,7 @@ export const useItalianOrderSubmission = () => {
         bankAccount: bankAccountDetails?.system_name
       });
 
-      // Save order to database using standard order structure
+      // Save order to database first using standard order structure
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -153,8 +153,7 @@ export const useItalianOrderSubmission = () => {
         orderId: order.id,
         orderNumber: orderNumber,
         emailSent: !emailError,
-        invoiceGenerated: !invoiceError,
-        redirectPath: '/conferma' // Add redirect path for Italian confirmation
+        invoiceGenerated: !invoiceError
       };
 
     } catch (error: any) {
