@@ -7,8 +7,6 @@ import { useOrder } from '@/contexts/OrderContext';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useDomainShop } from '@/hooks/useDomainShop';
-import { useBankAccounts } from '@/hooks/useBankAccounts';
-import { useShops } from '@/hooks/useShops';
 import { formatIban } from '@/utils/ibanFormatter';
 
 interface PriceCalculatorData {
@@ -48,31 +46,6 @@ const CheckoutConfirmation = ({
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
   const t = isItalianShop ? italianTranslations : germanFrenchTranslations;
-  
-  const { bankAccounts } = useBankAccounts();
-  const { shops } = useShops();
-  const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
-  const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
-
-  // Fetch bank account details for French shop
-  useEffect(() => {
-    if (isFrenchShop) {
-      const italienChampionAccount = bankAccounts.find(
-        account => account.system_name === 'Italien Champion'
-      );
-      
-      console.log('Found Italien Champion account:', italienChampionAccount);
-      console.log('Available shops:', shops);
-      
-      if (italienChampionAccount) {
-        setBankAccountDetails(italienChampionAccount);
-        
-        // For French shop, always use "Fioul Rapide" as account holder
-        setDisplayAccountHolder('Fioul Rapide');
-        console.log('Using hardcoded French account holder: Fioul Rapide');
-      }
-    }
-  }, [isFrenchShop, bankAccounts, shops]);
 
   if (!contextOrderData) {
     return (
@@ -88,6 +61,14 @@ const CheckoutConfirmation = ({
   const vatRate = isItalianShop ? 0.22 : 0.19;
   const netPrice = orderData.totalPrice / (1 + vatRate);
   const vatAmount = orderData.totalPrice - netPrice;
+
+  // Gasolio Casa bank account details (hardcoded for Italian shop)
+  const gasolioCasaBankDetails = {
+    accountHolder: 'Gasolio Casa',
+    bankName: 'Intesa Sanpaolo',
+    iban: 'IT60 X054 2811 1010 0000 0123 456',
+    bic: 'BCITITMM'
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -115,8 +96,8 @@ const CheckoutConfirmation = ({
           </div>
         </motion.div>
 
-        {/* Bank Account Details for French Shop - Show prominently */}
-        {isFrenchShop && bankAccountDetails && (
+        {/* Bank Account Details for Italian Shop - Show prominently */}
+        {isItalianShop && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -128,38 +109,38 @@ const CheckoutConfirmation = ({
                 <Building2 className="text-green-600" size={24} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-green-900">Coordonnées bancaires</h3>
-                <p className="text-green-700">Pour votre virement</p>
+                <h3 className="text-xl font-bold text-green-900">Coordinate Bancarie</h3>
+                <p className="text-green-700">Per il tuo bonifico</p>
               </div>
             </div>
 
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Titulaire</div>
-                  <div className="text-green-900 font-bold">Fioul Rapide</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Intestatario</div>
+                  <div className="text-green-900 font-bold">{gasolioCasaBankDetails.accountHolder}</div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banque</div>
-                  <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Banca</div>
+                  <div className="text-green-900 font-bold">{gasolioCasaBankDetails.bankName}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">IBAN</div>
-                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(bankAccountDetails.iban)}</div>
+                  <div className="text-green-900 font-mono text-sm font-bold break-all">{formatIban(gasolioCasaBankDetails.iban)}</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">BIC</div>
-                  <div className="text-green-900 font-mono font-bold">{bankAccountDetails.bic}</div>
+                  <div className="text-green-900 font-mono font-bold">{gasolioCasaBankDetails.bic}</div>
                 </div>
                 
                 <div className="bg-green-100 p-3 rounded-lg border border-green-200">
-                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Référence</div>
+                  <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">Causale</div>
                   <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
                 </div>
                 
                 <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Montant à virer</div>
+                  <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">Importo da Bonifico</div>
                   <div className="text-red-900 font-bold text-xl">{contextOrderData.total.toFixed(2)}€</div>
                 </div>
               </div>
@@ -194,24 +175,11 @@ const CheckoutConfirmation = ({
                 {t.confirmation.nextSteps}
               </h4>
               <div className="space-y-2 text-sm">
-                {!isItalianShop && !isFrenchShop && (
-                  <div className="flex items-start space-x-3">
-                    <Phone className="text-blue-600 mt-1" size={16} />
-                    <div>
-                      <div className="font-semibold text-blue-900">
-                        {t.confirmation.phoneContact}
-                      </div>
-                      <div className="text-blue-700">
-                        {t.confirmation.phoneContactDesc}
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-start space-x-3">
                   <CreditCard className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isItalianShop || isFrenchShop ? '1. ' : '2. '}{t.confirmation.bankTransfer || (isItalianShop ? 'Bonifico bancario' : isFrenchShop ? 'Virement bancaire' : 'Überweisung')}
+                      1. {t.confirmation.bankTransfer || (isItalianShop ? 'Bonifico bancario' : 'Überweisung')}
                     </div>
                     <div className="text-blue-700">
                       {t.confirmation.bankTransferDesc.replace('{amount}', contextOrderData.total.toFixed(2))}
@@ -222,7 +190,7 @@ const CheckoutConfirmation = ({
                   <Truck className="text-blue-600 mt-1" size={16} />
                   <div>
                     <div className="font-semibold text-blue-900">
-                      {isItalianShop || isFrenchShop ? '2. ' : '3. '}{t.confirmation.delivery || (isItalianShop ? 'Consegna' : isFrenchShop ? 'Livraison' : 'Lieferung')}
+                      2. {t.confirmation.delivery || (isItalianShop ? 'Consegna' : 'Lieferung')}
                     </div>
                     <div className="text-blue-700">
                       {t.confirmation.deliveryDesc}
@@ -328,7 +296,7 @@ const CheckoutConfirmation = ({
               <span className="text-gray-600">
                 {t.summary.quantity}
               </span>
-              <span className="font-semibold">{orderData.amount.toLocaleString(isItalianShop ? 'it-IT' : isFrenchShop ? 'fr-FR' : 'de-DE')} Liter</span>
+              <span className="font-semibold">{orderData.amount.toLocaleString(isItalianShop ? 'it-IT' : 'de-DE')} Liter</span>
             </div>
             
             <div className="flex justify-between">

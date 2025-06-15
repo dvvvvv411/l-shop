@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
-import { CreditCard, Truck, Shield, TestTube, FileText, Mail } from 'lucide-react';
+import { CreditCard, Truck, Shield, FileText, Mail } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -188,17 +189,68 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     setIsSubmitting(true);
 
     try {
-      // Prepare order data
+      // Prepare order data for database
+      const originDomain = window.location.hostname;
+      
       const orderSubmissionData = {
-        ...data,
-        ...orderData,
-        total: orderData.totalPrice,
-        status: 'confirmed' as const,
-        shopType: shopConfig.shopType
+        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
+        customer_email: 'kunde@email.de', // Keep legacy field for compatibility
+        customer_email_actual: data.customerEmail,
+        customer_phone: data.deliveryPhone,
+        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
+        delivery_first_name: data.deliveryFirstName,
+        delivery_last_name: data.deliveryLastName,
+        delivery_street: data.deliveryStreet,
+        delivery_postcode: data.deliveryPostcode,
+        delivery_city: data.deliveryCity,
+        delivery_phone: data.deliveryPhone,
+        use_same_address: data.useSameAddress,
+        billing_first_name: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
+        billing_last_name: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
+        billing_street: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
+        billing_postcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
+        billing_city: data.useSameAddress ? data.deliveryCity : data.billingCity,
+        payment_method: data.paymentMethod,
+        product: orderData.product.name,
+        amount: orderData.amount,
+        liters: orderData.amount,
+        price_per_liter: orderData.product.price,
+        base_price: orderData.basePrice,
+        delivery_fee: orderData.deliveryFee,
+        discount: 0,
+        total_amount: orderData.totalPrice,
+        delivery_date_display: '4-7 Werktage',
+        status: 'pending',
+        origin_domain: originDomain
       };
 
-      // Set order data in context
-      setOrderData(orderSubmissionData);
+      // Set order data in context for confirmation page
+      const contextOrderData = {
+        deliveryFirstName: data.deliveryFirstName,
+        deliveryLastName: data.deliveryLastName,
+        deliveryStreet: data.deliveryStreet,
+        deliveryPostcode: data.deliveryPostcode,
+        deliveryCity: data.deliveryCity,
+        deliveryPhone: data.deliveryPhone,
+        customerEmail: data.customerEmail,
+        useSameAddress: data.useSameAddress,
+        billingFirstName: data.billingFirstName,
+        billingLastName: data.billingLastName,
+        billingStreet: data.billingStreet,
+        billingPostcode: data.billingPostcode,
+        billingCity: data.billingCity,
+        paymentMethod: data.paymentMethod,
+        product: orderData.product.name,
+        amount: orderData.amount,
+        pricePerLiter: orderData.product.price,
+        basePrice: orderData.basePrice,
+        deliveryFee: orderData.deliveryFee,
+        discount: 0,
+        total: orderData.totalPrice,
+        deliveryDate: '4-7 Werktage'
+      };
+      
+      setOrderData(contextOrderData);
 
       // Create order in database
       const order = await createOrder(orderSubmissionData);
@@ -215,8 +267,8 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     } catch (error) {
       console.error('Order submission error:', error);
       toast({
-        title: t.toasts.orderErrorTitle,
-        description: t.toasts.orderErrorDescription,
+        title: t.toasts.orderCreationError || 'Errore nella creazione dell\'ordine',
+        description: t.toasts.orderCreationErrorDescription || 'Si è verificato un errore durante la creazione dell\'ordine. Riprova.',
         variant: 'destructive'
       });
     } finally {
@@ -232,37 +284,39 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
   return (
     <div className="space-y-8">
-      {/* Test Data Generator Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-amber-100 p-2 rounded-lg">
-              <TestTube className="text-amber-600" size={20} />
+      {/* Test Data Generator Button - Only show for non-Italian shops */}
+      {shopConfig.shopType !== 'italy' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <TestTube className="text-amber-600" size={20} />
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-900">
+                  Entwicklungsmodus
+                </h4>
+                <p className="text-sm text-amber-700">
+                  Automatisch Testdaten generieren
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-amber-900">
-                {shopConfig.shopType === 'italy' ? 'Modalità di sviluppo' : 'Entwicklungsmodus'}
-              </h4>
-              <p className="text-sm text-amber-700">
-                {shopConfig.shopType === 'italy' ? 'Genera dati di test automaticamente' : 'Automatisch Testdaten generieren'}
-              </p>
-            </div>
+            <Button
+              type="button"
+              onClick={handleGenerateTestData}
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            >
+              Testdaten generieren
+            </Button>
           </div>
-          <Button
-            type="button"
-            onClick={handleGenerateTestData}
-            variant="outline"
-            className="border-amber-300 text-amber-700 hover:bg-amber-100"
-          >
-            {shopConfig.shopType === 'italy' ? 'Genera dati di test' : 'Testdaten generieren'}
-          </Button>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">

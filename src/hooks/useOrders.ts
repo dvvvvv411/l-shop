@@ -76,6 +76,14 @@ export const useOrders = () => {
     return italienChampionAccount?.id || null;
   };
 
+  // Get the "Gasolio Casa" bank account ID for Italian orders
+  const getGasolioCasaBankAccountId = () => {
+    const gasolioCasaAccount = bankAccounts.find(
+      account => account.system_name === 'Gasolio Casa'
+    );
+    return gasolioCasaAccount?.id || null;
+  };
+
   // Get shop ID for Fioul Rapide
   const getFioulRapideShopId = async () => {
     try {
@@ -93,6 +101,23 @@ export const useOrders = () => {
     }
   };
 
+  // Get shop ID for Gasolio Casa
+  const getGasolioCasaShopId = async () => {
+    try {
+      const { data: shops, error } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('name', 'Gasolio Casa')
+        .limit(1);
+
+      if (error) throw error;
+      return shops?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching Gasolio Casa shop:', error);
+      return null;
+    }
+  };
+
   // Create new order with request deduplication
   const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
@@ -103,6 +128,9 @@ export const useOrders = () => {
       
       // Check if this is a French shop order (fioul-rapide.fr)
       const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
+      
+      // Check if this is an Italian shop order (gasoliocasa.com)
+      const isItalianShop = orderData.origin_domain === 'gasoliocasa.com';
       
       let finalOrderData = { ...orderData };
       
@@ -119,6 +147,22 @@ export const useOrders = () => {
         if (fioulRapideShopId) {
           finalOrderData.shop_id = fioulRapideShopId;
           console.log('Automatically assigned Fioul Rapide shop ID');
+        }
+      }
+
+      // For Italian shop orders, automatically assign Gasolio Casa bank account and shop
+      if (isItalianShop) {
+        const gasolioCasaBankAccountId = getGasolioCasaBankAccountId();
+        const gasolioCasaShopId = await getGasolioCasaShopId();
+        
+        if (gasolioCasaBankAccountId) {
+          finalOrderData.bank_account_id = gasolioCasaBankAccountId;
+          console.log('Automatically assigned Gasolio Casa bank account for Italian shop order');
+        }
+        
+        if (gasolioCasaShopId) {
+          finalOrderData.shop_id = gasolioCasaShopId;
+          console.log('Automatically assigned Gasolio Casa shop ID');
         }
       }
       
@@ -155,8 +199,9 @@ export const useOrders = () => {
 
       console.log('Order created successfully:', data);
 
-      // For French shop orders, automatically generate and send invoice
+      // Handle post-order processing based on shop type
       if (isFrenchShop && data.bank_account_id && data.shop_id) {
+        // For French shop orders, automatically generate and send invoice
         try {
           console.log('Automatically generating invoice for French shop order...');
           await generateInvoice(data.id, data.shop_id, data.bank_account_id);
@@ -169,8 +214,27 @@ export const useOrders = () => {
             description: 'Bestellung erfolgreich erstellt. Rechnung wird nachträglich versendet.',
           });
         }
+      } else if (isItalianShop && data.bank_account_id && data.shop_id) {
+        // For Italian shop orders, automatically generate and send invoice (no order confirmation email)
+        try {
+          console.log('Automatically generating invoice for Italian shop order...');
+          await generateInvoice(data.id, data.shop_id, data.bank_account_id);
+          console.log('Invoice automatically generated and sent for Italian shop order');
+          
+          toast({
+            title: 'Ordine Confermato',
+            description: 'Ordine creato con successo. La fattura è stata inviata via email.',
+          });
+        } catch (invoiceError) {
+          console.error('Error automatically generating invoice for Italian order:', invoiceError);
+          // Don't fail the order creation if invoice generation fails
+          toast({
+            title: 'Ordine Confermato',
+            description: 'Ordine creato con successo. La fattura verrà inviata a breve.',
+          });
+        }
       } else {
-        // For non-French shops, show normal success message
+        // For non-French and non-Italian shops, show normal success message
         toast({
           title: 'Erfolg',
           description: t.success.orderCreated,
