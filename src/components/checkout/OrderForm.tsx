@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { useDomainShop } from '@/hooks/useDomainShop';
-import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
-import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useUnifiedCheckoutTranslations } from '@/hooks/useUnifiedCheckoutTranslations';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -102,9 +101,7 @@ interface OrderFormProps {
 
 const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
   const shopConfig = useDomainShop();
-  const t = shopConfig.shopType === 'italy'
-    ? useItalianCheckoutTranslations()
-    : useCheckoutTranslations();
+  const t = useUnifiedCheckoutTranslations();
   const { orderData, setOrderData } = useOrder();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -143,7 +140,8 @@ const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
       setOrderData({
         ...orderData,
         ...values,
-        customerEmail: values.email
+        customerEmail: values.email,
+        paymentMethod: values.paymentMethod
       });
 
       // Call the onSubmit prop (which will handle the actual order creation)

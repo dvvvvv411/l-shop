@@ -94,7 +94,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
       console.log('Shop type:', shopConfig.shopType);
       console.log('Is Italian shop:', isItalianShop);
 
-      // Prepare order data
+      // Prepare order data with correct field names
       const orderToCreate = {
         product: orderData.product.name,
         liters: orderData.amount,
@@ -116,6 +116,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
         billing_city: data.useSameAddress ? data.deliveryCity : (data.billingCity || ''),
         use_same_address: data.useSameAddress,
         status: 'pending',
+        // Add required fields
+        customer_name: `${data.deliveryFirstName} ${data.deliveryLastName}`,
+        customer_address: `${data.deliveryStreet}, ${data.deliveryPostcode} ${data.deliveryCity}`,
       };
 
       let createdOrder;
@@ -143,6 +146,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
           deliveryDate: 'nach Zahlungseingang',
           orderNumber: createdOrder.order_number,
           discount: orderData.savings,
+          paymentMethod: 'vorkasse', // Add required field
         });
 
         // Call completion handler
@@ -163,15 +167,21 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
       transition={{ duration: 0.6 }}
       className="bg-white rounded-xl p-8 shadow-lg"
     >
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">{t.form.title}</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        {isItalianShop ? 'Compila il modulo d\'ordine' : t.form?.title || 'Checkout'}
+      </h2>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Delivery Address Section */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t.form.deliveryAddress}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {isItalianShop ? 'Indirizzo di consegna' : t.form?.deliveryAddress || 'Delivery Address'}
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="deliveryFirstName">{t.form.firstName}</Label>
+              <Label htmlFor="deliveryFirstName">
+                {isItalianShop ? 'Nome' : t.form?.firstName || 'First Name'}
+              </Label>
               <Input
                 id="deliveryFirstName"
                 {...register('deliveryFirstName')}
@@ -183,7 +193,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="deliveryLastName">{t.form.lastName}</Label>
+              <Label htmlFor="deliveryLastName">
+                {isItalianShop ? 'Cognome' : t.form?.lastName || 'Last Name'}
+              </Label>
               <Input
                 id="deliveryLastName"
                 {...register('deliveryLastName')}
@@ -195,7 +207,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div className="md:col-span-2">
-              <Label htmlFor="deliveryStreet">{t.form.street}</Label>
+              <Label htmlFor="deliveryStreet">
+                {isItalianShop ? 'Indirizzo' : t.form?.street || 'Street'}
+              </Label>
               <Input
                 id="deliveryStreet"
                 {...register('deliveryStreet')}
@@ -207,7 +221,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="deliveryPostcode">{t.form.postcode}</Label>
+              <Label htmlFor="deliveryPostcode">
+                {isItalianShop ? 'CAP' : t.form?.postcode || 'Postcode'}
+              </Label>
               <Input
                 id="deliveryPostcode"
                 {...register('deliveryPostcode')}
@@ -220,7 +236,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="deliveryCity">{t.form.city}</Label>
+              <Label htmlFor="deliveryCity">
+                {isItalianShop ? 'Città' : t.form?.city || 'City'}
+              </Label>
               <Input
                 id="deliveryCity"
                 {...register('deliveryCity')}
@@ -232,7 +250,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="deliveryPhone">{t.form.phone}</Label>
+              <Label htmlFor="deliveryPhone">
+                {isItalianShop ? 'Telefono' : t.form?.phone || 'Phone'}
+              </Label>
               <Input
                 id="deliveryPhone"
                 type="tel"
@@ -245,7 +265,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
             </div>
             
             <div>
-              <Label htmlFor="customerEmail">{t.form.email}</Label>
+              <Label htmlFor="customerEmail">
+                {isItalianShop ? 'Email' : t.form?.email || 'Email'}
+              </Label>
               <Input
                 id="customerEmail"
                 type="email"
@@ -268,16 +290,20 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
               onCheckedChange={(checked) => setValue('useSameAddress', checked as boolean)}
             />
             <Label htmlFor="useSameAddress" className="text-sm">
-              {t.form.sameAsBilling}
+              {isItalianShop ? 'Usa lo stesso indirizzo per la fatturazione' : t.form?.sameAsBilling || 'Same as delivery address'}
             </Label>
           </div>
 
           {!useSameAddress && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t.form.billingAddress}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {isItalianShop ? 'Indirizzo di fatturazione' : t.form?.billingAddress || 'Billing Address'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="billingFirstName">{t.form.firstName}</Label>
+                  <Label htmlFor="billingFirstName">
+                    {isItalianShop ? 'Nome' : t.form?.firstName || 'First Name'}
+                  </Label>
                   <Input
                     id="billingFirstName"
                     {...register('billingFirstName')}
@@ -289,7 +315,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="billingLastName">{t.form.lastName}</Label>
+                  <Label htmlFor="billingLastName">
+                    {isItalianShop ? 'Cognome' : t.form?.lastName || 'Last Name'}
+                  </Label>
                   <Input
                     id="billingLastName"
                     {...register('billingLastName')}
@@ -301,7 +329,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 </div>
                 
                 <div className="md:col-span-2">
-                  <Label htmlFor="billingStreet">{t.form.street}</Label>
+                  <Label htmlFor="billingStreet">
+                    {isItalianShop ? 'Indirizzo' : t.form?.street || 'Street'}
+                  </Label>
                   <Input
                     id="billingStreet"
                     {...register('billingStreet')}
@@ -313,7 +343,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="billingPostcode">{t.form.postcode}</Label>
+                  <Label htmlFor="billingPostcode">
+                    {isItalianShop ? 'CAP' : t.form?.postcode || 'Postcode'}
+                  </Label>
                   <Input
                     id="billingPostcode"
                     {...register('billingPostcode')}
@@ -325,7 +357,9 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="billingCity">{t.form.city}</Label>
+                  <Label htmlFor="billingCity">
+                    {isItalianShop ? 'Città' : t.form?.city || 'City'}
+                  </Label>
                   <Input
                     id="billingCity"
                     {...register('billingCity')}
@@ -349,7 +383,7 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
               className={errors.acceptTerms ? 'border-red-500' : ''}
             />
             <Label htmlFor="acceptTerms" className="text-sm cursor-pointer">
-              {t.form.acceptTerms}
+              {isItalianShop ? 'Accetto i termini e condizioni' : t.form?.acceptTerms || 'I accept the terms and conditions'}
             </Label>
           </div>
           {errors.acceptTerms && (
@@ -362,7 +396,10 @@ const CheckoutForm = ({ orderData, onOrderComplete }: CheckoutFormProps) => {
           disabled={isSubmitting}
           className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? t.form.submitting : t.form.submitOrder}
+          {isSubmitting 
+            ? (isItalianShop ? 'Invio in corso...' : t.form?.submitting || 'Submitting...')
+            : (isItalianShop ? 'Invia ordine' : t.form?.submitOrder || 'Submit Order')
+          }
         </Button>
       </form>
     </motion.div>

@@ -73,8 +73,8 @@ export const useOrders = () => {
         .select(`
           *,
           order_status_history(
-            status,
-            changed_at,
+            new_status,
+            created_at,
             notes
           )
         `)
@@ -85,7 +85,7 @@ export const useOrders = () => {
       // Process orders to get latest status change
       const processedOrders = data.map(order => ({
         ...order,
-        latest_status_change: order.order_status_history?.[0]?.changed_at || order.created_at
+        latest_status_change: order.order_status_history?.[0]?.created_at || order.created_at
       }));
 
       setOrders(processedOrders);
@@ -260,7 +260,7 @@ export const useOrders = () => {
         .from('order_status_history')
         .insert({
           order_id: orderId,
-          status,
+          new_status: status,
           notes: notes || null
         });
 
@@ -278,6 +278,84 @@ export const useOrders = () => {
       toast({
         title: 'Error',
         description: 'Failed to update order status',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const updateOrder = async (orderId: string, orderData: Partial<Order>) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update(orderData)
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Order updated successfully',
+      });
+
+      // Refresh orders
+      fetchOrders();
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update order',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const hideOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ is_hidden: true })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Order hidden successfully',
+      });
+
+      // Refresh orders
+      fetchOrders();
+    } catch (error) {
+      console.error('Error hiding order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to hide order',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const unhideOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ is_hidden: false })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Order unhidden successfully',
+      });
+
+      // Refresh orders
+      fetchOrders();
+    } catch (error) {
+      console.error('Error unhiding order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to unhide order',
         variant: 'destructive',
       });
     }
@@ -314,6 +392,9 @@ export const useOrders = () => {
     isLoading,
     createOrder,
     updateOrderStatus,
+    updateOrder,
+    hideOrder,
+    unhideOrder,
     deleteOrder,
     refreshOrders: fetchOrders,
   };
