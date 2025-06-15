@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -16,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
 import { useItalianCheckout } from '@/hooks/useItalianCheckout';
+import { useItalianOrderSubmission } from '@/hooks/useItalianOrderSubmission';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -78,6 +78,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { toast } = useToast();
   const shopConfig = useDomainShop();
   const italianCheckout = useItalianCheckout();
+  const { submitItalianOrder, isSubmitting: isSubmittingItalian } = useItalianOrderSubmission();
   
   // Choose the right translations based on shop type
   const germanFrenchTranslations = useCheckoutTranslations();
@@ -191,6 +192,77 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
     console.log('Using order data:', orderData);
     console.log('Italian checkout config:', italianCheckout);
     
+    // Use the appropriate submission flow based on shop type
+    if (italianCheckout.isItalianCheckout) {
+      console.log('Using Italian order submission flow');
+      
+      try {
+        const italianOrderData = {
+          customerEmail: data.customerEmail,
+          deliveryFirstName: data.deliveryFirstName,
+          deliveryLastName: data.deliveryLastName,
+          deliveryStreet: data.deliveryStreet,
+          deliveryPostcode: data.deliveryPostcode,
+          deliveryCity: data.deliveryCity,
+          deliveryPhone: data.deliveryPhone,
+          billingFirstName: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
+          billingLastName: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
+          billingStreet: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
+          billingPostcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
+          billingCity: data.useSameAddress ? data.deliveryCity : data.billingCity,
+          useSameAddress: data.useSameAddress,
+          product: orderData.product.name,
+          amount: orderData.amount,
+          pricePerLiter: orderData.product.price,
+          basePrice: orderData.basePrice,
+          deliveryFee: orderData.deliveryFee,
+          discount: 0,
+          total: orderData.totalPrice,
+        };
+
+        const result = await submitItalianOrder(italianOrderData, italianCheckout.bankAccountDetails);
+        
+        if (result.success) {
+          // Set order data for context
+          const contextOrderData = {
+            deliveryFirstName: data.deliveryFirstName,
+            deliveryLastName: data.deliveryLastName,
+            deliveryStreet: data.deliveryStreet,
+            deliveryPostcode: data.deliveryPostcode,
+            deliveryCity: data.deliveryCity,
+            deliveryPhone: data.deliveryPhone,
+            customerEmail: data.customerEmail,
+            useSameAddress: data.useSameAddress,
+            billingFirstName: data.billingFirstName,
+            billingLastName: data.billingLastName,
+            billingStreet: data.billingStreet,
+            billingPostcode: data.billingPostcode,
+            billingCity: data.billingCity,
+            paymentMethod: data.paymentMethod,
+            product: orderData.product.name,
+            amount: orderData.amount,
+            pricePerLiter: orderData.product.price,
+            basePrice: orderData.basePrice,
+            deliveryFee: orderData.deliveryFee,
+            discount: 0,
+            total: orderData.totalPrice,
+            deliveryDate: '3-5 giorni lavorativi',
+            orderNumber: result.orderNumber
+          };
+
+          setContextOrderData(contextOrderData);
+          onOrderSuccess(result.orderNumber);
+          localStorage.removeItem('orderData');
+        }
+      } catch (error) {
+        console.error('Error in Italian order submission:', error);
+        // Error handling is done in the hook
+      }
+      
+      return;
+    }
+
+    // Regular order submission for non-Italian shops
     setIsSubmitting(true);
     
     try {
@@ -303,6 +375,9 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
       setIsSubmitting(false);
     }
   };
+
+  // Use the appropriate submitting state
+  const currentlySubmitting = italianCheckout.isItalianCheckout ? isSubmittingItalian : isSubmitting;
 
   return (
     <div className="space-y-6">
@@ -683,10 +758,10 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={currentlySubmitting}
               className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-400"
             >
-              {isSubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
+              {currentlySubmitting ? t.termsSection.submittingButton : t.termsSection.submitButton}
             </Button>
           </motion.div>
         </form>

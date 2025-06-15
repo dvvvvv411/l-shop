@@ -42,6 +42,8 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
   // Use the proper translation systems
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
+  
+  // Use Italian translations for Italian shop, German/French for others
   const t = isItalianShop ? italianTranslations : germanFrenchTranslations;
 
   // Fallback to mock data if no orderData is provided (for backwards compatibility)
@@ -76,10 +78,10 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             </div>
             <div>
               <h3 className="text-xl font-bold text-green-900">
-                {isItalianShop ? italianTranslations.confirmation.bankAccountTitle : 'Données bancaires pour le paiement'}
+                {t.confirmation.bankAccountTitle}
               </h3>
               <p className="text-green-700">
-                {isItalianShop ? italianTranslations.confirmation.bankAccountSubtitle : 'Effectuez le virement en utilisant ces données'}
+                {t.confirmation.bankAccountSubtitle}
               </p>
             </div>
           </div>
@@ -88,7 +90,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <div className="grid grid-cols-1 gap-3">
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                  {isItalianShop ? italianTranslations.confirmation.accountHolder : 'Titulaire du compte'}
+                  {t.confirmation.accountHolder}
                 </div>
                 <div className="text-green-900 font-bold">
                   {isItalianShop ? 'Gasolio Veloce' : 'Fioul Rapide'}
@@ -97,7 +99,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                  {isItalianShop ? italianTranslations.confirmation.bankName : 'Nom de la banque'}
+                  {t.confirmation.bankName}
                 </div>
                 <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
               </div>
@@ -113,7 +115,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               {orderNumber && (
                 <div className="bg-green-100 p-3 rounded-lg border border-green-200">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                    {isItalianShop ? italianTranslations.confirmation.reference : 'Référence obligatoire'}
+                    {t.confirmation.reference}
                   </div>
                   <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
                 </div>
@@ -121,7 +123,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               
               <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
                 <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">
-                  {isItalianShop ? italianTranslations.confirmation.transferAmount : 'Montant à transférer'}
+                  {t.confirmation.transferAmount}
                 </div>
                 <div className="text-red-900 font-bold text-xl">{finalPrice.toFixed(2)}€</div>
               </div>
@@ -208,7 +210,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
           <div className="flex items-center mb-3">
             <Clock className="text-blue-600 mr-2" size={18} />
             <span className="font-semibold text-gray-900">
-              {isItalianShop ? italianTranslations.confirmation.deliveryTerm : (isFrenchShop ? 'Date de livraison' : 'Liefertermin')}
+              {t.confirmation.deliveryTerm}
             </span>
           </div>
           <p className="text-gray-700 font-semibold">
@@ -250,17 +252,17 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
         className="bg-blue-50 rounded-xl p-6"
       >
         <h4 className="font-bold text-blue-900 mb-3">
-          {isItalianShop ? italianTranslations.confirmation.questionsAboutOrder : (isFrenchShop ? 'Questions sur votre commande ?' : 'Fragen zu Ihrer Bestellung?')}
+          {t.confirmation.questionsAboutOrder}
         </h4>
         <p className="text-blue-800 text-sm mb-4">
-          {isItalianShop ? italianTranslations.confirmation.yourSupplier : (isFrenchShop ? 'Votre fournisseur de fioul' : 'Ihr Heizöl-Lieferant')}
+          {t.confirmation.yourSupplier}
         </p>
         <div className="space-y-2 text-sm">
           <div className="text-blue-800">
-            <strong>{isItalianShop ? italianTranslations.confirmation.phone : (isFrenchShop ? 'Téléphone' : 'Telefon')}:</strong> 0800 123 456 7
+            <strong>{t.confirmation.phone}:</strong> 0800 123 456 7
           </div>
           <div className="text-blue-800">
-            <strong>{isItalianShop ? italianTranslations.confirmation.email : (isFrenchShop ? 'E-mail' : 'E-Mail')}:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
+            <strong>{t.confirmation.email}:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
           </div>
           <div className="text-blue-700">
             {isItalianShop ? 'Lun-Ven: 8:00-18:00' : (isFrenchShop ? 'Lun-Ven: 8h00-18h00' : 'Mo-Fr: 8:00-18:00 Uhr')}
