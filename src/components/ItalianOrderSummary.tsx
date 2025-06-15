@@ -83,10 +83,10 @@ const ItalianOrderSummary = ({ orderData, bankAccountDetails, orderNumber }: Pro
             <div className="mb-1"><strong>IBAN:</strong> {formatIban(bankAccountDetails.iban)}</div>
             <div className="mb-1"><strong>BIC:</strong> {bankAccountDetails.bic}</div>
             <div className="mt-2 p-2 bg-white border border-green-100 rounded-md">
-              <strong>{t.confirmation.amountToTransfer || 'Importo'}:&nbsp;</strong>
+              <strong>Importo da trasferire:&nbsp;</strong>
               {orderData.totalPrice.toFixed(2)}€
               {orderNumber && (
-                <div className="text-xs text-green-700 mt-1">{t.confirmation.reference || 'Riferimento'}: {orderNumber}</div>
+                <div className="text-xs text-green-700 mt-1">Riferimento: {orderNumber}</div>
               )}
             </div>
           </div>

@@ -97,7 +97,7 @@ const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
   const t = shopConfig.shopType === 'italy'
     ? useItalianCheckoutTranslations()
     : useCheckoutTranslations();
-  const { orderData, updateOrderData } = useOrder();
+  const { orderData, setOrderData } = useOrder();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { createOrder } = useOrders();
@@ -107,7 +107,7 @@ const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
   const form = useForm<z.infer<typeof formSchemaWithBilling>>({
     resolver: zodResolver(formSchemaWithBilling),
     defaultValues: {
-      email: orderData?.email || '',
+      email: orderData?.customerEmail || '',
       deliveryFirstName: orderData?.deliveryFirstName || '',
       deliveryLastName: orderData?.deliveryLastName || '',
       deliveryStreet: orderData?.deliveryStreet || '',
@@ -120,7 +120,7 @@ const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
       billingStreet: orderData?.billingStreet || '',
       billingPostcode: orderData?.billingPostcode || '',
       billingCity: orderData?.billingCity || '',
-      paymentMethod: orderData?.paymentMethod || 'vorkasse',
+      paymentMethod: 'vorkasse',
       acceptTerms: false,
     },
   });
@@ -131,10 +131,11 @@ const OrderForm = ({ onSubmit, isSubmitting }: OrderFormProps) => {
   // Handle form submission
   const handleSubmit = async (values: z.infer<typeof formSchemaWithBilling>) => {
     try {
-      // Update order context with form values
-      updateOrderData({
+      // Update order context with form values using setOrderData
+      setOrderData({
         ...orderData,
         ...values,
+        customerEmail: values.email
       });
 
       // Call the onSubmit prop (which will handle the actual order creation)

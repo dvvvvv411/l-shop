@@ -204,8 +204,25 @@ const Summary = () => {
 
   // Use correct summary depending on shop type:
   let SummaryComponent = OrderSummary;
+  let summaryOrderData = orderData; // By default, use context orderData
+
+  // For Italy: massage the data so it always has the shape ItalianOrderSummary expects
   if (shopConfig.shopType === 'italy') {
     SummaryComponent = ItalianOrderSummary;
+    summaryOrderData = {
+      product: {
+        name: orderData.product,
+        price: orderData.pricePerLiter,
+        description: "",
+        id: ""
+      },
+      amount: orderData.amount,
+      postcode: orderData.deliveryPostcode, // ItalianOrderSummary expects postcode for savings etc; can be added if needed
+      basePrice: orderData.basePrice,
+      deliveryFee: orderData.deliveryFee,
+      totalPrice: orderData.total,
+      savings: 0 // Not used in ItalianOrderSummary, set to 0 
+    };
   }
 
   return (
@@ -379,7 +396,7 @@ const Summary = () => {
               {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
                 <SummaryComponent 
-                  orderData={orderData} 
+                  orderData={summaryOrderData} 
                   bankAccountDetails={bankAccountDetails}
                   orderNumber={orderData.orderNumber}
                 />
