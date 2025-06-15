@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,8 +13,6 @@ import { useSuppliers, SupplierByPostcode } from '@/hooks/useSuppliers';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
 import { Button } from '@/components/ui/button';
-import ItalianOrderSummary from '@/components/italian/ItalianOrderSummary';
-import { useItalianOrders } from '@/hooks/useItalianOrders';
 
 const Summary = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -76,7 +75,13 @@ const Summary = () => {
 
   const handlePlaceOrder = () => {
     if (!acceptTerms) {
-      alert('Bitte akzeptieren Sie die AGB und Widerrufsbelehrung.');
+      let alertMessage = 'Bitte akzeptieren Sie die AGB und Widerrufsbelehrung.';
+      if (shopConfig.shopType === 'france') {
+        alertMessage = 'Veuillez accepter les conditions générales et la politique de rétractation.';
+      } else if (shopConfig.shopType === 'italy') {
+        alertMessage = 'Si prega di accettare i termini e condizioni e la politica di recesso.';
+      }
+      alert(alertMessage);
       return;
     }
 
@@ -88,7 +93,93 @@ const Summary = () => {
     });
   };
 
-  const isItalianShop = shopConfig.shopType === 'italy';
+  // Get translations based on shop type
+  const getTranslations = () => {
+    if (shopConfig.shopType === 'italy') {
+      return {
+        supplier: 'Il tuo fornitore',
+        deliveryAddress: 'Indirizzo di consegna',
+        deliveryAddressDesc: 'I tuoi dati per la consegna',
+        billingAddress: 'Indirizzo di fatturazione',
+        billingAddressDesc: 'I tuoi dati per la fatturazione',
+        sameAsDelivery: 'Identico all\'indirizzo di consegna',
+        paymentMethod: 'Metodo di pagamento',
+        paymentMethodDesc: 'Il metodo di pagamento scelto',
+        prepayment: 'Bonifico anticipato',
+        prepaymentDetails: [
+          '• Bonifico prima della consegna',
+          '• Riceverai i dati bancari via email',
+          '• La consegna avviene dopo il pagamento'
+        ],
+        termsTitle: 'Termini e condizioni e diritto di recesso',
+        withdrawalNotice: 'Informazioni sul diritto di recesso',
+        withdrawalText: 'Hai il diritto di recedere da questo contratto entro quattordici giorni senza fornire motivazioni. Il periodo di recesso è di quattordici giorni dalla data di conclusione del contratto.',
+        acceptTerms: 'Accetto i',
+        termsLink: 'Termini e condizioni generali',
+        and: 'e le',
+        withdrawalLink: 'Informazioni sul diritto di recesso',
+        oilWithdrawalNote: '. So che perdo il diritto di recesso non appena inizia la consegna del gasolio. *',
+        orderButton: 'Ordina con pagamento vincolante',
+        tel: 'Tel'
+      };
+    } else if (shopConfig.shopType === 'france') {
+      return {
+        supplier: 'Votre fournisseur',
+        deliveryAddress: 'Adresse de livraison',
+        deliveryAddressDesc: 'Vos informations de livraison',
+        billingAddress: 'Adresse de facturation',
+        billingAddressDesc: 'Vos informations de facturation',
+        sameAsDelivery: 'Identique à l\'adresse de livraison',
+        paymentMethod: 'Mode de paiement',
+        paymentMethodDesc: 'Votre méthode de paiement choisie',
+        prepayment: 'Paiement d\'avance',
+        prepaymentDetails: [
+          '• Virement avant livraison',
+          '• Coordonnées bancaires reçues par e-mail',
+          '• Livraison après réception du paiement'
+        ],
+        termsTitle: 'CGV et droit de rétractation',
+        withdrawalNotice: 'Information sur le droit de rétractation',
+        withdrawalText: 'Vous avez le droit de vous rétracter de ce contrat dans un délai de quatorze jours sans donner de motif. Le délai de rétractation expire quatorze jours après la date de conclusion du contrat.',
+        acceptTerms: 'J\'accepte les',
+        termsLink: 'Conditions générales de vente',
+        and: 'et le',
+        withdrawalLink: 'droit de rétractation',
+        oilWithdrawalNote: '. Je sais que je perds mon droit de rétractation dès le début de la livraison du fioul. *',
+        orderButton: 'Commander avec obligation de paiement',
+        tel: 'Tél'
+      };
+    } else {
+      return {
+        supplier: 'Ihr Lieferant',
+        deliveryAddress: 'Lieferadresse',
+        deliveryAddressDesc: 'Ihre Angaben zur Lieferung',
+        billingAddress: 'Rechnungsadresse',
+        billingAddressDesc: 'Ihre Angaben zur Rechnung',
+        sameAsDelivery: 'Identisch mit Lieferadresse',
+        paymentMethod: 'Zahlungsart',
+        paymentMethodDesc: 'Ihre gewählte Zahlungsmethode',
+        prepayment: 'Vorkasse',
+        prepaymentDetails: [
+          '• Überweisung vor Lieferung',
+          '• Bankverbindung erhalten Sie per E-Mail',
+          '• Lieferung erfolgt nach Zahlungseingang'
+        ],
+        termsTitle: 'AGB und Widerrufsbelehrung',
+        withdrawalNotice: 'Widerrufsbelehrung',
+        withdrawalText: 'Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.',
+        acceptTerms: 'Ich akzeptiere die',
+        termsLink: 'Allgemeinen Geschäftsbedingungen',
+        and: 'und die',
+        withdrawalLink: 'Widerrufsbelehrung',
+        oilWithdrawalNote: '. Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, sobald die Lieferung begonnen hat. *',
+        orderButton: 'Zahlungspflichtig bestellen',
+        tel: 'Tel'
+      };
+    }
+  };
+
+  const t = getTranslations();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -113,7 +204,7 @@ const Summary = () => {
                   transition={{ duration: 0.6, delay: 0.05 }}
                   className="bg-white rounded-xl p-6 shadow-lg"
                 >
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Ihr Lieferant</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{t.supplier}</h3>
                   <SupplierInfo supplier={supplier} isLoading={isLoadingSupplier} />
                 </motion.div>
 
@@ -129,8 +220,8 @@ const Summary = () => {
                       <CheckCircle className="text-red-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Lieferadresse</h3>
-                      <p className="text-gray-600">Ihre Angaben zur Lieferung</p>
+                      <h3 className="text-xl font-bold text-gray-900">{t.deliveryAddress}</h3>
+                      <p className="text-gray-600">{t.deliveryAddressDesc}</p>
                     </div>
                   </div>
 
@@ -141,7 +232,7 @@ const Summary = () => {
                     <div className="text-gray-700 space-y-1">
                       <div>{orderData.deliveryStreet}</div>
                       <div>{orderData.deliveryPostcode} {orderData.deliveryCity}</div>
-                      <div>Tel: {orderData.deliveryPhone}</div>
+                      <div>{t.tel}: {orderData.deliveryPhone}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -158,15 +249,15 @@ const Summary = () => {
                       <FileText className="text-blue-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Rechnungsadresse</h3>
-                      <p className="text-gray-600">Ihre Angaben zur Rechnung</p>
+                      <h3 className="text-xl font-bold text-gray-900">{t.billingAddress}</h3>
+                      <p className="text-gray-600">{t.billingAddressDesc}</p>
                     </div>
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     {orderData.useSameAddress ? (
                       <div className="text-gray-700">
-                        Identisch mit Lieferadresse
+                        {t.sameAsDelivery}
                       </div>
                     ) : (
                       <div>
@@ -194,17 +285,17 @@ const Summary = () => {
                       <CreditCard className="text-green-600" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Zahlungsart</h3>
-                      <p className="text-gray-600">Ihre gewählte Zahlungsmethode</p>
+                      <h3 className="text-xl font-bold text-gray-900">{t.paymentMethod}</h3>
+                      <p className="text-gray-600">{t.paymentMethodDesc}</p>
                     </div>
                   </div>
 
                   <div className="bg-blue-50 rounded-lg p-4">
-                    <div className="font-semibold text-gray-900 mb-2">Vorkasse</div>
+                    <div className="font-semibold text-gray-900 mb-2">{t.prepayment}</div>
                     <div className="text-gray-700 text-sm space-y-1">
-                      <div>• Überweisung vor Lieferung</div>
-                      <div>• Bankverbindung erhalten Sie per E-Mail</div>
-                      <div>• Lieferung erfolgt nach Zahlungseingang</div>
+                      {t.prepaymentDetails.map((detail, index) => (
+                        <div key={index}>{detail}</div>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
@@ -216,14 +307,13 @@ const Summary = () => {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="bg-white rounded-xl p-6 shadow-lg"
                 >
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">AGB und Widerrufsbelehrung</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">{t.termsTitle}</h3>
                   
                   <div className="space-y-4 mb-6">
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-yellow-800 mb-2">Widerrufsbelehrung</h4>
+                      <h4 className="font-semibold text-yellow-800 mb-2">{t.withdrawalNotice}</h4>
                       <p className="text-yellow-700 text-sm">
-                        Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. 
-                        Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+                        {t.withdrawalText}
                       </p>
                     </div>
 
@@ -236,16 +326,15 @@ const Summary = () => {
                         className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-1"
                       />
                       <label htmlFor="acceptTerms" className="text-sm text-gray-700 cursor-pointer">
-                        Ich akzeptiere die{' '}
+                        {t.acceptTerms}{' '}
                         <a href="#" className="text-red-600 hover:underline">
-                          Allgemeinen Geschäftsbedingungen
+                          {t.termsLink}
                         </a>{' '}
-                        und die{' '}
+                        {t.and}{' '}
                         <a href="#" className="text-red-600 hover:underline">
-                          Widerrufsbelehrung
+                          {t.withdrawalLink}
                         </a>
-                        . Mir ist bekannt, dass ich bei einer Bestellung von Heizöl mein Widerrufsrecht verliere, 
-                        sobald die Lieferung begonnen hat. *
+                        {t.oilWithdrawalNote}
                       </label>
                     </div>
                   </div>
@@ -255,54 +344,36 @@ const Summary = () => {
                     disabled={!acceptTerms}
                     className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
-                    Zahlungspflichtig bestellen
+                    {t.orderButton}
                   </Button>
                 </motion.div>
               </div>
 
-              {/* Order Summary Sidebar - Use Italian component for Italian shops */}
+              {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
-                {isItalianShop ? (
-                  <ItalianOrderSummary
-                    orderData={{
-                      product: {
-                        id: 'standard',
-                        name: orderData.product,
-                        price: orderData.pricePerLiter,
-                        description: 'Gasolio di qualità secondo EN 590'
-                      },
-                      amount: orderData.amount,
-                      postcode: orderData.deliveryPostcode,
-                      basePrice: orderData.basePrice,
-                      deliveryFee: orderData.deliveryFee,
-                      totalPrice: orderData.total,
-                      savings: orderData.discount
-                    }}
-                    bankAccountDetails={bankAccountDetails}
-                    orderNumber={orderData.orderNumber}
-                    autoScrollToBankDetails={true}
-                  />
-                ) : (
-                  <OrderSummary
-                    orderData={{
-                      product: {
-                        id: 'standard',
-                        name: orderData.product,
-                        price: orderData.pricePerLiter,
-                        description: 'Qualitäts-Heizöl nach DIN 51603-1'
-                      },
-                      amount: orderData.amount,
-                      postcode: orderData.deliveryPostcode,
-                      basePrice: orderData.basePrice,
-                      deliveryFee: orderData.deliveryFee,
-                      totalPrice: orderData.total,
-                      savings: orderData.discount
-                    }}
-                    bankAccountDetails={bankAccountDetails}
-                    orderNumber={orderData.orderNumber}
-                    autoScrollToBankDetails={shopConfig.shopType === 'france'}
-                  />
-                )}
+                <OrderSummary
+                  orderData={{
+                    product: {
+                      id: 'standard',
+                      name: orderData.product,
+                      price: orderData.pricePerLiter,
+                      description: shopConfig.shopType === 'italy' 
+                        ? 'Gasolio di qualità secondo EN 590'
+                        : shopConfig.shopType === 'france'
+                        ? 'Fioul de qualité selon DIN 51603-1'
+                        : 'Qualitäts-Heizöl nach DIN 51603-1'
+                    },
+                    amount: orderData.amount,
+                    postcode: orderData.deliveryPostcode,
+                    basePrice: orderData.basePrice,
+                    deliveryFee: orderData.deliveryFee,
+                    totalPrice: orderData.total,
+                    savings: orderData.discount
+                  }}
+                  bankAccountDetails={bankAccountDetails}
+                  orderNumber={orderData.orderNumber}
+                  autoScrollToBankDetails={shopConfig.shopType === 'france' || shopConfig.shopType === 'italy'}
+                />
               </div>
             </div>
           </motion.div>
