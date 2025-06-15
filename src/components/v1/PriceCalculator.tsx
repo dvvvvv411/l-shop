@@ -17,13 +17,13 @@ const products: Product[] = [
   {
     id: 'standard',
     name: 'Standard Heizöl',
-    price: 0.85,
+    price: 0.70,
     description: 'Qualitäts-Heizöl nach DIN 51603-1'
   },
   {
     id: 'premium',
     name: 'Premium Heizöl',
-    price: 0.90,
+    price: 0.72,
     description: 'Schwefelarmes Premium-Heizöl mit Additiven'
   }
 ];
