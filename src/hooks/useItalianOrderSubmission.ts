@@ -107,7 +107,7 @@ export const useItalianOrderSubmission = () => {
         console.error('Error fetching Italian shop:', shopError);
       }
 
-      // Generate invoice using the standard flow
+      // Generate invoice using the standard flow - THIS IS THE ONLY EMAIL THAT SHOULD BE SENT
       console.log('Generating invoice for Italian order...');
       const { data: invoiceData, error: invoiceError } = await supabase.functions.invoke('generate-invoice', {
         body: { 
@@ -120,27 +120,13 @@ export const useItalianOrderSubmission = () => {
 
       if (invoiceError) {
         console.error('Error generating invoice:', invoiceError);
-        // Don't throw here - order is saved, just log the invoice issue
+        throw new Error(`Failed to generate invoice: ${invoiceError.message}`);
       } else {
         console.log('Invoice generated successfully:', invoiceData?.invoiceNumber);
       }
 
-      // Send order confirmation email using standard flow
-      console.log('Sending order confirmation email...');
-      const { error: emailError } = await supabase.functions.invoke('send-order-confirmation', {
-        body: {
-          orderId: order.id,
-          customerEmail: orderData.customerEmail,
-          originDomain: 'gasoliocasa.com'
-        }
-      });
-
-      if (emailError) {
-        console.error('Error sending confirmation email:', emailError);
-        // Don't throw here - order is saved
-      } else {
-        console.log('Confirmation email sent successfully');
-      }
+      // NOTE: We intentionally DO NOT call send-order-confirmation for Italian orders
+      // The invoice generation already sends the invoice email, which is all we want
 
       toast({
         title: "Ordine confermato!",
@@ -152,7 +138,7 @@ export const useItalianOrderSubmission = () => {
         success: true,
         orderId: order.id,
         orderNumber: orderNumber,
-        emailSent: !emailError,
+        emailSent: true, // Invoice email was sent
         invoiceGenerated: !invoiceError
       };
 
