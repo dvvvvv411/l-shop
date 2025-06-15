@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { useDomainShop } from '@/hooks/useDomainShop';
 
@@ -105,6 +104,17 @@ export interface CheckoutTranslations {
     importantNoteDesc: string;
     basePrice: string;
     deliveryLabel: string;
+    // Added missing keys for bank account details
+    bankAccountTitle: string;
+    bankAccountSubtitle: string;
+    accountHolder: string;
+    bankName: string;
+    transferAmount: string;
+    reference: string;
+    questionsAboutOrder: string;
+    phone: string;
+    email: string;
+    newOrder: string;
   };
   // Navigation
   navigation: {
@@ -254,7 +264,18 @@ const translations = {
       importantNote: '📞 Wichtiger Hinweis zur Lieferung',
       importantNoteDesc: 'Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. Bitte stellen Sie sicher, dass Sie unter {phone} erreichbar sind.',
       basePrice: 'Grundpreis',
-      deliveryLabel: 'Lieferung'
+      deliveryLabel: 'Lieferung',
+      // Added missing bank account keys for German
+      bankAccountTitle: 'Bankverbindung für Zahlung',
+      bankAccountSubtitle: 'Überweisen Sie den Betrag mit diesen Daten',
+      accountHolder: 'Kontoinhaber',
+      bankName: 'Bank',
+      transferAmount: 'Überweisungsbetrag',
+      reference: 'Verwendungszweck',
+      questionsAboutOrder: 'Fragen zu Ihrer Bestellung?',
+      phone: 'Telefon',
+      email: 'E-Mail',
+      newOrder: 'Neue Bestellung'
     },
     navigation: {
       back: 'Zurück',
@@ -397,7 +418,18 @@ const translations = {
       importantNote: '📞 Note importante concernant la livraison',
       importantNoteDesc: 'Notre chauffeur vous contactera par téléphone le jour de livraison. Veuillez vous assurer d\'être joignable au {phone}.',
       basePrice: 'Prix de base',
-      deliveryLabel: 'Livraison'
+      deliveryLabel: 'Livraison',
+      // Added missing bank account keys for French
+      bankAccountTitle: 'Coordonnées bancaires pour le paiement',
+      bankAccountSubtitle: 'Effectuez le virement avec ces informations',
+      accountHolder: 'Titulaire du compte',
+      bankName: 'Banque',
+      transferAmount: 'Montant à virer',
+      reference: 'Référence obligatoire',
+      questionsAboutOrder: 'Questions sur votre commande ?',
+      phone: 'Téléphone',
+      email: 'E-mail',
+      newOrder: 'Nouvelle commande'
     },
     navigation: {
       back: 'Retour',
