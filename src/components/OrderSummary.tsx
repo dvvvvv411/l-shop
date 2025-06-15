@@ -78,10 +78,10 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             </div>
             <div>
               <h3 className="text-xl font-bold text-green-900">
-                {t.confirmation.bankAccountTitle}
+                {isItalianShop ? italianTranslations.confirmation.bankAccountTitle : (isFrenchShop ? 'Détails du compte bancaire' : 'Bankverbindung')}
               </h3>
               <p className="text-green-700">
-                {t.confirmation.bankAccountSubtitle}
+                {isItalianShop ? italianTranslations.confirmation.bankAccountSubtitle : (isFrenchShop ? 'Pour effectuer le virement' : 'Für die Überweisung')}
               </p>
             </div>
           </div>
@@ -90,7 +90,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
             <div className="grid grid-cols-1 gap-3">
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                  {t.confirmation.accountHolder}
+                  {isItalianShop ? italianTranslations.confirmation.accountHolder : (isFrenchShop ? 'Titulaire du compte' : 'Kontoinhaber')}
                 </div>
                 <div className="text-green-900 font-bold">
                   {isItalianShop ? 'Gasolio Veloce' : 'Fioul Rapide'}
@@ -99,7 +99,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               
               <div className="bg-white p-3 rounded-lg">
                 <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                  {t.confirmation.bankName}
+                  {isItalianShop ? italianTranslations.confirmation.bankName : (isFrenchShop ? 'Nom de la banque' : 'Bank')}
                 </div>
                 <div className="text-green-900 font-bold">{bankAccountDetails.bank_name}</div>
               </div>
@@ -115,7 +115,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               {orderNumber && (
                 <div className="bg-green-100 p-3 rounded-lg border border-green-200">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">
-                    {t.confirmation.reference}
+                    {isItalianShop ? italianTranslations.confirmation.reference : (isFrenchShop ? 'Référence' : 'Verwendungszweck')}
                   </div>
                   <div className="text-green-900 font-bold text-lg">{orderNumber}</div>
                 </div>
@@ -123,7 +123,7 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
               
               <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
                 <div className="text-red-800 font-semibold text-xs uppercase tracking-wide">
-                  {t.confirmation.transferAmount}
+                  {isItalianShop ? italianTranslations.confirmation.transferAmount : (isFrenchShop ? 'Montant à virer' : 'Überweisungsbetrag')}
                 </div>
                 <div className="text-red-900 font-bold text-xl">{finalPrice.toFixed(2)}€</div>
               </div>
@@ -252,17 +252,17 @@ const OrderSummary = ({ orderData, bankAccountDetails, orderNumber }: OrderSumma
         className="bg-blue-50 rounded-xl p-6"
       >
         <h4 className="font-bold text-blue-900 mb-3">
-          {t.confirmation.questionsAboutOrder}
+          {isItalianShop ? italianTranslations.confirmation.questionsAboutOrder : (isFrenchShop ? 'Questions sur votre commande?' : 'Fragen zu Ihrer Bestellung?')}
         </h4>
         <p className="text-blue-800 text-sm mb-4">
-          {t.confirmation.yourSupplier}
+          {isItalianShop ? italianTranslations.confirmation.yourSupplier : (isFrenchShop ? 'Votre fournisseur de fioul' : 'Ihr Heizöllieferant')}
         </p>
         <div className="space-y-2 text-sm">
           <div className="text-blue-800">
-            <strong>{t.confirmation.phone}:</strong> 0800 123 456 7
+            <strong>{isItalianShop ? italianTranslations.confirmation.phone : (isFrenchShop ? 'Téléphone' : 'Telefon')}:</strong> 0800 123 456 7
           </div>
           <div className="text-blue-800">
-            <strong>{t.confirmation.email}:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
+            <strong>{isItalianShop ? italianTranslations.confirmation.email : (isFrenchShop ? 'E-mail' : 'E-Mail')}:</strong> {isItalianShop ? 'servizio@gasoliocasa.com' : (isFrenchShop ? 'service@fioul-rapide.fr' : 'service@heizoeldirekt.de')}
           </div>
           <div className="text-blue-700">
             {isItalianShop ? 'Lun-Ven: 8:00-18:00' : (isFrenchShop ? 'Lun-Ven: 8h00-18h00' : 'Mo-Fr: 8:00-18:00 Uhr')}
