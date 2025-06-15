@@ -2,14 +2,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v1/Header';
-import PriceCalculator from '../../components/PriceCalculator';
-import TrustElements from '../../components/TrustElements';
-import StatsSection from '../../components/StatsSection';
-import ProductComparison from '../../components/ProductComparison';
-import WhyChooseUs from '../../components/WhyChooseUs';
-import HowItWorks from '../../components/HowItWorks';
-import FAQ from '../../components/FAQ';
-import Footer from '../../components/Footer';
+import PriceCalculator from '../../components/v1/PriceCalculator';
+import TrustElements from '../../components/v1/TrustElements';
+import StatsSection from '../../components/v1/StatsSection';
+import ProductComparison from '../../components/v1/ProductComparison';
+import WhyChooseUs from '../../components/v1/WhyChooseUs';
+import HowItWorks from '../../components/v1/HowItWorks';
+import FAQ from '../../components/v1/FAQ';
+import Footer from '../../components/v1/Footer';
 import { Flame, Star } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 
@@ -95,10 +95,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* New Trust Elements Section */}
-      <TrustElements />
-
       {/* All Other Sections */}
+      <TrustElements />
       <StatsSection />
       <ProductComparison />
       <WhyChooseUs />
