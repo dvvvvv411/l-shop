@@ -15,6 +15,7 @@ import { useOrders } from '@/hooks/useOrders';
 import OrderSummary from '@/components/OrderSummary';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useDomainShop } from '@/hooks/useDomainShop';
 
 // Test data arrays for random generation
 const testData = {
@@ -94,6 +95,7 @@ const OrderForm = () => {
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const shopConfig = useDomainShop();
 
   // Load order data from localStorage on component mount
   useEffect(() => {
@@ -322,33 +324,35 @@ const OrderForm = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Form */}
       <div className="lg:col-span-2">
-        {/* Test Data Generator Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-amber-100 p-2 rounded-lg">
-                <TestTube className="text-amber-600" size={20} />
+        {/* Test Data Generator Button - Hidden for Italian shops */}
+        {shopConfig.shopType !== 'italy' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-amber-100 p-2 rounded-lg">
+                  <TestTube className="text-amber-600" size={20} />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
+                  <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold text-amber-900">Entwicklungsmodus</h4>
-                <p className="text-sm text-amber-700">Automatisch Testdaten generieren</p>
-              </div>
+              <Button
+                type="button"
+                onClick={handleGenerateTestData}
+                variant="outline"
+                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+              >
+                Testdaten generieren
+              </Button>
             </div>
-            <Button
-              type="button"
-              onClick={handleGenerateTestData}
-              variant="outline"
-              className="border-amber-300 text-amber-700 hover:bg-amber-100"
-            >
-              Testdaten generieren
-            </Button>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
