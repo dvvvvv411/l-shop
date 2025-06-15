@@ -20,6 +20,12 @@ export const useCheckoutTranslations = () => {
       orderCreationErrorDescription: 'Bei der Erstellung der Bestellung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.'
     },
 
+    // Header
+    header: {
+      securePayment: 'Sichere Zahlung',
+      sslEncrypted: 'SSL-verschlüsselt'
+    },
+
     // Navigation
     navigation: {
       back: 'Zurück',

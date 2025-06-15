@@ -20,6 +20,12 @@ export const useItalianCheckoutTranslations = () => {
       orderCreationErrorDescription: 'Si è verificato un errore durante la creazione dell\'ordine. Riprova.'
     },
 
+    // Header
+    header: {
+      securePayment: 'Pagamento sicuro',
+      sslEncrypted: 'Crittografato SSL'
+    },
+
     // Navigation
     navigation: {
       back: 'Indietro',
