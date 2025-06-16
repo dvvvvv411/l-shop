@@ -38,7 +38,7 @@ export interface CheckoutTranslations {
       description: string;
       recommended: string;
     };
-    rechnung?: {
+    rechnung: {
       title: string;
       description: string;
       existingCustomers: string;
@@ -265,6 +265,7 @@ const translations = {
       importantNoteDesc: 'Unser Fahrer wird Sie am Liefertag telefonisch kontaktieren. Bitte stellen Sie sicher, dass Sie unter {phone} erreichbar sind.',
       basePrice: 'Grundpreis',
       deliveryLabel: 'Lieferung',
+      // Added missing bank account keys for German
       bankAccountTitle: 'Bankverbindung für Zahlung',
       bankAccountSubtitle: 'Überweisen Sie den Betrag mit diesen Daten',
       accountHolder: 'Kontoinhaber',
@@ -418,6 +419,7 @@ const translations = {
       importantNoteDesc: 'Notre chauffeur vous contactera par téléphone le jour de livraison. Veuillez vous assurer d\'être joignable au {phone}.',
       basePrice: 'Prix de base',
       deliveryLabel: 'Livraison',
+      // Added missing bank account keys for French
       bankAccountTitle: 'Coordonnées bancaires pour le paiement',
       bankAccountSubtitle: 'Effectuez le virement avec ces informations',
       accountHolder: 'Titulaire du compte',
@@ -470,154 +472,6 @@ const translations = {
       phoneRequired: 'Le numéro de téléphone est requis',
       termsRequired: 'Vous devez accepter les CGV'
     }
-  },
-  nl: {
-    emailSection: {
-      title: 'E-mailadres',
-      subtitle: 'Voor bestellingsbevestiging en communicatie',
-      emailLabel: 'E-mailadres *',
-      emailPlaceholder: 'uw.email@voorbeeld.be'
-    },
-    deliverySection: {
-      title: 'Leveringsadres',
-      subtitle: 'Waar moet de mazout geleverd worden?',
-      firstNameLabel: 'Voornaam *',
-      lastNameLabel: 'Achternaam *',
-      streetLabel: 'Straat en huisnummer *',
-      postcodeLabel: 'Postcode *',
-      cityLabel: 'Stad *',
-      phoneLabel: 'Telefoonnummer *',
-      firstNamePlaceholder: 'Voornaam',
-      lastNamePlaceholder: 'Achternaam',
-      streetPlaceholder: 'Straat en huisnummer',
-      postcodePlaceholder: 'Postcode',
-      cityPlaceholder: 'Stad',
-      phonePlaceholder: 'Telefoonnummer'
-    },
-    billingSection: {
-      title: 'Factuuradres',
-      subtitle: 'Waar moet de factuur naartoe gestuurd worden?',
-      sameAddressLabel: 'Factuuradres is identiek aan leveringsadres'
-    },
-    paymentSection: {
-      title: 'Betaalwijze',
-      subtitle: 'Veilige en gemakkelijke betaling',
-      vorkasse: {
-        title: 'Vooruitbetaling',
-        description: 'Bankoverschrijving voor levering',
-        recommended: 'Aanbevolen'
-      }
-    },
-    termsSection: {
-      title: 'Algemene voorwaarden en herroepingsrecht',
-      subtitle: 'Bevestig de algemene voorwaarden',
-      withdrawalTitle: 'Herroepingsrecht',
-      withdrawalText: 'U hebt het recht om binnen veertien dagen zonder opgave van redenen deze overeenkomst te herroepen. De herroepingstermijn bedraagt veertien dagen vanaf de dag van contractsluiting.',
-      acceptTermsText: 'Ik accepteer de algemene voorwaarden en het herroepingsrecht. Ik ben ervan bewust dat ik bij een bestelling van mazout mijn herroepingsrecht verlies zodra de levering is begonnen. *',
-      submitButton: 'Betalingsplichtig bestellen',
-      submittingButton: 'Bestelling wordt aangemaakt...'
-    },
-    summary: {
-      orderSummary: 'Bestellingsoverzicht',
-      showOrder: 'Bestelling tonen',
-      product: 'Product',
-      quantity: 'Hoeveelheid',
-      pricePerLiter: 'Prijs per liter',
-      subtotal: 'Subtotaal',
-      shipping: 'Verzending',
-      free: 'Gratis',
-      net: 'Netto',
-      vat: 'BTW (21%)',
-      total: 'Totaal',
-      inclVat: 'incl. BTW',
-      ofWhichVat: 'waarvan {amount}€ BTW',
-      discountPlaceholder: 'Kortingscode invoeren',
-      applyButton: 'Toepassen',
-      checkingButton: 'Controleren...',
-      deliveryInfo: 'Leveringsinformatie',
-      workdays: '3-5 werkdagen',
-      afterPayment: 'na betalingsbevestiging',
-      freeShippingNote: 'Gratis levering vanaf 3.000 liter',
-      sslEncrypted: 'SSL versleuteld',
-      securePayment: 'Veilige betaling',
-      timelyDelivery: 'Tijdige levering',
-      fairPrices: 'Eerlijke prijzen',
-      confirmedOrder: 'Uw bevestigde bestelling'
-    },
-    confirmation: {
-      title: 'Bestelling bevestigd!',
-      subtitle: 'Dank u voor uw mazout bestelling',
-      orderNumber: 'Uw bestelnummer',
-      orderSuccess: 'Uw bestelling is succesvol geregistreerd!',
-      paymentInstructions: 'Betaalinstructies',
-      howToPay: 'Zo betaalt u uw bestelling',
-      nextSteps: 'Volgende stappen',
-      phoneContact: '1. Bestellingsbevestiging',
-      phoneContactDesc: 'Uw bestelling wordt bevestigd en u ontvangt binnenkort de bankinformatie.',
-      bankTransfer: '2. Bankoverschrijving',
-      bankTransferDesc: 'Na ontvangst van de bankinformatie, maakt u het bedrag van {amount}€ over.',
-      delivery: '3. Levering',
-      deliveryDesc: 'Na ontvangst van de betaling volgt levering binnen 3-5 werkdagen.',
-      deliveryInformation: 'Leveringsinformatie',
-      deliveryDetails: 'Belangrijke details betreffende uw levering',
-      deliveryTerm: 'Leveringsdatum',
-      deliveryAddress: 'Leveringsadres',
-      importantNote: '📞 Belangrijke opmerking over levering',
-      importantNoteDesc: 'Onze chauffeur zal u op de leveringsdag telefonisch contacteren. Zorg ervoor dat u bereikbaar bent op {phone}.',
-      basePrice: 'Basisprijs',
-      deliveryLabel: 'Levering',
-      bankAccountTitle: 'Bankgegevens voor betaling',
-      bankAccountSubtitle: 'Maak de overschrijving met deze gegevens',
-      accountHolder: 'Rekeninghouder',
-      bankName: 'Bank',
-      transferAmount: 'Over te maken bedrag',
-      reference: 'Mededeling',
-      questionsAboutOrder: 'Vragen over uw bestelling?',
-      phone: 'Telefoon',
-      email: 'E-mail',
-      newOrder: 'Nieuwe bestelling'
-    },
-    navigation: {
-      back: 'Terug',
-      cart: 'Winkelwagen',
-      information: 'Informatie',
-      shipping: 'Verzending',
-      payment: 'Betaling',
-      secureEncryption: 'Veilige SSL-versleuteling voor uw gegevens'
-    },
-    header: {
-      securePayment: 'Veilige betaling',
-      sslEncrypted: 'SSL versleuteld'
-    },
-    system: {
-      loadingOrderData: 'Bestellingsgegevens worden geladen...',
-      testDataGenerated: 'Testgegevens gegenereerd',
-      testDataDescription: 'Het formulier is ingevuld met willekeurige testgegevens.',
-      emailSendTitle: 'E-mail verzending',
-      emailSendDescription: 'De bestellingsbevestiging kon niet verzonden worden. U ontvangt deze binnenkort.',
-      errorTitle: 'Fout',
-      errorDescription: 'Er is een fout opgetreden. Probeer opnieuw.',
-      orderProcessedTitle: 'Informatie',
-      orderProcessedDescription: 'Deze bestelling is al verwerkt.'
-    },
-    toasts: {
-      noOrderDataTitle: 'Geen bestellingsgegevens gevonden',
-      noOrderDataDescription: 'Voer eerst een prijsberekening uit.',
-      invalidOrderDataTitle: 'Ongeldige bestellingsgegevens',
-      invalidOrderDataDescription: 'Voer een nieuwe prijsberekening uit.',
-      loadOrderDataErrorTitle: 'Fout bij laden bestellingsgegevens',
-      loadOrderDataErrorDescription: 'Voer een nieuwe prijsberekening uit.'
-    },
-    validation: {
-      emailRequired: 'Geldig e-mailadres vereist',
-      firstNameRequired: 'Voornaam is vereist',
-      lastNameRequired: 'Achternaam is vereist',
-      streetRequired: 'Straat is vereist',
-      postcodeRequired: 'Postcode is vereist',
-      cityRequired: 'Stad is vereist',
-      phoneRequired: 'Telefoonnummer is vereist',
-      termsRequired: 'U moet de algemene voorwaarden accepteren'
-    }
   }
 } as const;
 
@@ -627,14 +481,7 @@ export const useCheckoutTranslations = (): CheckoutTranslations => {
   return useMemo(() => {
     // Use domain-based detection instead of route-based
     const isFrench = shopConfig.shopType === 'france';
-    const isBelgian = shopConfig.shopType === 'belgium';
     
-    if (isFrench) {
-      return translations.fr;
-    } else if (isBelgian) {
-      return translations.nl;
-    }
-    
-    return translations.de;
+    return translations[isFrench ? 'fr' : 'de'];
   }, [shopConfig.shopType]);
 };

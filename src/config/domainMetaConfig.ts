@@ -1,4 +1,3 @@
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta' | 'belgium';
 
 export interface MetaData {
   title: string;
@@ -261,6 +260,8 @@ const maltaShopMetaConfig: DomainShopMetaConfig = {
   }
 };
 
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
+
 const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   root: germanShopMetaConfig,
   stanton: germanShopMetaConfig,
@@ -268,8 +269,7 @@ const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   austria: germanShopMetaConfig, // Austrian shop uses German for now
   france: frenchShopMetaConfig,
   italy: italianShopMetaConfig,
-  malta: maltaShopMetaConfig,
-  belgium: germanShopMetaConfig
+  malta: maltaShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {
