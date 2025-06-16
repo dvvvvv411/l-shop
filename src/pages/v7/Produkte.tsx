@@ -2,144 +2,172 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v7/Header';
-import Footer from '../../components/Footer';
-import { Droplet, Award, Zap, Shield } from 'lucide-react';
-import { usePageMeta } from '@/hooks/usePageMeta';
+import Footer from '../../components/v7/Footer';
+import ProductComparison from '../../components/v7/ProductComparison';
+import { Droplet, Shield, Award, Droplets, Thermometer, Factory } from 'lucide-react';
 
 const Produkte = () => {
-  usePageMeta('produkte');
+  const productFeatures = [
+    {
+      icon: Shield,
+      title: "NBN-Gecertificeerd",
+      description: "Al onze mazout voldoet aan de NBN EN 590 norm voor de hoogste kwaliteitsnormen."
+    },
+    {
+      icon: Droplets,
+      title: "Zwavelarm",
+      description: "Onze premium mazout bevat minder dan 50mg/kg zwavel voor milieuvriendelijke verbranding."
+    },
+    {
+      icon: Thermometer,
+      title: "Geoptimaliseerde Verbrandingswaarde",
+      description: "Door speciale additieven bereiken wij een hogere verbrandingswaarde en betere efficiëntie."
+    },
+    {
+      icon: Factory,
+      title: "Directe Inkoop",
+      description: "Door directe inkoop bij raffinaderijen garanderen wij de beste prijzen en kwaliteit."
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="py-16">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-red-50 via-white to-gray-50 py-24">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center bg-red-100 text-red-700 px-6 py-3 rounded-full text-sm font-semibold mb-8">
+              <Droplet size={18} className="mr-2" />
+              Premium Mazout Producten
+              <Award size={16} className="ml-2" />
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-8">
+              Onze <span className="text-red-600">Mazout Producten</span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Van bewezen standaardkwaliteit tot premium performance - 
+              kies de perfecte mazout voor uw behoeften.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Product Features */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Onze mazoutproducten</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Hoogwaardige brandstof voor optimale verwarming van uw woning
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Kwaliteitskenmerken van onze mazout
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Leer meer over de bijzondere eigenschappen en voordelen van onze mazout producten
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Standard Mazout */}
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="flex items-center mb-6">
-                <Droplet className="h-8 w-8 text-red-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Standaard mazout</h2>
-              </div>
-              
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold text-red-600 mb-2">€0,50</div>
-                <div className="text-gray-600">per liter</div>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Hoge verbrandingswaarde</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Betrouwbare kwaliteit</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Geschikt voor alle ketels</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Belgische kwaliteitsnormen</span>
-                </li>
-              </ul>
-
-              <button className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
-                Nu bestellen
-              </button>
-            </div>
-
-            {/* Premium Mazout */}
-            <div className="bg-white rounded-lg shadow-lg p-8 relative">
-              <div className="absolute top-4 right-4">
-                <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  Aanbevolen
-                </span>
-              </div>
-              
-              <div className="flex items-center mb-6">
-                <Award className="h-8 w-8 text-red-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Premium mazout</h2>
-              </div>
-              
-              <div className="text-center mb-6">
-                <div className="text-4xl font-bold text-red-600 mb-2">€0,52</div>
-                <div className="text-gray-600">per liter</div>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Extra additieven voor betere prestaties</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Verminderde uitstoot</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Beschermt uw ketel</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                  <span>Langere houdbaarheid</span>
-                </li>
-              </ul>
-
-              <button className="w-full bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
-                Nu bestellen
-              </button>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {productFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <div className="text-center">
+                  <div className="inline-flex p-4 rounded-full bg-red-100 text-red-600 mb-4">
+                    <feature.icon size={28} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Features Section */}
-          <div className="mt-16 bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Waarom onze mazout?</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <Zap className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Hoge kwaliteit</h3>
-                <p className="text-gray-600">
-                  Gecontroleerd volgens strenge Belgische normen voor optimale verbranding.
-                </p>
-              </div>
+      {/* Product Comparison */}
+      <ProductComparison />
 
-              <div className="text-center">
-                <Shield className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Betrouwbaar</h3>
-                <p className="text-gray-600">
-                  Constante kwaliteit en samenstelling voor betrouwbare verwarming.
-                </p>
-              </div>
+      {/* Technical Specifications */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Technische Specificaties
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Gedetailleerde informatie over onze mazout kwaliteiten
+            </p>
+          </motion.div>
 
-              <div className="text-center">
-                <Award className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Milieuvriendelijk</h3>
-                <p className="text-gray-600">
-                  Lage emissies en additieven voor een schonere verbranding.
-                </p>
-              </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="overflow-x-auto">
+              <table className="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
+                <thead className="bg-red-600 text-white">
+                  <tr>
+                    <th className="px-6 py-4 text-left">Eigenschap</th>
+                    <th className="px-6 py-4 text-center">Standaard Mazout</th>
+                    <th className="px-6 py-4 text-center">Premium Mazout</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  <tr>
+                    <td className="px-6 py-4 font-medium">NBN-Norm</td>
+                    <td className="px-6 py-4 text-center">NBN EN 590</td>
+                    <td className="px-6 py-4 text-center">NBN EN 590</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-6 py-4 font-medium">Zwavelgehalte</td>
+                    <td className="px-6 py-4 text-center">≤ 1000 mg/kg</td>
+                    <td className="px-6 py-4 text-center">≤ 50 mg/kg</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 font-medium">Verbrandingswaarde</td>
+                    <td className="px-6 py-4 text-center">≥ 42,6 MJ/kg</td>
+                    <td className="px-6 py-4 text-center">≥ 43,0 MJ/kg</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="px-6 py-4 font-medium">Vlampunt</td>
+                    <td className="px-6 py-4 text-center">≥ 55°C</td>
+                    <td className="px-6 py-4 text-center">≥ 55°C</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 font-medium">Additieven</td>
+                    <td className="px-6 py-4 text-center">Standaard</td>
+                    <td className="px-6 py-4 text-center">Premium+</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      </main>
-      
+      </section>
+
       <Footer />
     </div>
   );

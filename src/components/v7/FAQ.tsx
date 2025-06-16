@@ -1,133 +1,86 @@
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../ui/accordion';
 
 const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
   const faqs = [
     {
-      question: 'Hoe snel wordt mijn mazout geleverd?',
-      answer: 'Wij leveren uw mazout binnen 2-4 werkdagen na uw bestelling. Voor urgente leveringen bieden wij ook express-service aan.'
+      question: "Wat is de minimale bestelhoeveelheid?",
+      answer: "De minimale bestelhoeveelheid is 500 liter. Voor bestellingen vanaf 3.000 liter is de levering gratis."
     },
     {
-      question: 'Wat zijn de leveringskosten?',
-      answer: 'Levering is gratis vanaf 3.000 liter. Voor kleinere hoeveelheden rekenen wij €89 leveringskosten.'
+      question: "Hoe lang duurt de levering?",
+      answer: "Normaal gesproken leveren wij binnen 2-4 werkdagen in heel België. U krijgt een dag voor levering een bevestiging met het tijdvenster."
     },
     {
-      question: 'Welke betalingsmogelijkheden zijn er?',
-      answer: 'U kunt betalen via Bancontact, creditcard, bankoverschrijving of bij levering (alleen contant). Alle betalingen zijn veilig versleuteld.'
+      question: "Welke betaalmethoden accepteren jullie?",
+      answer: "Wij accepteren bankoverschrijving. Na uw bestelling ontvangt u alle benodigde betaalgegevens per e-mail."
     },
     {
-      question: 'Leveren jullie door heel België?',
-      answer: 'Ja, wij leveren door heel België, inclusief Vlaanderen, Wallonië en Brussel. Voer uw postcode in om te controleren of wij in uw gebied leveren.'
+      question: "Is uw mazout van goede kwaliteit?",
+      answer: "Ja, al onze mazout voldoet aan de NBN EN 590 norm. Onze premium mazout is zwavelarm en bevat speciale additieven voor betere prestaties."
     },
     {
-      question: 'Wat is het verschil tussen standaard en premium mazout?',
-      answer: 'Premium mazout bevat extra additieven die uw ketel beschermen, de houdbaarheid verlengen en de uitstoot verminderen. Het kost slechts €0,02 meer per liter.'
+      question: "Leveren jullie in heel België?",
+      answer: "Ja, wij leveren in heel België. Voor sommige afgelegen gebieden kan er een kleine toeslag van toepassing zijn."
     },
     {
-      question: 'Kan ik mijn bestelling annuleren?',
-      answer: 'U kunt uw bestelling kosteloos annuleren tot 24 uur voor de geplande levering. Neem hiervoor contact op met onze klantenservice.'
+      question: "Kan ik mijn bestelling annuleren?",
+      answer: "Ja, u kunt uw bestelling kosteloos annuleren tot 24 uur voor de geplande levering. Neem hiervoor contact met ons op."
     },
     {
-      question: 'Hoe wordt de kwaliteit van jullie mazout gegarandeerd?',
-      answer: 'Onze mazout voldoet aan alle Belgische normen (NBN EN 590) en wordt regelmatig getest. Wij bieden volledige garantie op de kwaliteit.'
+      question: "Hoe wordt de mazout geleverd?",
+      answer: "Onze mazout wordt geleverd met een moderne tankwagen. Onze chauffeur vult uw tank rechtstreeks en zorgt voor een schone en veilige levering."
     },
     {
-      question: 'Wat gebeurt er als ik niet thuis ben bij de levering?',
-      answer: 'Onze chauffeur neemt vooraf contact op om een geschikt tijdstip af te spreken. Als u niet thuis bent, kunnen wij een nieuwe afspraak maken.'
+      question: "Krijg ik een factuur?",
+      answer: "Ja, u ontvangt automatisch een factuur per e-mail na de levering. Deze is ook beschikbaar in uw klantaccount."
     }
   ];
 
   return (
-    <section className="py-20 bg-gray-50" id="faq">
+    <section id="faq" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Veelgestelde vragen
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Heeft u vragen over onze mazoutlevering? Hier vindt u antwoorden op de meest gestelde vragen.
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-lg shadow-lg overflow-hidden"
-              >
-                <button
-                  className="w-full px-8 py-6 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
-                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                >
-                  <span className="text-lg font-semibold text-gray-900 pr-8">
-                    {faq.question}
-                  </span>
-                  {openIndex === index ? (
-                    <ChevronUp className="h-6 w-6 text-red-600" />
-                  ) : (
-                    <ChevronDown className="h-6 w-6 text-red-600" />
-                  )}
-                </button>
-                
-                <AnimatePresence>
-                  {openIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-8 pb-6">
-                        <p className="text-gray-600 leading-relaxed">
-                          {faq.answer}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-16"
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
         >
-          <div className="bg-white rounded-xl p-8 shadow-lg max-w-2xl mx-auto">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Heeft u nog andere vragen?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Onze klantenservice staat voor u klaar om al uw vragen te beantwoorden.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
-                Bel +32 2 123 4567
-              </button>
-              <button className="border border-red-600 text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-red-50 transition-colors">
-                E-mail ons
-              </button>
-            </div>
-          </div>
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            Veelgestelde Vragen
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Hier vindt u antwoorden op de meest gestelde vragen over onze service en mazoutlevering
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto"
+        >
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className="bg-white rounded-lg shadow-sm">
+                <AccordionTrigger className="px-6 py-4 text-left font-semibold text-gray-900 hover:text-red-600">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-4 text-gray-600 leading-relaxed">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </motion.div>
       </div>
     </section>
