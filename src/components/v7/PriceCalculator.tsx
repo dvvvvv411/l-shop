@@ -11,12 +11,20 @@ import { useNavigate } from 'react-router-dom';
 const V7PriceCalculator = () => {
   const [amount, setAmount] = useState(3000);
   const [postcode, setPostcode] = useState('');
-  const [basePrice] = useState(0.89);
+  const [selectedProduct, setSelectedProduct] = useState('standard');
   const navigate = useNavigate();
+
+  // Belgian-specific pricing
+  const products = {
+    standard: { name: 'Standaard Mazout', price: 0.50 },
+    premium: { name: 'Premium Mazout', price: 0.52 }
+  };
+
+  const currentProduct = products[selectedProduct as keyof typeof products];
 
   const calculateTotal = () => {
     const deliveryFee = amount >= 3000 ? 0 : 45;
-    const baseTotal = amount * basePrice;
+    const baseTotal = amount * currentProduct.price;
     const vatAmount = baseTotal * 0.21;
     const total = baseTotal + vatAmount + deliveryFee;
     
@@ -35,10 +43,11 @@ const V7PriceCalculator = () => {
     const orderData = {
       amount,
       postcode,
-      basePrice,
+      product: currentProduct.name,
+      pricePerLiter: currentProduct.price,
+      basePrice: parseFloat(pricing.baseTotal),
       deliveryFee: parseFloat(pricing.deliveryFee),
       total: parseFloat(pricing.total),
-      product: 'Standaard Mazout',
       shopType: 'belgium'
     };
     
@@ -158,6 +167,49 @@ const V7PriceCalculator = () => {
                   </div>
 
                   <div>
+                    <Label className="text-base font-semibold mb-3 block">
+                      Product keuze
+                    </Label>
+                    <div className="space-y-3">
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedProduct === 'standard' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setSelectedProduct('standard')}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="font-semibold text-gray-900">Standaard Mazout</div>
+                            <div className="text-sm text-gray-600">Kwaliteitsmazout volgens norm</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-red-600">€0.50</div>
+                            <div className="text-sm text-gray-500">per liter</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          selectedProduct === 'premium' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => setSelectedProduct('premium')}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="font-semibold text-gray-900">Premium Mazout</div>
+                            <div className="text-sm text-gray-600">Zwavelarme premium mazout</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-red-600">€0.52</div>
+                            <div className="text-sm text-gray-500">per liter</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
                     <Label htmlFor="postcode" className="text-base font-semibold mb-3 block">
                       Uw postcode
                     </Label>
@@ -179,7 +231,7 @@ const V7PriceCalculator = () => {
 
                   <div className="bg-gray-50 rounded-lg p-6 space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Mazout ({amount.toLocaleString()}L à €{basePrice})</span>
+                      <span className="text-gray-600">Mazout ({amount.toLocaleString()}L à €{currentProduct.price})</span>
                       <span className="font-semibold">€{pricing.baseTotal}</span>
                     </div>
                     <div className="flex justify-between">
