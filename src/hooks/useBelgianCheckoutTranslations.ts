@@ -64,6 +64,8 @@ export const useBelgianCheckoutTranslations = () => {
       paymentInstructions: 'Betalingsinstructies',
       howToPay: 'Hoe te betalen en wat er daarna gebeurt',
       nextSteps: 'Volgende stappen',
+      phoneContact: 'Telefonisch contact',
+      phoneContactDesc: 'Wij nemen binnen 24 uur telefonisch contact met u op om uw bestelling te bevestigen.',
       bankTransferDesc: 'Maak het bedrag van {amount}€ over met het bestelnummer als mededeling.',
       deliveryDesc: 'Levering vindt plaats na ontvangst van de betaling.',
       deliveryInformation: 'Leveringsinformatie',
