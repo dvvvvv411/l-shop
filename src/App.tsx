@@ -6,7 +6,7 @@ import { OrderProvider } from './contexts/OrderContext';
 import { TooltipProvider } from './components/ui/tooltip';
 
 // Page imports
-import Home from './pages/Home';
+import Home from './pages/Index';
 import Checkout from './pages/Checkout';
 import Order from './pages/Order';
 
