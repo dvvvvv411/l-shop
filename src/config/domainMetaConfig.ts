@@ -81,66 +81,6 @@ const germanShopMetaConfig: DomainShopMetaConfig = {
   }
 };
 
-// Belgian configuration with Dutch content
-const belgianShopMetaConfig: DomainShopMetaConfig = {
-  name: "MazoutVandaag",
-  brand: "MazoutVandaag",
-  phone: "+32 2 123 4567",
-  email: "info@mazoutvandaag.com",
-  baseUrl: "https://mazoutvandaag.com",
-  pages: {
-    home: {
-      title: "Mazout aan de beste prijs - Snelle mazout levering in heel België",
-      description: "Bestel goedkope mazout online aan de beste prijs. Snelle levering, topkwaliteit, eerlijke prijzen. Vergelijk mazout prijzen en bespaar op uw aankoop.",
-      keywords: "mazout, goedkoop, bestellen, levering, prijzen, online, België",
-      ogTitle: "Mazout aan de beste prijs - Snelle mazout levering",
-      ogDescription: "Bestel goedkope mazout online met snelle levering in heel België",
-      twitterTitle: "Mazout aan de beste prijs - Snelle mazout levering",
-      twitterDescription: "Bestel goedkope mazout online met snelle levering in heel België"
-    },
-    impressum: {
-      title: "Bedrijfsinformatie - MazoutVandaag",
-      description: "Bedrijfsinformatie en juridische gegevens van MazoutVandaag BVBA."
-    },
-    agb: {
-      title: "Algemene Voorwaarden - MazoutVandaag",
-      description: "Algemene voorwaarden voor mazout leveringen van MazoutVandaag."
-    },
-    widerrufsrecht: {
-      title: "Herroepingsrecht - MazoutVandaag",
-      description: "Herroepingsrecht en annuleringsbeleid voor mazout bestellingen."
-    },
-    datenschutz: {
-      title: "Privacyverklaring - MazoutVandaag",
-      description: "Privacyverklaring en informatie over gegevensbescherming."
-    },
-    kontakt: {
-      title: "Contact - MazoutVandaag | Persoonlijk advies",
-      description: "Neem contact op voor persoonlijk advies. Deskundige begeleiding voor mazout en levering.",
-      keywords: "contact, advies, mazout, ondersteuning, België"
-    },
-    service: {
-      title: "Service - MazoutVandaag | Premium mazout service",
-      description: "Eersteklas mazout service: snelle levering, gecertificeerde partners, premium kwaliteit voor uw verwarmingsbehoeften.",
-      keywords: "service, mazout, levering, premium, kwaliteit, België"
-    },
-    liefergebiet: {
-      title: "Leveringsgebieden - MazoutVandaag | België-brede dekking",
-      description: "Mazout levering in heel België. Ontdek onze leveringsgebieden en partner locaties door heel België.",
-      keywords: "leveringsgebied, België, nationaal, partners, locaties"
-    },
-    produkte: {
-      title: "Mazout producten - Premium kwaliteit & additieven",
-      description: "Hoogwaardige mazout producten: premium kwaliteit, zwavelarme brandstoffen, mazout met additieven voor optimale verwarming.",
-      keywords: "mazout, premium, laag zwavel, additieven, kwaliteit"
-    },
-    checkout: {
-      title: "Bestelling afronden - MazoutVandaag",
-      description: "Rond uw mazout bestelling af. Veilige betaling en snelle levering gegarandeerd."
-    }
-  }
-};
-
 // French configuration for the French shop
 const frenchShopMetaConfig: DomainShopMetaConfig = {
   name: "Fioul Rapide",
@@ -329,7 +269,7 @@ const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   france: frenchShopMetaConfig,
   italy: italianShopMetaConfig,
   malta: maltaShopMetaConfig,
-  belgium: belgianShopMetaConfig
+  belgium: germanShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {

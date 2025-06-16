@@ -1,114 +1,323 @@
 
-export const useBelgianCheckoutTranslations = () => {
-  return {
-    navigation: {
-      back: "Terug naar winkelwagen",
-      cart: "Winkelwagen", 
-      information: "Informatie",
-      shipping: "Verzending",
-      payment: "Betaling",
-      secureEncryption: "SSL-versleutelde verbinding"
-    },
-    form: {
-      contactInformation: "Contactinformatie",
-      email: "E-mailadres",
-      emailPlaceholder: "uw@email.com",
-      deliveryAddress: "Leveringsadres",
-      firstName: "Voornaam",
-      lastName: "Achternaam", 
-      company: "Bedrijf (optioneel)",
-      street: "Straat en huisnummer",
-      streetPlaceholder: "Voorbeeldstraat 123",
-      postcode: "Postcode",
-      postcodePlaceholder: "1000",
-      city: "Stad",
-      cityPlaceholder: "Brussel",
-      phone: "Telefoonnummer",
-      phonePlaceholder: "+32 123 456 789",
-      billingAddress: "Factuuradres",
-      useSameAddress: "Zelfde als leveringsadres gebruiken",
-      paymentMethod: "Betaalmethode",
-      bankTransfer: "Bankoverschrijving",
-      bankTransferDescription: "Betaal veilig via bankoverschrijving. U ontvangt een factuur met betalingsinstructies.",
-      terms: "Ik ga akkoord met de",
-      termsLink: "algemene voorwaarden",
-      privacy: "en",
-      privacyLink: "privacyverklaring",
-      completeOrder: "Bestelling plaatsen",
-      processing: "Bestelling wordt verwerkt..."
-    },
-    summary: {
-      showOrder: "Bestelling tonen",
-      hideOrder: "Bestelling verbergen", 
-      subtotal: "Subtotaal",
-      shipping: "Verzending",
-      free: "Gratis",
-      net: "Netto",
-      vat: "BTW (21%)",
-      total: "Totaal",
-      inclVat: "Incl. BTW",
-      ofWhichVat: "waarvan €{amount} BTW",
-      discountPlaceholder: "Kortingscode",
-      applyButton: "Toepassen",
-      checkingButton: "Controleren...",
-      deliveryInfo: "Leveringsinformatie",
-      workdays: "3-5 werkdagen",
-      afterPayment: "na betaling",
-      freeShippingNote: "Gratis verzending vanaf 3.000L",
-      sslEncrypted: "SSL versleuteld",
-      securePayment: "Veilige betaling", 
-      timelyDelivery: "Tijdige levering",
-      fairPrices: "Eerlijke prijzen",
-      quantity: "Aantal",
-      pricePerLiter: "Per liter"
-    },
-    confirmation: {
-      title: "Bestelling Bevestigd!",
-      subtitle: "Bedankt voor uw bestelling",
-      orderNumber: "Bestelnummer",
-      emailSent: "Er is een bevestigingsmail naar u verstuurd",
-      paymentInstructions: "Betalingsinstructies",
-      bankAccount: "Rekeningnummer",
-      amount: "Te betalen bedrag",
-      reference: "Betalingsreferentie",
-      important: "Belangrijk",
-      paymentNote: "Gelieve het exacte bedrag over te maken met vermelding van het bestelnummer. Na ontvangst van uw betaling wordt uw bestelling binnen 3-5 werkdagen geleverd.",
-      deliveryInfo: "Leveringsinformatie", 
-      estimatedDelivery: "Verwachte levering",
-      deliveryMethod: "Leveringsmethode",
-      standardDelivery: "Standaard levering",
-      contactInfo: "Voor vragen over uw bestelling kunt u contact opnemen:",
-      phone: "Telefoon",
-      email: "E-mail",
-      newOrder: "Nieuwe bestelling plaatsen",
-      orderSummary: "Overzicht bestelling"
-    },
-    validation: {
-      emailRequired: "E-mailadres is verplicht",
-      emailInvalid: "Ongeldig e-mailadres",
-      firstNameRequired: "Voornaam is verplicht",
-      lastNameRequired: "Achternaam is verplicht", 
-      streetRequired: "Straat is verplicht",
-      postcodeRequired: "Postcode is verplicht",
-      postcodeInvalid: "Ongeldige postcode (gebruik 4 cijfers)",
-      cityRequired: "Stad is verplicht",
-      phoneRequired: "Telefoonnummer is verplicht",
-      phoneInvalid: "Ongeldig telefoonnummer",
-      termsRequired: "U moet akkoord gaan met de algemene voorwaarden"
-    },
-    toasts: {
-      noOrderDataTitle: "Geen bestelgegevens gevonden",
-      noOrderDataDescription: "Ga terug naar de prijscalculator om een bestelling te plaatsen.",
-      invalidOrderDataTitle: "Ongeldige bestelgegevens", 
-      invalidOrderDataDescription: "Er is een probleem met uw bestelgegevens. Probeer opnieuw.",
-      loadOrderDataErrorTitle: "Fout bij laden bestelgegevens",
-      loadOrderDataErrorDescription: "Kon bestelgegevens niet laden. Probeer opnieuw.",
-      orderSuccessTitle: "Bestelling geplaatst!",
-      orderSuccessDescription: "Uw bestelling is succesvol verwerkt."
-    },
-    system: {
-      loadingOrderData: "Bestelgegevens laden...",
-      orderProcessing: "Bestelling wordt verwerkt..."
-    }
+import { useMemo } from 'react';
+import { useDomainShop } from '@/hooks/useDomainShop';
+
+export interface BelgianCheckoutTranslations {
+  // Form sections
+  emailSection: {
+    title: string;
+    subtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
   };
+  deliverySection: {
+    title: string;
+    subtitle: string;
+    firstNameLabel: string;
+    lastNameLabel: string;
+    streetLabel: string;
+    postcodeLabel: string;
+    cityLabel: string;
+    phoneLabel: string;
+    firstNamePlaceholder: string;
+    lastNamePlaceholder: string;
+    streetPlaceholder: string;
+    postcodePlaceholder: string;
+    cityPlaceholder: string;
+    phonePlaceholder: string;
+  };
+  billingSection: {
+    title: string;
+    subtitle: string;
+    sameAddressLabel: string;
+  };
+  paymentSection: {
+    title: string;
+    subtitle: string;
+    vorkasse: {
+      title: string;
+      description: string;
+      recommended: string;
+    };
+  };
+  termsSection: {
+    title: string;
+    subtitle: string;
+    withdrawalTitle: string;
+    withdrawalText: string;
+    acceptTermsText: string;
+    submitButton: string;
+    submittingButton: string;
+  };
+  // Summary section
+  summary: {
+    orderSummary: string;
+    showOrder: string;
+    product: string;
+    quantity: string;
+    pricePerLiter: string;
+    subtotal: string;
+    shipping: string;
+    free: string;
+    net: string;
+    vat: string;
+    total: string;
+    inclVat: string;
+    ofWhichVat: string;
+    discountPlaceholder: string;
+    applyButton: string;
+    checkingButton: string;
+    deliveryInfo: string;
+    workdays: string;
+    afterPayment: string;
+    freeShippingNote: string;
+    sslEncrypted: string;
+    securePayment: string;
+    timelyDelivery: string;
+    fairPrices: string;
+    confirmedOrder: string;
+  };
+  // Confirmation section
+  confirmation: {
+    title: string;
+    subtitle: string;
+    orderNumber: string;
+    orderSuccess: string;
+    paymentInstructions: string;
+    howToPay: string;
+    nextSteps: string;
+    phoneContact: string;
+    phoneContactDesc: string;
+    bankTransfer: string;
+    bankTransferDesc: string;
+    delivery: string;
+    deliveryDesc: string;
+    deliveryInformation: string;
+    deliveryDetails: string;
+    deliveryTerm: string;
+    deliveryAddress: string;
+    importantNote: string;
+    importantNoteDesc: string;
+    basePrice: string;
+    deliveryLabel: string;
+    bankAccountTitle: string;
+    bankAccountSubtitle: string;
+    accountHolder: string;
+    bankName: string;
+    transferAmount: string;
+    reference: string;
+    questionsAboutOrder: string;
+    phone: string;
+    email: string;
+    newOrder: string;
+  };
+  // Navigation
+  navigation: {
+    back: string;
+    cart: string;
+    information: string;
+    shipping: string;
+    payment: string;
+    secureEncryption: string;
+  };
+  // Header
+  header: {
+    securePayment: string;
+    sslEncrypted: string;
+  };
+  // Loading and system messages
+  system: {
+    loadingOrderData: string;
+    testDataGenerated: string;
+    testDataDescription: string;
+    emailSendTitle: string;
+    emailSendDescription: string;
+    errorTitle: string;
+    errorDescription: string;
+    orderProcessedTitle: string;
+    orderProcessedDescription: string;
+  };
+  // Toast notifications
+  toasts: {
+    noOrderDataTitle: string;
+    noOrderDataDescription: string;
+    invalidOrderDataTitle: string;
+    invalidOrderDataDescription: string;
+    loadOrderDataErrorTitle: string;
+    loadOrderDataErrorDescription: string;
+  };
+  // Validation messages
+  validation: {
+    emailRequired: string;
+    firstNameRequired: string;
+    lastNameRequired: string;
+    streetRequired: string;
+    postcodeRequired: string;
+    cityRequired: string;
+    phoneRequired: string;
+    termsRequired: string;
+  };
+}
+
+const belgianTranslations: BelgianCheckoutTranslations = {
+  emailSection: {
+    title: 'E-mailadres',
+    subtitle: 'Voor bestellingsbevestiging en communicatie',
+    emailLabel: 'E-mailadres *',
+    emailPlaceholder: 'uw.email@voorbeeld.be'
+  },
+  deliverySection: {
+    title: 'Leveringsadres',
+    subtitle: 'Waar moet de mazout geleverd worden?',
+    firstNameLabel: 'Voornaam *',
+    lastNameLabel: 'Achternaam *',
+    streetLabel: 'Straat en huisnummer *',
+    postcodeLabel: 'Postcode *',
+    cityLabel: 'Stad *',
+    phoneLabel: 'Telefoonnummer *',
+    firstNamePlaceholder: 'Voornaam',
+    lastNamePlaceholder: 'Achternaam',
+    streetPlaceholder: 'Straat en huisnummer',
+    postcodePlaceholder: 'Postcode',
+    cityPlaceholder: 'Stad',
+    phonePlaceholder: 'Telefoonnummer'
+  },
+  billingSection: {
+    title: 'Factuuradres',
+    subtitle: 'Waar moet de factuur naartoe gestuurd worden?',
+    sameAddressLabel: 'Factuuradres is identiek aan leveringsadres'
+  },
+  paymentSection: {
+    title: 'Betaalwijze',
+    subtitle: 'Veilige en gemakkelijke betaling',
+    vorkasse: {
+      title: 'Vooruitbetaling',
+      description: 'Bankoverschrijving voor levering',
+      recommended: 'Aanbevolen'
+    }
+  },
+  termsSection: {
+    title: 'Algemene voorwaarden en herroepingsrecht',
+    subtitle: 'Bevestig de algemene voorwaarden',
+    withdrawalTitle: 'Herroepingsrecht',
+    withdrawalText: 'U hebt het recht om binnen veertien dagen zonder opgave van redenen deze overeenkomst te herroepen. De herroepingstermijn bedraagt veertien dagen vanaf de dag van contractsluiting.',
+    acceptTermsText: 'Ik accepteer de algemene voorwaarden en het herroepingsrecht. Ik ben ervan bewust dat ik bij een bestelling van mazout mijn herroepingsrecht verlies zodra de levering is begonnen. *',
+    submitButton: 'Betalingsplichtig bestellen',
+    submittingButton: 'Bestelling wordt aangemaakt...'
+  },
+  summary: {
+    orderSummary: 'Bestellingsoverzicht',
+    showOrder: 'Bestelling tonen',
+    product: 'Product',
+    quantity: 'Hoeveelheid',
+    pricePerLiter: 'Prijs per liter',
+    subtotal: 'Subtotaal',
+    shipping: 'Verzending',
+    free: 'Gratis',
+    net: 'Netto',
+    vat: 'BTW (21%)',
+    total: 'Totaal',
+    inclVat: 'incl. BTW',
+    ofWhichVat: 'waarvan {amount}€ BTW',
+    discountPlaceholder: 'Kortingscode invoeren',
+    applyButton: 'Toepassen',
+    checkingButton: 'Controleren...',
+    deliveryInfo: 'Leveringsinformatie',
+    workdays: '3-5 werkdagen',
+    afterPayment: 'na betalingsbevestiging',
+    freeShippingNote: 'Gratis levering vanaf 3.000 liter',
+    sslEncrypted: 'SSL versleuteld',
+    securePayment: 'Veilige betaling',
+    timelyDelivery: 'Tijdige levering',
+    fairPrices: 'Eerlijke prijzen',
+    confirmedOrder: 'Uw bevestigde bestelling'
+  },
+  confirmation: {
+    title: 'Bestelling bevestigd!',
+    subtitle: 'Dank u voor uw mazout bestelling',
+    orderNumber: 'Uw bestelnummer',
+    orderSuccess: 'Uw bestelling is succesvol geregistreerd!',
+    paymentInstructions: 'Betaalinstructies',
+    howToPay: 'Zo betaalt u uw bestelling',
+    nextSteps: 'Volgende stappen',
+    phoneContact: '1. Bestellingsbevestiging',
+    phoneContactDesc: 'Uw bestelling wordt bevestigd en u ontvangt binnenkort de bankinformatie.',
+    bankTransfer: '2. Bankoverschrijving',
+    bankTransferDesc: 'Na ontvangst van de bankinformatie, maakt u het bedrag van {amount}€ over.',
+    delivery: '3. Levering',
+    deliveryDesc: 'Na ontvangst van de betaling volgt levering binnen 3-5 werkdagen.',
+    deliveryInformation: 'Leveringsinformatie',
+    deliveryDetails: 'Belangrijke details betreffende uw levering',
+    deliveryTerm: 'Leveringsdatum',
+    deliveryAddress: 'Leveringsadres',
+    importantNote: '📞 Belangrijke opmerking over levering',
+    importantNoteDesc: 'Onze chauffeur zal u op de leveringsdag telefonisch contacteren. Zorg ervoor dat u bereikbaar bent op {phone}.',
+    basePrice: 'Basisprijs',
+    deliveryLabel: 'Levering',
+    bankAccountTitle: 'Bankgegevens voor betaling',
+    bankAccountSubtitle: 'Maak de overschrijving met deze gegevens',
+    accountHolder: 'Rekeninghouder',
+    bankName: 'Bank',
+    transferAmount: 'Over te maken bedrag',
+    reference: 'Mededeling',
+    questionsAboutOrder: 'Vragen over uw bestelling?',
+    phone: 'Telefoon',
+    email: 'E-mail',
+    newOrder: 'Nieuwe bestelling'
+  },
+  navigation: {
+    back: 'Terug',
+    cart: 'Winkelwagen',
+    information: 'Informatie',
+    shipping: 'Verzending',
+    payment: 'Betaling',
+    secureEncryption: 'Veilige SSL-versleuteling voor uw gegevens'
+  },
+  header: {
+    securePayment: 'Veilige betaling',
+    sslEncrypted: 'SSL versleuteld'
+  },
+  system: {
+    loadingOrderData: 'Bestellingsgegevens worden geladen...',
+    testDataGenerated: 'Testgegevens gegenereerd',
+    testDataDescription: 'Het formulier is ingevuld met willekeurige testgegevens.',
+    emailSendTitle: 'E-mail verzending',
+    emailSendDescription: 'De bestellingsbevestiging kon niet verzonden worden. U ontvangt deze binnenkort.',
+    errorTitle: 'Fout',
+    errorDescription: 'Er is een fout opgetreden. Probeer opnieuw.',
+    orderProcessedTitle: 'Informatie',
+    orderProcessedDescription: 'Deze bestelling is al verwerkt.'
+  },
+  toasts: {
+    noOrderDataTitle: 'Geen bestellingsgegevens gevonden',
+    noOrderDataDescription: 'Voer eerst een prijsberekening uit.',
+    invalidOrderDataTitle: 'Ongeldige bestellingsgegevens',
+    invalidOrderDataDescription: 'Voer een nieuwe prijsberekening uit.',
+    loadOrderDataErrorTitle: 'Fout bij laden bestellingsgegevens',
+    loadOrderDataErrorDescription: 'Voer een nieuwe prijsberekening uit.'
+  },
+  validation: {
+    emailRequired: 'Geldig e-mailadres vereist',
+    firstNameRequired: 'Voornaam is vereist',
+    lastNameRequired: 'Achternaam is vereist',
+    streetRequired: 'Straat is vereist',
+    postcodeRequired: 'Postcode is vereist',
+    cityRequired: 'Stad is vereist',
+    phoneRequired: 'Telefoonnummer is vereist',
+    termsRequired: 'U moet de algemene voorwaarden accepteren'
+  }
+};
+
+export const useBelgianCheckoutTranslations = (): BelgianCheckoutTranslations => {
+  const shopConfig = useDomainShop();
+  
+  return useMemo(() => {
+    // Only return Belgian translations for Belgian shop
+    if (shopConfig.shopType === 'belgium') {
+      return belgianTranslations;
+    }
+    
+    // Fallback to default (this shouldn't happen for Belgian checkout)
+    return belgianTranslations;
+  }, [shopConfig.shopType]);
 };
