@@ -69,31 +69,6 @@ export const useOrders = () => {
     }
   };
 
-  // Get the "mazoutvandaag" bank account ID
-  const getMazoutVandaagBankAccountId = () => {
-    const mazoutVandaagAccount = bankAccounts.find(
-      account => account.system_name === 'mazoutvandaag'
-    );
-    return mazoutVandaagAccount?.id || null;
-  };
-
-  // Get shop ID for Mazout Vandaag
-  const getMazoutVandaagShopId = async () => {
-    try {
-      const { data: shops, error } = await supabase
-        .from('shops')
-        .select('id')
-        .eq('name', 'Mazout Vandaag')
-        .limit(1);
-
-      if (error) throw error;
-      return shops?.[0]?.id || null;
-    } catch (error) {
-      console.error('Error fetching Mazout Vandaag shop:', error);
-      return null;
-    }
-  };
-
   // Get the "Italien Champion" bank account ID
   const getItalienChampionBankAccountId = () => {
     const italienChampionAccount = bankAccounts.find(
@@ -127,9 +102,8 @@ export const useOrders = () => {
       // Generate a unique request ID for deduplication using our cross-browser UUID function
       const requestId = generateUUID();
       
-      // Check domain type for automatic assignment
+      // Check if this is a French shop order (fioul-rapide.fr)
       const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
-      const isBelgianShop = orderData.origin_domain === 'mazoutvandaag.com';
       
       let finalOrderData = { ...orderData };
       
@@ -146,22 +120,6 @@ export const useOrders = () => {
         if (fioulRapideShopId) {
           finalOrderData.shop_id = fioulRapideShopId;
           console.log('Automatically assigned Fioul Rapide shop ID');
-        }
-      }
-
-      // For Belgian shop orders, automatically assign mazoutvandaag bank account and shop
-      if (isBelgianShop) {
-        const mazoutVandaagBankAccountId = getMazoutVandaagBankAccountId();
-        const mazoutVandaagShopId = await getMazoutVandaagShopId();
-        
-        if (mazoutVandaagBankAccountId) {
-          finalOrderData.bank_account_id = mazoutVandaagBankAccountId;
-          console.log('Automatically assigned mazoutvandaag bank account for Belgian shop order');
-        }
-        
-        if (mazoutVandaagShopId) {
-          finalOrderData.shop_id = mazoutVandaagShopId;
-          console.log('Automatically assigned Mazout Vandaag shop ID');
         }
       }
       
@@ -198,22 +156,22 @@ export const useOrders = () => {
 
       console.log('Order created successfully:', data);
 
-      // For French and Belgian shop orders, automatically generate and send invoice
-      if ((isFrenchShop || isBelgianShop) && data.bank_account_id && data.shop_id) {
+      // For French shop orders, automatically generate and send invoice
+      if (isFrenchShop && data.bank_account_id && data.shop_id) {
         try {
-          console.log('Automatically generating invoice for', isBelgianShop ? 'Belgian' : 'French', 'shop order...');
+          console.log('Automatically generating invoice for French shop order...');
           await generateInvoice(data.id, data.shop_id, data.bank_account_id);
-          console.log('Invoice automatically generated and sent for', isBelgianShop ? 'Belgian' : 'French', 'shop order');
+          console.log('Invoice automatically generated and sent for French shop order');
         } catch (invoiceError) {
           console.error('Error automatically generating invoice:', invoiceError);
           // Don't fail the order creation if invoice generation fails
           toast({
             title: 'Hinweis',
-            description: isBelgianShop ? 'Bestelling succesvol aangemaakt. Factuur wordt later verstuurd.' : 'Bestellung erfolgreich erstellt. Rechnung wird nachträglich versendet.',
+            description: 'Bestellung erfolgreich erstellt. Rechnung wird nachträglich versendet.',
           });
         }
       } else {
-        // For other shops, show normal success message
+        // For non-French shops, show normal success message
         toast({
           title: 'Erfolg',
           description: t.success.orderCreated,

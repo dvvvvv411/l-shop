@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -83,17 +84,6 @@ import V6Kontakt from '@/pages/v6/Kontakt';
 import V6Service from '@/pages/v6/Service';
 import V6Produkte from '@/pages/v6/Produkte';
 import V6Liefergebiet from '@/pages/v6/Liefergebiet';
-
-// V7 pages (Belgian)
-import V7Home from '@/pages/v7/Home';
-import V7Impressum from '@/pages/v7/Impressum';
-import V7AGB from '@/pages/v7/AGB';
-import V7Datenschutz from '@/pages/v7/Datenschutz';
-import V7Widerrufsrecht from '@/pages/v7/Widerrufsrecht';
-import V7Kontakt from '@/pages/v7/Kontakt';
-import V7Service from '@/pages/v7/Service';
-import V7Produkte from '@/pages/v7/Produkte';
-import V7Liefergebiet from '@/pages/v7/Liefergebiet';
 
 const DomainRouter = () => {
   const shopConfig = useDomainShop();
@@ -233,28 +223,6 @@ const DomainRouter = () => {
     );
   }
 
-  // For Belgian domain, route to V7 pages
-  if (shopConfig.shopType === 'belgium') {
-    return (
-      <Routes>
-        <Route path="/" element={<V7Home />} />
-        <Route path="/bestellen" element={<Order />} />
-        <Route path="/samenvatting" element={<Summary />} />
-        <Route path="/bevestiging" element={<Confirmation />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/wettelijke-informatie" element={<V7Impressum />} />
-        <Route path="/voorwaarden" element={<V7AGB />} />
-        <Route path="/privacy" element={<V7Datenschutz />} />
-        <Route path="/herroeping" element={<V7Widerrufsrecht />} />
-        <Route path="/contact" element={<V7Kontakt />} />
-        <Route path="/service" element={<V7Service />} />
-        <Route path="/producten" element={<V7Produkte />} />
-        <Route path="/leveringsgebieden" element={<V7Liefergebiet />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    );
-  }
-
   // Default routing for root domain (with all original routes preserved)
   return (
     <Routes>
@@ -356,20 +324,6 @@ const DomainRouter = () => {
       <Route path="/6/service" element={<V6Service />} />
       <Route path="/6/products" element={<V6Produkte />} />
       <Route path="/6/delivery-areas" element={<V6Liefergebiet />} />
-
-      <Route path="/7/home" element={<V7Home />} />
-      <Route path="/7/bestellen" element={<Order />} />
-      <Route path="/7/samenvatting" element={<Summary />} />
-      <Route path="/7/bevestiging" element={<Confirmation />} />
-      <Route path="/7/checkout" element={<Checkout />} />
-      <Route path="/7/wettelijke-informatie" element={<V7Impressum />} />
-      <Route path="/7/voorwaarden" element={<V7AGB />} />
-      <Route path="/7/privacy" element={<V7Datenschutz />} />
-      <Route path="/7/herroeping" element={<V7Widerrufsrecht />} />
-      <Route path="/7/contact" element={<V7Kontakt />} />
-      <Route path="/7/service" element={<V7Service />} />
-      <Route path="/7/producten" element={<V7Produkte />} />
-      <Route path="/7/leveringsgebieden" element={<V7Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
