@@ -472,6 +472,159 @@ const translations = {
       phoneRequired: 'Le numéro de téléphone est requis',
       termsRequired: 'Vous devez accepter les CGV'
     }
+  },
+  nl: {
+    emailSection: {
+      title: 'E-mailadres',
+      subtitle: 'Voor orderbevestiging en communicatie',
+      emailLabel: 'E-mailadres *',
+      emailPlaceholder: 'uw.email@voorbeeld.be'
+    },
+    deliverySection: {
+      title: 'Leveringsadres',
+      subtitle: 'Waar moet de mazout geleverd worden?',
+      firstNameLabel: 'Voornaam *',
+      lastNameLabel: 'Achternaam *',
+      streetLabel: 'Straat en huisnummer *',
+      postcodeLabel: 'Postcode *',
+      cityLabel: 'Stad *',
+      phoneLabel: 'Telefoonnummer *',
+      firstNamePlaceholder: 'Voornaam',
+      lastNamePlaceholder: 'Achternaam',
+      streetPlaceholder: 'Straat en huisnummer',
+      postcodePlaceholder: 'Postcode',
+      cityPlaceholder: 'Stad',
+      phonePlaceholder: 'Telefoonnummer'
+    },
+    billingSection: {
+      title: 'Factuuradres',
+      subtitle: 'Waar moet de factuur naartoe gestuurd worden?',
+      sameAddressLabel: 'Factuuradres is identiek aan leveringsadres'
+    },
+    paymentSection: {
+      title: 'Betaalmethode',
+      subtitle: 'Veilige en gemakkelijke betaling',
+      vorkasse: {
+        title: 'Vooruitbetaling',
+        description: 'Overschrijving voor levering',
+        recommended: 'Aanbevolen'
+      },
+      rechnung: {
+        title: 'Factuur',
+        description: 'Betaling na levering',
+        existingCustomers: 'Alleen voor bestaande klanten'
+      }
+    },
+    termsSection: {
+      title: 'Algemene Voorwaarden en Herroepingsrecht',
+      subtitle: 'Bevestig de algemene voorwaarden',
+      withdrawalTitle: 'Herroepingsrecht',
+      withdrawalText: 'U heeft het recht om binnen veertien dagen zonder opgave van redenen dit contract te herroepen. De herroepingstermijn bedraagt veertien dagen vanaf de dag van contractsluiting.',
+      acceptTermsText: 'Ik accepteer de Algemene Voorwaarden en het Herroepingsrecht. Ik ben ervan bewust dat ik mijn herroepingsrecht verlies bij een bestelling van mazout zodra de levering is begonnen. *',
+      submitButton: 'Betalingsplichtig bestellen',
+      submittingButton: 'Bestelling wordt aangemaakt...'
+    },
+    summary: {
+      orderSummary: 'Bestelsamenvating',
+      showOrder: 'Bestelling tonen',
+      product: 'Product',
+      quantity: 'Hoeveelheid',
+      pricePerLiter: 'Prijs per liter',
+      subtotal: 'Subtotaal',
+      shipping: 'Verzending',
+      free: 'Gratis',
+      net: 'Netto',
+      vat: 'BTW (21%)',
+      total: 'Totaal',
+      inclVat: 'incl. BTW',
+      ofWhichVat: 'waarvan {amount}€ BTW',
+      discountPlaceholder: 'Kortingscode invoeren',
+      applyButton: 'Toepassen',
+      checkingButton: 'Controleren...',
+      deliveryInfo: 'Leveringsinformatie',
+      workdays: '2-4 werkdagen',
+      afterPayment: 'na betalingsbevestiging',
+      freeShippingNote: 'Gratis levering vanaf 2.000 liter',
+      sslEncrypted: 'SSL versleuteld',
+      securePayment: 'Veilige betaling',
+      timelyDelivery: 'Stipte levering',
+      fairPrices: 'Eerlijke prijzen',
+      confirmedOrder: 'Uw bevestigde bestelling'
+    },
+    confirmation: {
+      title: 'Bestelling bevestigd!',
+      subtitle: 'Bedankt voor uw mazoutbestelling',
+      orderNumber: 'Uw bestelnummer',
+      orderSuccess: 'Uw bestelling is succesvol geplaatst!',
+      paymentInstructions: 'Betalingsinstructies',
+      howToPay: 'Zo betaalt u uw bestelling',
+      nextSteps: 'Volgende stappen',
+      phoneContact: '1. Bestellingcontrole',
+      phoneContactDesc: 'Uw bestelling wordt gecontroleerd en u ontvangt de bankinformatie.',
+      bankTransfer: '2. Overschrijving',
+      bankTransferDesc: 'Na ontvangst van de bankinformatie maakt u het bedrag van {amount}€ over.',
+      delivery: '3. Levering',
+      deliveryDesc: 'Na betalingsbevestiging volgt levering binnen 2-4 werkdagen.',
+      deliveryInformation: 'Leveringsinformatie',
+      deliveryDetails: 'Belangrijke details over uw levering',
+      deliveryTerm: 'Leveringsdatum',
+      deliveryAddress: 'Leveringsadres',
+      importantNote: '📞 Belangrijke opmerking voor levering',
+      importantNoteDesc: 'Onze chauffeur zal u op de leveringsdag telefonisch contacteren. Zorg ervoor dat u bereikbaar bent op {phone}.',
+      basePrice: 'Basisprijs',
+      deliveryLabel: 'Levering',
+      bankAccountTitle: 'Bankverbinding voor betaling',
+      bankAccountSubtitle: 'Maak de overschrijving met deze gegevens',
+      accountHolder: 'Rekeninghouder',
+      bankName: 'Bank',
+      transferAmount: 'Over te maken bedrag',
+      reference: 'Mededeling',
+      questionsAboutOrder: 'Vragen over uw bestelling?',
+      phone: 'Telefoon',
+      email: 'E-mail',
+      newOrder: 'Nieuwe bestelling'
+    },
+    navigation: {
+      back: 'Terug',
+      cart: 'Winkelwagen',
+      information: 'Informatie',
+      shipping: 'Verzending',
+      payment: 'Betaling',
+      secureEncryption: 'Veilige SSL-versleuteling voor uw gegevens'
+    },
+    header: {
+      securePayment: 'Veilige betaling',
+      sslEncrypted: 'SSL versleuteld'
+    },
+    system: {
+      loadingOrderData: 'Bestellingsgegevens worden geladen...',
+      testDataGenerated: 'Testgegevens gegenereerd',
+      testDataDescription: 'Het formulier is gevuld met willekeurige testgegevens.',
+      emailSendTitle: 'E-mail verzending',
+      emailSendDescription: 'De orderbevestiging kon niet worden verzonden. U ontvangt deze binnenkort.',
+      errorTitle: 'Fout',
+      errorDescription: 'Er is een fout opgetreden. Probeer het opnieuw.',
+      orderProcessedTitle: 'Informatie',
+      orderProcessedDescription: 'Deze bestelling is al verwerkt.'
+    },
+    toasts: {
+      noOrderDataTitle: 'Geen bestellingsgegevens gevonden',
+      noOrderDataDescription: 'Voer eerst een prijsberekening uit.',
+      invalidOrderDataTitle: 'Ongeldige bestellingsgegevens',
+      invalidOrderDataDescription: 'Voer een nieuwe prijsberekening uit.',
+      loadOrderDataErrorTitle: 'Fout bij laden bestellingsgegevens',
+      loadOrderDataErrorDescription: 'Voer een nieuwe prijsberekening uit.'
+    },
+    validation: {
+      emailRequired: 'Geldig e-mailadres vereist',
+      firstNameRequired: 'Voornaam is vereist',
+      lastNameRequired: 'Achternaam is vereist',
+      streetRequired: 'Straat is vereist',
+      postcodeRequired: 'Postcode is vereist',
+      cityRequired: 'Stad is vereist',
+      phoneRequired: 'Telefoonnummer is vereist',
+      termsRequired: 'U moet de Algemene Voorwaarden accepteren'
+    }
   }
 } as const;
 
@@ -479,9 +632,16 @@ export const useCheckoutTranslations = (): CheckoutTranslations => {
   const shopConfig = useDomainShop();
   
   return useMemo(() => {
-    // Use domain-based detection instead of route-based
+    // Use domain-based detection
     const isFrench = shopConfig.shopType === 'france';
+    const isBelgian = shopConfig.shopType === 'belgium';
     
-    return translations[isFrench ? 'fr' : 'de'];
+    if (isBelgian) {
+      return translations.nl;
+    } else if (isFrench) {
+      return translations.fr;
+    }
+    
+    return translations.de;
   }, [shopConfig.shopType]);
 };

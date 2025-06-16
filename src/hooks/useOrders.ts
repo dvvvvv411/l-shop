@@ -77,6 +77,40 @@ export const useOrders = () => {
     return italienChampionAccount?.id || null;
   };
 
+  // Get Belgian bank account ID
+  const getBelgianBankAccountId = async () => {
+    try {
+      const { data: bankAccounts, error } = await supabase
+        .from('bank_accounts')
+        .select('id')
+        .eq('system_name', 'Mazout Vandaag')
+        .limit(1);
+
+      if (error) throw error;
+      return bankAccounts?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching Belgian bank account:', error);
+      return null;
+    }
+  };
+
+  // Get Belgian shop ID
+  const getBelgianShopId = async () => {
+    try {
+      const { data: shops, error } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('name', 'Mazout Vandaag')
+        .limit(1);
+
+      if (error) throw error;
+      return shops?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching Belgian shop:', error);
+      return null;
+    }
+  };
+
   // Get shop ID for Fioul Rapide
   const getFioulRapideShopId = async () => {
     try {
@@ -102,8 +136,9 @@ export const useOrders = () => {
       // Generate a unique request ID for deduplication using our cross-browser UUID function
       const requestId = generateUUID();
       
-      // Check if this is a French shop order (fioul-rapide.fr)
+      // Check if this is a special shop order
       const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
+      const isBelgianShop = orderData.origin_domain === 'mazoutvandaag.com';
       
       let finalOrderData = { ...orderData };
       
@@ -120,6 +155,22 @@ export const useOrders = () => {
         if (fioulRapideShopId) {
           finalOrderData.shop_id = fioulRapideShopId;
           console.log('Automatically assigned Fioul Rapide shop ID');
+        }
+      }
+      
+      // For Belgian shop orders, automatically assign bank account and shop
+      if (isBelgianShop) {
+        const belgianBankAccountId = await getBelgianBankAccountId();
+        const belgianShopId = await getBelgianShopId();
+        
+        if (belgianBankAccountId) {
+          finalOrderData.bank_account_id = belgianBankAccountId;
+          console.log('Automatically assigned Belgian bank account for Belgian shop order');
+        }
+        
+        if (belgianShopId) {
+          finalOrderData.shop_id = belgianShopId;
+          console.log('Automatically assigned Belgian shop ID');
         }
       }
       
@@ -156,12 +207,12 @@ export const useOrders = () => {
 
       console.log('Order created successfully:', data);
 
-      // For French shop orders, automatically generate and send invoice
-      if (isFrenchShop && data.bank_account_id && data.shop_id) {
+      // For special shops, automatically generate and send invoice
+      if ((isFrenchShop || isBelgianShop) && data.bank_account_id && data.shop_id) {
         try {
-          console.log('Automatically generating invoice for French shop order...');
+          console.log(`Automatically generating invoice for ${isBelgianShop ? 'Belgian' : 'French'} shop order...`);
           await generateInvoice(data.id, data.shop_id, data.bank_account_id);
-          console.log('Invoice automatically generated and sent for French shop order');
+          console.log(`Invoice automatically generated and sent for ${isBelgianShop ? 'Belgian' : 'French'} shop order`);
         } catch (invoiceError) {
           console.error('Error automatically generating invoice:', invoiceError);
           // Don't fail the order creation if invoice generation fails
@@ -171,7 +222,7 @@ export const useOrders = () => {
           });
         }
       } else {
-        // For non-French shops, show normal success message
+        // For non-special shops, show normal success message
         toast({
           title: 'Erfolg',
           description: t.success.orderCreated,
