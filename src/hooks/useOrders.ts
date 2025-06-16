@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useOrderTranslations } from '@/hooks/useOrderTranslations';
 import { useInvoiceGeneration } from '@/hooks/useInvoiceGeneration';
 import { useBankAccounts } from '@/hooks/useBankAccounts';
+import { generateUUID } from '@/lib/utils';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 export type Order = Tables<'orders'> & {
@@ -98,8 +99,8 @@ export const useOrders = () => {
     try {
       console.log('Creating order with data:', orderData);
       
-      // Generate a unique request ID for deduplication
-      const requestId = crypto.randomUUID();
+      // Generate a unique request ID for deduplication using our cross-browser UUID function
+      const requestId = generateUUID();
       
       // Check if this is a French shop order (fioul-rapide.fr)
       const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
