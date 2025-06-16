@@ -1,4 +1,3 @@
-
 export interface MetaData {
   title: string;
   description: string;
@@ -260,7 +259,67 @@ const maltaShopMetaConfig: DomainShopMetaConfig = {
   }
 };
 
-type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
+// Belgian configuration for the Belgian shop
+const belgianShopMetaConfig: DomainShopMetaConfig = {
+  name: "Mazout Vandaag",
+  brand: "Mazout BE",
+  phone: "+32 2 123 4567",
+  email: "info@mazoutvandaag.com",
+  baseUrl: "https://mazoutvandaag.com",
+  pages: {
+    home: {
+      title: "Mazout aan de beste prijs - Snelle levering van stookolie in België",
+      description: "Bestel uw stookolie online aan de beste prijs. Snelle levering, topkwaliteit, eerlijke prijzen. Vergelijk mazoutprijzen en bespaar op uw aankoop.",
+      keywords: "mazout, stookolie, goedkoop, levering, prijzen, online",
+      ogTitle: "Mazout aan de beste prijs - Snelle levering",
+      ogDescription: "Bestel uw stookolie online met snelle levering door heel België",
+      twitterTitle: "Mazout aan de beste prijs - Snelle levering",
+      twitterDescription: "Bestel uw stookolie online met snelle levering door heel België"
+    },
+    impressum: {
+      title: "Wettelijke informatie - Mazout Vandaag",
+      description: "Wettelijke informatie en bedrijfsgegevens."
+    },
+    agb: {
+      title: "Algemene voorwaarden - Mazout Vandaag",
+      description: "Algemene voorwaarden."
+    },
+    widerrufsrecht: {
+      title: "Herroepingsrecht - Mazout Vandaag",
+      description: "Herroepingsrecht en annuleringsbeleid."
+    },
+    datenschutz: {
+      title: "Privacy - Mazout Vandaag",
+      description: "Privacybeleid en gegevensbescherming."
+    },
+    kontakt: {
+      title: "Contact - Mazout Vandaag | Persoonlijk advies",
+      description: "Contacteer ons voor persoonlijk advies. Deskundige begeleiding rond mazout en levering.",
+      keywords: "contact, advies, mazout, ondersteuning"
+    },
+    service: {
+      title: "Service - Mazout Vandaag | Premium mazoutservice",
+      description: "Eersteklas mazoutservice: snelle levering, gecertificeerde partners, premiumkwaliteit voor uw verwarmingsbehoeften.",
+      keywords: "service, mazout, levering, premium, kwaliteit"
+    },
+    liefergebiet: {
+      title: "Leveringsgebieden - Mazout Vandaag | Dekking hele België",
+      description: "Mazoutlevering door heel België. Ontdek onze leveringsgebieden en partnerpunten in heel België.",
+      keywords: "leveringsgebied, België, nationaal, partners, punten"
+    },
+    produkte: {
+      title: "Mazoutproducten - Premium stookolie & additieven",
+      description: "Hoogwaardige mazoutproducten: premium stookolie, laagzwavelige brandstoffen, geadditiveerde mazout voor optimale verwarming.",
+      keywords: "mazout, premium, laag zwavel, additieven, kwaliteit"
+    },
+    checkout: {
+      title: "Uw bestelling afronden - Mazout Vandaag",
+      description: "Rond uw mazoutbestelling af. Veilige betaling en snelle levering gegarandeerd."
+    }
+  }
+};
+
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta' | 'belgium';
 
 const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   root: germanShopMetaConfig,
@@ -269,7 +328,8 @@ const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
   austria: germanShopMetaConfig, // Austrian shop uses German for now
   france: frenchShopMetaConfig,
   italy: italianShopMetaConfig,
-  malta: maltaShopMetaConfig
+  malta: maltaShopMetaConfig,
+  belgium: belgianShopMetaConfig
 };
 
 export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {

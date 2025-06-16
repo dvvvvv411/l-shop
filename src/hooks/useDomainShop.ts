@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta' | 'belgium';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -10,7 +9,7 @@ export interface DomainShopConfig {
   phone: string;
   email: string;
   faviconColor: string;
-  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'sun';
+  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'sun' | 'flame-belgium';
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -68,15 +67,24 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#f59e0b',
     faviconIcon: 'sun'
   },
-  // Add localhost mapping for testing Italian shop
+  'mazoutvandaag.com': {
+    shopType: 'belgium',
+    name: 'Mazout Vandaag',
+    brand: 'Mazout BE',
+    phone: '+32 2 123 4567',
+    email: 'info@mazoutvandaag.com',
+    faviconColor: '#dc2626',
+    faviconIcon: 'flame-belgium'
+  },
+  // Add localhost mapping for testing Belgian shop
   'localhost': {
-    shopType: 'italy',
-    name: 'OIL & OIL',
-    brand: 'Gasolio IT',
-    phone: '',
-    email: 'info@gasoliocasa.com',
-    faviconColor: '#16a34a',
-    faviconIcon: 'flame-italia'
+    shopType: 'belgium',
+    name: 'Mazout Vandaag',
+    brand: 'Mazout BE',
+    phone: '+32 2 123 4567',
+    email: 'info@mazoutvandaag.com',
+    faviconColor: '#dc2626',
+    faviconIcon: 'flame-belgium'
   }
 };
 
@@ -99,6 +107,22 @@ const getDomainShopConfig = (): DomainShopConfig => {
 
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
+  
+  // Check for legacy path-based routing first
+  if (pathname.startsWith('/7/')) {
+    const config = {
+      shopType: 'belgium' as ShopType,
+      name: 'Mazout Vandaag',
+      brand: 'Mazout BE',
+      phone: '+32 2 123 4567',
+      email: 'info@mazoutvandaag.com',
+      faviconColor: '#dc2626',
+      faviconIcon: 'flame-belgium' as const
+    };
+    console.log('Belgian shop detected via path routing:', { pathname, shopType: config.shopType });
+    localStorage.setItem('orderReferrer', '/7/home');
+    return config;
+  }
   
   // Check for legacy path-based routing first (e.g., /5/home for Italian)
   if (pathname.startsWith('/5/')) {
@@ -134,6 +158,8 @@ const getDomainShopConfig = (): DomainShopConfig => {
     localStorage.setItem('orderReferrer', '/5/home');
   } else if (config.shopType === 'malta') {
     localStorage.setItem('orderReferrer', '/6/home');
+  } else if (config.shopType === 'belgium') {
+    localStorage.setItem('orderReferrer', '/7/home');
   }
   
   return config;
