@@ -1,14 +1,5 @@
 
-import type { ShopType } from '@/hooks/useDomainShop';
-
-export interface DomainShopMetaConfig {
-  name: string;
-  baseUrl: string;
-  phone: string;
-  email: string;
-}
-
-export interface PageMetaConfig {
+export interface MetaData {
   title: string;
   description: string;
   keywords?: string;
@@ -18,155 +9,274 @@ export interface PageMetaConfig {
   twitterDescription?: string;
 }
 
-const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
-  root: {
-    name: 'Heizöl-Service',
-    baseUrl: 'https://heizoel-service.de',
-    phone: '',
-    email: ''
-  },
-  stanton: {
-    name: 'STANTON Energie',
-    baseUrl: 'https://stanton-energie.de',
-    phone: '',
-    email: ''
-  },
-  greenoil: {
-    name: 'GreenOil - Nachhaltige Heizöllieferung',
-    baseUrl: 'https://greenoil-lieferung.de',
-    phone: '',
-    email: ''
-  },
-  austria: {
-    name: 'Heizöl Österreich',
-    baseUrl: 'https://heizoel-austria.com',
-    phone: '+43 1 234 5678',
-    email: 'info@heizoel-austria.com'
-  },
-  france: {
-    name: 'Fioul Rapide',
-    baseUrl: 'https://fioul-rapide.fr',
-    phone: '',
-    email: 'info@fioul-rapide.fr'
-  },
-  italy: {
-    name: 'OIL & OIL',
-    baseUrl: 'https://gasoliocasa.com',
-    phone: '',
-    email: 'info@gasoliocasa.com'
-  },
-  malta: {
-    name: 'Malta Heating Oil',
-    baseUrl: 'https://malta-heating-oil.com',
-    phone: '+356 2123 4567',
-    email: 'info@malta-heating-oil.com'
-  },
-  belgium: {
-    name: 'Mazout Vandaag',
-    baseUrl: 'https://mazoutvandaag.com',
-    phone: '+32 2 123 45 67',
-    email: 'info@mazoutvandaag.com'
-  }
-};
+export interface DomainShopMetaConfig {
+  name: string;
+  brand: string;
+  phone: string;
+  email: string;
+  baseUrl: string;
+  pages: {
+    [key: string]: MetaData;
+  };
+}
 
-const defaultPageMetas: Record<string, PageMetaConfig> = {
-  home: {
-    title: 'Heizöl günstig bestellen - Schnelle Lieferung',
-    description: 'Heizöl günstig online bestellen. Schnelle Lieferung in 2-4 Werktagen. Faire Preise und erstklassiger Service.',
-    keywords: 'heizöl, heizöl bestellen, heizöl günstig, heizöl lieferung'
-  },
-  products: {
-    title: 'Heizöl Produkte - Premium Qualität',
-    description: 'Unsere Heizöl Produkte in Premium Qualität. Standard und Premium Heizöl für Ihre Bedürfnisse.',
-    keywords: 'heizöl produkte, premium heizöl, standard heizöl'
-  },
-  contact: {
-    title: 'Kontakt - Heizöl Service',
-    description: 'Kontaktieren Sie uns für Ihre Heizöl Bestellung. Persönliche Beratung und schneller Service.',
-    keywords: 'heizöl kontakt, heizöl beratung, kundenservice'
-  }
-};
-
-const shopSpecificMetas: Record<ShopType, Record<string, PageMetaConfig>> = {
-  root: defaultPageMetas,
-  stanton: {
+// German configuration for all German shops
+const germanShopMetaConfig: DomainShopMetaConfig = {
+  name: "Heizöl-Service",
+  brand: "Heizöl",
+  phone: "",
+  email: "",
+  baseUrl: "https://heizoel-netz.de",
+  pages: {
     home: {
-      title: 'STANTON Energie - Premium Heizöl Lieferung',
-      description: 'STANTON Energie - Ihr Partner für Premium Heizöl. Schnelle Lieferung und faire Preise.',
-      keywords: 'stanton energie, heizöl, premium heizöl'
+      title: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung deutschlandweit",
+      description: "Günstiges Heizöl online bestellen. Schnelle Lieferung, beste Qualität, faire Preise. Vergleichen Sie Heizölpreise und sparen Sie beim Heizöl-Kauf.",
+      keywords: "Heizöl, günstig, bestellen, Lieferung, Preise, online",
+      ogTitle: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung",
+      ogDescription: "Günstiges Heizöl online bestellen mit schneller Lieferung",
+      twitterTitle: "Heizöl zum Bestpreis - Günstige Heizöl-Lieferung",
+      twitterDescription: "Günstiges Heizöl online bestellen mit schneller Lieferung"
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  greenoil: {
-    home: {
-      title: 'GreenOil - Nachhaltige Heizöl Lieferung',
-      description: 'GreenOil - Nachhaltige Heizöl Lieferung mit Umweltfokus. Schnelle Lieferung und faire Preise.',
-      keywords: 'greenoil, nachhaltiges heizöl, umweltfreundlich'
+    impressum: {
+      title: "Impressum - Heizöl-Service",
+      description: "Impressum und rechtliche Informationen."
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  austria: {
-    home: {
-      title: 'Heizöl Österreich - Günstig bestellen',
-      description: 'Heizöl günstig in Österreich bestellen. Schnelle Lieferung österreichweit. Faire Preise.',
-      keywords: 'heizöl österreich, heizöl wien, heizöl salzburg'
+    agb: {
+      title: "AGB - Heizöl-Service",
+      description: "Allgemeine Geschäftsbedingungen."
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  france: {
-    home: {
-      title: 'Fioul Rapide - Livraison de Fioul en France',
-      description: 'Fioul Rapide - Livraison rapide de fioul domestique en France. Prix compétitifs.',
-      keywords: 'fioul, livraison fioul, fioul france'
+    widerrufsrecht: {
+      title: "Widerrufsrecht - Heizöl-Service", 
+      description: "Widerrufsrecht und Widerrufsbelehrung."
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  italy: {
-    home: {
-      title: 'OIL & OIL - Consegna Gasolio in Italia',
-      description: 'OIL & OIL - Consegna rapida di gasolio da riscaldamento in Italia. Prezzi competitivi.',
-      keywords: 'gasolio, consegna gasolio, gasolio italia'
+    datenschutz: {
+      title: "Datenschutz - Heizöl-Service",
+      description: "Datenschutzerklärung und Informationen zum Datenschutz."
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  malta: {
-    home: {
-      title: 'Malta Heating Oil - Fast Delivery',
-      description: 'Malta Heating Oil - Fast heating oil delivery across Malta. Competitive prices and reliable service.',
-      keywords: 'heating oil malta, fuel delivery malta'
+    kontakt: {
+      title: "Kontakt - Heizöl-Service | Persönliche Beratung",
+      description: "Kontaktieren Sie uns für persönliche Beratung. Kompetente Fachberatung rund um Heizöl und Lieferung.",
+      keywords: "Kontakt, Beratung, Heizöl, Support"
     },
-    products: defaultPageMetas.products,
-    contact: defaultPageMetas.contact
-  },
-  belgium: {
-    home: {
-      title: 'Mazout Vandaag - Mazout Levering België',
-      description: 'Mazout Vandaag - Snelle mazout levering in heel België. Beste prijzen en betrouwbare service.',
-      keywords: 'mazout belgië, mazout bestellen, mazout levering'
+    service: {
+      title: "Service - Heizöl-Service | Premium Heizöl-Service",
+      description: "Erstklassiger Heizöl-Service: Schnelle Lieferung, zertifizierte Partner, Premium-Qualität für Ihren Heizbedarf.",
+      keywords: "Service, Heizöl, Lieferung, Premium, Qualität"
     },
-    products: {
-      title: 'Mazout Producten - Premium Kwaliteit',
-      description: 'Onze mazout producten in premium kwaliteit. Standaard en premium mazout voor uw behoeften.',
-      keywords: 'mazout producten, premium mazout, standaard mazout'
+    liefergebiet: {
+      title: "Liefergebiete - Heizöl-Service | Deutschlandweite Abdeckung",
+      description: "Heizöl-Lieferung deutschlandweit. Entdecken Sie unsere Liefergebiete und Partner-Standorte in ganz Deutschland.",
+      keywords: "Liefergebiet, Deutschland, deutschlandweit, Partner, Standorte"
     },
-    contact: {
-      title: 'Contact - Mazout Service België',
-      description: 'Contacteer ons voor uw mazout bestelling. Persoonlijke begeleiding en snelle service.',
-      keywords: 'mazout contact, mazout advies, klantenservice'
+    produkte: {
+      title: "Heizöl-Produkte - Premium EL & Additive",
+      description: "Hochwertige Heizöl-Produkte: Premium EL, schwefelarme Brennstoffe, additivierte Heizöle für optimale Heizleistung.",
+      keywords: "Heizöl, Premium EL, schwefelarm, Additive, Qualität"
+    },
+    checkout: {
+      title: "Bestellung abschließen - Heizöl-Service",
+      description: "Schließen Sie Ihre Heizöl-Bestellung ab. Sichere Bezahlung und schnelle Lieferung garantiert."
     }
   }
 };
 
-export const getDomainShopConfig = (shopType: ShopType): DomainShopMetaConfig => {
-  return domainShopConfigs[shopType] || domainShopConfigs.root;
+// French configuration for the French shop
+const frenchShopMetaConfig: DomainShopMetaConfig = {
+  name: "Fioul Rapide",
+  brand: "Fioul FR",
+  phone: "",
+  email: "info@fioul-rapide.fr",
+  baseUrl: "https://fioul-rapide.fr",
+  pages: {
+    home: {
+      title: "Fioul au meilleur prix - Livraison rapide de fioul domestique en France",
+      description: "Commandez votre fioul domestique en ligne au meilleur prix. Livraison rapide, qualité premium, prix équitables. Comparez les prix du fioul et économisez.",
+      keywords: "fioul, domestique, pas cher, livraison, prix, en ligne",
+      ogTitle: "Fioul au meilleur prix - Livraison rapide de fioul",
+      ogDescription: "Commandez votre fioul domestique en ligne avec livraison rapide",
+      twitterTitle: "Fioul au meilleur prix - Livraison rapide de fioul",
+      twitterDescription: "Commandez votre fioul domestique en ligne avec livraison rapide"
+    },
+    impressum: {
+      title: "Mentions légales - Fioul Rapide",
+      description: "Mentions légales et informations juridiques."
+    },
+    agb: {
+      title: "CGV - Fioul Rapide",
+      description: "Conditions générales de vente."
+    },
+    widerrufsrecht: {
+      title: "Droit de rétractation - Fioul Rapide",
+      description: "Droit de rétractation et informations de rétractation."
+    },
+    datenschutz: {
+      title: "Confidentialité - Fioul Rapide",
+      description: "Politique de confidentialité et informations sur la protection des données."
+    },
+    kontakt: {
+      title: "Contact - Fioul Rapide | Conseil personnalisé",
+      description: "Contactez-nous pour un conseil personnalisé. Expertise professionnelle autour du fioul et de la livraison.",
+      keywords: "contact, conseil, fioul, support"
+    },
+    service: {
+      title: "Service - Fioul Rapide | Service fioul premium",
+      description: "Service fioul de première classe : livraison rapide, partenaires certifiés, qualité premium pour vos besoins de chauffage.",
+      keywords: "service, fioul, livraison, premium, qualité"
+    },
+    liefergebiet: {
+      title: "Zones de livraison - Fioul Rapide | Couverture France entière",
+      description: "Livraison de fioul dans toute la France. Découvrez nos zones de livraison et points partenaires partout en France.",
+      keywords: "zone livraison, France, national, partenaires, points"
+    },
+    produkte: {
+      title: "Produits fioul - Fioul Premium & Additifs",
+      description: "Produits fioul de haute qualité : fioul premium, combustibles à faible teneur en soufre, fioul additivé pour un chauffage optimal.",
+      keywords: "fioul, premium, faible soufre, additifs, qualité"
+    },
+    checkout: {
+      title: "Finaliser votre commande - Fioul Rapide",
+      description: "Finalisez votre commande de fioul. Paiement sécurisé et livraison rapide garantie."
+    }
+  }
 };
 
-export const getDomainPageMeta = (shopType: ShopType, pageName: string): PageMetaConfig => {
-  const shopMetas = shopSpecificMetas[shopType] || shopSpecificMetas.root;
-  return shopMetas[pageName] || defaultPageMetas[pageName] || defaultPageMetas.home;
+// Italian configuration for the Italian shop
+const italianShopMetaConfig: DomainShopMetaConfig = {
+  name: "Gasolio Veloce",
+  brand: "Gasolio IT",
+  phone: "+39 02 1234 5678",
+  email: "info@gasoliocasa.com",
+  baseUrl: "https://gasoliocasa.com",
+  pages: {
+    home: {
+      title: "Gasolio al miglior prezzo - Consegna rapida gasolio da riscaldamento in Italia",
+      description: "Ordinate il vostro gasolio da riscaldamento online al miglior prezzo. Consegna rapida, qualità premium, prezzi equi. Confrontate i prezzi del gasolio e risparmiate.",
+      keywords: "gasolio, riscaldamento, economico, consegna, prezzi, online",
+      ogTitle: "Gasolio al miglior prezzo - Consegna rapida gasolio",
+      ogDescription: "Ordinate il vostro gasolio da riscaldamento online con consegna rapida",
+      twitterTitle: "Gasolio al miglior prezzo - Consegna rapida gasolio",
+      twitterDescription: "Ordinate il vostro gasolio da riscaldamento online con consegna rapida"
+    },
+    impressum: {
+      title: "Note legali - Gasolio Veloce",
+      description: "Note legali e informazioni legali."
+    },
+    agb: {
+      title: "Termini e condizioni - Gasolio Veloce",
+      description: "Termini e condizioni generali."
+    },
+    widerrufsrecht: {
+      title: "Diritto di recesso - Gasolio Veloce",
+      description: "Diritto di recesso e informazioni sul recesso."
+    },
+    datenschutz: {
+      title: "Privacy - Gasolio Veloce",
+      description: "Informativa sulla privacy e protezione dei dati."
+    },
+    kontakt: {
+      title: "Contatto - Gasolio Veloce | Consulenza personalizzata",
+      description: "Contattateci per una consulenza personalizzata. Competenza professionale per gasolio e consegna.",
+      keywords: "contatto, consulenza, gasolio, supporto"
+    },
+    service: {
+      title: "Servizio - Gasolio Veloce | Servizio gasolio premium",
+      description: "Servizio gasolio di prima classe: consegna rapida, partner certificati, qualità premium per le vostre esigenze di riscaldamento.",
+      keywords: "servizio, gasolio, consegna, premium, qualità"
+    },
+    liefergebiet: {
+      title: "Zone di consegna - Gasolio Veloce | Copertura Italia",
+      description: "Consegna gasolio in tutta Italia. Scoprite le nostre zone di consegna e punti partner in tutta Italia.",
+      keywords: "zona consegna, Italia, nazionale, partner, punti"
+    },
+    produkte: {
+      title: "Prodotti gasolio - Gasolio Premium & Additivi",
+      description: "Prodotti gasolio di alta qualità: gasolio premium, combustibili a basso contenuto di zolfo, gasolio additivato per riscaldamento ottimale.",
+      keywords: "gasolio, premium, basso zolfo, additivi, qualità"
+    },
+    checkout: {
+      title: "Finalizza il tuo ordine - Gasolio Veloce",
+      description: "Finalizzate il vostro ordine di gasolio. Pagamento sicuro e consegna rapida garantita."
+    }
+  }
 };
+
+// Malta configuration for the Malta shop (English)
+const maltaShopMetaConfig: DomainShopMetaConfig = {
+  name: "Malta Heating Oil",
+  brand: "Malta Energy",
+  phone: "+356 2123 4567",
+  email: "info@malta-heating-oil.com",
+  baseUrl: "https://malta-heating-oil.com",
+  pages: {
+    home: {
+      title: "Heating Oil at Best Prices - Fast Delivery Across Malta",
+      description: "Order premium heating oil online at the best prices in Malta. Fast delivery, top quality, fair prices. Compare heating oil prices and save on your purchase.",
+      keywords: "heating oil, Malta, delivery, prices, online, best price",
+      ogTitle: "Heating Oil at Best Prices - Fast Delivery Malta",
+      ogDescription: "Order premium heating oil online with fast delivery across Malta",
+      twitterTitle: "Heating Oil at Best Prices - Fast Delivery Malta",
+      twitterDescription: "Order premium heating oil online with fast delivery across Malta"
+    },
+    impressum: {
+      title: "Legal Information - Malta Heating Oil",
+      description: "Legal information and company details."
+    },
+    agb: {
+      title: "Terms & Conditions - Malta Heating Oil",
+      description: "Terms and conditions of service."
+    },
+    widerrufsrecht: {
+      title: "Right of Withdrawal - Malta Heating Oil",
+      description: "Right of withdrawal and cancellation policy."
+    },
+    datenschutz: {
+      title: "Privacy Policy - Malta Heating Oil",
+      description: "Privacy policy and data protection information."
+    },
+    kontakt: {
+      title: "Contact - Malta Heating Oil | Personal Consultation",
+      description: "Contact us for personal consultation. Expert advice on heating oil and delivery services.",
+      keywords: "contact, consultation, heating oil, support, Malta"
+    },
+    service: {
+      title: "Service - Malta Heating Oil | Premium Heating Oil Service",
+      description: "First-class heating oil service: Fast delivery, certified partners, premium quality for your heating needs.",
+      keywords: "service, heating oil, delivery, premium, quality, Malta"
+    },
+    liefergebiet: {
+      title: "Delivery Areas - Malta Heating Oil | Malta-wide Coverage",
+      description: "Heating oil delivery across Malta. Discover our delivery areas and partner locations throughout Malta.",
+      keywords: "delivery areas, Malta, nationwide, partners, locations"
+    },
+    produkte: {
+      title: "Heating Oil Products - Premium Grade & Additives",
+      description: "High-quality heating oil products: Premium grade, low-sulfur fuels, additive heating oils for optimal heating performance.",
+      keywords: "heating oil, premium grade, low sulfur, additives, quality"
+    },
+    checkout: {
+      title: "Complete Your Order - Malta Heating Oil",
+      description: "Complete your heating oil order. Secure payment and fast delivery guaranteed."
+    }
+  }
+};
+
+type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
+
+const domainShopConfigs: Record<ShopType, DomainShopMetaConfig> = {
+  root: germanShopMetaConfig,
+  stanton: germanShopMetaConfig,
+  greenoil: germanShopMetaConfig,
+  austria: germanShopMetaConfig, // Austrian shop uses German for now
+  france: frenchShopMetaConfig,
+  italy: italianShopMetaConfig,
+  malta: maltaShopMetaConfig
+};
+
+export function getDomainShopConfig(shopType: ShopType): DomainShopMetaConfig {
+  return domainShopConfigs[shopType] || germanShopMetaConfig;
+}
+
+export function getDomainPageMeta(shopType: ShopType, pageName: string): MetaData {
+  const shopConfig = getDomainShopConfig(shopType);
+  return shopConfig.pages[pageName] || shopConfig.pages.home;
+}

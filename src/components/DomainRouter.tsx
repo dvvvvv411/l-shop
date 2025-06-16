@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useDomainShop } from '@/hooks/useDomainShop';
@@ -10,7 +11,6 @@ import V3Home from '@/pages/v3/Home';
 import V4Home from '@/pages/v4/Home';
 import V5Home from '@/pages/v5/Home';
 import V6Home from '@/pages/v6/Home';
-import V7Home from '@/pages/v7/Home';
 import Order from '@/pages/Order';
 import Summary from '@/pages/Summary';
 import Confirmation from '@/pages/Confirmation';
@@ -89,28 +89,6 @@ const DomainRouter = () => {
   const shopConfig = useDomainShop();
 
   console.log('DomainRouter - Current shop config:', shopConfig);
-
-  // For Belgian domain, route to V7 pages
-  if (shopConfig.shopType === 'belgium') {
-    return (
-      <Routes>
-        <Route path="/" element={<V7Home />} />
-        <Route path="/bestellen" element={<Order />} />
-        <Route path="/samenvatting" element={<Summary />} />
-        <Route path="/bevestiging" element={<Confirmation />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/impressum" element={<Impressum />} />
-        <Route path="/agb" element={<AGB />} />
-        <Route path="/datenschutz" element={<Datenschutz />} />
-        <Route path="/widerrufsrecht" element={<Widerrufsrecht />} />
-        <Route path="/kontakt" element={<Kontakt />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/produkte" element={<Produkte />} />
-        <Route path="/liefergebiet" element={<Liefergebiet />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    );
-  }
 
   // For STANTON domain, route to V1 pages
   if (shopConfig.shopType === 'stanton') {
@@ -346,20 +324,6 @@ const DomainRouter = () => {
       <Route path="/6/service" element={<V6Service />} />
       <Route path="/6/products" element={<V6Produkte />} />
       <Route path="/6/delivery-areas" element={<V6Liefergebiet />} />
-
-      <Route path="/7/home" element={<V7Home />} />
-      <Route path="/7/bestellen" element={<Order />} />
-      <Route path="/7/samenvatting" element={<Summary />} />
-      <Route path="/7/bevestiging" element={<Confirmation />} />
-      <Route path="/7/checkout" element={<Checkout />} />
-      <Route path="/7/impressum" element={<Impressum />} />
-      <Route path="/7/agb" element={<AGB />} />
-      <Route path="/7/datenschutz" element={<Datenschutz />} />
-      <Route path="/7/widerrufsrecht" element={<Widerrufsrecht />} />
-      <Route path="/7/kontakt" element={<Kontakt />} />
-      <Route path="/7/service" element={<Service />} />
-      <Route path="/produkte" element={<Produkte />} />
-      <Route path="/liefergebiet" element={<Liefergebiet />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
