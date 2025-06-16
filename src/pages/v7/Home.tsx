@@ -153,7 +153,8 @@ const Home = () => {
 
       <Footer />
 
-      <style jsx>{`
+      <style>
+        {`
         .belgian-animation {
           animation: belgianFloat 6s ease-in-out infinite;
         }
@@ -187,7 +188,8 @@ const Home = () => {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

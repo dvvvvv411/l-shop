@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { useOrder } from '@/contexts/OrderContext';
 import { useNavigate } from 'react-router-dom';
 import { useBelgianTranslations } from '@/hooks/useBelgianTranslations';
 
@@ -16,7 +15,6 @@ const PriceCalculator = () => {
   const [product, setProduct] = useState('standard');
   const [isCalculating, setIsCalculating] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const { setOrderData } = useOrder();
   const navigate = useNavigate();
   const t = useBelgianTranslations();
 
@@ -52,11 +50,8 @@ const PriceCalculator = () => {
   const handleOrder = () => {
     if (!result) return;
     
-    // Generate order number for Belgian format
-    const orderNumber = `MZ${Date.now().toString().slice(-6)}`;
-    
-    setOrderData({
-      orderNumber,
+    // Store calculation data for checkout
+    const calculationData = {
       product: result.product,
       amount: result.amount,
       pricePerLiter: result.pricePerLiter,
@@ -65,7 +60,11 @@ const PriceCalculator = () => {
       total: result.total,
       deliveryPostcode: result.postcode,
       discount: 0
-    });
+    };
+    
+    // Store in localStorage for checkout process
+    localStorage.setItem('calculationData', JSON.stringify(calculationData));
+    localStorage.setItem('orderReferrer', '/7/home');
     
     navigate('/bestellen');
   };
