@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta' | 'belgium';
+export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
 
 export interface DomainShopConfig {
   shopType: ShopType;
@@ -10,7 +10,7 @@ export interface DomainShopConfig {
   phone: string;
   email: string;
   faviconColor: string;
-  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'sun' | 'flame-belgium';
+  faviconIcon: 'flame' | 'drop' | 'leaf' | 'mountain' | 'flame-italia' | 'sun';
 }
 
 const domainMappings: Record<string, DomainShopConfig> = {
@@ -68,24 +68,15 @@ const domainMappings: Record<string, DomainShopConfig> = {
     faviconColor: '#f59e0b',
     faviconIcon: 'sun'
   },
-  'mazoutvandaag.be': {
-    shopType: 'belgium',
-    name: 'MazoutVandaag',
-    brand: 'MazoutVandaag',
-    phone: '+32 2 123 4567',
-    email: 'info@mazoutvandaag.be',
-    faviconColor: '#1d4ed8',
-    faviconIcon: 'flame-belgium'
-  },
-  // Add localhost mapping for testing Belgian shop
+  // Add localhost mapping for testing Italian shop
   'localhost': {
-    shopType: 'belgium',
-    name: 'MazoutVandaag',
-    brand: 'MazoutVandaag',
-    phone: '+32 2 123 4567',
-    email: 'info@mazoutvandaag.be',
-    faviconColor: '#1d4ed8',
-    faviconIcon: 'flame-belgium'
+    shopType: 'italy',
+    name: 'OIL & OIL',
+    brand: 'Gasolio IT',
+    phone: '',
+    email: 'info@gasoliocasa.com',
+    faviconColor: '#16a34a',
+    faviconIcon: 'flame-italia'
   }
 };
 
@@ -109,23 +100,7 @@ const getDomainShopConfig = (): DomainShopConfig => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // Check for legacy path-based routing first (e.g., /7/home for Belgian)
-  if (pathname.startsWith('/7/')) {
-    const config = {
-      shopType: 'belgium' as ShopType,
-      name: 'MazoutVandaag',
-      brand: 'MazoutVandaag',
-      phone: '+32 2 123 4567',
-      email: 'info@mazoutvandaag.be',
-      faviconColor: '#1d4ed8',
-      faviconIcon: 'flame-belgium' as const
-    };
-    console.log('Belgian shop detected via path routing:', { pathname, shopType: config.shopType });
-    localStorage.setItem('orderReferrer', '/7/home');
-    return config;
-  }
-  
-  // Check for other legacy path routes
+  // Check for legacy path-based routing first (e.g., /5/home for Italian)
   if (pathname.startsWith('/5/')) {
     const config = {
       shopType: 'italy' as ShopType,
@@ -159,8 +134,6 @@ const getDomainShopConfig = (): DomainShopConfig => {
     localStorage.setItem('orderReferrer', '/5/home');
   } else if (config.shopType === 'malta') {
     localStorage.setItem('orderReferrer', '/6/home');
-  } else if (config.shopType === 'belgium') {
-    localStorage.setItem('orderReferrer', '/7/home');
   }
   
   return config;

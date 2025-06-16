@@ -77,14 +77,6 @@ export const useOrders = () => {
     return italienChampionAccount?.id || null;
   };
 
-  // Get the "MazoutVandaag" bank account ID for Belgian orders
-  const getMazoutVandaagBankAccountId = () => {
-    const mazoutVandaagAccount = bankAccounts.find(
-      account => account.system_name === 'MazoutVandaag'
-    );
-    return mazoutVandaagAccount?.id || null;
-  };
-
   // Get shop ID for Fioul Rapide
   const getFioulRapideShopId = async () => {
     try {
@@ -102,23 +94,6 @@ export const useOrders = () => {
     }
   };
 
-  // Get shop ID for MazoutVandaag
-  const getMazoutVandaagShopId = async () => {
-    try {
-      const { data: shops, error } = await supabase
-        .from('shops')
-        .select('id')
-        .eq('name', 'MazoutVandaag')
-        .limit(1);
-
-      if (error) throw error;
-      return shops?.[0]?.id || null;
-    } catch (error) {
-      console.error('Error fetching MazoutVandaag shop:', error);
-      return null;
-    }
-  };
-
   // Create new order with request deduplication
   const createOrder = async (orderData: Omit<OrderInsert, 'order_number' | 'request_id'>) => {
     try {
@@ -129,9 +104,6 @@ export const useOrders = () => {
       
       // Check if this is a French shop order (fioul-rapide.fr)
       const isFrenchShop = orderData.origin_domain === 'fioul-rapide.fr';
-      
-      // Check if this is a Belgian shop order (mazoutvandaag.be)
-      const isBelgianShop = orderData.origin_domain === 'mazoutvandaag.be';
       
       let finalOrderData = { ...orderData };
       
@@ -148,22 +120,6 @@ export const useOrders = () => {
         if (fioulRapideShopId) {
           finalOrderData.shop_id = fioulRapideShopId;
           console.log('Automatically assigned Fioul Rapide shop ID');
-        }
-      }
-      
-      // For Belgian shop orders, automatically assign MazoutVandaag bank account and shop
-      if (isBelgianShop) {
-        const mazoutVandaagBankAccountId = getMazoutVandaagBankAccountId();
-        const mazoutVandaagShopId = await getMazoutVandaagShopId();
-        
-        if (mazoutVandaagBankAccountId) {
-          finalOrderData.bank_account_id = mazoutVandaagBankAccountId;
-          console.log('Automatically assigned MazoutVandaag bank account for Belgian shop order');
-        }
-        
-        if (mazoutVandaagShopId) {
-          finalOrderData.shop_id = mazoutVandaagShopId;
-          console.log('Automatically assigned MazoutVandaag shop ID');
         }
       }
       
@@ -200,12 +156,12 @@ export const useOrders = () => {
 
       console.log('Order created successfully:', data);
 
-      // For French and Belgian shop orders, automatically generate and send invoice
-      if ((isFrenchShop || isBelgianShop) && data.bank_account_id && data.shop_id) {
+      // For French shop orders, automatically generate and send invoice
+      if (isFrenchShop && data.bank_account_id && data.shop_id) {
         try {
-          console.log(`Automatically generating invoice for ${isBelgianShop ? 'Belgian' : 'French'} shop order...`);
+          console.log('Automatically generating invoice for French shop order...');
           await generateInvoice(data.id, data.shop_id, data.bank_account_id);
-          console.log(`Invoice automatically generated and sent for ${isBelgianShop ? 'Belgian' : 'French'} shop order`);
+          console.log('Invoice automatically generated and sent for French shop order');
         } catch (invoiceError) {
           console.error('Error automatically generating invoice:', invoiceError);
           // Don't fail the order creation if invoice generation fails
@@ -215,7 +171,7 @@ export const useOrders = () => {
           });
         }
       } else {
-        // For non-French/Belgian shops, show normal success message
+        // For non-French shops, show normal success message
         toast({
           title: 'Erfolg',
           description: t.success.orderCreated,
