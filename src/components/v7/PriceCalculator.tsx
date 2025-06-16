@@ -1,185 +1,326 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Calculator, TrendingDown, Clock, AlertCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 import { motion } from 'framer-motion';
-import { Calculator, MapPin, Droplet, Phone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+}
+
+const products: Product[] = [
+  {
+    id: 'standard',
+    name: 'Standaard Mazout',
+    price: 0.50,
+    description: 'Hoogwaardige mazout volgens NBN EN 590'
+  },
+  {
+    id: 'premium',
+    name: 'Premium Mazout',
+    price: 0.52,
+    description: 'Zwavelarm premium mazout met additieven'
+  }
+];
 
 const PriceCalculator = () => {
-  const [postcode, setPostcode] = useState('');
-  const [liters, setLiters] = useState(3000);
-  const [product, setProduct] = useState('standard');
-  const [isCalculating, setIsCalculating] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [amount, setAmount] = useState(3000);
+  const [postcode, setPostcode] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('standard');
+  const [isValidPostcode, setIsValidPostcode] = useState(true);
+  const [isValidAmount, setIsValidAmount] = useState(true);
 
-  const productPrices = {
-    standard: 0.50,
-    premium: 0.52
+  // Save referrer information when component mounts
+  useEffect(() => {
+    localStorage.setItem('orderReferrer', location.pathname);
+  }, [location.pathname]);
+
+  // Get selected product
+  const currentProduct = products.find(p => p.id === selectedProduct) || products[0];
+  
+  // Calculate prices
+  const basePrice = amount * currentProduct.price;
+  const deliveryFee = amount >= 3000 ? 0 : 89;
+  const totalPrice = basePrice + deliveryFee;
+
+  // Validation functions
+  const validatePostcode = (value: string) => {
+    const isValid = /^[0-9]{4}$/.test(value);
+    setIsValidPostcode(isValid);
+    return isValid;
   };
 
-  const calculatePrice = () => {
-    const basePrice = productPrices[product] * liters;
-    const deliveryFee = liters >= 3000 ? 0 : 89;
-    const total = basePrice + deliveryFee;
-    return { basePrice, deliveryFee, total };
+  const validateAmount = (value: number) => {
+    const isValid = value >= 500 && value <= 10000;
+    setIsValidAmount(isValid);
+    return isValid;
   };
 
-  const handleCalculate = async () => {
-    if (!postcode || postcode.length < 4) {
-      alert('Voer een geldige postcode in');
-      return;
+  const handlePostcodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setPostcode(value);
+    if (value.length === 4) {
+      validatePostcode(value);
+    } else {
+      setIsValidPostcode(true); // Don't show error while typing
     }
-
-    setIsCalculating(true);
-    
-    // Simulate calculation delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const prices = calculatePrice();
-    
-    // Store order data in localStorage
-    const orderData = {
-      postcode,
-      liters,
-      product,
-      pricePerLiter: productPrices[product],
-      basePrice: prices.basePrice,
-      deliveryFee: prices.deliveryFee,
-      totalAmount: prices.total,
-      calculatedAt: new Date().toISOString(),
-      origin: 'belgium'
-    };
-    
-    localStorage.setItem('orderData', JSON.stringify(orderData));
-    
-    setIsCalculating(false);
-    navigate('/bestellen');
   };
 
-  const { basePrice, deliveryFee, total } = calculatePrice();
+  const handleAmountChange = (value: number) => {
+    setAmount(value);
+    validateAmount(value);
+  };
+
+  const handleOrderClick = () => {
+    if (isFormValid) {
+      // Store order data without postcode
+      const orderData = {
+        product: {
+          id: currentProduct.id,
+          name: currentProduct.name,
+          price: currentProduct.price,
+          description: currentProduct.description
+        },
+        amount,
+        basePrice,
+        deliveryFee,
+        totalPrice,
+        savings: 0
+      };
+      localStorage.setItem('orderData', JSON.stringify(orderData));
+      // Referrer is already saved in useEffect, so we can navigate directly
+      navigate('/checkout');
+    }
+  };
+
+  const isFormValid = postcode.length === 4 && isValidPostcode && isValidAmount;
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl mx-auto"
+    >
       <div className="text-center mb-8">
-        <div className="inline-flex items-center bg-red-100 text-red-700 px-6 py-3 rounded-full text-sm font-semibold mb-4">
-          <Calculator size={18} className="mr-2" />
-          Mazoutprijscalculator
+        <div className="flex justify-center mb-4">
+          <div className="bg-red-100 p-3 rounded-full">
+            <Calculator className="text-red-600" size={32} />
+          </div>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Bereken uw mazoutprijs
+          Mazout Prijscalculator
         </h2>
-        <p className="text-gray-600 text-lg">
-          Ontvang uw persoonlijke prijsofferte in enkele seconden
+        <p className="text-gray-600">
+          Bereken nu uw prijs en bestel tegen de beste prijs
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Postcode Input */}
-        <div className="space-y-2">
-          <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-            <MapPin size={16} className="mr-2 text-red-600" />
-            Postcode
-          </label>
-          <input
-            type="text"
-            value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
-            placeholder="1000"
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg font-medium"
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Inputs */}
+        <div className="space-y-6">
+          {/* Postcode Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Postcode *
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={postcode}
+                onChange={handlePostcodeChange}
+                placeholder="b.v. 1000"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
+                  !isValidPostcode && postcode.length === 4
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300 focus:border-red-500'
+                }`}
+                maxLength={4}
+              />
+              {!isValidPostcode && postcode.length === 4 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute right-3 top-3"
+                >
+                  <AlertCircle className="text-red-500" size={20} />
+                </motion.div>
+              )}
+            </div>
+            {!isValidPostcode && postcode.length === 4 && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm mt-1"
+              >
+                Voer een geldige Belgische postcode in (4 cijfers)
+              </motion.p>
+            )}
+          </div>
+
+          {/* Amount Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Gewenste hoeveelheid: {amount.toLocaleString('nl-BE')} Liter
+            </label>
+            <div className="relative mb-4">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => handleAmountChange(Number(e.target.value))}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-lg font-semibold transition-colors ${
+                  !isValidAmount
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-300 focus:border-red-500'
+                }`}
+                min="500"
+                max="10000"
+                step="100"
+              />
+              <span className="absolute right-3 top-3 text-gray-500 font-medium">L</span>
+            </div>
+            <div className="mb-2">
+              <input
+                type="range"
+                value={amount}
+                onChange={(e) => handleAmountChange(Number(e.target.value))}
+                min="500"
+                max="10000"
+                step="100"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+            </div>
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>500L</span>
+              <span>10.000L</span>
+            </div>
+            {!isValidAmount && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-500 text-sm mt-1"
+              >
+                Hoeveelheid moet tussen 500L en 10.000L liggen
+              </motion.p>
+            )}
+          </div>
+
+          {/* Product Selection */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-4">
+              Productkeuze
+            </label>
+            <RadioGroup value={selectedProduct} onValueChange={setSelectedProduct}>
+              <div className="space-y-3">
+                {products.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    whileHover={{ scale: 1.02 }}
+                    className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedProduct === product.id
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedProduct(product.id)}
+                  >
+                    <RadioGroupItem value={product.id} id={product.id} className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor={product.id} className="cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-semibold text-gray-900">{product.name}</div>
+                            <div className="text-sm text-gray-600">{product.description}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-red-600">€{product.price.toFixed(2)}</div>
+                            <div className="text-sm text-gray-500">per liter</div>
+                          </div>
+                        </div>
+                      </Label>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
         </div>
 
-        {/* Liters Input */}
-        <div className="space-y-2">
-          <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-            <Droplet size={16} className="mr-2 text-red-600" />
-            Liters
-          </label>
-          <input
-            type="number"
-            value={liters}
-            onChange={(e) => setLiters(Math.max(500, parseInt(e.target.value) || 500))}
-            min="500"
-            max="10000"
-            step="100"
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg font-medium"
-          />
-        </div>
-
-        {/* Product Selection */}
-        <div className="space-y-2">
-          <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
-            <Droplet size={16} className="mr-2 text-red-600" />
-            Mazoutsoort
-          </label>
-          <select
-            value={product}
-            onChange={(e) => setProduct(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg font-medium bg-white"
+        {/* Right Column - Price Display */}
+        <div className="space-y-6">
+          <motion.div
+            key={`${amount}-${selectedProduct}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-gray-50 rounded-xl p-6"
           >
-            <option value="standard">Standaard Mazout</option>
-            <option value="premium">Premium Mazout</option>
-          </select>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Prijsoverzicht</h3>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Basisprijs ({amount.toLocaleString('nl-BE')}L × €{currentProduct.price.toFixed(2)})</span>
+                <span className="font-semibold">€{basePrice.toFixed(2)}</span>
+              </div>
+              
+              {deliveryFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Levering</span>
+                  <span className="font-semibold">€{deliveryFee.toFixed(2)}</span>
+                </div>
+              )}
+              
+              {deliveryFee === 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Gratis levering</span>
+                  <span className="font-semibold">€0,00</span>
+                </div>
+              )}
+              
+              <hr className="border-gray-300" />
+              
+              <div className="flex justify-between text-xl font-bold">
+                <span>Totaalprijs</span>
+                <span className="text-red-600">€{totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: isFormValid ? 1.02 : 1 }}
+              whileTap={{ scale: isFormValid ? 0.98 : 1 }}
+              disabled={!isFormValid}
+              onClick={handleOrderClick}
+              className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
+                isFormValid
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {isFormValid ? 'Nu bestellen tegen beste prijs' : 'Vul alle velden in'}
+            </motion.button>
+          </motion.div>
+
+          {/* Additional Info */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <Clock className="text-blue-600 mt-1" size={20} />
+              <div>
+                <h4 className="font-semibold text-blue-900">Snelle Levering</h4>
+                <p className="text-sm text-blue-700">
+                  Levering in 2-4 werkdagen • Gratis vanaf 3.000L • Eerlijke prijzen
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Price Display */}
-      <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Basisprijs</div>
-            <div className="text-2xl font-bold text-gray-900">€{basePrice.toFixed(2)}</div>
-            <div className="text-xs text-gray-500">€{productPrices[product].toFixed(2)}/liter</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Levering</div>
-            <div className="text-2xl font-bold text-gray-900">
-              {deliveryFee === 0 ? 'GRATIS' : `€${deliveryFee.toFixed(2)}`}
-            </div>
-            <div className="text-xs text-gray-500">
-              {deliveryFee === 0 ? 'Vanaf 3.000L' : 'Onder 3.000L'}
-            </div>
-          </div>
-          <div className="md:border-l border-gray-200 md:pl-4">
-            <div className="text-sm text-gray-600 mb-1">Totaalprijs</div>
-            <div className="text-3xl font-bold text-red-600">€{total.toFixed(2)}</div>
-            <div className="text-xs text-gray-500">incl. BTW</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={handleCalculate}
-          disabled={isCalculating || !postcode}
-          className="flex-1 bg-red-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-        >
-          {isCalculating ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-              Berekenen...
-            </>
-          ) : (
-            <>
-              <Calculator size={20} className="mr-3" />
-              Nu bestellen
-            </>
-          )}
-        </button>
-        
-        <button className="flex items-center justify-center px-6 py-4 border-2 border-red-600 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-colors">
-          <Phone size={20} className="mr-2" />
-          +32 2 123 4567
-        </button>
-      </div>
-
-      {/* Info Text */}
-      <div className="mt-6 text-center text-sm text-gray-500">
-        <p>
-          ✓ Gratis levering vanaf 3.000 liter ✓ 2-4 werkdagen levertijd ✓ Veilige betaling
-        </p>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

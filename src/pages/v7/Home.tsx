@@ -3,8 +3,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v7/Header';
 import PriceCalculator from '../../components/v7/PriceCalculator';
-import Footer from '../../components/Footer';
-import { Droplet, Star, Shield } from 'lucide-react';
+import TrustElements from '../../components/v7/TrustElements';
+import StatsSection from '../../components/v7/StatsSection';
+import ProductComparison from '../../components/v7/ProductComparison';
+import WhyChooseUs from '../../components/v7/WhyChooseUs';
+import HowItWorks from '../../components/v7/HowItWorks';
+import FAQ from '../../components/v7/FAQ';
+import Footer from '../../components/v7/Footer';
+import { Droplet, Star } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Home = () => {
@@ -16,11 +22,18 @@ const Home = () => {
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-red-50 via-white to-gray-50 py-24 overflow-hidden">
-        {/* Enhanced Background Pattern */}
+        {/* Enhanced Background Pattern with Oil Drop Animation */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-red-600 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-48 h-48 bg-red-400 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-300 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 left-10 w-32 h-32 bg-red-600 rounded-full blur-3xl oil-drop-animation"></div>
+          <div className="absolute bottom-20 right-10 w-48 h-48 bg-red-400 rounded-full blur-3xl oil-drop-animation-delayed"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-300 rounded-full blur-3xl wave-animation"></div>
+        </div>
+
+        {/* Floating oil drops */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-red-400 rounded-full opacity-30 oil-float-1"></div>
+          <div className="absolute top-3/4 right-1/4 w-6 h-6 bg-red-500 rounded-full opacity-20 oil-float-2"></div>
+          <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-red-600 rounded-full opacity-25 oil-float-3"></div>
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -74,60 +87,21 @@ const Home = () => {
               <div className="text-sm text-gray-500 mt-1">Vanaf 3.000 liter</div>
             </div>
             <div className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-              <div className="text-3xl font-bold text-red-600 mb-2">25+</div>
-              <div className="text-gray-600 font-medium">Jaar ervaring</div>
+              <div className="text-3xl font-bold text-red-600 mb-2">75.000+</div>
+              <div className="text-gray-600 font-medium">Tevreden klanten</div>
               <div className="text-sm text-gray-500 mt-1">Vertrouwt ons</div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Waarom kiezen voor Mazout Vandaag?
-            </h2>
-            <p className="text-xl text-gray-600">
-              Betrouwbare mazoutlevering door heel België
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Droplet className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Premium kwaliteit</h3>
-              <p className="text-gray-600">
-                Alleen de beste mazout voor optimale verwarming van uw woning.
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Veilige betaling</h3>
-              <p className="text-gray-600">
-                SSL-versleutelde betalingen en transparante prijsstelling.
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Uitstekende service</h3>
-              <p className="text-gray-600">
-                Persoonlijke begeleiding van bestelling tot levering.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      {/* All Other Sections */}
+      <TrustElements />
+      <StatsSection />
+      <ProductComparison />
+      <WhyChooseUs />
+      <HowItWorks />
+      <FAQ />
       <Footer />
     </div>
   );

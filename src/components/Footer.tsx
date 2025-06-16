@@ -6,6 +6,18 @@ import { Link, useLocation } from 'react-router-dom';
 const Footer = () => {
   const location = useLocation();
   const isMaltaPages = location.pathname.startsWith('/6/');
+  const isBelgianPages = location.pathname.startsWith('/7/');
+
+  // Belgian-specific contact info
+  const belgianInfo = {
+    phone: '+32 2 123 4567',
+    email: 'info@mazoutvandaag.com',
+    address: {
+      street: 'Voorbeeldstraat 123',
+      city: '1000 Brussel'
+    },
+    company: 'Mazout Vandaag BVBA'
+  };
 
   // Malta-specific contact info
   const maltaInfo = {
@@ -29,7 +41,9 @@ const Footer = () => {
     company: 'STANTON GmbH'
   };
 
-  const contactInfo = isMaltaPages ? maltaInfo : defaultInfo;
+  const contactInfo = isBelgianPages ? belgianInfo : isMaltaPages ? maltaInfo : defaultInfo;
+  const homeLink = isBelgianPages ? "/7/home" : isMaltaPages ? "/6/home" : "/";
+  const logoAlt = isBelgianPages ? "Mazout Vandaag" : isMaltaPages ? "Malta Energy" : "HeizölDirekt";
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -37,11 +51,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <Link to={isMaltaPages ? "/6/home" : "/"} className="inline-block">
-              <img src="https://i.imgur.com/vX78e29.png" alt={isMaltaPages ? "Malta Energy" : "HeizölDirekt"} className="h-12 w-auto mb-4" />
+            <Link to={homeLink} className="inline-block">
+              <img src="https://i.imgur.com/vX78e29.png" alt={logoAlt} className="h-12 w-auto mb-4" />
             </Link>
             <p className="text-gray-300 mb-4">
-              {isMaltaPages 
+              {isBelgianPages 
+                ? "Uw betrouwbare partner voor betaalbare mazoutleveringen al meer dan 25 jaar."
+                : isMaltaPages 
                 ? "Your reliable partner for affordable heating oil deliveries for over 15 years."
                 : "Ihr zuverlässiger Partner für günstige Heizöllieferungen seit über 25 Jahren."
               }
@@ -51,22 +67,22 @@ const Footer = () => {
           {/* Products & Services */}
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              {isMaltaPages ? "Products & Service" : "Produkte & Service"}
+              {isBelgianPages ? "Producten & Service" : isMaltaPages ? "Products & Service" : "Produkte & Service"}
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to={isMaltaPages ? "/6/produkte" : "/produkte"} className="text-gray-300 hover:text-white transition-colors">
-                  {isMaltaPages ? "Heating Oil Products" : "Heizöl-Produkte"}
+                <Link to={isBelgianPages ? "/7/produkte" : isMaltaPages ? "/6/produkte" : "/produkte"} className="text-gray-300 hover:text-white transition-colors">
+                  {isBelgianPages ? "Mazout Producten" : isMaltaPages ? "Heating Oil Products" : "Heizöl-Produkte"}
                 </Link>
               </li>
               <li>
-                <Link to={isMaltaPages ? "/6/liefergebiet" : "/liefergebiet"} className="text-gray-300 hover:text-white transition-colors">
-                  {isMaltaPages ? "Delivery Areas" : "Liefergebiete"}
+                <Link to={isBelgianPages ? "/7/liefergebiet" : isMaltaPages ? "/6/liefergebiet" : "/liefergebiet"} className="text-gray-300 hover:text-white transition-colors">
+                  {isBelgianPages ? "Leveringsgebieden" : isMaltaPages ? "Delivery Areas" : "Liefergebiete"}
                 </Link>
               </li>
               <li>
-                <Link to={isMaltaPages ? "/6/home" : "/"} className="text-gray-300 hover:text-white transition-colors">
-                  {isMaltaPages ? "Price Calculator" : "Preisrechner"}
+                <Link to={homeLink} className="text-gray-300 hover:text-white transition-colors">
+                  {isBelgianPages ? "Prijscalculator" : isMaltaPages ? "Price Calculator" : "Preisrechner"}
                 </Link>
               </li>
             </ul>
@@ -75,26 +91,26 @@ const Footer = () => {
           {/* Support */}
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              {isMaltaPages ? "Customer Service" : "Kundenservice"}
+              {isBelgianPages ? "Klantenservice" : isMaltaPages ? "Customer Service" : "Kundenservice"}
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to={isMaltaPages ? "/6/kontakt" : "/kontakt"} className="text-gray-300 hover:text-white transition-colors">
-                  {isMaltaPages ? "Contact" : "Kontakt"}
+                <Link to={isBelgianPages ? "/7/kontakt" : isMaltaPages ? "/6/kontakt" : "/kontakt"} className="text-gray-300 hover:text-white transition-colors">
+                  {isBelgianPages ? "Contact" : isMaltaPages ? "Contact" : "Kontakt"}
                 </Link>
               </li>
               <li>
-                <a href={isMaltaPages ? "/6/home#faq" : "/#faq"} className="text-gray-300 hover:text-white transition-colors">
+                <a href={isBelgianPages ? "/7/home#faq" : isMaltaPages ? "/6/home#faq" : "/#faq"} className="text-gray-300 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
               <li>
-                <Link to={isMaltaPages ? "/6/widerrufsrecht" : "/widerrufsrecht"} className="text-gray-300 hover:text-white transition-colors">
-                  {isMaltaPages ? "Right of Withdrawal" : "Widerrufsrecht"}
+                <Link to={isBelgianPages ? "/7/widerrufsrecht" : isMaltaPages ? "/6/widerrufsrecht" : "/widerrufsrecht"} className="text-gray-300 hover:text-white transition-colors">
+                  {isBelgianPages ? "Herroepingsrecht" : isMaltaPages ? "Right of Withdrawal" : "Widerrufsrecht"}
                 </Link>
               </li>
               <li>
-                <Link to={isMaltaPages ? "/6/service" : "/service"} className="text-gray-300 hover:text-white transition-colors">
+                <Link to={isBelgianPages ? "/7/service" : isMaltaPages ? "/6/service" : "/service"} className="text-gray-300 hover:text-white transition-colors">
                   Service
                 </Link>
               </li>
@@ -104,7 +120,7 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              {isMaltaPages ? "Contact" : "Kontakt"}
+              {isBelgianPages ? "Contact" : isMaltaPages ? "Contact" : "Kontakt"}
             </h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -130,17 +146,17 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © 2025 {contactInfo.company}. {isMaltaPages ? "All rights reserved." : "Alle Rechte vorbehalten."}
+              © 2025 {contactInfo.company}. {isBelgianPages ? "Alle rechten voorbehouden." : isMaltaPages ? "All rights reserved." : "Alle Rechte vorbehalten."}
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to={isMaltaPages ? "/6/impressum" : "/impressum"} className="text-gray-400 hover:text-white text-sm transition-colors">
-                {isMaltaPages ? "Legal Information" : "Impressum"}
+              <Link to={isBelgianPages ? "/7/impressum" : isMaltaPages ? "/6/impressum" : "/impressum"} className="text-gray-400 hover:text-white text-sm transition-colors">
+                {isBelgianPages ? "Wettelijke informatie" : isMaltaPages ? "Legal Information" : "Impressum"}
               </Link>
-              <Link to={isMaltaPages ? "/6/datenschutz" : "/datenschutz"} className="text-gray-400 hover:text-white text-sm transition-colors">
-                {isMaltaPages ? "Privacy Policy" : "Datenschutz"}
+              <Link to={isBelgianPages ? "/7/datenschutz" : isMaltaPages ? "/6/datenschutz" : "/datenschutz"} className="text-gray-400 hover:text-white text-sm transition-colors">
+                {isBelgianPages ? "Privacybeleid" : isMaltaPages ? "Privacy Policy" : "Datenschutz"}
               </Link>
-              <Link to={isMaltaPages ? "/6/agb" : "/agb"} className="text-gray-400 hover:text-white text-sm transition-colors">
-                {isMaltaPages ? "Terms & Conditions" : "AGB"}
+              <Link to={isBelgianPages ? "/7/agb" : isMaltaPages ? "/6/agb" : "/agb"} className="text-gray-400 hover:text-white text-sm transition-colors">
+                {isBelgianPages ? "Algemene voorwaarden" : isMaltaPages ? "Terms & Conditions" : "AGB"}
               </Link>
             </div>
           </div>
