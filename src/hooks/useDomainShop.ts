@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 export type ShopType = 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta';
@@ -15,8 +16,8 @@ export interface DomainShopConfig {
 const domainMappings: Record<string, DomainShopConfig> = {
   'stanton-energie.de': {
     shopType: 'stanton',
-    name: 'Heizöl-Service',
-    brand: 'Heizöl',
+    name: 'STANTON Energie',
+    brand: 'STANTON',
     phone: '',
     email: '',
     faviconColor: '#dc2626',
@@ -24,8 +25,8 @@ const domainMappings: Record<string, DomainShopConfig> = {
   },
   'greenoil-lieferung.de': {
     shopType: 'greenoil',
-    name: 'Heizöl-Service',
-    brand: 'Heizöl',
+    name: 'GreenOil - Nachhaltige Heizöllieferung',
+    brand: 'GreenOil',
     phone: '',
     email: '',
     faviconColor: '#059669',
