@@ -74,20 +74,41 @@ const translations = {
     info: {
       orderProcessed: 'Questo ordine è già stato elaborato.'
     }
+  },
+  nl: {
+    success: {
+      orderCreated: 'Bestelling succesvol aangemaakt.',
+      statusUpdated: 'Bestellingsstatus bijgewerkt.',
+      orderHidden: 'Bestelling verborgen.',
+      orderUnhidden: 'Bestelling weer zichtbaar gemaakt.'
+    },
+    errors: {
+      fetchOrders: 'Bestellingen konden niet geladen worden.',
+      createOrder: 'Bestelling kon niet aangemaakt worden.',
+      updateStatus: 'Bestellingsstatus kon niet bijgewerkt worden.',
+      hideOrder: 'Bestelling kon niet verborgen worden.',
+      unhideOrder: 'Bestelling kon niet weer zichtbaar gemaakt worden.'
+    },
+    info: {
+      orderProcessed: 'Deze bestelling is al verwerkt.'
+    }
   }
 } as const;
 
 export const useOrderTranslations = (): OrderTranslations => {
   return useMemo(() => {
-    // Check if user came from Italian, French or German version
+    // Check if user came from Italian, French, Belgian or German version
     const orderReferrer = localStorage.getItem('orderReferrer');
     const isItalian = orderReferrer === '/5/home';
     const isFrench = orderReferrer === '/4/home';
+    const isBelgian = orderReferrer === '/7/home';
     
     if (isItalian) {
       return translations.it;
     } else if (isFrench) {
       return translations.fr;
+    } else if (isBelgian) {
+      return translations.nl;
     }
     
     return translations.de;

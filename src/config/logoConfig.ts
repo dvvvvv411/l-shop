@@ -53,6 +53,13 @@ export const logoConfigs: Record<string, LogoConfig> = {
     imageUrl: 'https://i.imgur.com/placeholder-malta-logo.png',
     useImage: false // Using text until proper logo is provided
   },
+  '/7/home': {
+    name: 'MazoutVandaag',
+    className: 'h-16 w-auto',
+    textContent: 'MazoutVandaag',
+    imageUrl: 'https://i.imgur.com/placeholder-mazout-logo.png',
+    useImage: false // Using text until proper logo is provided
+  },
   // Domain-specific configurations
   'stanton': {
     name: 'HeizölDirekt',
@@ -98,6 +105,13 @@ export const logoConfigs: Record<string, LogoConfig> = {
     imageUrl: 'https://i.imgur.com/placeholder-malta-logo.png',
     useImage: false
   },
+  'belgium': {
+    name: 'MazoutVandaag',
+    className: 'h-16 w-auto',
+    textContent: 'MazoutVandaag',
+    imageUrl: 'https://i.imgur.com/placeholder-mazout-logo.png',
+    useImage: false
+  },
   'root': {
     name: 'HeizölDirekt',
     className: 'h-12 md:h-15',
@@ -108,9 +122,12 @@ export const logoConfigs: Record<string, LogoConfig> = {
 };
 
 export const getLogoConfig = (referrer?: string): LogoConfig => {
-  // Check current URL path first for V6 routes
+  // Check current URL path first for V7 routes
   if (typeof window !== 'undefined') {
     const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/7/') || currentPath === '/7') {
+      return logoConfigs['/7/home'];
+    }
     if (currentPath.startsWith('/6/') || currentPath === '/6') {
       return logoConfigs['/6/home'];
     }
@@ -149,7 +166,7 @@ export const getLogoConfig = (referrer?: string): LogoConfig => {
 };
 
 // New function to get logo config by domain shop type
-export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta'): LogoConfig => {
+export const getLogoConfigByShopType = (shopType: 'root' | 'stanton' | 'greenoil' | 'austria' | 'france' | 'italy' | 'malta' | 'belgium'): LogoConfig => {
   return logoConfigs[shopType] || logoConfigs['root'];
 };
 
@@ -171,4 +188,9 @@ export const getLogoConfigForV5 = (): LogoConfig => {
 // New function to get logo config for V6 routes specifically
 export const getLogoConfigForV6 = (): LogoConfig => {
   return logoConfigs['/6/home'];
+};
+
+// New function to get logo config for V7 routes specifically
+export const getLogoConfigForV7 = (): LogoConfig => {
+  return logoConfigs['/7/home'];
 };
