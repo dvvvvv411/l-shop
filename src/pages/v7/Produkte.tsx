@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Header from '../../components/v7/Header';
 import Footer from '../../components/Footer';
-import { Droplet, Award, Zap } from 'lucide-react';
+import { Droplet, Award, Zap, Shield } from 'lucide-react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 
 const Produkte = () => {
