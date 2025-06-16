@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -14,8 +15,11 @@ import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
 import { useCheckoutTranslations } from '@/hooks/useCheckoutTranslations';
 import { useItalianCheckoutTranslations } from '@/hooks/useItalianCheckoutTranslations';
+import { useBelgianCheckoutTranslations } from '@/hooks/useBelgianCheckoutTranslations';
 import { useItalianCheckout } from '@/hooks/useItalianCheckout';
 import { useItalianOrderSubmission } from '@/hooks/useItalianOrderSubmission';
+import { useBelgianCheckout } from '@/hooks/useBelgianCheckout';
+import { useBelgianOrderSubmission } from '@/hooks/useBelgianOrderSubmission';
 import { useDomainShop } from '@/hooks/useDomainShop';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -78,12 +82,20 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const { toast } = useToast();
   const shopConfig = useDomainShop();
   const italianCheckout = useItalianCheckout();
+  const belgianCheckout = useBelgianCheckout();
   const { submitItalianOrder, isSubmitting: isSubmittingItalian } = useItalianOrderSubmission();
+  const { submitBelgianOrder, isSubmitting: isSubmittingBelgian } = useBelgianOrderSubmission();
   
   // Choose the right translations based on shop type
   const germanFrenchTranslations = useCheckoutTranslations();
   const italianTranslations = useItalianCheckoutTranslations();
-  const t = italianCheckout.isItalianCheckout ? italianTranslations : germanFrenchTranslations;
+  const belgianTranslations = useBelgianCheckoutTranslations();
+  
+  const t = belgianCheckout.isBelgianCheckout 
+    ? belgianTranslations 
+    : italianCheckout.isItalianCheckout 
+    ? italianTranslations 
+    : germanFrenchTranslations;
 
   // Check if current checkout is French
   const isFrenchCheckout = () => {
@@ -93,7 +105,7 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
 
   // Check if current checkout should disable invoice payment
   const shouldDisableInvoicePayment = () => {
-    return isFrenchCheckout() || italianCheckout.isItalianCheckout;
+    return isFrenchCheckout() || italianCheckout.isItalianCheckout || belgianCheckout.isBelgianCheckout;
   };
 
   // Create the schema inside the component where `t` is available
@@ -190,9 +202,80 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   const onSubmit = async (data: OrderFormData) => {
     console.log('Checkout form submitted:', data);
     console.log('Using order data:', orderData);
+    console.log('Belgian checkout config:', belgianCheckout);
     console.log('Italian checkout config:', italianCheckout);
     
-    // Use the appropriate submission flow based on shop type
+    // Use Belgian submission flow for Belgian checkout
+    if (belgianCheckout.isBelgianCheckout) {
+      console.log('Using Belgian order submission flow');
+      
+      try {
+        const belgianOrderData = {
+          customerEmail: data.customerEmail,
+          deliveryFirstName: data.deliveryFirstName,
+          deliveryLastName: data.deliveryLastName,
+          deliveryStreet: data.deliveryStreet,
+          deliveryPostcode: data.deliveryPostcode,
+          deliveryCity: data.deliveryCity,
+          deliveryPhone: data.deliveryPhone,
+          billingFirstName: data.useSameAddress ? data.deliveryFirstName : data.billingFirstName,
+          billingLastName: data.useSameAddress ? data.deliveryLastName : data.billingLastName,
+          billingStreet: data.useSameAddress ? data.deliveryStreet : data.billingStreet,
+          billingPostcode: data.useSameAddress ? data.deliveryPostcode : data.billingPostcode,
+          billingCity: data.useSameAddress ? data.deliveryCity : data.billingCity,
+          useSameAddress: data.useSameAddress,
+          product: orderData.product.name,
+          amount: orderData.amount,
+          pricePerLiter: orderData.product.price,
+          basePrice: orderData.basePrice,
+          deliveryFee: orderData.deliveryFee,
+          discount: 0,
+          total: orderData.totalPrice,
+        };
+
+        const result = await submitBelgianOrder(belgianOrderData, belgianCheckout.bankAccountDetails);
+        
+        if (result.success) {
+          // Set order data for context
+          const contextOrderData = {
+            deliveryFirstName: data.deliveryFirstName,
+            deliveryLastName: data.deliveryLastName,
+            deliveryStreet: data.deliveryStreet,
+            deliveryPostcode: data.deliveryPostcode,
+            deliveryCity: data.deliveryCity,
+            deliveryPhone: data.deliveryPhone,
+            customerEmail: data.customerEmail,
+            useSameAddress: data.useSameAddress,
+            billingFirstName: data.billingFirstName,
+            billingLastName: data.billingLastName,
+            billingStreet: data.billingStreet,
+            billingPostcode: data.billingPostcode,
+            billingCity: data.billingCity,
+            paymentMethod: data.paymentMethod,
+            product: orderData.product.name,
+            amount: orderData.amount,
+            pricePerLiter: orderData.product.price,
+            basePrice: orderData.basePrice,
+            deliveryFee: orderData.deliveryFee,
+            discount: 0,
+            total: orderData.totalPrice,
+            deliveryDate: '4-7 werkdagen',
+            orderNumber: result.orderNumber
+          };
+
+          setContextOrderData(contextOrderData);
+          onOrderSuccess(result.orderNumber);
+          localStorage.removeItem('orderData');
+        }
+      } catch (error) {
+        console.error('Error in Belgian order submission:', error);
+        // Error handling is done in the hook
+      }
+      
+      return;
+    }
+    
+    // Use the appropriate submission flow based on shop type for non-Belgian
     if (italianCheckout.isItalianCheckout) {
       console.log('Using Italian order submission flow');
       
@@ -377,7 +460,11 @@ const CheckoutForm = ({ orderData, onOrderSuccess }: CheckoutFormProps) => {
   };
 
   // Use the appropriate submitting state
-  const currentlySubmitting = italianCheckout.isItalianCheckout ? isSubmittingItalian : isSubmitting;
+  const currentlySubmitting = belgianCheckout.isBelgianCheckout 
+    ? isSubmittingBelgian 
+    : italianCheckout.isItalianCheckout 
+    ? isSubmittingItalian 
+    : isSubmitting;
 
   return (
     <div className="space-y-6">
