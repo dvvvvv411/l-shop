@@ -112,7 +112,7 @@ const CheckoutConfirmation = ({
         );
         
         if (targetAccount) {
-          setDisplayAccountHolder('FarmingTools');
+          setDisplayAccountHolder('Fioul Rapide');
         }
       }
       
