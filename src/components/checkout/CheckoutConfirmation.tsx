@@ -47,7 +47,6 @@ const CheckoutConfirmation = ({
   const { bankAccounts } = useBankAccounts();
   const { shops } = useShops();
   const [bankAccountDetails, setBankAccountDetails] = useState<any>(null);
-  const [displayAccountHolder, setDisplayAccountHolder] = useState<string>('');
 
   // Use the correct translations based on shop type
   const t = isItalianShop ? italianTranslations : germanTranslations;
@@ -101,19 +100,11 @@ const CheckoutConfirmation = ({
              account.system_name.toLowerCase().includes('it')) && account.is_active
           );
         }
-        
-        if (targetAccount) {
-          setDisplayAccountHolder('Gasolio Casa');
-        }
       } else if (isFrenchShop) {
         // Look for French bank account
         targetAccount = bankAccounts.find(
           account => account.system_name === 'Italien Champion' && account.is_active
         );
-        
-        if (targetAccount) {
-          setDisplayAccountHolder('Fioul Rapide');
-        }
       }
       
       console.log('CheckoutConfirmation - Account search result:', {
@@ -122,13 +113,14 @@ const CheckoutConfirmation = ({
         account: targetAccount ? {
           id: targetAccount.id,
           system_name: targetAccount.system_name,
-          bank_name: targetAccount.bank_name
+          bank_name: targetAccount.bank_name,
+          account_holder: targetAccount.account_holder
         } : null
       });
       
       if (targetAccount) {
         setBankAccountDetails(targetAccount);
-        console.log(`CheckoutConfirmation - Using ${shopConfig.shopType} account holder: ${displayAccountHolder}`);
+        console.log(`CheckoutConfirmation - Using ${shopConfig.shopType} account with holder: ${targetAccount.account_holder}`);
       } else {
         console.warn(`CheckoutConfirmation - No active ${shopConfig.shopType} bank account found. Available accounts:`, 
           bankAccounts.filter(acc => acc.is_active).map(acc => acc.system_name)
@@ -230,7 +222,9 @@ const CheckoutConfirmation = ({
               <div className="grid grid-cols-1 gap-3">
                 <div className="bg-white p-3 rounded-lg">
                   <div className="text-green-800 font-semibold text-xs uppercase tracking-wide">{t.confirmation.accountHolder}</div>
-                  <div className="text-green-900 font-bold">{displayAccountHolder}</div>
+                  <div className="text-green-900 font-bold">
+                    {isItalianShop ? 'Gasolio Casa' : bankAccountDetails.account_holder}
+                  </div>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg">
